@@ -1,5 +1,6 @@
-import 'package:jellyflix/providers/api_provider.dart';
+import 'package:jellyflix/providers/auth_provider.dart';
 import 'package:jellyflix/screens/home_screen.dart';
+import 'package:jellyflix/screens/loading_screen.dart';
 import 'package:jellyflix/screens/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -21,14 +22,26 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp(
-        title: 'Another Jellyfin Client',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-              seedColor: Colors.deepPurple, brightness: Brightness.dark),
-          useMaterial3: true,
-        ),
-        home: ref.read(apiProvider).isAuthenticated
-            ? const HomeScreen()
-            : const LoginScreen());
+      title: 'Another Jellyfin Client',
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: Colors.deepPurple, brightness: Brightness.dark),
+        useMaterial3: true,
+      ),
+      home: FutureBuilder(
+        future: ref.read(authProvider).checkAuthentication(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            if (snapshot.data!) {
+              return const HomeScreen();
+            } else {
+              return const LoginScreen();
+            }
+          } else {
+            return const LoadingScreen();
+          }
+        },
+      ),
+    );
   }
 }
