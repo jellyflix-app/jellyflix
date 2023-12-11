@@ -88,4 +88,11 @@ class ApiService {
 
     return response.data!;
   }
+
+  Future getEpisodes(String id) async {
+    var response = await _jellyfinApi!
+        .getTvShowsApi()
+        .getEpisodes(userId: _user!.id!, seriesId: id, headers: headers);
+    return response.data!;
+  }
 }

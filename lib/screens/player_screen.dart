@@ -34,28 +34,30 @@ class _PlayerSreenState extends State<PlayerSreen> {
 
   Future requestPermissions() async {
     if (UniversalPlatform.isAndroid) {
-      // Video permissions.
-      if (await Permission.videos.isDenied ||
-          await Permission.videos.isPermanentlyDenied) {
-        final state = await Permission.videos.request();
-        if (!state.isGranted) {
-          await SystemNavigator.pop();
+      if (UniversalPlatform.isAndroid) {
+        // Video permissions.
+        if (await Permission.videos.isDenied ||
+            await Permission.videos.isPermanentlyDenied) {
+          final state = await Permission.videos.request();
+          if (!state.isGranted) {
+            await SystemNavigator.pop();
+          }
         }
-      }
-      // Audio permissions.
-      if (await Permission.audio.isDenied ||
-          await Permission.audio.isPermanentlyDenied) {
-        final state = await Permission.audio.request();
-        if (!state.isGranted) {
-          await SystemNavigator.pop();
+        // Audio permissions.
+        if (await Permission.audio.isDenied ||
+            await Permission.audio.isPermanentlyDenied) {
+          final state = await Permission.audio.request();
+          if (!state.isGranted) {
+            await SystemNavigator.pop();
+          }
         }
-      }
-    } else {
-      if (await Permission.storage.isDenied ||
-          await Permission.storage.isPermanentlyDenied) {
-        final state = await Permission.storage.request();
-        if (!state.isGranted) {
-          await SystemNavigator.pop();
+      } else {
+        if (await Permission.storage.isDenied ||
+            await Permission.storage.isPermanentlyDenied) {
+          final state = await Permission.storage.request();
+          if (!state.isGranted) {
+            await SystemNavigator.pop();
+          }
         }
       }
     }
