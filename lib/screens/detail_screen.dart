@@ -1,8 +1,8 @@
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:jellyflix/components/item_carousel.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:jellyflix/screens/player_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:media_kit/media_kit.dart';
 import 'package:openapi/openapi.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -15,6 +15,7 @@ class DetailScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final seasonSelection = useState(0);
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -136,38 +137,52 @@ class DetailScreen extends HookConsumerWidget {
                                     const SizedBox(height: 4.0),
                                     Row(
                                       children: [
-                                        const Text(
-                                          "⭐",
-                                          style: TextStyle(fontSize: 20),
-                                        ),
-                                        const SizedBox(width: 4.0),
-                                        Text(
-                                          (snapshot.data!.communityRating ==
-                                                  null)
-                                              ? 'N/A'
-                                              : snapshot.data!.communityRating!
-                                                  .roundToDouble()
-                                                  .toString(),
-                                          style: const TextStyle(
-                                            fontSize: 12.0,
-                                          ),
-                                        ),
+                                        snapshot.data!.communityRating == null
+                                            ? const SizedBox()
+                                            : Row(
+                                                children: [
+                                                  const Text(
+                                                    "⭐",
+                                                    style:
+                                                        TextStyle(fontSize: 20),
+                                                  ),
+                                                  const SizedBox(width: 4.0),
+                                                  Text(
+                                                    (snapshot.data!
+                                                                .communityRating ==
+                                                            null)
+                                                        ? 'N/A'
+                                                        : snapshot.data!
+                                                            .communityRating!
+                                                            .roundToDouble()
+                                                            .toString(),
+                                                    style: const TextStyle(
+                                                      fontSize: 12.0,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                         const SizedBox(width: 16.0),
-                                        const Text(
-                                          "🍅",
-                                          style: TextStyle(fontSize: 20),
-                                        ),
-                                        const SizedBox(width: 4.0),
-                                        Text(
-                                          (snapshot.data!.criticRating == null)
-                                              ? 'N/A'
-                                              : snapshot.data!.criticRating!
-                                                  .round()
-                                                  .toString(),
-                                          style: const TextStyle(
-                                            fontSize: 12.0,
-                                          ),
-                                        ),
+                                        snapshot.data!.criticRating == null
+                                            ? const SizedBox()
+                                            : Row(
+                                                children: [
+                                                  const Text(
+                                                    "🍅",
+                                                    style:
+                                                        TextStyle(fontSize: 20),
+                                                  ),
+                                                  const SizedBox(width: 4.0),
+                                                  Text(
+                                                    snapshot.data!.criticRating!
+                                                        .round()
+                                                        .toString(),
+                                                    style: const TextStyle(
+                                                      fontSize: 12.0,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                       ],
                                     ),
                                   ],
@@ -308,35 +323,42 @@ class DetailScreen extends HookConsumerWidget {
                             ],
                           ),
                           const SizedBox(width: 20.0),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // find every person that is a writer
-                              Text(snapshot.data!.people!
-                                      .where(
-                                          (element) => element.type == 'Writer')
-                                      .isEmpty
-                                  ? 'N/A'
-                                  : snapshot.data!.people!
-                                      .where(
-                                          (element) => element.type == 'Writer')
-                                      .map((e) => e.name!)
-                                      .join(", ")),
-                              Text(snapshot.data!.people!
-                                      .where((element) =>
-                                          element.type == 'Director')
-                                      .isEmpty
-                                  ? 'N/A'
-                                  : snapshot.data!.people!
-                                      .where((element) =>
-                                          element.type == 'Director')
-                                      .map((e) => e.name!)
-                                      .join(", ")),
-                              Text(snapshot.data!.genres!.isEmpty
-                                  ? "N/A"
-                                  : snapshot.data!.genres!.join(", ")),
-                            ],
+                          Expanded(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                // find every person that is a writer
+                                Text(snapshot.data!.people!
+                                        .where((element) =>
+                                            element.type == 'Writer')
+                                        .isEmpty
+                                    ? 'N/A'
+                                    : snapshot.data!.people!
+                                        .where((element) =>
+                                            element.type == 'Writer')
+                                        .map((e) => e.name!)
+                                        .join(", ")),
+                                Text(snapshot.data!.people!
+                                        .where((element) =>
+                                            element.type == 'Director')
+                                        .isEmpty
+                                    ? 'N/A'
+                                    : snapshot.data!.people!
+                                        .where((element) =>
+                                            element.type == 'Director')
+                                        .map((e) => e.name!)
+                                        .join(", ")),
+                                Text(
+                                  snapshot.data!.genres!.isEmpty
+                                      ? "N/A"
+                                      : snapshot.data!.genres!.join(", "),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
@@ -350,125 +372,187 @@ class DetailScreen extends HookConsumerWidget {
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text("Episodes",
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineSmall),
+                                Padding(
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 5.0),
+                                  child: Text("Episodes",
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .headlineSmall),
+                                ),
                                 FutureBuilder(
                                   future:
                                       ref.read(apiProvider).getEpisodes(itemId),
                                   builder: (context, snapshot) {
                                     if (snapshot.hasData) {
-                                      return ListView.builder(
-                                        padding: EdgeInsets.zero,
-                                        shrinkWrap: true,
-                                        physics: NeverScrollableScrollPhysics(),
-                                        itemCount: snapshot.data!.items.length,
-                                        itemBuilder: (context, index) {
-                                          var item =
-                                              snapshot.data!.items[index];
-                                          return SizedBox(
-                                            height: 125,
-                                            child: InkWell(
-                                              onTap: () {
-                                                Navigator.of(context).push(
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        PlayerSreen(
-                                                      url:
-                                                          'http://192.168.179.21:8096/videos/${item.id}/master.m3u8?MediaSourceId=${item.id}',
-                                                      headers: ref
-                                                          .read(apiProvider)
-                                                          .headers,
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                              child: Row(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: [
-                                                  Padding(
+                                      var seasons = snapshot.data!.items
+                                          .map((e) => e.seasonName)
+                                          .toSet()
+                                          .toList();
+
+                                      // get season ids
+                                      var seasonIds = snapshot.data!.items
+                                          .map((e) => e.seasonId)
+                                          .toSet()
+                                          .toList();
+                                      // get episodes for season
+                                      var episodes = snapshot.data!.items
+                                          .where((element) =>
+                                              element.seasonId ==
+                                              seasonIds[seasonSelection.value])
+                                          .toList();
+                                      return Column(
+                                        children: [
+                                          SizedBox(
+                                            width: MediaQuery.of(context)
+                                                .size
+                                                .width,
+                                            height: 60,
+                                            child: ListView.builder(
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                shrinkWrap: true,
+                                                itemCount: seasons.length,
+                                                itemBuilder: (context, index) {
+                                                  return Padding(
                                                     padding: const EdgeInsets
                                                         .symmetric(
-                                                        vertical: 20.0),
-                                                    child: AspectRatio(
-                                                      aspectRatio: 16 / 10,
-                                                      child: Container(
-                                                        decoration:
-                                                            BoxDecoration(
-                                                          borderRadius:
-                                                              BorderRadius
-                                                                  .circular(
-                                                                      10.0),
-                                                          boxShadow: [
-                                                            BoxShadow(
-                                                              color: Colors
-                                                                  .black
-                                                                  .withOpacity(
-                                                                      0.5),
-                                                              spreadRadius: 2,
-                                                              blurRadius: 5,
-                                                              offset:
-                                                                  const Offset(
-                                                                      0, 3),
+                                                        horizontal: 5.0),
+                                                    child: ChoiceChip(
+                                                        selected:
+                                                            seasonSelection
+                                                                    .value ==
+                                                                index,
+                                                        onSelected: (selected) {
+                                                          seasonSelection
+                                                              .value = index;
+                                                        },
+                                                        label: Text(
+                                                            seasons[index])),
+                                                  );
+                                                }),
+                                          ),
+                                          ListView.builder(
+                                            padding: EdgeInsets.zero,
+                                            shrinkWrap: true,
+                                            physics:
+                                                const NeverScrollableScrollPhysics(),
+                                            itemCount: episodes.length,
+                                            itemBuilder: (context, index) {
+                                              var item = episodes[index];
+                                              return SizedBox(
+                                                height: 125,
+                                                child: InkWell(
+                                                  onTap: () {
+                                                    Navigator.of(context).push(
+                                                      MaterialPageRoute(
+                                                        builder: (context) =>
+                                                            PlayerSreen(
+                                                          url:
+                                                              'http://192.168.179.21:8096/videos/${item.id}/master.m3u8?MediaSourceId=${item.id}',
+                                                          headers: ref
+                                                              .read(apiProvider)
+                                                              .headers,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  },
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                vertical: 20.0),
+                                                        child: AspectRatio(
+                                                          aspectRatio: 16 / 10,
+                                                          child: Container(
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10.0),
+                                                              boxShadow: [
+                                                                BoxShadow(
+                                                                  color: Colors
+                                                                      .black
+                                                                      .withOpacity(
+                                                                          0.5),
+                                                                  spreadRadius:
+                                                                      2,
+                                                                  blurRadius: 5,
+                                                                  offset:
+                                                                      const Offset(
+                                                                          0, 3),
+                                                                ),
+                                                              ],
+                                                              image:
+                                                                  DecorationImage(
+                                                                fit: BoxFit
+                                                                    .cover,
+                                                                image: ref
+                                                                    .read(
+                                                                        apiProvider)
+                                                                    .getImage(
+                                                                        item
+                                                                            .id!,
+                                                                        ImageType
+                                                                            .primary),
+                                                              ),
                                                             ),
-                                                          ],
-                                                          image:
-                                                              DecorationImage(
-                                                            fit: BoxFit.cover,
-                                                            image: ref
-                                                                .read(
-                                                                    apiProvider)
-                                                                .getImage(
-                                                                    item.id!,
-                                                                    ImageType
-                                                                        .primary),
                                                           ),
                                                         ),
                                                       ),
-                                                    ),
-                                                  ),
-                                                  const SizedBox(width: 20.0),
-                                                  Padding(
-                                                    padding: const EdgeInsets
-                                                        .symmetric(
-                                                        vertical: 20.0),
-                                                    child: Container(
-                                                      width:
-                                                          MediaQuery.of(context)
+                                                      const SizedBox(
+                                                          width: 20.0),
+                                                      Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                                vertical: 20.0),
+                                                        child: SizedBox(
+                                                          width: MediaQuery.of(
+                                                                      context)
                                                                   .size
                                                                   .width *
                                                               0.5,
-                                                      child: Column(
-                                                        mainAxisSize:
-                                                            MainAxisSize.min,
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                        children: [
-                                                          Text(
-                                                            ("${index + 1}. ${item.name!}"),
-                                                            maxLines: 2,
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                            style: const TextStyle(
-                                                                fontSize: 16.0,
-                                                                fontWeight:
-                                                                    FontWeight
-                                                                        .bold),
+                                                          child: Column(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            crossAxisAlignment:
+                                                                CrossAxisAlignment
+                                                                    .start,
+                                                            children: [
+                                                              Text(
+                                                                ("${item.indexNumber!}. ${item.name!}"),
+                                                                maxLines: 2,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                style: const TextStyle(
+                                                                    fontSize:
+                                                                        16.0,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .bold),
+                                                              ),
+                                                              Text(
+                                                                  "${(item.runTimeTicks / 10000000 / 60).round()} min")
+                                                            ],
                                                           ),
-                                                          Text(
-                                                              "${(item.runTimeTicks / 10000000 / 60).round()} min")
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          );
-                                        },
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ],
                                       );
                                     } else {
                                       return const CircularProgressIndicator();
