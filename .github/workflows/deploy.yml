@@ -175,7 +175,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: jellyflix-linux
-          path: build/linux/release/bundle.jellyflix-*.tar.gz
+          path: ./*.tar.gz
 
   build_windows:
     name: Build Windows
