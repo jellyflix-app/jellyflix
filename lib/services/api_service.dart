@@ -95,4 +95,12 @@ class ApiService {
         .getEpisodes(userId: _user!.id!, seriesId: id, headers: headers);
     return response.data!;
   }
+
+  getStreamUrl(String itemId) {
+    if (_baseUrl == null) {
+      throw Exception("Not logged in");
+    } else {
+      return "$_baseUrl/videos/$itemId/master.m3u8?MediaSourceId=$itemId";
+    }
+  }
 }

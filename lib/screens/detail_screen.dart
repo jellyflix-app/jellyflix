@@ -203,8 +203,7 @@ class DetailScreen extends HookConsumerWidget {
                               Navigator.of(context).push(
                                 MaterialPageRoute(
                                     builder: (context) => PlayerSreen(
-                                          url:
-                                              'http://192.168.179.21:8096/videos/$itemId/master.m3u8?MediaSourceId=$itemId',
+                                          itemId: itemId,
                                           headers:
                                               ref.read(apiProvider).headers,
                                         )),
@@ -448,8 +447,7 @@ class DetailScreen extends HookConsumerWidget {
                                                       MaterialPageRoute(
                                                         builder: (context) =>
                                                             PlayerSreen(
-                                                          url:
-                                                              'http://192.168.179.21:8096/videos/${item.id}/master.m3u8?MediaSourceId=${item.id}',
+                                                          itemId: item.id!,
                                                           headers: ref
                                                               .read(apiProvider)
                                                               .headers,
