@@ -12,7 +12,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Fetch all history for all tags and branches
         run: |
-          git config remote.origin.url https://x-access-token:${{ secrets.API_TOKEN_GITHUB }}@github.com/${{ github.repository }}
+          git config remote.origin.url https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git fetch --prune --depth=10000
       - name: Install GitVersion
         uses: gittools/actions/gitversion/setup@v0.10.2
@@ -266,6 +266,6 @@ jobs:
             jellyflix-apk/*.apk
             jellyflix-linux/*.tar.gz
             jellyflix-windows/*.exe
-          token: ${{ secrets.API_TOKEN_GITHUB }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ steps.version.outputs.content }}
           commit: ${{ github.sha }}
