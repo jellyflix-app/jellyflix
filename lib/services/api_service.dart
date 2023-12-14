@@ -6,7 +6,6 @@ class ApiService {
   Openapi? _jellyfinApi;
   String? _baseUrl;
   User? _user;
-  bool isAuthenticated = false;
   Map<String, String> headers = {
     "Accept": "application/json",
     "Accept-Language": "en-US,en;q=0.5",
@@ -38,7 +37,6 @@ class ApiService {
       id: response.data!.user!.id,
       name: response.data!.user!.name,
     );
-    isAuthenticated = true;
   }
 
   Future<BaseItemDto> getItemDetails(String id) async {
@@ -88,6 +86,13 @@ class ApiService {
     var response =
         await _jellyfinApi!.getLibraryApi().getMediaFolders(headers: headers);
 
+    return response.data!;
+  }
+
+  Future getEpisodes(String id) async {
+    var response = await _jellyfinApi!
+        .getTvShowsApi()
+        .getEpisodes(userId: _user!.id!, seriesId: id, headers: headers);
     return response.data!;
   }
 }

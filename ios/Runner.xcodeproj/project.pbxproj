@@ -161,7 +161,6 @@
 				27CFDBF61C96D241049353EE /* Pods-RunnerTests.release.xcconfig */,
 				8A66171A00D5CE8904B45AE7 /* Pods-RunnerTests.profile.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -468,6 +467,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = G4U9F39LJ7;
 				ENABLE_BITCODE = NO;
@@ -647,6 +647,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = G4U9F39LJ7;
 				ENABLE_BITCODE = NO;
@@ -670,6 +671,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				"CODE_SIGN_IDENTITY[sdk=macosx*]" = "Apple Development";
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = G4U9F39LJ7;
 				ENABLE_BITCODE = NO;

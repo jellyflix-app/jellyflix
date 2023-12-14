@@ -16,6 +16,8 @@ Supported platforms:
 - Linux (untested)
 - Web (technically works, but won't have the same download support like the other platforms)
 
+I plan on releasing Jellyflix on the App Stores and Play Store in the future, when the app is stable enough.
+
 ## Contribute
 Contributions are much appreciated. You can help the development by:
 - opening issues/bug reports

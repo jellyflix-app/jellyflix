@@ -1,4 +1,6 @@
 PODS:
+  - flutter_secure_storage_macos (6.1.1):
+    - FlutterMacOS
   - FlutterMacOS (1.0.0)
   - media_kit_libs_macos_video (1.0.4):
     - FlutterMacOS
@@ -19,6 +21,7 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
+  - flutter_secure_storage_macos (from `Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_macos/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - media_kit_libs_macos_video (from `Flutter/ephemeral/.symlinks/plugins/media_kit_libs_macos_video/macos`)
   - media_kit_native_event_loop (from `Flutter/ephemeral/.symlinks/plugins/media_kit_native_event_loop/macos`)
@@ -30,6 +33,8 @@ DEPENDENCIES:
   - wakelock_plus (from `Flutter/ephemeral/.symlinks/plugins/wakelock_plus/macos`)
 
 EXTERNAL SOURCES:
+  flutter_secure_storage_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/flutter_secure_storage_macos/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
   media_kit_libs_macos_video:
@@ -50,6 +55,7 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/wakelock_plus/macos
 
 SPEC CHECKSUMS:
+  flutter_secure_storage_macos: d56e2d218c1130b262bef8b4a7d64f88d7f9c9ea
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   media_kit_libs_macos_video: b3e2bbec2eef97c285f2b1baa7963c67c753fb82
   media_kit_native_event_loop: 81fd5b45192b72f8b5b69eaf5b540f45777eb8d5

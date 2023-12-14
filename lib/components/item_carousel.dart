@@ -60,56 +60,69 @@ class ItemCarousel extends HookConsumerWidget {
             shrinkWrap: true,
             itemCount: titleList.length,
             itemBuilder: (context, index) {
-              return InkWell(
-                onTap: () {
-                  if (onTap != null) {
-                    onTap!(index);
-                  }
-                },
-                child: SizedBox(
-                  width: width,
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 12.0),
-                    child: Column(
-                      children: [
-                        Container(
-                          width: width,
-                          height: height,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10.0),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.5),
-                                spreadRadius: 2,
-                                blurRadius: 5,
-                                offset: const Offset(0, 3),
+              return SizedBox(
+                width: width,
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 12.0),
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        width: width,
+                        height: height,
+                        child: Stack(
+                          children: [
+                            Positioned.fill(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.5),
+                                      spreadRadius: 2,
+                                      blurRadius: 5,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                  image: DecorationImage(
+                                    fit: BoxFit.cover,
+                                    image: ref.read(apiProvider).getImage(
+                                        imageList[index], ImageType.primary),
+                                  ),
+                                ),
                               ),
-                            ],
-                            image: DecorationImage(
-                              fit: BoxFit.cover,
-                              image: ref.read(apiProvider).getImage(
-                                  imageList[index], ImageType.primary),
                             ),
-                          ),
+                            Positioned.fill(
+                              child: Material(
+                                color: Colors.transparent,
+                                child: InkWell(
+                                  onTap: () {
+                                    if (onTap != null) {
+                                      onTap!(index);
+                                    }
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 5.0),
-                        Flexible(
-                          child: Text(
-                            titleList[index],
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
+                      ),
+                      const SizedBox(height: 5.0),
+                      Flexible(
+                        child: Text(
+                          titleList[index],
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
-                        subtitleList.isNotEmpty
-                            ? Text(
-                                subtitleList[index],
-                                style: const TextStyle(fontSize: 10),
-                                overflow: TextOverflow.fade,
-                                maxLines: 1,
-                              )
-                            : const SizedBox(),
-                      ],
-                    ),
+                      ),
+                      subtitleList.isNotEmpty
+                          ? Text(
+                              subtitleList[index],
+                              style: const TextStyle(fontSize: 10),
+                              overflow: TextOverflow.fade,
+                              maxLines: 1,
+                            )
+                          : const SizedBox(),
+                    ],
                   ),
                 ),
               );
