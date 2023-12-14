@@ -151,18 +151,18 @@ jobs:
           distribution: 'zulu'
           java-version: '12.x'
           cache: gradle
-      
-      - name: Setup build tools
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y ninja-build libgtk-3-dev clang
-          flutter doctor
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
+      
+      - name: Setup build tools
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ninja-build libgtk-3-dev clang
+          flutter doctor
 
       - name: Run Pub get
         run: flutter pub get
@@ -189,7 +189,8 @@ jobs:
         with:
           name: gitversion
       - name: Create new file without newline char from version.txt
-        run: for /f "delims=" %%i in (version.txt) do echo|set /p=%%i > version1.txt
+        run: (Get-Content version.txt) -join '' | Set-Content version1.txt
+        shell: pwsh
       - name: Read version
         id: version
         uses: juliangruber/read-file-action@v1
@@ -223,56 +224,9 @@ jobs:
           name: jellyflix-windows
           path: build/windows/runner/Release/*.exe
 
-  build_macos:
-    name: Build MacOS
-    needs: [version]
-    runs-on: macos-latest
-    steps:
-      - name: Clone Repo
-        uses: actions/checkout@v3
-
-      - name: Get version.txt
-        uses: actions/download-artifact@v2
-        with:
-          name: gitversion
-      - name: Create new file without newline char from version.txt
-        run: tr -d '\n' < version.txt > version1.txt
-      - name: Read version
-        id: version
-        uses: juliangruber/read-file-action@v1
-        with:
-          path: version1.txt
-      - name: Update version in YAML
-        run: sed -i '' 's/99.99.99+99/${{ steps.version.outputs.content }}+${{ github.run_number }}/g' pubspec.yaml
-
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: '12.x'
-          cache: gradle
-
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: 'stable'
-          cache: true
-
-      - name: Run Pub get
-        run: flutter pub get
-
-      - name: Build MacOS
-        run: flutter build macos --release
-
-      - name: Upload MacOS
-        uses: actions/upload-artifact@v2
-        with:
-          name: jellyflix-macos
-          path: build/macos/Build/Products/Release/*.app
-
   create_release:
     name: Create Release
-    needs: [build_android, build_linux, build_windows, build_macos]
+    needs: [build_android, build_linux, build_windows]
     runs-on: ubuntu-latest
     steps:
       - name: Clone Repo
@@ -302,10 +256,6 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: jellyflix-windows
-      - name: Download Artifacts MacOS
-        uses: actions/download-artifact@v2
-        with:
-          name: jellyflix-macos
 
       - name: Create Release
         id: create_release
@@ -315,7 +265,6 @@ jobs:
             jellyflix-apk/*.apk
             jellyflix-linux/*.tar.gz
             jellyflix-windows/*.exe
-            jellyflix-macos/*.app
           token: ${{ secrets.API_TOKEN_GITHUB }}
           tag: ${{ steps.version.outputs.content }}
           commit: ${{ github.sha }}
