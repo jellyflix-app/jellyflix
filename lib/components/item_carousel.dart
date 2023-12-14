@@ -66,7 +66,7 @@ class ItemCarousel extends HookConsumerWidget {
                   padding: const EdgeInsets.only(right: 12.0),
                   child: Column(
                     children: [
-                      Container(
+                      SizedBox(
                         width: width,
                         height: height,
                         child: Stack(
