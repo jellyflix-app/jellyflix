@@ -224,7 +224,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: jellyflix-windows
-          path: build/windows/runner/Release/*.exe
+          path: build/windows/x64/runner/Release/*.exe
 
   create_release:
     name: Create Release
