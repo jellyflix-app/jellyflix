@@ -13,7 +13,6 @@ class ApiService {
     "Authorization":
         "MediaBrowser Client=\"AnotherJellyfinClient\", Device=\"notset\", DeviceId=\"Unknown Device Id\", Version=\"10.8.11\"",
     "Content-Type": "application/json",
-    "Origin": "http://192.168.179.21:8096",
     "Connection": "keep-alive",
   };
 
@@ -32,6 +31,7 @@ class ApiService {
 
     headers["Authorization"] =
         "${headers["Authorization"]!}, Token=\"${response.data!.accessToken!}\"";
+    headers["Origin"] = baseUrl;
     _baseUrl = baseUrl;
     _user = User(
       id: response.data!.user!.id,
@@ -50,7 +50,12 @@ class ApiService {
 
   NetworkImage getImage(String id, ImageType type) {
     String url = "$_baseUrl/Items/$id/Images/${type.name}";
-    return NetworkImage(url, headers: headers);
+    try {
+      return NetworkImage(url, headers: headers);
+    } catch (e) {
+      return NetworkImage("https://www.jellyfin.org/images/logo-color.svg",
+          headers: headers);
+    }
   }
 
   Future getContinueWatching() async {
@@ -83,8 +88,9 @@ class ApiService {
   }
 
   Future getMediaFolders() async {
-    var response =
-        await _jellyfinApi!.getLibraryApi().getMediaFolders(headers: headers);
+    var response = await _jellyfinApi!
+        .getUserViewsApi()
+        .getUserViews(userId: _user!.id!, headers: headers);
 
     return response.data!;
   }
