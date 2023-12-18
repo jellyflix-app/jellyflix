@@ -1,4 +1,4 @@
-import 'package:jellyflix/models/carousel_media_type.dart';
+import 'package:jellyflix/models/poster_type.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -10,7 +10,7 @@ class ItemCarousel extends HookConsumerWidget {
   final List titleList;
   final List imageList;
   final List subtitleList;
-  final CarouselMediaType mediaType;
+  final PosterType posterType;
   final Function(int)? onTap;
   late final double width;
   late final double height;
@@ -21,19 +21,19 @@ class ItemCarousel extends HookConsumerWidget {
       required this.titleList,
       this.title,
       subtitleList,
-      this.mediaType = CarouselMediaType.vertical,
+      this.posterType = PosterType.vertical,
       super.key})
       : subtitleList = subtitleList ?? [];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ScrollController scrollController = useScrollController();
-    switch (mediaType) {
-      case CarouselMediaType.horizontal:
+    switch (posterType) {
+      case PosterType.horizontal:
         width = 250;
         height = 150;
         break;
-      case CarouselMediaType.square:
+      case PosterType.square:
         width = 150;
         height = 150;
         break;
@@ -65,6 +65,7 @@ class ItemCarousel extends HookConsumerWidget {
                 child: Padding(
                   padding: const EdgeInsets.only(right: 12.0),
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
                         width: width,

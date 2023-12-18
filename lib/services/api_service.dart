@@ -1,6 +1,10 @@
+import 'package:jellyflix/models/sort_type.dart';
 import 'package:jellyflix/models/user.dart';
 import 'package:flutter/material.dart';
+import 'package:jellyflix/screens/filter_type.dart';
+import 'package:jellyflix/screens/library_screen.dart';
 import 'package:openapi/openapi.dart';
+import 'package:built_collection/built_collection.dart';
 
 class ApiService {
   Openapi? _jellyfinApi;
@@ -69,7 +73,7 @@ class ApiService {
     var items = [];
     var folders = await getMediaFolders();
     // get all movie collections and their ids
-    var movieCollections = folders.items!.where((element) {
+    var movieCollections = folders.where((element) {
       return element.collectionType == collectionType;
     }).toList();
     var movieCollectionIds = movieCollections.map((e) {
@@ -87,12 +91,17 @@ class ApiService {
     return items;
   }
 
-  Future getMediaFolders() async {
+  Future<List<BaseItemDto>> getMediaFolders() async {
     var response = await _jellyfinApi!
         .getUserViewsApi()
         .getUserViews(userId: _user!.id!, headers: headers);
-
-    return response.data!;
+    //keep only video folders
+    var folders = response.data!.items!.where((element) {
+      return element.collectionType == "movies" ||
+          element.collectionType == "tvshows";
+    }).toList();
+    return folders;
+    //return response.data!;
   }
 
   Future getEpisodes(String id) async {
@@ -108,5 +117,39 @@ class ApiService {
     } else {
       return "$_baseUrl/videos/$itemId/master.m3u8?MediaSourceId=$itemId";
     }
+  }
+
+  Future<List<BaseItemDto>> getFilterItems(
+      {List<BaseItemDto>? genreIds,
+      List<FilterType>? filters,
+      SortType? sortType}) async {
+    var folders = await getMediaFolders();
+    var ids = genreIds == null
+        ? null
+        : BuiltList<String>.from(genreIds.map((e) => e.id!));
+    List<BaseItemDto> items = [];
+    for (var folder in folders) {
+      var response = await _jellyfinApi!.getItemsApi().getItems(
+          userId: _user!.id!,
+          headers: headers,
+          parentId: folder.id,
+          genreIds: ids);
+      items.addAll(response.data!.items!);
+    }
+    return items;
+  }
+
+  Future<List<BaseItemDto>> getGenres() async {
+    List<BaseItemDto> genres = [];
+    var folders = await getMediaFolders();
+    for (var folder in folders) {
+      var response = await _jellyfinApi!
+          .getGenresApi()
+          .getGenres(userId: _user!.id!, headers: headers, parentId: folder.id);
+      genres.addAll(response.data!.items!);
+    }
+    // keep only unique genres
+    genres = genres.toSet().toList();
+    return genres;
   }
 }

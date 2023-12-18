@@ -78,7 +78,7 @@ class LoginScreen extends HookConsumerWidget {
                           }
                         } catch (e) {
                           // TODO: show error message to user
-                          print(e);
+                          //print(e);
                         }
                       },
                       child: const Text("Login"),
