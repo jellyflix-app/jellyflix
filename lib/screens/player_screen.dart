@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/providers/api_provider.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-class PlayerSreen extends StatefulWidget {
-  const PlayerSreen({super.key, required this.url, required this.headers});
-  final String url;
+class PlayerSreen extends StatefulHookConsumerWidget {
+  const PlayerSreen({super.key, required this.itemId, required this.headers});
+  final String itemId;
   final Map<String, String> headers;
 
   @override
-  State<PlayerSreen> createState() => _PlayerSreenState();
+  ConsumerState<PlayerSreen> createState() => _PlayerSreenState();
 }
 
-class _PlayerSreenState extends State<PlayerSreen> {
+class _PlayerSreenState extends ConsumerState<PlayerSreen> {
   final player = Player();
   late final controller = VideoController(player);
   final GlobalKey<VideoState> key = GlobalKey<VideoState>();
@@ -23,7 +25,8 @@ class _PlayerSreenState extends State<PlayerSreen> {
     super.initState();
     requestPermissions().then(
       (value) {
-        player.open(Media(widget.url, httpHeaders: widget.headers));
+        player.open(Media(ref.read(apiProvider).getStreamUrl(widget.itemId),
+            httpHeaders: widget.headers));
         player.stream.error.listen((error) => debugPrint(error));
         WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
           key.currentState?.enterFullscreen();

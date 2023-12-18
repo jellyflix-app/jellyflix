@@ -48,7 +48,6 @@ class AuthService {
         rethrow;
       }
     }
-    await _apiService.login(serverAdress, username, password);
     await _secureStorageService.write("username", username);
     await _secureStorageService.write("password", password);
     await _secureStorageService.write("serverAdress", serverAdress);

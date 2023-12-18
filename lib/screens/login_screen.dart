@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
 import 'package:jellyflix/screens/home_screen.dart';
 import 'package:flutter/material.dart';
@@ -17,72 +18,79 @@ class LoginScreen extends HookConsumerWidget {
           child: SingleChildScrollView(
         child: SizedBox(
           width: 400,
-          child: Column(
-            children: [
-              Text("Jellyflix",
-                  style: Theme.of(context).textTheme.displaySmall),
-              const Text(
-                "Another Jellyfin Client",
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: TextField(
-                  controller: serverAddress,
-                  decoration: const InputDecoration(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              children: [
+                Text("Jellyflix",
+                    style: Theme.of(context).textTheme.displaySmall),
+                const Text(
+                  "Another Jellyfin Client",
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: TextField(
+                    controller: serverAddress,
+                    decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        labelText: 'Server Address',
+                        hintText: 'http://'),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: TextField(
+                    controller: userName,
+                    decoration: const InputDecoration(
                       border: OutlineInputBorder(),
-                      labelText: 'Server Address',
-                      hintText: 'http://'),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: TextField(
-                  controller: userName,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'User Name',
+                      labelText: 'User Name',
+                    ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: TextField(
-                  obscureText: true,
-                  controller: password,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Password',
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: TextField(
+                    obscureText: true,
+                    controller: password,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Password',
+                    ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 10.0),
-                child: SizedBox(
-                  height: 45,
-                  width: 100,
-                  child: FilledButton(
-                    onPressed: () async {
-                      try {
-                        await ref.read(authProvider).login(
-                            serverAddress.text, userName.text, password.text);
-                        if (context.mounted) {
-                          Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(
-                                  builder: (context) => const HomeScreen()));
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 10.0),
+                  child: SizedBox(
+                    height: 45,
+                    width: 100,
+                    child: FilledButton(
+                      onPressed: () async {
+                        try {
+                          await ref.read(authProvider).login(
+                              serverAddress.text, userName.text, password.text);
+                          if (context.mounted) {
+                            Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                    builder: (context) => const HomeScreen()));
+                          }
+                        } catch (e) {
+                          // TODO: show error message to user
+                          //print(e);
                         }
-                      } catch (e) {
-                        // TODO: show error message to user
-                        print(e);
-                      }
-                    },
-                    child: const Text("Login"),
+                      },
+                      child: const Text("Login"),
+                    ),
                   ),
                 ),
-              ),
-            ],
+                kIsWeb
+                    ? const Text(
+                        "This is a demo version of Jellyflix. To use it, you can use the following credentials: \n\nServer Address: https://demo.jellyfin.org/stable \nUser Name: demo \nand empty password \n\n")
+                    : const SizedBox(),
+              ],
+            ),
           ),
         ),
       )),

@@ -261,15 +261,20 @@ jobs:
         with:
           name: jellyflix-windows
           path: jellyflix-windows
-
+    
+      - uses: johnyherangi/create-release-notes@main
+        id: create-release-notes
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create Release
         id: create_release
         uses: ncipollo/release-action@v1
         with:
           artifacts: |
             jellyflix-apk/*.apk
-            jellyflix-linux/*.tar.gz
+            jellyflix-linux/*
             jellyflix-windows/*.exe
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ steps.version.outputs.content }}
           commit: ${{ github.sha }}
+          body: ${{ steps.create-release-notes.outputs.release-notes }}
