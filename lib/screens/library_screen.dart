@@ -43,7 +43,7 @@ class LibraryScreen extends HookConsumerWidget {
                       );
                     },
                     child: Text(
-                      "Genre: ${genreFilter.value!.map(
+                      "Genre: ${genreFilter.value == null ? "All" : genreFilter.value!.map(
                             (e) => e.name,
                           ).isEmpty ? "All" : genreFilter.value!.map(
                             (e) => e.name,

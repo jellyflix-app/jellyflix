@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/screens/library_screen.dart';
 import 'package:jellyflix/screens/profile_screen.dart';
+import 'package:jellyflix/screens/search_screen.dart';
 
 class HomeScreen extends HookConsumerWidget {
   const HomeScreen({super.key});
@@ -24,7 +25,12 @@ class HomeScreen extends HookConsumerWidget {
           icon: const Icon(Icons.video_library_outlined),
         ),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.search_rounded)),
+          IconButton(
+              onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(
+                    builder: (context) => const SearchScreen()));
+              },
+              icon: const Icon(Icons.search_rounded)),
           IconButton(
               onPressed: () {
                 Navigator.of(context).push(MaterialPageRoute(
