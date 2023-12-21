@@ -66,8 +66,8 @@ class ApiService {
     return response.data!;
   }
 
-  Future getLatestItems(String collectionType) async {
-    var items = [];
+  Future<List<BaseItemDto>> getLatestItems(String collectionType) async {
+    List<BaseItemDto> items = [];
     var folders = await getMediaFolders();
     // get all movie collections and their ids
     var movieCollections = folders.where((element) {
@@ -78,9 +78,11 @@ class ApiService {
     }).toList();
 
     for (var id in movieCollectionIds) {
-      var response = await _jellyfinApi!
-          .getUserLibraryApi()
-          .getLatestMedia(userId: _user!.id!, parentId: id, headers: headers);
+      var response = await _jellyfinApi!.getUserLibraryApi().getLatestMedia(
+          userId: _user!.id!,
+          parentId: id,
+          headers: headers,
+          fields: BuiltList<ItemFields>(ItemFields.values));
 
       // add response to list
       items.addAll(response.data!);
