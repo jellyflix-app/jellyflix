@@ -1,8 +1,5 @@
-import 'package:jellyflix/models/sort_type.dart';
 import 'package:jellyflix/models/user.dart';
 import 'package:flutter/material.dart';
-import 'package:jellyflix/screens/filter_type.dart';
-import 'package:jellyflix/screens/library_screen.dart';
 import 'package:openapi/openapi.dart';
 import 'package:built_collection/built_collection.dart';
 
@@ -120,9 +117,7 @@ class ApiService {
   }
 
   Future<List<BaseItemDto>> getFilterItems(
-      {List<BaseItemDto>? genreIds,
-      List<FilterType>? filters,
-      SortType? sortType}) async {
+      {List<BaseItemDto>? genreIds, String? searchTerm}) async {
     var folders = await getMediaFolders();
     var ids = genreIds == null
         ? null
@@ -130,10 +125,19 @@ class ApiService {
     List<BaseItemDto> items = [];
     for (var folder in folders) {
       var response = await _jellyfinApi!.getItemsApi().getItems(
-          userId: _user!.id!,
-          headers: headers,
-          parentId: folder.id,
-          genreIds: ids);
+            userId: _user!.id!,
+            headers: headers,
+            parentId: folder.id,
+            genreIds: ids,
+            searchTerm: searchTerm,
+            recursive: true,
+            includeItemTypes: BuiltList<BaseItemKind>([
+              BaseItemKind.movie,
+              BaseItemKind.series,
+              BaseItemKind.episode,
+              BaseItemKind.boxSet
+            ]),
+          );
       items.addAll(response.data!.items!);
     }
     return items;
