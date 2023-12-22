@@ -53,7 +53,7 @@ class MobileImageBannerState extends ConsumerState<MobileImageBanner> {
     return Stack(
       alignment: AlignmentDirectional.bottomCenter,
       children: [
-        Container(
+        SizedBox(
           height: widget.height,
           child: PageView.builder(
             controller: _controller,
@@ -85,7 +85,7 @@ class MobileImageBannerState extends ConsumerState<MobileImageBanner> {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Color.fromARGB(30, 0, 0, 0),
+                        const Color.fromARGB(30, 0, 0, 0),
                         Theme.of(context).colorScheme.background
                       ],
                     ),
@@ -107,7 +107,7 @@ class MobileImageBannerState extends ConsumerState<MobileImageBanner> {
                         ),
                         Text(widget.items[index].productionYear.toString(),
                             style: Theme.of(context).textTheme.titleMedium),
-                        SizedBox(
+                        const SizedBox(
                           height: 10,
                         ),
                         Row(
@@ -123,10 +123,10 @@ class MobileImageBannerState extends ConsumerState<MobileImageBanner> {
                                   ),
                                 );
                               },
-                              label: Text("Play"),
-                              icon: Icon(Icons.play_arrow_rounded),
+                              label: const Text("Play"),
+                              icon: const Icon(Icons.play_arrow_rounded),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 10,
                             ),
                             TextButton(
@@ -139,7 +139,7 @@ class MobileImageBannerState extends ConsumerState<MobileImageBanner> {
                                     ),
                                   );
                                 },
-                                child: Text("More Info")),
+                                child: const Text("More Info")),
                           ],
                         ),
                       ],
@@ -166,7 +166,8 @@ class MobileImageBannerState extends ConsumerState<MobileImageBanner> {
             ),
             onTap: (position) {
               _controller.animateToPage(position,
-                  duration: Duration(milliseconds: 350), curve: Curves.easeIn);
+                  duration: const Duration(milliseconds: 350),
+                  curve: Curves.easeIn);
             },
           ),
         ),

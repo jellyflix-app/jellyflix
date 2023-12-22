@@ -1,0 +1,228 @@
+import 'package:flutter/material.dart';
+import 'package:jellyflix/components/navigation_drawer_tile.dart';
+import 'package:jellyflix/screens/home_screen.dart';
+import 'package:jellyflix/screens/library_screen.dart';
+import 'package:jellyflix/screens/profile_screen.dart';
+import 'package:jellyflix/screens/search_screen.dart';
+
+class ResponsiveNavigationBar extends StatelessWidget {
+  final Widget body;
+  final int selectedIndex;
+
+  const ResponsiveNavigationBar(
+      {Key? key, required this.body, required this.selectedIndex})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Row(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          // Show the navigaiton rail if screen width >= 640
+          if (MediaQuery.of(context).size.width >= 640 &&
+              MediaQuery.of(context).orientation == Orientation.portrait)
+            Container(
+              decoration: BoxDecoration(
+                  // add elevation
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 5,
+                      spreadRadius: 5,
+                    )
+                  ],
+                  // right corners are rounded
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(10),
+                    bottomRight: Radius.circular(10),
+                  ),
+                  color: Colors.black26),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10),
+                child: NavigationRail(
+                  backgroundColor: Colors.transparent,
+                  minWidth: 55.0,
+                  selectedIndex: selectedIndex,
+                  // Called when one tab is selected
+                  onDestinationSelected: (int index) {
+                    switch (index) {
+                      case 0:
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => const HomeScreen()));
+                        break;
+                      case 1:
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => const SearchScreen()));
+                        break;
+                      case 2:
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => const LibraryScreen()));
+                        break;
+                      case 3:
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => const ProfileScreen()));
+                        break;
+                    }
+                  },
+
+                  trailing: Expanded(
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: IconButton(
+                          onPressed: () {},
+                          icon: const Icon(Icons.person_rounded)),
+                    ),
+                  ),
+
+                  // navigation rail items
+                  destinations: const [
+                    NavigationRailDestination(
+                        icon: Icon(Icons.home_rounded), label: Text('Home')),
+                    NavigationRailDestination(
+                        icon: Icon(Icons.search_rounded),
+                        label: Text('Search')),
+                    NavigationRailDestination(
+                        icon: Icon(Icons.video_library_outlined),
+                        label: Text('Library')),
+                  ],
+                ),
+              ),
+            ),
+
+          if (MediaQuery.of(context).size.width >= 640 &&
+              MediaQuery.of(context).orientation == Orientation.landscape)
+            Container(
+              decoration: BoxDecoration(
+                  // add elevation
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 5,
+                      spreadRadius: 5,
+                    )
+                  ],
+                  // right corners are rounded
+                  borderRadius: const BorderRadius.only(
+                    topRight: Radius.circular(10),
+                    bottomRight: Radius.circular(10),
+                  ),
+                  color: Colors.black26),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 20.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.max,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    NavigationDrawerTile(
+                      icon: Icons.home_rounded,
+                      label: "Home",
+                      selected: selectedIndex == 0,
+                      onTap: () {
+                        if (selectedIndex != 0) {
+                          Navigator.push(
+                            context,
+                            PageRouteBuilder(
+                              pageBuilder: (_, __, ___) => const HomeScreen(),
+                              //transitionDuration: Duration(seconds: 2),
+                              transitionsBuilder: (_, a, __, c) =>
+                                  FadeTransition(opacity: a, child: c),
+                            ),
+                          );
+                        }
+                      },
+                    ),
+                    NavigationDrawerTile(
+                      icon: Icons.search_rounded,
+                      label: "Search",
+                      selected: selectedIndex == 1,
+                      onTap: () {
+                        if (selectedIndex != 1) {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => const SearchScreen()));
+                        }
+                      },
+                    ),
+                    NavigationDrawerTile(
+                      icon: Icons.video_library_outlined,
+                      label: "Library",
+                      selected: selectedIndex == 2,
+                      onTap: () {
+                        if (selectedIndex != 2) {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => const LibraryScreen()));
+                        }
+                      },
+                    ),
+                    const Expanded(
+                      child: SizedBox(),
+                    ),
+                    NavigationDrawerTile(
+                      icon: Icons.person_rounded,
+                      label: "Profile",
+                      selected: selectedIndex == 3,
+                      onTap: () {
+                        if (selectedIndex != 3) {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => const ProfileScreen()));
+                        }
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+          // Main content
+          // This part is always shown
+          // You will see it on both small and wide screen
+          Expanded(child: body),
+        ],
+      ),
+      bottomNavigationBar: MediaQuery.of(context).size.width < 640
+          ? BottomNavigationBar(
+              currentIndex: selectedIndex,
+              type: BottomNavigationBarType.fixed,
+              backgroundColor: Colors.black26,
+              showSelectedLabels: false,
+              unselectedItemColor: Colors.grey,
+              selectedItemColor: Theme.of(context).colorScheme.primary,
+              showUnselectedLabels: false,
+              // called when one tab is selected
+              onTap: (int index) {
+                switch (index) {
+                  case 0:
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const HomeScreen()));
+                    break;
+                  case 1:
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const SearchScreen()));
+                    break;
+                  case 2:
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const LibraryScreen()));
+                    break;
+                  case 3:
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (context) => const ProfileScreen()));
+                    break;
+                }
+              },
+              // bottom tab items
+              items: const [
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.home_rounded), label: 'Home'),
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.search_rounded), label: 'Search'),
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.video_library_outlined),
+                      label: 'Library'),
+                  BottomNavigationBarItem(
+                      icon: Icon(Icons.person_rounded), label: 'Profile')
+                ])
+          : null,
+    );
+  }
+}

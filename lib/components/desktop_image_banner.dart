@@ -70,7 +70,7 @@ class DestkopImageBannerState extends ConsumerState<DesktopImageBanner> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: Container(
-                    width: MediaQuery.of(context).size.width * 0.7,
+                    width: MediaQuery.of(context).size.width * 0.6,
                     decoration: BoxDecoration(
                       image: DecorationImage(
                         image: ref.read(apiProvider).getImage(
@@ -86,7 +86,7 @@ class DestkopImageBannerState extends ConsumerState<DesktopImageBanner> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: Container(
-                    width: MediaQuery.of(context).size.width * 0.7,
+                    width: MediaQuery.of(context).size.width * 0.6,
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: const Alignment(0.1, 0),
@@ -104,7 +104,7 @@ class DestkopImageBannerState extends ConsumerState<DesktopImageBanner> {
                       horizontal: 20.0, vertical: 40),
                   child: Align(
                     alignment: Alignment.bottomLeft,
-                    child: Container(
+                    child: SizedBox(
                       width: MediaQuery.of(context).size.width * 0.3,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,

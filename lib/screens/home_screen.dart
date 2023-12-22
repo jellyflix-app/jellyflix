@@ -1,13 +1,11 @@
 import 'package:jellyflix/components/item_banner.dart';
 import 'package:jellyflix/components/item_carousel.dart';
+import 'package:jellyflix/components/navigation_bar.dart';
 import 'package:jellyflix/models/poster_type.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:jellyflix/screens/detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jellyflix/screens/library_screen.dart';
-import 'package:jellyflix/screens/profile_screen.dart';
-import 'package:jellyflix/screens/search_screen.dart';
 import 'package:openapi/openapi.dart';
 
 class HomeScreen extends HookConsumerWidget {
@@ -15,32 +13,8 @@ class HomeScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const LibraryScreen()));
-          },
-          icon: const Icon(Icons.video_library_outlined),
-        ),
-        actions: [
-          IconButton(
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const SearchScreen()));
-              },
-              icon: const Icon(Icons.search_rounded)),
-          IconButton(
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const ProfileScreen()));
-              },
-              icon: const Icon(Icons.person_outline_rounded))
-        ],
-      ),
+    return ResponsiveNavigationBar(
+      selectedIndex: 0,
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,

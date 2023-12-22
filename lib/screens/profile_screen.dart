@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/components/navigation_bar.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
 import 'package:jellyflix/screens/login_screen.dart';
 
@@ -8,15 +9,8 @@ class ProfileScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(
-        leading: BackButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        title: const Text("Profile"),
-      ),
+    return ResponsiveNavigationBar(
+      selectedIndex: 3,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

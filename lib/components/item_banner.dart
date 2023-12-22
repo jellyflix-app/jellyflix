@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:dots_indicator/dots_indicator.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/desktop_image_banner.dart';
 import 'package:jellyflix/components/mobile_image_banner.dart';
-import 'package:jellyflix/providers/api_provider.dart';
-import 'package:jellyflix/screens/detail_screen.dart';
-import 'package:jellyflix/screens/player_screen.dart';
-import 'dart:async';
 
 import 'package:openapi/openapi.dart';
 
