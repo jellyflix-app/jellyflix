@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:filter_list/filter_list.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/components/responsive_navigation_bar.dart';
+import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/models/sort_type.dart';
 import 'package:jellyflix/providers/api_provider.dart';
-import 'package:jellyflix/screens/detail_screen.dart';
-import 'package:jellyflix/screens/filter_type.dart';
+import 'package:jellyflix/models/filter_type.dart';
 import 'package:openapi/openapi.dart';
 
 class LibraryScreen extends HookConsumerWidget {
@@ -17,16 +19,12 @@ class LibraryScreen extends HookConsumerWidget {
     final order = useState<String>("Ascending");
     final filterType = useState<List<FilterType>>([]);
     final sortType = useState<SortType>(SortType.name);
-    return Scaffold(
-      appBar: AppBar(
-          leading: BackButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-          title: const Text("Library"),
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(50),
+    return ResponsiveNavigationBar(
+      selectedIndex: 2,
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20),
             child: Row(
               children: [
                 const SizedBox(
@@ -48,7 +46,7 @@ class LibraryScreen extends HookConsumerWidget {
                           ).isEmpty ? "All" : genreFilter.value!.map(
                             (e) => e.name,
                           ).join(", ")}",
-                      maxLines: 1,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
@@ -65,7 +63,10 @@ class LibraryScreen extends HookConsumerWidget {
                           [];
                     },
                     child: Text(
-                        "Filter: ${filterType.value.map((e) => e.toString().split(".").last).isEmpty ? "None" : filterType.value.map((e) => e.toString().split(".").last).join(", ")}"),
+                      "Filter: ${filterType.value.map((e) => e.toString().split(".").last).isEmpty ? "None" : filterType.value.map((e) => e.toString().split(".").last).join(", ")}",
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
                 Expanded(
@@ -77,7 +78,11 @@ class LibraryScreen extends HookConsumerWidget {
                       order.value = "Ascending";
                     }
                   },
-                  child: Text("Order: ${order.value}"),
+                  child: Text(
+                    "Order: ${order.value}",
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 )),
                 const SizedBox(
                   width: 20,
@@ -93,7 +98,11 @@ class LibraryScreen extends HookConsumerWidget {
                         sortType.value = SortType.name;
                       }
                     },
-                    child: Text("Sort: ${sortType.value.name}"),
+                    child: Text(
+                      "Sort: ${sortType.value.name}",
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                 ),
                 const SizedBox(
@@ -101,140 +110,148 @@ class LibraryScreen extends HookConsumerWidget {
                 ),
               ],
             ),
-          )),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: FutureBuilder(
-          future:
-              ref.read(apiProvider).getFilterItems(genreIds: genreFilter.value),
-          builder: (context, AsyncSnapshot<List<BaseItemDto>> snapshot) {
-            if (snapshot.hasData) {
-              List<BaseItemDto> itemsList = snapshot.data!;
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: FutureBuilder(
+                future: ref
+                    .read(apiProvider)
+                    .getFilterItems(genreIds: genreFilter.value),
+                builder: (context, AsyncSnapshot<List<BaseItemDto>> snapshot) {
+                  if (snapshot.hasData) {
+                    List<BaseItemDto> itemsList = snapshot.data!;
 
-              // only filter if filters are set
-              if (filterType.value.isNotEmpty) {
-                // return only items that matches every filter type
-                itemsList = itemsList.where((element) {
-                  return filterType.value.every((filter) {
-                    if (filter == FilterType.unplayed) {
-                      return !(element.userData!.played ?? false);
-                    } else if (filter == FilterType.played) {
-                      return element.userData!.played ?? false;
-                    } else if (filter == FilterType.favorites) {
-                      return element.userData!.isFavorite == true;
-                    } else if (filter == FilterType.liked) {
-                      return element.userData!.likes == true;
-                    } else {
-                      return false;
+                    // only filter if filters are set
+                    if (filterType.value.isNotEmpty) {
+                      // return only items that matches every filter type
+                      itemsList = itemsList.where((element) {
+                        return filterType.value.every((filter) {
+                          if (filter == FilterType.unplayed) {
+                            return !(element.userData!.played ?? false);
+                          } else if (filter == FilterType.played) {
+                            return element.userData!.played ?? false;
+                          } else if (filter == FilterType.favorites) {
+                            return element.userData!.isFavorite == true;
+                          } else if (filter == FilterType.liked) {
+                            return element.userData!.likes == true;
+                          } else {
+                            return false;
+                          }
+                        });
+                      }).toList();
                     }
-                  });
-                }).toList();
-              }
 
-              // first sort by sort type then by order
-              itemsList.sort((a, b) {
-                if (sortType.value == SortType.name) {
-                  return a.name!.compareTo(b.name!);
-                } else if (sortType.value == SortType.premiereDate) {
-                  return a.premiereDate!.compareTo(b.premiereDate!);
-                } else {
-                  return 0;
-                }
-              });
-              if (sortType.value == SortType.random) {
-                itemsList.shuffle();
-              }
-              if (order.value == "Descending") {
-                itemsList = itemsList.reversed.toList();
-              }
+                    // first sort by sort type then by order
+                    itemsList.sort((a, b) {
+                      if (sortType.value == SortType.name) {
+                        return a.name!.compareTo(b.name!);
+                      } else if (sortType.value == SortType.premiereDate) {
+                        return a.premiereDate!.compareTo(b.premiereDate!);
+                      } else {
+                        return 0;
+                      }
+                    });
+                    if (sortType.value == SortType.random) {
+                      itemsList.shuffle();
+                    }
+                    if (order.value == "Descending") {
+                      itemsList = itemsList.reversed.toList();
+                    }
 
-              if (itemsList.isEmpty) {
-                return const Center(
-                  child: Text("No items found"),
-                );
-              }
-              return GridView.builder(
-                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                      maxCrossAxisExtent: 150,
-                      mainAxisExtent: 250,
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10),
-                  itemCount: itemsList.length,
-                  itemBuilder: (context, index) {
-                    return Column(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        SizedBox(
-                          width: 150,
-                          height: 200,
-                          child: Stack(
+                    if (itemsList.isEmpty) {
+                      return const Center(
+                        child: Text("No items found"),
+                      );
+                    }
+                    return GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithMaxCrossAxisExtent(
+                                maxCrossAxisExtent: 150,
+                                mainAxisExtent: 250,
+                                crossAxisSpacing: 10,
+                                mainAxisSpacing: 10),
+                        itemCount: itemsList.length,
+                        itemBuilder: (context, index) {
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
-                              Positioned.fill(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10.0),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.5),
-                                        spreadRadius: 2,
-                                        blurRadius: 5,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ],
-                                    image: DecorationImage(
-                                      fit: BoxFit.cover,
-                                      image: ref.read(apiProvider).getImage(
-                                          itemsList[index].id!,
-                                          ImageType.primary),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Positioned.fill(
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: InkWell(
-                                    onTap: () {
-                                      Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (context) => DetailScreen(
-                                            itemId: itemsList[index].id!,
+                              SizedBox(
+                                width: 150,
+                                height: 200,
+                                child: Stack(
+                                  children: [
+                                    Positioned.fill(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.black.withOpacity(0.5),
+                                              spreadRadius: 2,
+                                              blurRadius: 5,
+                                              offset: const Offset(0, 3),
+                                            ),
+                                          ],
+                                          image: DecorationImage(
+                                            fit: BoxFit.cover,
+                                            image: ref
+                                                .read(apiProvider)
+                                                .getImage(itemsList[index].id!,
+                                                    ImageType.primary),
                                           ),
                                         ),
-                                      );
-                                    },
-                                  ),
+                                      ),
+                                    ),
+                                    Positioned.fill(
+                                      child: Material(
+                                        color: Colors.transparent,
+                                        child: InkWell(
+                                          onTap: () {
+                                            context.push(Uri(
+                                                path: ScreenPaths.detail,
+                                                queryParameters: {
+                                                  "id": itemsList[index].id!,
+                                                  "selectedIndex": "2",
+                                                }).toString());
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 5.0),
+                              Flexible(
+                                child: Text(
+                                  itemsList[index].name!,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Flexible(
+                                child: Text(
+                                  itemsList[index].productionYear.toString(),
+                                  style: const TextStyle(fontSize: 10),
                                 ),
                               ),
                             ],
-                          ),
-                        ),
-                        const SizedBox(height: 5.0),
-                        Flexible(
-                          child: Text(
-                            itemsList[index].name!,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        Flexible(
-                          child: Text(
-                            itemsList[index].productionYear.toString(),
-                            style: const TextStyle(fontSize: 10),
-                          ),
-                        ),
-                      ],
+                          );
+                        });
+                  } else {
+                    return const Center(
+                      child: CircularProgressIndicator(),
                     );
-                  });
-            } else {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-          },
-        ),
+                  }
+                },
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

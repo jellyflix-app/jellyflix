@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:media_kit/media_kit.dart';
@@ -7,26 +8,28 @@ import 'package:media_kit_video/media_kit_video.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-class PlayerSreen extends StatefulHookConsumerWidget {
-  const PlayerSreen({super.key, required this.itemId, required this.headers});
+class PlayerScreen extends StatefulHookConsumerWidget {
+  const PlayerScreen({super.key, required this.itemId});
   final String itemId;
-  final Map<String, String> headers;
 
   @override
-  ConsumerState<PlayerSreen> createState() => _PlayerSreenState();
+  ConsumerState<PlayerScreen> createState() => _PlayerSreenState();
 }
 
-class _PlayerSreenState extends ConsumerState<PlayerSreen> {
+class _PlayerSreenState extends ConsumerState<PlayerScreen> {
   final player = Player();
   late final controller = VideoController(player);
   final GlobalKey<VideoState> key = GlobalKey<VideoState>();
+
   @override
   void initState() {
+    final Map<String, String> headers = ref.read(apiProvider).headers;
+
     super.initState();
     requestPermissions().then(
       (value) {
         player.open(Media(ref.read(apiProvider).getStreamUrl(widget.itemId),
-            httpHeaders: widget.headers));
+            httpHeaders: headers));
         player.stream.error.listen((error) => debugPrint(error));
         WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
           key.currentState?.enterFullscreen();
@@ -86,7 +89,7 @@ class _PlayerSreenState extends ConsumerState<PlayerSreen> {
                   topButtonBar: [
                     BackButton(
                       onPressed: () async {
-                        Navigator.of(context).pop();
+                        context.pop();
                       },
                     ),
                   ],
@@ -99,8 +102,8 @@ class _PlayerSreenState extends ConsumerState<PlayerSreen> {
                         await defaultExitNativeFullscreen();
 
                         if (context.mounted) {
-                          Navigator.of(context)
-                              .popUntil((route) => route.isFirst);
+                          context.pop();
+                          context.pop();
                         }
                       },
                     ),
@@ -116,7 +119,7 @@ class _PlayerSreenState extends ConsumerState<PlayerSreen> {
                 onExitFullscreen: () async {
                   await defaultExitNativeFullscreen();
                   if (!UniversalPlatform.isDesktop && context.mounted) {
-                    Navigator.of(context).popUntil((route) => route.isFirst);
+                    context.pop();
                   }
                 },
               )),

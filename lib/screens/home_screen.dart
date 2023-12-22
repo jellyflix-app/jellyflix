@@ -1,55 +1,41 @@
+import 'package:go_router/go_router.dart';
+import 'package:jellyflix/components/image_banner.dart';
 import 'package:jellyflix/components/item_carousel.dart';
+import 'package:jellyflix/components/responsive_navigation_bar.dart';
 import 'package:jellyflix/models/poster_type.dart';
+import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
-import 'package:jellyflix/screens/detail_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jellyflix/screens/library_screen.dart';
-import 'package:jellyflix/screens/profile_screen.dart';
-import 'package:jellyflix/screens/search_screen.dart';
+import 'package:openapi/openapi.dart';
 
 class HomeScreen extends HookConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const LibraryScreen()));
-          },
-          icon: const Icon(Icons.video_library_outlined),
-        ),
-        actions: [
-          IconButton(
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const SearchScreen()));
-              },
-              icon: const Icon(Icons.search_rounded)),
-          IconButton(
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const ProfileScreen()));
-              },
-              icon: const Icon(Icons.person_outline_rounded))
-        ],
-      ),
+    return ResponsiveNavigationBar(
+      selectedIndex: 0,
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              height: 100,
-              width: double.infinity,
-              color: Colors.blueGrey,
-              child: const Text("Header"),
-            ),
+            FutureBuilder(
+                future: ref.read(apiProvider).getLatestItems("movies"),
+                builder: (context, AsyncSnapshot<List<BaseItemDto>> snapshot) {
+                  if (snapshot.hasData) {
+                    // filter where backdrop image is not null
+                    var items = snapshot.data!;
+                    items.shuffle();
+                    items = items.sublist(0, 5);
+                    return ImageBanner(
+                      items: items,
+                    );
+                  } else {
+                    return const CircularProgressIndicator();
+                  }
+                }),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Column(
@@ -64,11 +50,12 @@ class HomeScreen extends HookConsumerWidget {
                         if (snapshot.hasData) {
                           return ItemCarousel(
                               onTap: (index) {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => DetailScreen(
-                                          itemId:
-                                              snapshot.data!.items[index].id!,
-                                        )));
+                                context.push(Uri(
+                                    path: ScreenPaths.detail,
+                                    queryParameters: {
+                                      "id": snapshot.data!.items[index].id,
+                                      "selectedIndex": "0",
+                                    }).toString());
                               },
                               imageList: snapshot.data!.items.map((e) {
                                 return e.id!;
@@ -90,10 +77,12 @@ class HomeScreen extends HookConsumerWidget {
                         if (snapshot.hasData) {
                           return ItemCarousel(
                               onTap: (index) {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => DetailScreen(
-                                          itemId: snapshot.data![index].id!,
-                                        )));
+                                context.push(Uri(
+                                    path: ScreenPaths.detail,
+                                    queryParameters: {
+                                      "id": snapshot.data![index].id!,
+                                      "selectedIndex": "0",
+                                    }).toString());
                               },
                               imageList: snapshot.data!.map((e) {
                                 return e.id!;
@@ -116,10 +105,12 @@ class HomeScreen extends HookConsumerWidget {
                         if (snapshot.hasData) {
                           return ItemCarousel(
                               onTap: (index) {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                    builder: (context) => DetailScreen(
-                                          itemId: snapshot.data![index].id!,
-                                        )));
+                                context.push(Uri(
+                                    path: ScreenPaths.detail,
+                                    queryParameters: {
+                                      "id": snapshot.data![index].id!,
+                                      "selectedIndex": "0",
+                                    }).toString());
                               },
                               imageList: snapshot.data!.map((e) {
                                 return e.id!;

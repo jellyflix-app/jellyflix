@@ -1,7 +1,9 @@
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:jellyflix/components/item_carousel.dart';
+import 'package:jellyflix/components/responsive_navigation_bar.dart';
+import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
-import 'package:jellyflix/screens/player_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:openapi/openapi.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -10,18 +12,16 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class DetailScreen extends HookConsumerWidget {
   final String itemId;
+  final int selectedIndex;
 
-  const DetailScreen({super.key, required this.itemId});
+  const DetailScreen(
+      {super.key, required this.itemId, required this.selectedIndex});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final seasonSelection = useState(0);
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        leading: const BackButton(color: Colors.white),
-        backgroundColor: Colors.transparent,
-      ),
+    return ResponsiveNavigationBar(
+      selectedIndex: selectedIndex,
       body: FutureBuilder(
           future: ref.read(apiProvider).getItemDetails(itemId),
           builder: (context, AsyncSnapshot<BaseItemDto> snapshot) {
@@ -59,6 +59,14 @@ class DetailScreen extends HookConsumerWidget {
                                 ),
                               ),
                             ],
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: BackButton(
+                                color: Colors.white,
+                                onPressed: () {
+                                  context.pop();
+                                }),
                           ),
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.end,
@@ -200,14 +208,9 @@ class DetailScreen extends HookConsumerWidget {
                         children: [
                           ElevatedButton.icon(
                             onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                    builder: (context) => PlayerSreen(
-                                          itemId: itemId,
-                                          headers:
-                                              ref.read(apiProvider).headers,
-                                        )),
-                              );
+                              context.push(Uri(
+                                  path: ScreenPaths.player,
+                                  queryParameters: {"id": itemId}).toString());
                             },
                             icon: const Icon(Icons.play_arrow),
                             label: const Text('Play'),
@@ -443,17 +446,12 @@ class DetailScreen extends HookConsumerWidget {
                                                 height: 125,
                                                 child: InkWell(
                                                   onTap: () {
-                                                    Navigator.of(context).push(
-                                                      MaterialPageRoute(
-                                                        builder: (context) =>
-                                                            PlayerSreen(
-                                                          itemId: item.id!,
-                                                          headers: ref
-                                                              .read(apiProvider)
-                                                              .headers,
-                                                        ),
-                                                      ),
-                                                    );
+                                                    context.push(Uri(
+                                                        path:
+                                                            ScreenPaths.player,
+                                                        queryParameters: {
+                                                          "id": item.id!
+                                                        }).toString());
                                                   },
                                                   child: Row(
                                                     mainAxisSize:

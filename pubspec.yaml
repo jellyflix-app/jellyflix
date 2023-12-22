@@ -50,6 +50,8 @@ dependencies:
   permission_handler: ^11.1.0
   filter_list: ^1.0.2
   built_collection: ^5.1.1
+  dots_indicator: ^3.0.0
+  go_router: ^13.0.0
 
 dev_dependencies:
   flutter_test:
