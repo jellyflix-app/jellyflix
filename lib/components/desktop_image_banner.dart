@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
-import 'package:jellyflix/screens/detail_screen.dart';
-import 'package:jellyflix/screens/player_screen.dart';
 import 'package:openapi/openapi.dart';
 
 class DesktopImageBanner extends StatefulHookConsumerWidget {
@@ -130,14 +130,11 @@ class DestkopImageBannerState extends ConsumerState<DesktopImageBanner> {
                             children: [
                               ElevatedButton.icon(
                                 onPressed: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => PlayerSreen(
-                                          itemId: widget.items[index].id!,
-                                          headers:
-                                              ref.read(apiProvider).headers),
-                                    ),
-                                  );
+                                  context.push(Uri(
+                                      path: ScreenPaths.player,
+                                      queryParameters: {
+                                        "id": widget.items[index].id!
+                                      }).toString());
                                 },
                                 label: const Text("Play"),
                                 icon: const Icon(Icons.play_arrow_rounded),
@@ -147,13 +144,12 @@ class DestkopImageBannerState extends ConsumerState<DesktopImageBanner> {
                               ),
                               TextButton(
                                   onPressed: () {
-                                    Navigator.of(context).push(
-                                      MaterialPageRoute(
-                                        builder: (context) => DetailScreen(
-                                          itemId: widget.items[index].id!,
-                                        ),
-                                      ),
-                                    );
+                                    context.push(Uri(
+                                        path: ScreenPaths.detail,
+                                        queryParameters: {
+                                          "id": widget.items[index].id!,
+                                          "selectedIndex": "0",
+                                        }).toString());
                                   },
                                   child: const Text("More Info")),
                             ],

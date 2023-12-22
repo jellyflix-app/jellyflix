@@ -1,16 +1,25 @@
+import 'dart:async';
+
 import 'package:jellyflix/services/api_service.dart';
 import 'package:jellyflix/services/secure_storage_service.dart';
 
 class AuthService {
   final ApiService _apiService;
   final SecureStorageService _secureStorageService;
-  bool isAuthenticated = false;
+
+  final StreamController<bool> _authStateStream = StreamController();
+  Stream<bool> get authStateChange => _authStateStream.stream;
 
   AuthService(
       {required ApiService apiService,
       required SecureStorageService secureStorageService})
       : _apiService = apiService,
-        _secureStorageService = secureStorageService;
+        _secureStorageService = secureStorageService {
+    _authStateStream.add(false);
+    checkAuthentication().then((value) {
+      _authStateStream.add(value);
+    });
+  }
 
   Future<bool> checkAuthentication() async {
     String? storedUsername = await _secureStorageService.read("username");
@@ -23,11 +32,13 @@ class AuthService {
           storedServerAdress != null) {
         await _apiService.login(
             storedServerAdress, storedUsername, storedPassword);
-        isAuthenticated = true;
+        _authStateStream.add(true);
         return true;
       }
+      _authStateStream.add(false);
       return false;
     } catch (e) {
+      _authStateStream.add(false);
       return false;
     }
   }
@@ -51,13 +62,13 @@ class AuthService {
     await _secureStorageService.write("username", username);
     await _secureStorageService.write("password", password);
     await _secureStorageService.write("serverAdress", serverAdress);
-    isAuthenticated = true;
+    _authStateStream.add(true);
   }
 
   Future logout() async {
     await _secureStorageService.delete("username");
     await _secureStorageService.delete("password");
     await _secureStorageService.delete("serverAdress");
-    isAuthenticated = false;
+    _authStateStream.add(false);
   }
 }

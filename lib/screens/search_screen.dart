@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/item_carousel.dart';
-import 'package:jellyflix/components/navigation_bar.dart';
+import 'package:jellyflix/components/responsive_navigation_bar.dart';
 import 'package:jellyflix/models/poster_type.dart';
+import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
-import 'package:jellyflix/screens/detail_screen.dart';
 import 'package:openapi/openapi.dart';
 
 class SearchScreen extends HookConsumerWidget {
@@ -83,13 +84,12 @@ class SearchScreen extends HookConsumerWidget {
                                           return e.name!;
                                         }).toList(),
                                         onTap: (index) {
-                                          Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      DetailScreen(
-                                                        itemId: movieList[index]
-                                                            .id!,
-                                                      )));
+                                          context.push(Uri(
+                                              path: ScreenPaths.detail,
+                                              queryParameters: {
+                                                "id": movieList[index].id!,
+                                                "selectedIndex": "1",
+                                              }).toString());
                                         },
                                         title: "Movies",
                                       ),
@@ -103,14 +103,12 @@ class SearchScreen extends HookConsumerWidget {
                                           return e.name!;
                                         }).toList(),
                                         onTap: (index) {
-                                          Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      DetailScreen(
-                                                        itemId:
-                                                            seriesList[index]
-                                                                .id!,
-                                                      )));
+                                          context.push(Uri(
+                                              path: ScreenPaths.detail,
+                                              queryParameters: {
+                                                "id": seriesList[index].id!,
+                                                "selectedIndex": "1",
+                                              }).toString());
                                         },
                                         title: "Series",
                                       ),
@@ -125,14 +123,12 @@ class SearchScreen extends HookConsumerWidget {
                                           return e.name!;
                                         }).toList(),
                                         onTap: (index) {
-                                          Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      DetailScreen(
-                                                        itemId:
-                                                            episodeList[index]
-                                                                .id!,
-                                                      )));
+                                          context.push(Uri(
+                                              path: ScreenPaths.detail,
+                                              queryParameters: {
+                                                "id": episodeList[index].id!,
+                                                "selectedIndex": "1",
+                                              }).toString());
                                         },
                                         title: "Episodes",
                                       ),
@@ -146,14 +142,12 @@ class SearchScreen extends HookConsumerWidget {
                                           return e.name!;
                                         }).toList(),
                                         onTap: (index) {
-                                          Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      DetailScreen(
-                                                        itemId: collectionList[
-                                                                index]
-                                                            .id!,
-                                                      )));
+                                          context.push(Uri(
+                                              path: ScreenPaths.detail,
+                                              queryParameters: {
+                                                "id": collectionList[index].id!,
+                                                "selectedIndex": "1",
+                                              }).toString());
                                         },
                                         title: "Collections",
                                       ),

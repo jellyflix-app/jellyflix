@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jellyflix/components/navigation_bar.dart';
+import 'package:jellyflix/components/responsive_navigation_bar.dart';
+import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
-import 'package:jellyflix/screens/login_screen.dart';
 
 class ProfileScreen extends HookConsumerWidget {
   const ProfileScreen({super.key});
@@ -16,10 +17,11 @@ class ProfileScreen extends HookConsumerWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             ElevatedButton(
-                onPressed: () {
-                  ref.read(authProvider).logout();
-                  Navigator.of(context).pushReplacement(MaterialPageRoute(
-                      builder: (context) => const LoginScreen()));
+                onPressed: () async {
+                  await ref.read(authProvider).logout();
+                  if (context.mounted) {
+                    context.go(ScreenPaths.login);
+                  }
                 },
                 child: const Text("Logout")),
           ],

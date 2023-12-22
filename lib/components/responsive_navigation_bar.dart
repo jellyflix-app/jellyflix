@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:jellyflix/components/navigation_drawer_tile.dart';
+import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/screens/home_screen.dart';
-import 'package:jellyflix/screens/library_screen.dart';
-import 'package:jellyflix/screens/profile_screen.dart';
-import 'package:jellyflix/screens/search_screen.dart';
 
 class ResponsiveNavigationBar extends StatelessWidget {
   final Widget body;
@@ -49,20 +48,16 @@ class ResponsiveNavigationBar extends StatelessWidget {
                   onDestinationSelected: (int index) {
                     switch (index) {
                       case 0:
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => const HomeScreen()));
+                        context.push(ScreenPaths.home);
                         break;
                       case 1:
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => const SearchScreen()));
+                        context.push(ScreenPaths.search);
                         break;
                       case 2:
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => const LibraryScreen()));
+                        context.push(ScreenPaths.library);
                         break;
                       case 3:
-                        Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => const ProfileScreen()));
+                        context.push(ScreenPaths.profile);
                         break;
                     }
                   },
@@ -139,8 +134,7 @@ class ResponsiveNavigationBar extends StatelessWidget {
                       selected: selectedIndex == 1,
                       onTap: () {
                         if (selectedIndex != 1) {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => const SearchScreen()));
+                          context.push(ScreenPaths.search);
                         }
                       },
                     ),
@@ -150,8 +144,7 @@ class ResponsiveNavigationBar extends StatelessWidget {
                       selected: selectedIndex == 2,
                       onTap: () {
                         if (selectedIndex != 2) {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => const LibraryScreen()));
+                          context.push(ScreenPaths.library);
                         }
                       },
                     ),
@@ -164,8 +157,7 @@ class ResponsiveNavigationBar extends StatelessWidget {
                       selected: selectedIndex == 3,
                       onTap: () {
                         if (selectedIndex != 3) {
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => const ProfileScreen()));
+                          context.push(ScreenPaths.profile);
                         }
                       },
                     ),
@@ -193,20 +185,16 @@ class ResponsiveNavigationBar extends StatelessWidget {
               onTap: (int index) {
                 switch (index) {
                   case 0:
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const HomeScreen()));
+                    context.push(ScreenPaths.home);
                     break;
                   case 1:
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const SearchScreen()));
+                    context.push(ScreenPaths.search);
                     break;
                   case 2:
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const LibraryScreen()));
+                    context.push(ScreenPaths.library);
                     break;
                   case 3:
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => const ProfileScreen()));
+                    context.push(ScreenPaths.profile);
                     break;
                 }
               },

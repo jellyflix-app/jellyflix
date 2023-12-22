@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:filter_list/filter_list.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jellyflix/components/navigation_bar.dart';
+import 'package:jellyflix/components/responsive_navigation_bar.dart';
+import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/models/sort_type.dart';
 import 'package:jellyflix/providers/api_provider.dart';
-import 'package:jellyflix/screens/detail_screen.dart';
 import 'package:jellyflix/models/filter_type.dart';
 import 'package:openapi/openapi.dart';
 
@@ -211,14 +212,12 @@ class LibraryScreen extends HookConsumerWidget {
                                         color: Colors.transparent,
                                         child: InkWell(
                                           onTap: () {
-                                            Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    DetailScreen(
-                                                  itemId: itemsList[index].id!,
-                                                ),
-                                              ),
-                                            );
+                                            context.push(Uri(
+                                                path: ScreenPaths.detail,
+                                                queryParameters: {
+                                                  "id": itemsList[index].id!,
+                                                  "selectedIndex": "2",
+                                                }).toString());
                                           },
                                         ),
                                       ),

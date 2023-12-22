@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:go_router/go_router.dart';
+import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
-import 'package:jellyflix/screens/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -72,9 +73,7 @@ class LoginScreen extends HookConsumerWidget {
                           await ref.read(authProvider).login(
                               serverAddress.text, userName.text, password.text);
                           if (context.mounted) {
-                            Navigator.of(context).pushReplacement(
-                                MaterialPageRoute(
-                                    builder: (context) => const HomeScreen()));
+                            context.go(ScreenPaths.home);
                           }
                         } catch (e) {
                           // TODO: show error message to user
