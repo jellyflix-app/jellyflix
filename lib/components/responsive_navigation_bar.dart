@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jellyflix/components/navigation_drawer_tile.dart';
 import 'package:jellyflix/models/screen_paths.dart';
-import 'package:jellyflix/screens/home_screen.dart';
 
 class ResponsiveNavigationBar extends StatelessWidget {
   final Widget body;
@@ -43,7 +42,7 @@ class ResponsiveNavigationBar extends StatelessWidget {
                 child: NavigationRail(
                   backgroundColor: Colors.transparent,
                   minWidth: 55.0,
-                  selectedIndex: selectedIndex,
+                  selectedIndex: selectedIndex == 3 ? null : selectedIndex,
                   // Called when one tab is selected
                   onDestinationSelected: (int index) {
                     switch (index) {
@@ -56,18 +55,28 @@ class ResponsiveNavigationBar extends StatelessWidget {
                       case 2:
                         context.push(ScreenPaths.library);
                         break;
-                      case 3:
-                        context.push(ScreenPaths.profile);
-                        break;
                     }
                   },
 
                   trailing: Expanded(
                     child: Align(
                       alignment: Alignment.bottomCenter,
-                      child: IconButton(
-                          onPressed: () {},
-                          icon: const Icon(Icons.person_rounded)),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15),
+                          color: selectedIndex == 3
+                              ? Theme.of(context)
+                                  .colorScheme
+                                  .primary
+                                  .withOpacity(0.3)
+                              : Colors.transparent,
+                        ),
+                        child: IconButton(
+                            onPressed: () {
+                              context.push(ScreenPaths.profile);
+                            },
+                            icon: const Icon(Icons.person_rounded)),
+                      ),
                     ),
                   ),
 
@@ -115,17 +124,7 @@ class ResponsiveNavigationBar extends StatelessWidget {
                       label: "Home",
                       selected: selectedIndex == 0,
                       onTap: () {
-                        if (selectedIndex != 0) {
-                          Navigator.push(
-                            context,
-                            PageRouteBuilder(
-                              pageBuilder: (_, __, ___) => const HomeScreen(),
-                              //transitionDuration: Duration(seconds: 2),
-                              transitionsBuilder: (_, a, __, c) =>
-                                  FadeTransition(opacity: a, child: c),
-                            ),
-                          );
-                        }
+                        context.push(ScreenPaths.home);
                       },
                     ),
                     NavigationDrawerTile(
@@ -133,9 +132,7 @@ class ResponsiveNavigationBar extends StatelessWidget {
                       label: "Search",
                       selected: selectedIndex == 1,
                       onTap: () {
-                        if (selectedIndex != 1) {
-                          context.push(ScreenPaths.search);
-                        }
+                        context.push(ScreenPaths.search);
                       },
                     ),
                     NavigationDrawerTile(
@@ -143,9 +140,7 @@ class ResponsiveNavigationBar extends StatelessWidget {
                       label: "Library",
                       selected: selectedIndex == 2,
                       onTap: () {
-                        if (selectedIndex != 2) {
-                          context.push(ScreenPaths.library);
-                        }
+                        context.push(ScreenPaths.library);
                       },
                     ),
                     const Expanded(
@@ -156,9 +151,7 @@ class ResponsiveNavigationBar extends StatelessWidget {
                       label: "Profile",
                       selected: selectedIndex == 3,
                       onTap: () {
-                        if (selectedIndex != 3) {
-                          context.push(ScreenPaths.profile);
-                        }
+                        context.push(ScreenPaths.profile);
                       },
                     ),
                   ],

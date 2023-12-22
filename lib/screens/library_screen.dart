@@ -5,10 +5,12 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/responsive_navigation_bar.dart';
 import 'package:jellyflix/models/screen_paths.dart';
+import 'package:jellyflix/models/skeleton_item.dart';
 import 'package:jellyflix/models/sort_type.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:jellyflix/models/filter_type.dart';
 import 'package:openapi/openapi.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class LibraryScreen extends HookConsumerWidget {
   const LibraryScreen({super.key});
@@ -119,8 +121,10 @@ class LibraryScreen extends HookConsumerWidget {
                     .read(apiProvider)
                     .getFilterItems(genreIds: genreFilter.value),
                 builder: (context, AsyncSnapshot<List<BaseItemDto>> snapshot) {
+                  List<BaseItemDto> itemsList =
+                      List.filled(20, SkeletonItem.baseItemDto);
                   if (snapshot.hasData) {
-                    List<BaseItemDto> itemsList = snapshot.data!;
+                    itemsList = snapshot.data!;
 
                     // only filter if filters are set
                     if (filterType.value.isNotEmpty) {
@@ -164,7 +168,14 @@ class LibraryScreen extends HookConsumerWidget {
                         child: Text("No items found"),
                       );
                     }
-                    return GridView.builder(
+                  }
+                  return Skeletonizer(
+                    effect: ShimmerEffect(
+                      baseColor: Colors.grey.withOpacity(0.5),
+                      highlightColor: Colors.white.withOpacity(0.5),
+                    ),
+                    enabled: !snapshot.hasData,
+                    child: GridView.builder(
                         gridDelegate:
                             const SliverGridDelegateWithMaxCrossAxisExtent(
                                 maxCrossAxisExtent: 150,
@@ -241,12 +252,8 @@ class LibraryScreen extends HookConsumerWidget {
                               ),
                             ],
                           );
-                        });
-                  } else {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
-                  }
+                        }),
+                  );
                 },
               ),
             ),

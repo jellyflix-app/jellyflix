@@ -21,6 +21,7 @@ class SearchScreen extends HookConsumerWidget {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
               padding: const EdgeInsets.all(5.0),
@@ -39,6 +40,9 @@ class SearchScreen extends HookConsumerWidget {
                   },
                 ),
               ),
+            ),
+            const SizedBox(
+              height: 20,
             ),
             Expanded(
               child: (searchQuery.value ?? "").isEmpty
@@ -71,7 +75,8 @@ class SearchScreen extends HookConsumerWidget {
                                     element.type == BaseItemKind.boxSet)
                                 .toList();
                             return Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 movieList.isEmpty

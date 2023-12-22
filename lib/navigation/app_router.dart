@@ -5,6 +5,7 @@ import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
 import 'package:jellyflix/screens/detail_screen.dart';
 import 'package:jellyflix/screens/home_screen.dart';
+import 'package:jellyflix/screens/library_screen.dart';
 import 'package:jellyflix/screens/loading_screen.dart';
 import 'package:jellyflix/screens/login_screen.dart';
 import 'package:jellyflix/screens/profile_screen.dart';
@@ -22,7 +23,6 @@ class AppRouter {
 
   late final GoRouter _goRouter = GoRouter(
     initialLocation: ScreenPaths.login,
-    debugLogDiagnostics: true,
     routes: [
       GoRoute(
         path: ScreenPaths.home,
@@ -37,7 +37,7 @@ class AppRouter {
         pageBuilder: (context, state) => buildPageWithDefaultTransition(
           context: context,
           state: state,
-          child: const HomeScreen(),
+          child: const LibraryScreen(),
         ),
       ),
       GoRoute(

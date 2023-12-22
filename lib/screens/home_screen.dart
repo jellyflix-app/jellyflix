@@ -1,13 +1,15 @@
 import 'package:go_router/go_router.dart';
+import 'package:jellyflix/components/future_item_carousel.dart';
 import 'package:jellyflix/components/image_banner.dart';
-import 'package:jellyflix/components/item_carousel.dart';
 import 'package:jellyflix/components/responsive_navigation_bar.dart';
 import 'package:jellyflix/models/poster_type.dart';
 import 'package:jellyflix/models/screen_paths.dart';
+import 'package:jellyflix/models/skeleton_item.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:openapi/openapi.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 class HomeScreen extends HookConsumerWidget {
   const HomeScreen({super.key});
@@ -24,17 +26,24 @@ class HomeScreen extends HookConsumerWidget {
             FutureBuilder(
                 future: ref.read(apiProvider).getLatestItems("movies"),
                 builder: (context, AsyncSnapshot<List<BaseItemDto>> snapshot) {
+                  List<BaseItemDto> items = [
+                    SkeletonItem.baseItemDto,
+                    SkeletonItem.baseItemDto,
+                    SkeletonItem.baseItemDto
+                  ];
                   if (snapshot.hasData) {
                     // filter where backdrop image is not null
-                    var items = snapshot.data!;
+                    items = snapshot.data!;
                     items.shuffle();
                     items = items.sublist(0, 5);
-                    return ImageBanner(
-                      items: items,
-                    );
-                  } else {
-                    return const CircularProgressIndicator();
                   }
+
+                  return Skeletonizer(
+                    enabled: !snapshot.hasData,
+                    child: ImageBanner(
+                      items: items,
+                    ),
+                  );
                 }),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -44,91 +53,56 @@ class HomeScreen extends HookConsumerWidget {
                 //mainAxisSize: MainAxisSize.min,
                 children: [
                   // Continue carousel
-                  FutureBuilder(
+
+                  FutureItemCarousel(
                       future: ref.read(apiProvider).getContinueWatching(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          return ItemCarousel(
-                              onTap: (index) {
-                                context.push(Uri(
-                                    path: ScreenPaths.detail,
-                                    queryParameters: {
-                                      "id": snapshot.data!.items[index].id,
-                                      "selectedIndex": "0",
-                                    }).toString());
-                              },
-                              imageList: snapshot.data!.items.map((e) {
-                                return e.id!;
-                              }).toList(),
-                              titleList: snapshot.data!.items.map((e) {
-                                return e.name!;
-                              }).toList(),
-                              subtitleList: snapshot.data!.items.map((e) {
-                                return e.productionYear.toString();
-                              }).toList(),
-                              title: "Continue Watching");
-                        } else {
-                          return const CircularProgressIndicator();
-                        }
-                      }),
-                  FutureBuilder(
+                      onTap: (index, id) {
+                        context.push(
+                            Uri(path: ScreenPaths.detail, queryParameters: {
+                          "id": id,
+                          "selectedIndex": "0",
+                        }).toString());
+                      },
+                      imageMapping: (e) => e.id!,
+                      titleMapping: (e) => e.name!,
+                      subtitleMapping: (e) => e.productionYear.toString(),
+                      title: "Continue Watching"),
+
+                  FutureItemCarousel(
                       future: ref.read(apiProvider).getLatestItems("movies"),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          return ItemCarousel(
-                              onTap: (index) {
-                                context.push(Uri(
-                                    path: ScreenPaths.detail,
-                                    queryParameters: {
-                                      "id": snapshot.data![index].id!,
-                                      "selectedIndex": "0",
-                                    }).toString());
-                              },
-                              imageList: snapshot.data!.map((e) {
-                                return e.id!;
-                              }).toList(),
-                              titleList: snapshot.data!.map((e) {
-                                return e.name!;
-                              }).toList(),
-                              title: "Recently Added Movies",
-                              subtitleList: snapshot.data!.map((e) {
-                                return e.productionYear.toString();
-                              }).toList(),
-                              posterType: PosterType.vertical);
-                        } else {
-                          return const CircularProgressIndicator();
-                        }
-                      }),
-                  FutureBuilder(
-                      future: ref.read(apiProvider).getLatestItems("tvshows"),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData) {
-                          return ItemCarousel(
-                              onTap: (index) {
-                                context.push(Uri(
-                                    path: ScreenPaths.detail,
-                                    queryParameters: {
-                                      "id": snapshot.data![index].id!,
-                                      "selectedIndex": "0",
-                                    }).toString());
-                              },
-                              imageList: snapshot.data!.map((e) {
-                                return e.id!;
-                              }).toList(),
-                              titleList: snapshot.data!.map((e) {
-                                return e.name!;
-                              }).toList(),
-                              subtitleList: snapshot.data!.map((e) {
-                                return e.productionYear.toString();
-                              }).toList(),
-                              title: "Recently Added Shows",
-                              posterType: PosterType.vertical);
-                        } else {
-                          return const CircularProgressIndicator();
-                        }
-                      }),
+                      onTap: (index, id) {
+                        context.push(
+                            Uri(path: ScreenPaths.detail, queryParameters: {
+                          "id": id,
+                          "selectedIndex": "0",
+                        }).toString());
+                      },
+                      title: "Recently Added Movies",
+                      imageMapping: (e) => e.id!,
+                      titleMapping: (e) => e.name!,
+                      subtitleMapping: (e) => e.productionYear.toString(),
+                      posterType: PosterType.vertical),
+
+                  FutureItemCarousel(
+                    future: ref.read(apiProvider).getLatestItems("tvshows"),
+                    onTap: (index, id) {
+                      context
+                          .push(Uri(path: ScreenPaths.detail, queryParameters: {
+                        "id": id,
+                        "selectedIndex": "0",
+                      }).toString());
+                    },
+                    title: "Recently Added Shows",
+                    imageMapping: (e) => e.id!,
+                    titleMapping: (e) => e.name!,
+                    subtitleMapping: (e) => e.productionYear.toString(),
+                    posterType: PosterType.vertical,
+                  ),
                 ],
               ),
+            ),
+            const SizedBox(
+              height: 20,
             ),
           ],
         ),

@@ -6,6 +6,7 @@ import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:openapi/openapi.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -25,8 +26,13 @@ class DetailScreen extends HookConsumerWidget {
       body: FutureBuilder(
           future: ref.read(apiProvider).getItemDetails(itemId),
           builder: (context, AsyncSnapshot<BaseItemDto> snapshot) {
+            BaseItemDto data = $BaseItemDto();
             if (snapshot.hasData) {
-              return SingleChildScrollView(
+              data = snapshot.data!;
+            }
+            return SingleChildScrollView(
+              child: Skeletonizer(
+                enabled: !snapshot.hasData,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -75,12 +81,13 @@ class DetailScreen extends HookConsumerWidget {
                                 padding: const EdgeInsets.only(
                                     top: 8.0, left: 8.0, right: 8.0),
                                 child: Material(
+                                  borderRadius: BorderRadius.circular(10.0),
                                   elevation: 10.0,
                                   child: Container(
                                     width: 150.0,
-                                    height: 4 / 3 * 150.0,
+                                    height: 3 / 2 * 150.0,
                                     decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(4.0),
+                                      borderRadius: BorderRadius.circular(10.0),
                                       image: DecorationImage(
                                         fit: BoxFit.cover,
                                         image: ref.read(apiProvider).getImage(
@@ -98,7 +105,7 @@ class DetailScreen extends HookConsumerWidget {
                                       .end, // Align text to the bottom
                                   children: [
                                     Text(
-                                      snapshot.data!.name!,
+                                      data.name ?? "",
                                       style: const TextStyle(
                                         fontSize: 20.0,
                                         fontWeight: FontWeight.bold,
@@ -108,10 +115,9 @@ class DetailScreen extends HookConsumerWidget {
                                     Row(
                                       children: [
                                         Text(
-                                          snapshot.data!.premiereDate == null
+                                          data.premiereDate == null
                                               ? 'N/A'
-                                              : snapshot
-                                                  .data!.premiereDate!.year
+                                              : data.premiereDate!.year
                                                   .toString(),
                                           style: const TextStyle(
                                             fontSize: 12.0,
@@ -121,7 +127,7 @@ class DetailScreen extends HookConsumerWidget {
                                         Container(
                                           decoration: BoxDecoration(
                                               borderRadius:
-                                                  BorderRadius.circular(4.0),
+                                                  BorderRadius.circular(10.0),
                                               border: Border.all(
                                                 color: Colors.white,
                                                 width: 0.7,
@@ -129,11 +135,7 @@ class DetailScreen extends HookConsumerWidget {
                                           child: Padding(
                                             padding: const EdgeInsets.all(3.0),
                                             child: Text(
-                                              snapshot.data!.officialRating ==
-                                                      null
-                                                  ? 'N/A'
-                                                  : snapshot
-                                                      .data!.officialRating!,
+                                              data.officialRating ?? 'N/A',
                                               style: const TextStyle(
                                                 fontSize: 10.0,
                                               ),
@@ -145,7 +147,7 @@ class DetailScreen extends HookConsumerWidget {
                                     const SizedBox(height: 4.0),
                                     Row(
                                       children: [
-                                        snapshot.data!.communityRating == null
+                                        data.communityRating == null
                                             ? const SizedBox()
                                             : Row(
                                                 children: [
@@ -156,12 +158,10 @@ class DetailScreen extends HookConsumerWidget {
                                                   ),
                                                   const SizedBox(width: 4.0),
                                                   Text(
-                                                    (snapshot.data!
-                                                                .communityRating ==
+                                                    (data.communityRating ==
                                                             null)
                                                         ? 'N/A'
-                                                        : snapshot.data!
-                                                            .communityRating!
+                                                        : data.communityRating!
                                                             .roundToDouble()
                                                             .toString(),
                                                     style: const TextStyle(
@@ -171,7 +171,7 @@ class DetailScreen extends HookConsumerWidget {
                                                 ],
                                               ),
                                         const SizedBox(width: 16.0),
-                                        snapshot.data!.criticRating == null
+                                        data.criticRating == null
                                             ? const SizedBox()
                                             : Row(
                                                 children: [
@@ -182,7 +182,7 @@ class DetailScreen extends HookConsumerWidget {
                                                   ),
                                                   const SizedBox(width: 4.0),
                                                   Text(
-                                                    snapshot.data!.criticRating!
+                                                    data.criticRating!
                                                         .round()
                                                         .toString(),
                                                     style: const TextStyle(
@@ -274,36 +274,37 @@ class DetailScreen extends HookConsumerWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 20.0, vertical: 15.0),
                       child: Text(
-                        snapshot.data!.overview ?? 'N/A',
+                        data.overview ?? 'N/A',
                       ),
                     ),
                     // urls for review sites
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                      child: SizedBox(
-                        height: 20,
-                        child: ListView.builder(
-                          scrollDirection: Axis.horizontal,
-                          itemCount: snapshot.data!.externalUrls!.length,
-                          itemBuilder: (context, index) {
-                            return InkWell(
-                              onTap: () async {
-                                await launchUrl(Uri.dataFromString(
-                                    snapshot.data!.externalUrls![index].url!));
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 5.0),
-                                child: Text(
-                                  snapshot.data!.externalUrls![index].name!,
-                                  style: const TextStyle(
-                                      decoration: TextDecoration.underline),
+                    if (data.externalUrls != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: SizedBox(
+                          height: 20,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            itemCount: data.externalUrls!.length,
+                            itemBuilder: (context, index) {
+                              return InkWell(
+                                onTap: () async {
+                                  await launchUrl(Uri.dataFromString(
+                                      data.externalUrls![index].url!));
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 5.0),
+                                  child: Text(
+                                    data.externalUrls![index].name!,
+                                    style: const TextStyle(
+                                        decoration: TextDecoration.underline),
+                                  ),
                                 ),
-                              ),
-                            );
-                          },
+                              );
+                            },
+                          ),
                         ),
                       ),
-                    ),
                     Padding(
                       padding: const EdgeInsets.all(20.0),
                       child: Row(
@@ -325,48 +326,49 @@ class DetailScreen extends HookConsumerWidget {
                             ],
                           ),
                           const SizedBox(width: 20.0),
-                          Expanded(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.max,
-                              children: [
-                                // find every person that is a writer
-                                Text(snapshot.data!.people!
-                                        .where((element) =>
-                                            element.type == 'Writer')
-                                        .isEmpty
-                                    ? 'N/A'
-                                    : snapshot.data!.people!
-                                        .where((element) =>
-                                            element.type == 'Writer')
-                                        .map((e) => e.name!)
-                                        .join(", ")),
-                                Text(snapshot.data!.people!
-                                        .where((element) =>
-                                            element.type == 'Director')
-                                        .isEmpty
-                                    ? 'N/A'
-                                    : snapshot.data!.people!
-                                        .where((element) =>
-                                            element.type == 'Director')
-                                        .map((e) => e.name!)
-                                        .join(", ")),
-                                Text(
-                                  snapshot.data!.genres!.isEmpty
-                                      ? "N/A"
-                                      : snapshot.data!.genres!.join(", "),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ],
+                          if (data.people != null)
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.max,
+                                children: [
+                                  // find every person that is a writer
+                                  Text(data.people!
+                                          .where((element) =>
+                                              element.type == 'Writer')
+                                          .isEmpty
+                                      ? 'N/A'
+                                      : data.people!
+                                          .where((element) =>
+                                              element.type == 'Writer')
+                                          .map((e) => e.name!)
+                                          .join(", ")),
+                                  Text(data.people!
+                                          .where((element) =>
+                                              element.type == 'Director')
+                                          .isEmpty
+                                      ? 'N/A'
+                                      : data.people!
+                                          .where((element) =>
+                                              element.type == 'Director')
+                                          .map((e) => e.name!)
+                                          .join(", ")),
+                                  Text(
+                                    data.genres!.isEmpty
+                                        ? "N/A"
+                                        : data.genres!.join(", "),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ),
 
-                    snapshot.data!.isFolder!
+                    data.isFolder ?? false
                         ? Padding(
                             padding:
                                 const EdgeInsets.symmetric(horizontal: 20.0),
@@ -386,24 +388,30 @@ class DetailScreen extends HookConsumerWidget {
                                   future:
                                       ref.read(apiProvider).getEpisodes(itemId),
                                   builder: (context, snapshot) {
+                                    var seasons = [];
+                                    var seasonIds = [];
+                                    var episodes = [];
                                     if (snapshot.hasData) {
-                                      var seasons = snapshot.data!.items
+                                      seasons = snapshot.data!.items
                                           .map((e) => e.seasonName)
                                           .toSet()
                                           .toList();
 
                                       // get season ids
-                                      var seasonIds = snapshot.data!.items
+                                      seasonIds = snapshot.data!.items
                                           .map((e) => e.seasonId)
                                           .toSet()
                                           .toList();
                                       // get episodes for season
-                                      var episodes = snapshot.data!.items
+                                      episodes = snapshot.data!.items
                                           .where((element) =>
                                               element.seasonId ==
                                               seasonIds[seasonSelection.value])
                                           .toList();
-                                      return Column(
+                                    }
+                                    return Skeletonizer(
+                                      enabled: !snapshot.hasData,
+                                      child: Column(
                                         children: [
                                           SizedBox(
                                             width: MediaQuery.of(context)
@@ -549,40 +557,39 @@ class DetailScreen extends HookConsumerWidget {
                                             },
                                           ),
                                         ],
-                                      );
-                                    } else {
-                                      return const CircularProgressIndicator();
-                                    }
+                                      ),
+                                    );
+                                    // } else {
+                                    //   return const CircularProgressIndicator();
+                                    // }
                                   },
                                 ),
                               ],
                             ),
                           )
                         : const SizedBox(),
-                    snapshot.data!.people!.isEmpty
-                        ? const SizedBox()
-                        : Padding(
+                    data.people != null && data.people!.isNotEmpty
+                        ? Padding(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 20.0, vertical: 15.0),
                             child: ItemCarousel(
                               title: 'Cast',
-                              titleList: snapshot.data!.people!
-                                  .map((e) => e.name!)
-                                  .toList(),
-                              imageList: snapshot.data!.people!
-                                  .map((e) => e.id!)
-                                  .toList(),
-                              subtitleList: snapshot.data!.people!
-                                  .map((e) => e.role!)
-                                  .toList(),
+                              titleList:
+                                  data.people!.map((e) => e.name!).toList(),
+                              imageList:
+                                  data.people!.map((e) => e.id!).toList(),
+                              subtitleList:
+                                  data.people!.map((e) => e.role!).toList(),
                             ),
-                          ),
+                          )
+                        : const SizedBox(),
                   ],
                 ),
-              );
-            } else {
-              return const CircularProgressIndicator();
-            }
+              ),
+            );
+            // } else {
+            //   return const CircularProgressIndicator();
+            // }
           }),
     );
   }

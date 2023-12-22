@@ -59,11 +59,11 @@ class ApiService {
     }
   }
 
-  Future getContinueWatching() async {
+  Future<List<BaseItemDto>> getContinueWatching() async {
     var response = await _jellyfinApi!
         .getItemsApi()
         .getResumeItems(userId: _user!.id!, headers: headers);
-    return response.data!;
+    return response.data!.items!.toList();
   }
 
   Future<List<BaseItemDto>> getLatestItems(String collectionType) async {
