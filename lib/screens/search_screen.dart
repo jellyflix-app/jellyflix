@@ -21,6 +21,7 @@ class SearchScreen extends HookConsumerWidget {
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
               padding: const EdgeInsets.all(5.0),
@@ -39,6 +40,9 @@ class SearchScreen extends HookConsumerWidget {
                   },
                 ),
               ),
+            ),
+            const SizedBox(
+              height: 20,
             ),
             Expanded(
               child: (searchQuery.value ?? "").isEmpty
@@ -71,7 +75,8 @@ class SearchScreen extends HookConsumerWidget {
                                     element.type == BaseItemKind.boxSet)
                                 .toList();
                             return Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 movieList.isEmpty
@@ -79,6 +84,10 @@ class SearchScreen extends HookConsumerWidget {
                                     : ItemCarousel(
                                         imageList: movieList.map((e) {
                                           return e.id!;
+                                        }).toList(),
+                                        blurHashList: movieList.map((e) {
+                                          return e.imageBlurHashes?.primary
+                                              ?.values.first;
                                         }).toList(),
                                         titleList: movieList.map((e) {
                                           return e.name!;
@@ -98,6 +107,10 @@ class SearchScreen extends HookConsumerWidget {
                                     : ItemCarousel(
                                         imageList: seriesList.map((e) {
                                           return e.id!;
+                                        }).toList(),
+                                        blurHashList: seriesList.map((e) {
+                                          return e.imageBlurHashes?.primary
+                                              ?.values.first;
                                         }).toList(),
                                         titleList: seriesList.map((e) {
                                           return e.name!;
@@ -119,6 +132,10 @@ class SearchScreen extends HookConsumerWidget {
                                         imageList: episodeList.map((e) {
                                           return e.id!;
                                         }).toList(),
+                                        blurHashList: episodeList.map((e) {
+                                          return e.imageBlurHashes?.primary
+                                              ?.values.first;
+                                        }).toList(),
                                         titleList: episodeList.map((e) {
                                           return e.name!;
                                         }).toList(),
@@ -137,6 +154,10 @@ class SearchScreen extends HookConsumerWidget {
                                     : ItemCarousel(
                                         imageList: collectionList.map((e) {
                                           return e.id!;
+                                        }).toList(),
+                                        blurHashList: collectionList.map((e) {
+                                          return e.imageBlurHashes?.primary
+                                              ?.values.first;
                                         }).toList(),
                                         titleList: collectionList.map((e) {
                                           return e.name!;

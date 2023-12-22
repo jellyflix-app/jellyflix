@@ -1,3 +1,5 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:jellyflix/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:openapi/openapi.dart';
@@ -49,21 +51,38 @@ class ApiService {
     return response.data!;
   }
 
-  NetworkImage getImage(String id, ImageType type) {
+  CachedNetworkImage? getImage(
+      {required String id, required ImageType type, String? blurHash}) {
     String url = "$_baseUrl/Items/$id/Images/${type.name}";
-    try {
-      return NetworkImage(url, headers: headers);
-    } catch (e) {
-      return NetworkImage("https://www.jellyfin.org/images/logo-color.svg",
-          headers: headers);
-    }
+
+    return CachedNetworkImage(
+      width: double.infinity,
+      imageUrl: url,
+      httpHeaders: headers,
+      fit: BoxFit.cover,
+      placeholder: blurHash == null
+          ? null
+          : (context, url) {
+              return BlurHash(
+                hash: blurHash,
+                imageFit: BoxFit.cover,
+              );
+            },
+      errorWidget: (context, url, error) {
+        return const SizedBox();
+      },
+      errorListener: (value) {
+        //! Errors can't be caught right now
+        //! There is a pr to fix this: https://github.com/Baseflow/flutter_cached_network_image/pull/777
+      },
+    );
   }
 
-  Future getContinueWatching() async {
+  Future<List<BaseItemDto>> getContinueWatching() async {
     var response = await _jellyfinApi!
         .getItemsApi()
         .getResumeItems(userId: _user!.id!, headers: headers);
-    return response.data!;
+    return response.data!.items!.toList();
   }
 
   Future<List<BaseItemDto>> getLatestItems(String collectionType) async {

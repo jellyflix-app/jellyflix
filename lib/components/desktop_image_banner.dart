@@ -69,17 +69,23 @@ class DestkopImageBannerState extends ConsumerState<DesktopImageBanner> {
               return Stack(children: [
                 Align(
                   alignment: Alignment.centerRight,
-                  child: Container(
+                  child: SizedBox(
                     width: MediaQuery.of(context).size.width * 0.6,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                        image: ref.read(apiProvider).getImage(
-                            widget.items[index].id!,
-                            widget.items[index].backdropImageTags!.isNotEmpty
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.all(Radius.circular(10)),
+                      child: ref.read(apiProvider).getImage(
+                            id: widget.items[index].id!,
+                            type: widget
+                                    .items[index].backdropImageTags!.isNotEmpty
                                 ? ImageType.backdrop
-                                : ImageType.primary),
-                        fit: BoxFit.cover,
-                      ),
+                                : ImageType.primary,
+                            blurHash: widget
+                                    .items[index].backdropImageTags!.isNotEmpty
+                                ? widget.items[index].imageBlurHashes?.backdrop
+                                    ?.values.first
+                                : widget.items[index].imageBlurHashes?.primary
+                                    ?.values.first,
+                          ),
                     ),
                   ),
                 ),

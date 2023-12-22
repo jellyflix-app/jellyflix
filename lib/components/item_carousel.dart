@@ -10,6 +10,7 @@ class ItemCarousel extends HookConsumerWidget {
   final List titleList;
   final List imageList;
   final List subtitleList;
+  final List? blurHashList;
   final PosterType posterType;
   final Function(int)? onTap;
   late final double width;
@@ -19,6 +20,7 @@ class ItemCarousel extends HookConsumerWidget {
       {this.onTap,
       required this.imageList,
       required this.titleList,
+      this.blurHashList,
       this.title,
       subtitleList,
       this.posterType = PosterType.vertical,
@@ -84,11 +86,15 @@ class ItemCarousel extends HookConsumerWidget {
                                       offset: const Offset(0, 3),
                                     ),
                                   ],
-                                  image: DecorationImage(
-                                    fit: BoxFit.cover,
-                                    image: ref.read(apiProvider).getImage(
-                                        imageList[index], ImageType.primary),
-                                  ),
+                                ),
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(10.0),
+                                  child: ref.read(apiProvider).getImage(
+                                      id: imageList[index],
+                                      type: ImageType.primary,
+                                      blurHash: blurHashList == null
+                                          ? null
+                                          : blurHashList![index]),
                                 ),
                               ),
                             ),
