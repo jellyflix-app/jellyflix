@@ -208,13 +208,18 @@ class LibraryScreen extends HookConsumerWidget {
                                               offset: const Offset(0, 3),
                                             ),
                                           ],
-                                          image: DecorationImage(
-                                            fit: BoxFit.cover,
-                                            image: ref
-                                                .read(apiProvider)
-                                                .getImage(itemsList[index].id!,
-                                                    ImageType.primary),
-                                          ),
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(10)),
+                                          child: ref.read(apiProvider).getImage(
+                                              id: itemsList[index].id!,
+                                              type: ImageType.primary,
+                                              blurHash: itemsList[index]
+                                                  .imageBlurHashes
+                                                  ?.primary
+                                                  ?.values
+                                                  .first),
                                         ),
                                       ),
                                     ),

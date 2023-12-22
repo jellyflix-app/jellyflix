@@ -85,6 +85,10 @@ class SearchScreen extends HookConsumerWidget {
                                         imageList: movieList.map((e) {
                                           return e.id!;
                                         }).toList(),
+                                        blurHashList: movieList.map((e) {
+                                          return e.imageBlurHashes?.primary
+                                              ?.values.first;
+                                        }).toList(),
                                         titleList: movieList.map((e) {
                                           return e.name!;
                                         }).toList(),
@@ -103,6 +107,10 @@ class SearchScreen extends HookConsumerWidget {
                                     : ItemCarousel(
                                         imageList: seriesList.map((e) {
                                           return e.id!;
+                                        }).toList(),
+                                        blurHashList: seriesList.map((e) {
+                                          return e.imageBlurHashes?.primary
+                                              ?.values.first;
                                         }).toList(),
                                         titleList: seriesList.map((e) {
                                           return e.name!;
@@ -124,6 +132,10 @@ class SearchScreen extends HookConsumerWidget {
                                         imageList: episodeList.map((e) {
                                           return e.id!;
                                         }).toList(),
+                                        blurHashList: episodeList.map((e) {
+                                          return e.imageBlurHashes?.primary
+                                              ?.values.first;
+                                        }).toList(),
                                         titleList: episodeList.map((e) {
                                           return e.name!;
                                         }).toList(),
@@ -142,6 +154,10 @@ class SearchScreen extends HookConsumerWidget {
                                     : ItemCarousel(
                                         imageList: collectionList.map((e) {
                                           return e.id!;
+                                        }).toList(),
+                                        blurHashList: collectionList.map((e) {
+                                          return e.imageBlurHashes?.primary
+                                              ?.values.first;
                                         }).toList(),
                                         titleList: collectionList.map((e) {
                                           return e.name!;

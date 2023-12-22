@@ -64,6 +64,8 @@ class HomeScreen extends HookConsumerWidget {
                         }).toString());
                       },
                       imageMapping: (e) => e.id!,
+                      blurHashMapping: (e) =>
+                          e.imageBlurHashes?.primary?.values.first,
                       titleMapping: (e) => e.name!,
                       subtitleMapping: (e) => e.productionYear.toString(),
                       title: "Continue Watching"),
@@ -79,6 +81,8 @@ class HomeScreen extends HookConsumerWidget {
                       },
                       title: "Recently Added Movies",
                       imageMapping: (e) => e.id!,
+                      blurHashMapping: (e) =>
+                          e.imageBlurHashes?.primary?.values.first,
                       titleMapping: (e) => e.name!,
                       subtitleMapping: (e) => e.productionYear.toString(),
                       posterType: PosterType.vertical),
@@ -94,6 +98,8 @@ class HomeScreen extends HookConsumerWidget {
                     },
                     title: "Recently Added Shows",
                     imageMapping: (e) => e.id!,
+                    blurHashMapping: (e) =>
+                        e.imageBlurHashes?.primary?.values.first,
                     titleMapping: (e) => e.name!,
                     subtitleMapping: (e) => e.productionYear.toString(),
                     posterType: PosterType.vertical,

@@ -12,6 +12,7 @@ class FutureItemCarousel extends StatelessWidget {
   final Function titleMapping;
   final Function imageMapping;
   final Function subtitleMapping;
+  final Function blurHashMapping;
   final PosterType posterType;
   final Function(int, String)? onTap;
   final Future future;
@@ -21,6 +22,7 @@ class FutureItemCarousel extends StatelessWidget {
     this.title,
     required this.titleMapping,
     required this.imageMapping,
+    required this.blurHashMapping,
     required this.subtitleMapping,
     this.posterType = PosterType.vertical,
     this.onTap,
@@ -46,6 +48,9 @@ class FutureItemCarousel extends StatelessWidget {
                 }).toList(),
                 titleList: data.map((e) {
                   return titleMapping(e);
+                }).toList(),
+                blurHashList: data.map((e) {
+                  return blurHashMapping(e);
                 }).toList(),
                 subtitleList: data.map((e) {
                   return subtitleMapping(e);

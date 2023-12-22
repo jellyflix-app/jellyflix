@@ -42,16 +42,12 @@ class DetailScreen extends HookConsumerWidget {
                         children: [
                           Stack(
                             children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  image: DecorationImage(
-                                    image: ref
-                                        .read(apiProvider)
-                                        .getImage(itemId, ImageType.backdrop),
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
+                              ref.read(apiProvider).getImage(
+                                      id: itemId,
+                                      type: ImageType.backdrop,
+                                      blurHash: data.imageBlurHashes?.backdrop
+                                          ?.values.first) ??
+                                  const SizedBox(),
                               Container(
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
@@ -88,11 +84,14 @@ class DetailScreen extends HookConsumerWidget {
                                     height: 3 / 2 * 150.0,
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(10.0),
-                                      image: DecorationImage(
-                                        fit: BoxFit.cover,
-                                        image: ref.read(apiProvider).getImage(
-                                            itemId, ImageType.primary),
-                                      ),
+                                    ),
+                                    child: ClipRRect(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      child: ref.read(apiProvider).getImage(
+                                          id: itemId,
+                                          type: ImageType.primary,
+                                          blurHash: data.imageBlurHashes
+                                              ?.backdrop?[itemId]),
                                     ),
                                   ),
                                 ),
@@ -473,41 +472,38 @@ class DetailScreen extends HookConsumerWidget {
                                                         child: AspectRatio(
                                                           aspectRatio: 16 / 10,
                                                           child: Container(
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          10.0),
-                                                              boxShadow: [
-                                                                BoxShadow(
-                                                                  color: Colors
-                                                                      .black
-                                                                      .withOpacity(
-                                                                          0.5),
-                                                                  spreadRadius:
-                                                                      2,
-                                                                  blurRadius: 5,
-                                                                  offset:
-                                                                      const Offset(
-                                                                          0, 3),
-                                                                ),
-                                                              ],
-                                                              image:
-                                                                  DecorationImage(
-                                                                fit: BoxFit
-                                                                    .cover,
-                                                                image: ref
-                                                                    .read(
-                                                                        apiProvider)
-                                                                    .getImage(
-                                                                        item
-                                                                            .id!,
-                                                                        ImageType
-                                                                            .primary),
+                                                              decoration:
+                                                                  BoxDecoration(
+                                                                borderRadius:
+                                                                    BorderRadius
+                                                                        .circular(
+                                                                            10.0),
+                                                                boxShadow: [
+                                                                  BoxShadow(
+                                                                    color: Colors
+                                                                        .black
+                                                                        .withOpacity(
+                                                                            0.5),
+                                                                    spreadRadius:
+                                                                        2,
+                                                                    blurRadius:
+                                                                        5,
+                                                                    offset:
+                                                                        const Offset(
+                                                                            0,
+                                                                            3),
+                                                                  ),
+                                                                ],
                                                               ),
-                                                            ),
-                                                          ),
+                                                              child: ref.read(apiProvider).getImage(
+                                                                  id: item.id!,
+                                                                  type: ImageType
+                                                                      .primary,
+                                                                  blurHash: item
+                                                                      .imageBlurHashes
+                                                                      ?.primary
+                                                                      ?.values
+                                                                      .first)),
                                                         ),
                                                       ),
                                                       const SizedBox(
