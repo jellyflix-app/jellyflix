@@ -272,8 +272,8 @@ jobs:
         with:
           artifacts: |
             jellyflix-apk/*.apk
-            jellyflix-linux/*
-            jellyflix-windows/*
+            jellyflix-linux
+            jellyflix-windows
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ steps.version.outputs.content }}
           commit: ${{ github.sha }}
