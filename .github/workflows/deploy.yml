@@ -224,7 +224,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: jellyflix-windows
-          path: build/windows/x64/runner/Release/*.exe
+          path: build/windows/x64/runner/Release/*
 
   create_release:
     name: Create Release
@@ -273,7 +273,7 @@ jobs:
           artifacts: |
             jellyflix-apk/*.apk
             jellyflix-linux/*
-            jellyflix-windows/*.exe
+            jellyflix-windows/*
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ steps.version.outputs.content }}
           commit: ${{ github.sha }}
