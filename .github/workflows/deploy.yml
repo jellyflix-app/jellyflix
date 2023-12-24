@@ -170,12 +170,17 @@ jobs:
 
       - name: Build Linux
         run: flutter build linux --release
+      
+      - name: Zip Linux
+        uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r jellyflix-linux.zip ./build/linux/x64/release/bundle
 
       - name: Upload Linux
         uses: actions/upload-artifact@v2
         with:
           name: jellyflix-linux
-          path: ./build/linux/x64/release/bundle
+          path: jellyflix-linux.zip
 
   build_windows:
     name: Build Windows
@@ -220,11 +225,16 @@ jobs:
       - name: Build Windows
         run: flutter build windows --release
 
+      - name: Zip Windows
+        uses: montudor/action-zip@v1
+        with:
+          args: zip -qq -r jellyflix-windows.zip ./build/windows/x64/runner/Release
+
       - name: Upload Windows
         uses: actions/upload-artifact@v2
         with:
           name: jellyflix-windows
-          path: build/windows/x64/runner/Release/*
+          path: jellyflix-windows.zip
 
   create_release:
     name: Create Release
@@ -270,7 +280,7 @@ jobs:
         id: create_release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "jellyflix-apk/*.apk,jellyflix-linux,jellyflix-windows"
+          artifacts: "jellyflix-apk/*.apk,jellyflix-linux/*,jellyflix-windows/*"
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ steps.version.outputs.content }}
           commit: ${{ github.sha }}
