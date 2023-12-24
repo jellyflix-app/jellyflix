@@ -226,9 +226,7 @@ jobs:
         run: flutter build windows --release
 
       - name: Zip Windows
-        uses: montudor/action-zip@v1
-        with:
-          args: zip -qq -r jellyflix-windows.zip ./build/windows/x64/runner/Release
+        run: Compress-Archive -Path ./build/windows/x64/runner/Release/* -Destination jellyflix-windows.zip
 
       - name: Upload Windows
         uses: actions/upload-artifact@v2
