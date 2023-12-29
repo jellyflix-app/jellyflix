@@ -76,27 +76,23 @@ class ItemCarousel extends HookConsumerWidget {
                           children: [
                             Positioned.fill(
                               child: Container(
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.5),
-                                      spreadRadius: 2,
-                                      blurRadius: 5,
-                                      offset: const Offset(0, 3),
-                                    ),
-                                  ],
-                                ),
-                                child: ClipRRect(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  child: ref.read(apiProvider).getImage(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(10.0),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.5),
+                                        spreadRadius: 2,
+                                        blurRadius: 5,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  child: ref.read(apiProvider).newgetImage(
                                       id: imageList[index],
                                       type: ImageType.primary,
                                       blurHash: blurHashList == null
                                           ? null
-                                          : blurHashList![index]),
-                                ),
-                              ),
+                                          : blurHashList![index])),
                             ),
                             Positioned.fill(
                               child: Material(
