@@ -12,7 +12,7 @@ class ImageBanner extends StatelessWidget {
   const ImageBanner(
       {super.key,
       required this.items,
-      this.height = 600,
+      this.height = 500,
       this.scrollDuration = const Duration(seconds: 5)});
 
   @override

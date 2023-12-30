@@ -11,6 +11,9 @@ import 'package:jellyflix/screens/login_screen.dart';
 import 'package:jellyflix/screens/profile_screen.dart';
 import 'package:jellyflix/screens/search_screen.dart';
 import 'package:jellyflix/screens/player_screen.dart';
+import 'package:openapi/openapi.dart';
+
+final navigatorKey = GlobalKey<NavigatorState>();
 
 class AppRouter {
   GoRouter get router => _goRouter;
@@ -57,7 +60,12 @@ class AppRouter {
         pageBuilder: (context, state) => buildPageWithDefaultTransition(
           context: context,
           state: state,
-          child: PlayerScreen(itemId: state.uri.queryParameters['id']!),
+          child: PlayerScreen(
+              startTimeTicks:
+                  int.tryParse(state.uri.queryParameters['startTimeTicks']!) ??
+                      0,
+              streamUrlAndPlaybackInfo:
+                  state.extra as (String, PlaybackInfoResponse)),
         ),
       ),
       GoRoute(
@@ -99,6 +107,7 @@ class AppRouter {
       return null;
     },
     //refreshListenable: GoRouterRefreshStream(_ref),
+    navigatorKey: navigatorKey,
   );
 
   CustomTransitionPage buildPageWithDefaultTransition<T>({
