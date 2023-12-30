@@ -37,17 +37,16 @@ class DetailScreen extends HookConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     SizedBox(
-                      height: 300,
+                      height: 300 + MediaQuery.of(context).padding.top,
                       child: Stack(
                         children: [
                           Stack(
                             children: [
-                              ref.read(apiProvider).getImage(
-                                      id: itemId,
-                                      type: ImageType.backdrop,
-                                      blurHash: data.imageBlurHashes?.backdrop
-                                          ?.values.first) ??
-                                  const SizedBox(),
+                              ref.read(apiProvider).newgetImage(
+                                  id: itemId,
+                                  type: ImageType.primary,
+                                  blurHash:
+                                      data.imageBlurHashes?.primary?[itemId]),
                               Container(
                                 decoration: BoxDecoration(
                                   gradient: LinearGradient(
@@ -62,39 +61,49 @@ class DetailScreen extends HookConsumerWidget {
                               ),
                             ],
                           ),
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: BackButton(
-                                color: Colors.white,
-                                onPressed: () {
-                                  context.pop();
-                                }),
-                          ),
                           Row(
                             crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                    top: 8.0, left: 8.0, right: 8.0),
-                                child: Material(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  elevation: 10.0,
-                                  child: Container(
-                                    width: 150.0,
-                                    height: 3 / 2 * 150.0,
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                    ),
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(10.0),
-                                      child: ref.read(apiProvider).getImage(
-                                          id: itemId,
-                                          type: ImageType.primary,
-                                          blurHash: data.imageBlurHashes
-                                              ?.backdrop?[itemId]),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                        top:
+                                            MediaQuery.of(context).padding.top),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: BackButton(
+                                          color: Colors.white,
+                                          onPressed: () {
+                                            context.pop();
+                                          }),
                                     ),
                                   ),
-                                ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        top: 8.0, left: 8.0, right: 8.0),
+                                    child: Material(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      elevation: 10.0,
+                                      child: Container(
+                                        width: 150.0,
+                                        height: 3 / 2 * 150.0,
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                        ),
+                                        child: ref
+                                            .read(apiProvider)
+                                            .newgetImage(
+                                                id: itemId,
+                                                type: ImageType.primary,
+                                                blurHash: data.imageBlurHashes
+                                                    ?.primary?[itemId]),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                               const SizedBox(width: 8.0),
                               Expanded(
@@ -206,10 +215,23 @@ class DetailScreen extends HookConsumerWidget {
                       child: Row(
                         children: [
                           ElevatedButton.icon(
-                            onPressed: () {
-                              context.push(Uri(
-                                  path: ScreenPaths.player,
-                                  queryParameters: {"id": itemId}).toString());
+                            onPressed: () async {
+                              //TODO use next up episode if tvshow
+                              var playbackInfo = await ref
+                                  .read(apiProvider)
+                                  .getStreamUrlAndPlaybackInfo(
+                                      itemId: data.mediaSources!.first.id!);
+                              if (context.mounted) {
+                                context.push(
+                                    Uri(
+                                        path: ScreenPaths.player,
+                                        queryParameters: {
+                                          "startTimeTicks": data
+                                              .userData?.playbackPositionTicks
+                                              ?.toString()
+                                        }).toString(),
+                                    extra: playbackInfo);
+                              }
                             },
                             icon: const Icon(Icons.play_arrow),
                             label: const Text('Play'),
@@ -254,6 +276,9 @@ class DetailScreen extends HookConsumerWidget {
                             child: ElevatedButton(
                               onPressed: () {
                                 // Add your watched button logic here
+                                showLicensePage(
+                                    context: context,
+                                    applicationName: "Jellyflix");
                               },
                               style: ElevatedButton.styleFrom(
                                   minimumSize: Size.zero,
@@ -452,13 +477,24 @@ class DetailScreen extends HookConsumerWidget {
                                               return SizedBox(
                                                 height: 125,
                                                 child: InkWell(
-                                                  onTap: () {
-                                                    context.push(Uri(
-                                                        path:
-                                                            ScreenPaths.player,
-                                                        queryParameters: {
-                                                          "id": item.id!
-                                                        }).toString());
+                                                  onTap: () async {
+                                                    var playbackInfo = await ref
+                                                        .read(apiProvider)
+                                                        .getStreamUrlAndPlaybackInfo(
+                                                            itemId: item.id!);
+                                                    if (context.mounted) {
+                                                      context.push(
+                                                          Uri(
+                                                              path: ScreenPaths
+                                                                  .player,
+                                                              queryParameters: {
+                                                                "startTimeTicks": data
+                                                                    .userData
+                                                                    ?.playbackPositionTicks
+                                                                    ?.toString()
+                                                              }).toString(),
+                                                          extra: playbackInfo);
+                                                    }
                                                   },
                                                   child: Row(
                                                     mainAxisSize:
@@ -472,38 +508,39 @@ class DetailScreen extends HookConsumerWidget {
                                                         child: AspectRatio(
                                                           aspectRatio: 16 / 10,
                                                           child: Container(
-                                                              decoration:
-                                                                  BoxDecoration(
-                                                                borderRadius:
-                                                                    BorderRadius
-                                                                        .circular(
-                                                                            10.0),
-                                                                boxShadow: [
-                                                                  BoxShadow(
-                                                                    color: Colors
-                                                                        .black
-                                                                        .withOpacity(
-                                                                            0.5),
-                                                                    spreadRadius:
-                                                                        2,
-                                                                    blurRadius:
-                                                                        5,
-                                                                    offset:
-                                                                        const Offset(
-                                                                            0,
-                                                                            3),
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                              child: ref.read(apiProvider).getImage(
-                                                                  id: item.id!,
-                                                                  type: ImageType
-                                                                      .primary,
-                                                                  blurHash: item
-                                                                      .imageBlurHashes
-                                                                      ?.primary
-                                                                      ?.values
-                                                                      .first)),
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10.0),
+                                                              boxShadow: [
+                                                                BoxShadow(
+                                                                  color: Colors
+                                                                      .black
+                                                                      .withOpacity(
+                                                                          0.5),
+                                                                  spreadRadius:
+                                                                      2,
+                                                                  blurRadius: 5,
+                                                                  offset:
+                                                                      const Offset(
+                                                                          0, 3),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            child: ref
+                                                                .read(
+                                                                    apiProvider)
+                                                                .newgetImage(
+                                                                    id: item
+                                                                        .id!,
+                                                                    type: ImageType
+                                                                        .primary,
+                                                                    blurHash: item
+                                                                        .imageBlurHashes
+                                                                        ?.primary?[item.id!]),
+                                                          ),
                                                         ),
                                                       ),
                                                       const SizedBox(
@@ -540,8 +577,10 @@ class DetailScreen extends HookConsumerWidget {
                                                                         FontWeight
                                                                             .bold),
                                                               ),
-                                                              Text(
-                                                                  "${(item.runTimeTicks / 10000000 / 60).round()} min")
+                                                              Text(item.runTimeTicks ==
+                                                                      null
+                                                                  ? "N/A"
+                                                                  : "${(item.runTimeTicks! / 10000000 / 60).round()} min")
                                                             ],
                                                           ),
                                                         ),

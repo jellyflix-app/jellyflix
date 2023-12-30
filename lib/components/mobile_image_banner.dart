@@ -67,14 +67,11 @@ class MobileImageBannerState extends ConsumerState<MobileImageBanner> {
               // check if backdrop exists else use primary image
 
               return Stack(children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
-                  child: ref.read(apiProvider).getImage(
-                      id: widget.items[index].id!,
-                      type: widget.items[index].backdropImageTags!.isNotEmpty
-                          ? ImageType.backdrop
-                          : ImageType.primary),
-                ),
+                ref.read(apiProvider).newgetImage(
+                    id: widget.items[index].id!,
+                    type: widget.items[index].backdropImageTags!.isNotEmpty
+                        ? ImageType.backdrop
+                        : ImageType.primary),
                 Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(

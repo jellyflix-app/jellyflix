@@ -55,6 +55,9 @@ dependencies:
   skeletonizer: ^0.8.0
   cached_network_image: ^3.3.0
   flutter_blurhash: ^0.8.2
+  flutter_downloader: ^1.11.6
+  flutter_hls_parser: ^2.0.1
+  dio: ^5.4.0
 
 dev_dependencies:
   flutter_test:
