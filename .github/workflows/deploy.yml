@@ -170,11 +170,14 @@ jobs:
 
       - name: Build Linux
         run: flutter build linux --release
+        
+      - name: Go to build folder  
+        run: cd build/linux/x64/release/bundle
       
       - name: Zip Linux
         uses: montudor/action-zip@v1
         with:
-          args: zip -qq -r jellyflix-linux.zip ./build/linux/x64/release/bundle
+          args: zip -qq -r jellyflix-linux.zip ./*
 
       - name: Upload Linux
         uses: actions/upload-artifact@v2
