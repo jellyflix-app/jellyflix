@@ -67,7 +67,9 @@ class HomeScreen extends HookConsumerWidget {
                       blurHashMapping: (e) =>
                           e.imageBlurHashes?.primary?.values.first,
                       titleMapping: (e) => e.name!,
-                      subtitleMapping: (e) => e.productionYear.toString(),
+                      subtitleMapping: (e) => e.productionYear == null
+                          ? ""
+                          : e.productionYear.toString(),
                       title: "Continue Watching"),
 
                   FutureItemCarousel(

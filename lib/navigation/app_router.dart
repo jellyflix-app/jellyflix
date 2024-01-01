@@ -62,8 +62,7 @@ class AppRouter {
           state: state,
           child: PlayerScreen(
               startTimeTicks:
-                  int.tryParse(state.uri.queryParameters['startTimeTicks']!) ??
-                      0,
+                  int.parse(state.uri.queryParameters['startTimeTicks'] ?? "0"),
               streamUrlAndPlaybackInfo:
                   state.extra as (String, PlaybackInfoResponse)),
         ),

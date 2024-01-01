@@ -132,12 +132,25 @@ class DestkopImageBannerState extends ConsumerState<DesktopImageBanner> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               ElevatedButton.icon(
-                                onPressed: () {
-                                  context.push(Uri(
-                                      path: ScreenPaths.player,
-                                      queryParameters: {
-                                        "id": widget.items[index].id!
-                                      }).toString());
+                                onPressed: () async {
+                                  var playbackInfo = await ref
+                                      .read(apiProvider)
+                                      .getStreamUrlAndPlaybackInfo(
+                                          itemId: widget.items[index]
+                                              .mediaSources!.first.id!);
+                                  if (context.mounted) {
+                                    context.push(
+                                        Uri(
+                                            path: ScreenPaths.player,
+                                            queryParameters: {
+                                              "startTimeTicks": widget
+                                                  .items[index]
+                                                  .userData
+                                                  ?.playbackPositionTicks
+                                                  ?.toString()
+                                            }).toString(),
+                                        extra: playbackInfo);
+                                  }
                                 },
                                 label: const Text("Play"),
                                 icon: const Icon(Icons.play_arrow_rounded),

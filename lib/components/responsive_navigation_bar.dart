@@ -19,6 +19,7 @@ class ResponsiveNavigationBar extends StatelessWidget {
         children: [
           // Show the navigaiton rail if screen width >= 640
           if (MediaQuery.of(context).size.width >= 640 &&
+                  MediaQuery.of(context).size.width < 1100 ||
               MediaQuery.of(context).orientation == Orientation.portrait)
             Container(
               decoration: BoxDecoration(
@@ -95,8 +96,7 @@ class ResponsiveNavigationBar extends StatelessWidget {
               ),
             ),
 
-          if (MediaQuery.of(context).size.width >= 640 &&
-              MediaQuery.of(context).orientation == Orientation.landscape)
+          if (MediaQuery.of(context).size.width >= 1100)
             Container(
               decoration: BoxDecoration(
                   // add elevation
