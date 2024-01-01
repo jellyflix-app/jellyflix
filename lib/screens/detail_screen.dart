@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:jellyflix/components/item_carousel.dart';
 import 'package:jellyflix/components/responsive_navigation_bar.dart';
 import 'package:jellyflix/models/screen_paths.dart';
+import 'package:jellyflix/models/skeleton_item.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:openapi/openapi.dart';
@@ -26,7 +27,7 @@ class DetailScreen extends HookConsumerWidget {
       body: FutureBuilder(
           future: ref.read(apiProvider).getItemDetails(itemId),
           builder: (context, AsyncSnapshot<BaseItemDto> snapshot) {
-            BaseItemDto data = $BaseItemDto();
+            BaseItemDto data = SkeletonItem.baseItemDto;
             if (snapshot.hasData) {
               data = snapshot.data!;
             }
