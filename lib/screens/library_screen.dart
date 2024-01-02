@@ -178,8 +178,8 @@ class LibraryScreen extends HookConsumerWidget {
                       child: GridView.builder(
                           gridDelegate:
                               const SliverGridDelegateWithMaxCrossAxisExtent(
-                                  maxCrossAxisExtent: 150,
-                                  mainAxisExtent: 215,
+                                  maxCrossAxisExtent: 125,
+                                  mainAxisExtent: 250,
                                   crossAxisSpacing: 10,
                                   mainAxisSpacing: 10),
                           itemCount: itemsList.length,
@@ -208,22 +208,22 @@ class LibraryScreen extends HookConsumerWidget {
                                               ),
                                             ],
                                           ),
-                                          child: ref
-                                              .read(apiProvider)
-                                              .newgetImage(
-                                                  id: itemsList[index].id!,
-                                                  type: ImageType.primary,
-                                                  blurHash: itemsList[index]
-                                                      .imageBlurHashes
-                                                      ?.primary
-                                                      ?.values
-                                                      .first),
+                                          child: ref.read(apiProvider).getImage(
+                                              id: itemsList[index].id!,
+                                              type: ImageType.primary,
+                                              blurHash: itemsList[index]
+                                                  .imageBlurHashes
+                                                  ?.primary
+                                                  ?.values
+                                                  .first),
                                         ),
                                       ),
                                       Positioned.fill(
                                         child: Material(
                                           color: Colors.transparent,
                                           child: InkWell(
+                                            borderRadius:
+                                                BorderRadius.circular(10.0),
                                             onTap: () {
                                               context.push(Uri(
                                                   path: ScreenPaths.detail,

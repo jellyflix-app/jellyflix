@@ -38,3 +38,6 @@ flutter run
 
 ## Linux
 If you want to build Jellyflix for Linux you need some additional dependencies: `libmpv-dev, mpv, libsecret-1-dev, libjsoncpp-dev
+
+## Privacy
+Jellyflix doesn't collect data and doesn't send data to third parties.

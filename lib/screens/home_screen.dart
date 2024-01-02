@@ -32,10 +32,15 @@ class HomeScreen extends HookConsumerWidget {
                     SkeletonItem.baseItemDto
                   ];
                   if (snapshot.hasData) {
+                    if (snapshot.data!.isEmpty) {
+                      return const SizedBox.shrink();
+                    }
                     // filter where backdrop image is not null
                     items = snapshot.data!;
                     items.shuffle();
-                    items = items.sublist(0, 5);
+                    if (items.length > 5) {
+                      items = items.sublist(0, 5);
+                    }
                   }
 
                   return Skeletonizer(

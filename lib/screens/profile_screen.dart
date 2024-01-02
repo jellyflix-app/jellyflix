@@ -18,7 +18,16 @@ class ProfileScreen extends HookConsumerWidget {
           children: [
             ElevatedButton(
                 onPressed: () async {
+                  await ref.read(authProvider).updateCurrentProfileIndex(null);
+                  if (context.mounted) {
+                    context.go(ScreenPaths.profileSelection);
+                  }
+                },
+                child: const Text("Switch Profile")),
+            ElevatedButton(
+                onPressed: () async {
                   await ref.read(authProvider).logout();
+
                   if (context.mounted) {
                     context.go(ScreenPaths.login);
                   }

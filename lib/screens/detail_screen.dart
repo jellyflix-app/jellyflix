@@ -43,9 +43,10 @@ class DetailScreen extends HookConsumerWidget {
                         children: [
                           Stack(
                             children: [
-                              ref.read(apiProvider).newgetImage(
+                              ref.read(apiProvider).getImage(
+                                  borderRadius: BorderRadius.zero,
                                   id: itemId,
-                                  type: ImageType.primary,
+                                  type: ImageType.backdrop,
                                   blurHash:
                                       data.imageBlurHashes?.primary?[itemId]),
                               Container(
@@ -94,13 +95,11 @@ class DetailScreen extends HookConsumerWidget {
                                           borderRadius:
                                               BorderRadius.circular(10.0),
                                         ),
-                                        child: ref
-                                            .read(apiProvider)
-                                            .newgetImage(
-                                                id: itemId,
-                                                type: ImageType.primary,
-                                                blurHash: data.imageBlurHashes
-                                                    ?.primary?[itemId]),
+                                        child: ref.read(apiProvider).getImage(
+                                            id: itemId,
+                                            type: ImageType.primary,
+                                            blurHash: data.imageBlurHashes
+                                                ?.primary?[itemId]),
                                       ),
                                     ),
                                   ),
@@ -533,7 +532,7 @@ class DetailScreen extends HookConsumerWidget {
                                                             child: ref
                                                                 .read(
                                                                     apiProvider)
-                                                                .newgetImage(
+                                                                .getImage(
                                                                     id: item
                                                                         .id!,
                                                                     type: ImageType

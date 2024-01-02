@@ -67,7 +67,7 @@ class MobileImageBannerState extends ConsumerState<MobileImageBanner> {
               // check if backdrop exists else use primary image
 
               return Stack(children: [
-                ref.read(apiProvider).newgetImage(
+                ref.read(apiProvider).getImage(
                     id: widget.items[index].id!,
                     type: widget.items[index].backdropImageTags!.isNotEmpty
                         ? ImageType.backdrop

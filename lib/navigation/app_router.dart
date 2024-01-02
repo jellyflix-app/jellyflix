@@ -7,7 +7,7 @@ import 'package:jellyflix/screens/detail_screen.dart';
 import 'package:jellyflix/screens/home_screen.dart';
 import 'package:jellyflix/screens/library_screen.dart';
 import 'package:jellyflix/screens/loading_screen.dart';
-import 'package:jellyflix/screens/login_screen.dart';
+import 'package:jellyflix/screens/login_wrapper_screen.dart';
 import 'package:jellyflix/screens/profile_screen.dart';
 import 'package:jellyflix/screens/search_screen.dart';
 import 'package:jellyflix/screens/player_screen.dart';
@@ -25,6 +25,7 @@ class AppRouter {
   }
 
   late final GoRouter _goRouter = GoRouter(
+    debugLogDiagnostics: true,
     initialLocation: ScreenPaths.login,
     routes: [
       GoRoute(
@@ -84,12 +85,14 @@ class AppRouter {
         ),
       ),
       GoRoute(
-          path: ScreenPaths.login,
-          pageBuilder: (context, state) => buildPageWithDefaultTransition(
-                context: context,
-                state: state,
-                child: const LoginScreen(),
-              ))
+        path: ScreenPaths.login,
+        pageBuilder: (context, state) => buildPageWithDefaultTransition(
+          context: context,
+          state: state,
+          maintainState: false,
+          child: const LoginWrapperScreen(),
+        ),
+      ),
     ],
     errorBuilder: (context, state) {
       //TODO Add 404 screen
@@ -113,10 +116,12 @@ class AppRouter {
     required BuildContext context,
     required GoRouterState state,
     required Widget child,
+    bool maintainState = true,
   }) {
     return CustomTransitionPage<T>(
       key: state.pageKey,
       child: child,
+      maintainState: maintainState,
       transitionsBuilder: (context, animation, secondaryAnimation, child) =>
           FadeTransition(opacity: animation, child: child),
     );
