@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
+import 'package:jellyflix/components/profile_placeholder_image.dart';
 import 'package:jellyflix/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:openapi/openapi.dart';
@@ -24,7 +25,7 @@ class ApiService {
     return ApiService();
   }
 
-  login(String baseUrl, String username, String pw) async {
+  Future<User> login(String baseUrl, String username, String pw) async {
     // TODO add error handling
     _jellyfinApi = Openapi(basePathOverride: baseUrl);
     var response = await _jellyfinApi!.getUserApi().authenticateUserByName(
@@ -41,6 +42,7 @@ class ApiService {
       id: response.data!.user!.id,
       name: response.data!.user!.name,
     );
+    return _user!;
   }
 
   Future<BaseItemDto> getItemDetails(String id) async {
@@ -52,8 +54,11 @@ class ApiService {
     return response.data!;
   }
 
-  CachedNetworkImage newgetImage(
-      {required String id, required ImageType type, String? blurHash}) {
+  CachedNetworkImage getImage(
+      {required String id,
+      required ImageType type,
+      String? blurHash,
+      BorderRadius? borderRadius}) {
     String url = "$_baseUrl/Items/$id/Images/${type.name}";
 
     return CachedNetworkImage(
@@ -63,7 +68,7 @@ class ApiService {
       fit: BoxFit.cover,
       imageBuilder: (context, imageProvider) => Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10.0),
+          borderRadius: borderRadius ?? BorderRadius.circular(10.0),
           image: DecorationImage(
             image: imageProvider,
             fit: BoxFit.cover,
@@ -87,6 +92,24 @@ class ApiService {
       errorListener: (value) {
         //! Errors can't be caught right now
         //! There is a pr to fix this: https://github.com/Baseflow/flutter_cached_network_image/pull/777
+      },
+    );
+  }
+
+  CachedNetworkImage getProfileImage(User user) {
+    return CachedNetworkImage(
+      width: double.infinity,
+      fit: BoxFit.cover,
+      imageUrl: "${user.serverAdress}/Users/${user.id}/Images/Profile",
+      placeholder: (context, url) {
+        return const ProfilePlaceholderImage();
+      },
+      errorWidget: (context, url, error) {
+        return const ProfilePlaceholderImage();
+      },
+      errorListener: (value) {
+        //! Errors can't be caught right now
+        //! There is a pr to fix this
       },
     );
   }
@@ -318,7 +341,6 @@ class ApiService {
         response = await postPlaybackInfoRequest(itemId, maxStreaminBitrate,
             audioStreamIndex, subtitleStreamIndex, startTimeTicks, true);
       }
-      print("$_baseUrl${response.data!.mediaSources!.first.transcodingUrl}");
       return (
         "$_baseUrl${response.data!.mediaSources!.first.transcodingUrl}",
         response.data!

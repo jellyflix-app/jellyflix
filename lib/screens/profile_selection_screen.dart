@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/profile_card.dart';
 import 'package:jellyflix/models/screen_paths.dart';
+import 'package:jellyflix/providers/api_provider.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
 import 'package:jellyflix/screens/login_screen.dart';
 
@@ -21,7 +22,7 @@ class ProfileSelectionScreen extends HookConsumerWidget {
               if (snapshot.hasData) {
                 return Center(
                   child: ConstrainedBox(
-                    constraints: BoxConstraints(maxWidth: 750),
+                    constraints: const BoxConstraints(maxWidth: 750),
                     child: Wrap(
                       spacing: 20,
                       runSpacing: 20,
@@ -42,26 +43,34 @@ class ProfileSelectionScreen extends HookConsumerWidget {
                             },
                           );
                         }
+
                         return ProfileCard(
-                            title: snapshot.data![index].$2,
-                            subtitle: snapshot.data![index].$3,
-                            image: CircleAvatar(
-                                radius: 50,
-                                backgroundImage: NetworkImage(
-                                    "https://www.gravatar.com/avatar/205e460b479e2e5b48aec07710c08d50?s=200")),
+                            title: snapshot.data![index].name!,
+                            subtitle: snapshot.data![index].serverAdress!,
+                            image: SizedBox(
+                              width: 100,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(100),
+                                child: ref
+                                    .read(apiProvider)
+                                    .getProfileImage(snapshot.data![index]),
+                              ),
+                            ),
                             onTap: () async {
                               await ref
                                   .read(authProvider)
                                   .updateCurrentProfileIndex(
-                                      snapshot.data![index].$1);
-                              context.push(ScreenPaths.home);
+                                      snapshot.data![index].profileIndex!);
+                              if (context.mounted) {
+                                context.push(ScreenPaths.home);
+                              }
                             });
                       }),
                     ),
                   ),
                 );
               }
-              return Center(
+              return const Center(
                 child: Text("Bla"),
               );
             },

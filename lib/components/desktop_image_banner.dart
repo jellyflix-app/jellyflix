@@ -71,7 +71,8 @@ class DestkopImageBannerState extends ConsumerState<DesktopImageBanner> {
                   alignment: Alignment.centerRight,
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width * 0.6,
-                    child: ref.read(apiProvider).newgetImage(
+                    child: ref.read(apiProvider).getImage(
+                          borderRadius: BorderRadius.zero,
                           id: widget.items[index].id!,
                           type:
                               widget.items[index].backdropImageTags!.isNotEmpty

@@ -87,7 +87,7 @@ class ItemCarousel extends HookConsumerWidget {
                                       ),
                                     ],
                                   ),
-                                  child: ref.read(apiProvider).newgetImage(
+                                  child: ref.read(apiProvider).getImage(
                                       id: imageList[index],
                                       type: ImageType.primary,
                                       blurHash: blurHashList == null
@@ -98,6 +98,7 @@ class ItemCarousel extends HookConsumerWidget {
                               child: Material(
                                 color: Colors.transparent,
                                 child: InkWell(
+                                  borderRadius: BorderRadius.circular(10.0),
                                   onTap: () {
                                     if (onTap != null) {
                                       onTap!(index);

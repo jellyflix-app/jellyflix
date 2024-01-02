@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/material.dart';
+import 'package:jellyflix/models/user.dart';
 import 'package:jellyflix/services/api_service.dart';
 import 'package:jellyflix/services/secure_storage_service.dart';
 
@@ -30,7 +32,7 @@ class AuthService {
       return false;
     }
     String? storedUsername =
-        await _secureStorageService.read("username${profileIndex!}");
+        await _secureStorageService.read("username$profileIndex");
     String? storedPassword =
         await _secureStorageService.read("password$profileIndex");
     String? storedServerAdress =
@@ -47,6 +49,7 @@ class AuthService {
       _authStateStream.add(false);
       return false;
     } catch (e) {
+      debugPrint(e.toString());
       _authStateStream.add(false);
       return false;
     }
@@ -57,18 +60,19 @@ class AuthService {
         !serverAdress.startsWith("https://")) {
       serverAdress = "http://$serverAdress";
     }
+    User? user;
     try {
-      await _apiService.login(serverAdress, username, password);
+      user = await _apiService.login(serverAdress, username, password);
     } catch (e) {
       if (serverAdress.split(":").last != "8096" &&
           serverAdress.split(":").length == 2) {
         serverAdress = "$serverAdress:8096";
-        await _apiService.login(serverAdress, username, password);
+        user = await _apiService.login(serverAdress, username, password);
       } else {
         rethrow;
       }
     }
-    int profileIndex = await saveProfile(username, password, serverAdress);
+    int profileIndex = await saveProfile(user, password, serverAdress);
     await updateCurrentProfileIndex(profileIndex);
     _authStateStream.add(true);
   }
@@ -84,12 +88,16 @@ class AuthService {
     await _secureStorageService.delete("username${profileIndex!}");
     await _secureStorageService.delete("password$profileIndex");
     await _secureStorageService.delete("serverAdress$profileIndex");
+    await _secureStorageService.delete("userid$profileIndex");
     await _secureStorageService.delete("currentProfileIndex");
     _authStateStream.add(false);
   }
 
   Future<int> saveProfile(
-      String username, String password, String serverAdress) async {
+    User user,
+    String password,
+    String serverAdress,
+  ) async {
     var profileIndex = 0;
     // check if username with same name exists
     var allValues = await _secureStorageService.readAll();
@@ -101,9 +109,9 @@ class AuthService {
     if (profileIndex > 24) {
       throw Exception("Max 25 profiles allowed");
     }
-    await _secureStorageService.write("username$profileIndex", username);
-    print(await _secureStorageService.read("username$profileIndex"));
+    await _secureStorageService.write("username$profileIndex", user.name);
     await _secureStorageService.write("password$profileIndex", password);
+    await _secureStorageService.write("userid$profileIndex", user.id);
     await _secureStorageService.write(
         "serverAdress$profileIndex", serverAdress);
 
@@ -139,19 +147,20 @@ class AuthService {
     return allValues.isNotEmpty;
   }
 
-  Future<List<(int, String, String)>> getAllProfiles() async {
+  Future<List<User>> getAllProfiles() async {
     var allValues = await _secureStorageService.contains("username");
 
-    var profiles = <(int, String, String)>[];
+    List<User> profiles = [];
     allValues.forEach((key, value) async {
       var profileIndex = int.parse(key.split("username").last);
       var serverAdress =
           await _secureStorageService.read("serverAdress$profileIndex");
-      profiles.add((
-        profileIndex,
-        value,
-        serverAdress!,
-      ));
+      var userId = await _secureStorageService.read("userid$profileIndex");
+      profiles.add(User(
+          profileIndex: profileIndex,
+          name: value,
+          serverAdress: serverAdress!,
+          id: userId));
     });
     return profiles;
   }

@@ -55,6 +55,17 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
               .then((value) => debugPrint(value + "DONE"));
         }
         player.stream.error.listen((error) => throw Exception(error));
+        player.stream.completed.listen((completed) async {
+          if (completed) {
+            await defaultExitNativeFullscreen();
+            if (key.currentState?.isFullscreen() ?? false) {
+              await key.currentState?.exitFullscreen();
+            }
+            if (context.mounted) {
+              context.pop();
+            }
+          }
+        });
         WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
           key.currentState?.enterFullscreen();
         });
@@ -303,9 +314,10 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
       BackButton(
         onPressed: () async {
           await defaultExitNativeFullscreen();
-
+          if (key.currentState?.isFullscreen() ?? false) {
+            await key.currentState?.exitFullscreen();
+          }
           if (context.mounted) {
-            context.pop();
             context.pop();
           }
         },
