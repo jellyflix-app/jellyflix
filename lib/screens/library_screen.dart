@@ -178,8 +178,8 @@ class LibraryScreen extends HookConsumerWidget {
                       child: GridView.builder(
                           gridDelegate:
                               const SliverGridDelegateWithMaxCrossAxisExtent(
-                                  maxCrossAxisExtent: 150,
-                                  mainAxisExtent: 215,
+                                  maxCrossAxisExtent: 125,
+                                  mainAxisExtent: 250,
                                   crossAxisSpacing: 10,
                                   mainAxisSpacing: 10),
                           itemCount: itemsList.length,

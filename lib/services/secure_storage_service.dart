@@ -7,7 +7,7 @@ class SecureStorageService {
     return await _storage.read(key: key);
   }
 
-  Future<void> write(String key, String value) async {
+  Future<void> write(String key, String? value) async {
     await _storage.write(key: key, value: value);
   }
 
@@ -16,7 +16,18 @@ class SecureStorageService {
   }
 
   Future<void> deleteAll() async {
-    //! doesnt work on windows
     await _storage.deleteAll();
+  }
+
+  Future<Map<String, String>> readAll() async {
+    return await _storage.readAll();
+  }
+
+  Future<Map<String, String>> contains(String contains) async {
+    var allValues = await _storage.readAll();
+    var filteredValues = allValues.entries
+        .where((element) => element.key.contains(contains))
+        .toList();
+    return Map.fromEntries(filteredValues);
   }
 }

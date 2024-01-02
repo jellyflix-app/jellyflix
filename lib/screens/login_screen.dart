@@ -15,6 +15,7 @@ class LoginScreen extends HookConsumerWidget {
     final password = useTextEditingController();
     final serverAddress = useTextEditingController();
     return Scaffold(
+      appBar: AppBar(),
       body: Center(
           child: SingleChildScrollView(
         child: SizedBox(

@@ -38,6 +38,9 @@ class FutureItemCarousel extends StatelessWidget {
               List.filled(Random().nextInt(4) + 3, SkeletonItem.baseItemDto);
           if (snapshot.hasData) {
             data = snapshot.data!;
+            if (data.isEmpty) {
+              return const SizedBox.shrink();
+            }
           }
           return Skeletonizer(
             effect: const ShimmerEffect(),
