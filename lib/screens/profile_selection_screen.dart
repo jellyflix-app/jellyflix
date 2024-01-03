@@ -51,9 +51,8 @@ class ProfileSelectionScreen extends HookConsumerWidget {
                               width: 100,
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(100),
-                                child: ref
-                                    .read(apiProvider)
-                                    .getProfileImage(snapshot.data![index]),
+                                child: ref.read(apiProvider).getProfileImage(
+                                    user: snapshot.data![index]),
                               ),
                             ),
                             onTap: () async {

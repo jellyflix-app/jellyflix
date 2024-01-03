@@ -9,7 +9,6 @@ import 'package:built_collection/built_collection.dart';
 
 class ApiService {
   Openapi? _jellyfinApi;
-  String? _baseUrl;
   User? _user;
   Map<String, String> headers = {
     "Accept": "application/json",
@@ -20,6 +19,8 @@ class ApiService {
     "Content-Type": "application/json",
     "Connection": "keep-alive",
   };
+
+  User? get currentUser => _user;
 
   build() {
     return ApiService();
@@ -37,10 +38,10 @@ class ApiService {
     headers["Authorization"] =
         "${headers["Authorization"]!}, Token=\"${response.data!.accessToken!}\"";
     headers["Origin"] = baseUrl;
-    _baseUrl = baseUrl;
     _user = User(
       id: response.data!.user!.id,
       name: response.data!.user!.name,
+      serverAdress: baseUrl,
     );
     return _user!;
   }
@@ -59,7 +60,7 @@ class ApiService {
       required ImageType type,
       String? blurHash,
       BorderRadius? borderRadius}) {
-    String url = "$_baseUrl/Items/$id/Images/${type.name}";
+    String url = "${_user!.serverAdress}/Items/$id/Images/${type.name}";
 
     return CachedNetworkImage(
       width: double.infinity,
@@ -96,7 +97,8 @@ class ApiService {
     );
   }
 
-  CachedNetworkImage getProfileImage(User user) {
+  CachedNetworkImage getProfileImage({User? user}) {
+    user ??= _user!;
     return CachedNetworkImage(
       width: double.infinity,
       fit: BoxFit.cover,
@@ -320,7 +322,7 @@ class ApiService {
       if (response.data!.mediaSources!.toList().first.supportsDirectPlay ==
           true) {
         String url =
-            "$_baseUrl/Videos/$itemId/stream?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}";
+            "${_user!.serverAdress}/Videos/$itemId/stream?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}";
         if (canUseStatic) {
           url += "&Static=true";
         }
@@ -329,7 +331,7 @@ class ApiService {
       if (response.data!.mediaSources!.toList().first.supportsDirectStream ==
           true) {
         String url =
-            "$_baseUrl/Videos/$itemId/stream.${response.data!.mediaSources!.first.container}?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}";
+            "${_user!.serverAdress}/Videos/$itemId/stream.${response.data!.mediaSources!.first.container}?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}";
         if (canUseStatic) {
           url += "&Static=true";
         }
@@ -342,7 +344,7 @@ class ApiService {
             audioStreamIndex, subtitleStreamIndex, startTimeTicks, true);
       }
       return (
-        "$_baseUrl${response.data!.mediaSources!.first.transcodingUrl}",
+        "${_user!.serverAdress}${response.data!.mediaSources!.first.transcodingUrl}",
         response.data!
       );
     }
@@ -402,5 +404,21 @@ class ApiService {
             ..deviceProfile = deviceProfile),
         );
     return response;
+  }
+
+  Future<int> authorizeQuickConnect(String secret) async {
+    try {
+      var response = await _jellyfinApi!.getQuickConnectApi().authorize(
+            code: secret,
+            headers: headers,
+          );
+      if (response.data! == true) {
+        return 200;
+      } else {
+        return 400;
+      }
+    } on DioException catch (_) {
+      return _.response!.statusCode ?? 400;
+    }
   }
 }
