@@ -217,14 +217,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.3"
-  cupertino_icons:
-    dependency: "direct main"
-    description:
-      name: cupertino_icons
-      sha256: d57953e10f9f8327ce64a508a355f0b1ec902193f66288e8cb5070e7c47eeb2d
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.6"
   custom_lint:
     dependency: "direct dev"
     description:
@@ -350,14 +342,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.11.6"
-  flutter_hls_parser:
-    dependency: "direct main"
-    description:
-      name: flutter_hls_parser
-      sha256: f4b7df4f927623aea5c72006232693e07fdd11438f600c08670d6a23c1aa85c8
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.1"
   flutter_hooks:
     dependency: "direct main"
     description:
@@ -709,8 +693,8 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: f1ec0659fd18d1ba338c4560fff5cfa21668468f
-      url: "https://github.com/Kara-Zor-El/jellyfin_api.git"
+      resolved-ref: "791fb189291815f0cbd525dffe127b087e359005"
+      url: "https://github.com/jdk-21/jellyfin-api-dart.git"
     source: git
     version: "1.0.0"
   package_config:

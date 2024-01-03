@@ -29,7 +29,7 @@ class ApiService {
     // TODO add error handling
     _jellyfinApi = Openapi(basePathOverride: baseUrl);
     var response = await _jellyfinApi!.getUserApi().authenticateUserByName(
-        authenticateUserByNameRequest: AuthenticateUserByNameRequest((b) => b
+        authenticateUserByName: AuthenticateUserByName((b) => b
           ..username = username
           ..pw = pw),
         headers: headers);
@@ -357,7 +357,7 @@ class ApiService {
       int? subtitleStreamIndex,
       int? startTimeTicks,
       bool forceTranscoding) async {
-    var deviceProfile = ClientCapabilitiesDtoDeviceProfileBuilder();
+    var deviceProfile = ClientCapabilitiesDeviceProfileBuilder();
     deviceProfile.directPlayProfiles = ListBuilder([
       DirectPlayProfile((b) => b..type = DlnaProfileType.video),
     ]);
@@ -386,21 +386,20 @@ class ApiService {
     ]);
     var response = await _jellyfinApi!.getMediaInfoApi().getPostedPlaybackInfo(
           itemId: itemId,
-          userId: _user!.id!,
           headers: headers,
-          mediaSourceId: itemId,
-          autoOpenLiveStream: true,
-          enableDirectPlay: !forceTranscoding,
-          enableDirectStream: !forceTranscoding,
-          startTimeTicks: startTimeTicks,
-          maxStreamingBitrate:
-              maxStreaminBitrate ?? 1000000000, // TODO set in settings
-          audioStreamIndex:
-              audioStreamIndex, // should use the default audioStream determined by jellyfin if null
-          subtitleStreamIndex:
-              subtitleStreamIndex, // should use the default audioStream determined by jellyfin if null
-          getPostedPlaybackInfoRequest: GetPostedPlaybackInfoRequest(
-              (b) => b..deviceProfile = deviceProfile),
+          playbackInfoDto: PlaybackInfoDto((b) => b
+            ..userId = _user!.id!
+            ..mediaSourceId = itemId
+            ..autoOpenLiveStream = true
+            ..enableDirectPlay = !forceTranscoding
+            ..enableDirectStream = !forceTranscoding
+            ..startTimeTicks = startTimeTicks
+            ..maxStreamingBitrate =
+                maxStreaminBitrate ?? 1000000000 // TODO set in settings
+            ..audioStreamIndex =
+                audioStreamIndex // should use the default audioStream determined by jellyfin if null
+            ..subtitleStreamIndex = subtitleStreamIndex
+            ..deviceProfile = deviceProfile),
         );
     return response;
   }
