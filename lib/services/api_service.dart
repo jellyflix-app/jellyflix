@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
@@ -167,83 +169,6 @@ class ApiService {
     return response.data!;
   }
 
-  /* getStreamUrl(
-      {required String itemId,
-      int? audioStreamIndex,
-      int? subtitleStreamIndex,
-      int? startTimeTicks,
-      int? maxStreamingBitrate}) async {
-    if (_baseUrl == null) {
-      throw Exception("Not logged in");
-    } else {
-      var url =
-          "$_baseUrl/Items/$itemId/PlaybackInfo?MediaSourceId=$itemId&UserId=${_user!.id!}&IsPlayback=true&AutoOpenLiveStream=true";
-      if (audioStreamIndex != null) {
-        url += "&AudioStreamIndex=$audioStreamIndex";
-      }
-      if (subtitleStreamIndex != null) {
-        url += "&SubtitleStreamIndex=$subtitleStreamIndex";
-      }
-      if (startTimeTicks != null) {
-        url += "&StartTimeTicks=$startTimeTicks";
-      }
-      if (maxStreamingBitrate != null) {
-        url += "&MaxStreamingBitrate=$maxStreamingBitrate";
-      }
-
-      var result = await http.post(Uri.parse(url),
-          headers: headers,
-          body: json.encode({
-            "DeviceProfile": {
-              "MaxStreamingBitrate": 120000000,
-              "MaxStaticBitrate": 100000000,
-              "MusicStreamingTranscodingBitrate": 384000,
-              "DirectPlayProfiles": [
-                {"Type": "Video"}
-              ],
-              "TranscodingProfiles": [
-                {
-                  "Container": "ts",
-                  "Type": "Video",
-                  "AudioCodec": "aac,ac3,eac3",
-                  "VideoCodec": "h264,hevc",
-                  "Protocol": "hls"
-                }
-              ],
-              "ContainerProfiles": [],
-              "SubtitleProfiles": [
-                {"Format": "vtt", "Method": "External"},
-                {"Format": "ass", "Method": "External"},
-                {"Format": "ssa", "Method": "External"}
-              ]
-            }
-          }));
-      // convert body to json
-      var jsonbody = json.decode(result.body);
-
-      // PlaybackInfoResponse playbackInfo = PlaybackInfoResponse(
-      //   (b) {
-      //     b.mediaSources.add($MediaSourceInfo(
-      //       (c) {
-      //         c.
-      //       }
-      //     ));
-      //   },
-      // );
-
-      if (jsonbody["MediaSources"][0]["SupportsDirectPlay"] == true) {
-        //http: //192.168.179.21:8096/Videos/${widget.itemId}/stream.mkv?mediaSourceId=${widget.itemId}
-        return "$_baseUrl/Videos/$itemId/stream.${jsonbody["MediaSources"][0]["Container"]}?mediaSourceId=$itemId";
-      }
-      if (jsonbody["MediaSources"][0]["SupportsTranscoding"] == true) {
-        print("$_baseUrl${jsonbody["MediaSources"][0]["TranscodingUrl"]}");
-        return "$_baseUrl${jsonbody["MediaSources"][0]["TranscodingUrl"]}";
-      }
-
-      throw Exception("Couldn't get stream url");
-    }
-  } */
-
   Future<List<BaseItemDto>> getFilterItems(
       {List<BaseItemDto>? genreIds, String? searchTerm}) async {
     var folders = await getMediaFolders();
@@ -265,6 +190,7 @@ class ApiService {
               BaseItemKind.episode,
               BaseItemKind.boxSet
             ]),
+            fields: BuiltList<ItemFields>(ItemFields.values),
           );
       items.addAll(response.data!.items!);
     }
@@ -420,5 +346,82 @@ class ApiService {
     } on DioException catch (_) {
       return _.response!.statusCode ?? 400;
     }
+  }
+
+  Future<List<BaseItemDto>> getTopTenPopular() async {
+    // TODO depending on locale
+    // TODO cache to increase performance
+    // get top 10000 from url
+    var responseMovie = await Dio().get(
+        "https://raw.githubusercontent.com/jdk-21/popular-movies-data/main/US-popular-movie.json");
+    var responseTv = await Dio().get(
+        "https://raw.githubusercontent.com/jdk-21/popular-movies-data/main/US-popular-tv.json");
+
+    List movieJson = jsonDecode(responseMovie.data);
+    List tvJson = jsonDecode(responseTv.data);
+
+    List<BaseItemDto> library = await getFilterItems();
+    List<BaseItemDto> movieLibrary = library.where((element) {
+      return element.type == BaseItemKind.movie;
+    }).toList();
+    List<BaseItemDto> tvLibrary = library.where((element) {
+      return element.type == BaseItemKind.series;
+    }).toList();
+    library = movieLibrary + tvLibrary;
+
+    List<dynamic> popular = matchItemWithPopularity(movieLibrary, movieJson);
+    List<dynamic> popularTv = matchItemWithPopularity(tvLibrary, tvJson);
+
+    popular.addAll(popularTv);
+
+    // sort by popularity
+    popular.sort((a, b) {
+      return b["p"].compareTo(a["p"]);
+    });
+
+    // find the top then in library
+    List<BaseItemDto> top10 = [];
+    for (var i = 0; i < popular.length; i++) {
+      var movie = popular[i];
+      int movieId = movie["i"];
+      for (var element in library) {
+        if (element.providerIds == null) continue;
+        if (element.providerIds!["Tmdb"] == null) continue;
+        if (int.parse(element.providerIds!["Tmdb"]!) == movieId) {
+          top10.add(element);
+          break;
+        }
+      }
+
+      if (top10.length == 10) {
+        break;
+      }
+    }
+
+    return top10;
+  }
+
+  List<dynamic> matchItemWithPopularity(
+      List<BaseItemDto> library, List<dynamic> movieJson) {
+    var popular = [];
+    // check if providerId in library is in json file and return the movieJson entry
+    for (var movie in library) {
+      if (movie.providerIds == null) continue;
+      var movieId = movie.providerIds!["Tmdb"];
+      if (movieId != null) {
+        var movieEntry = movieJson.firstWhere((element) {
+          return element["i"] == int.parse(movieId);
+        }, orElse: () => null);
+        if (movieEntry != null) {
+          popular.add(movieEntry);
+        }
+      }
+    }
+
+    // sort by popularity
+    popular.sort((a, b) {
+      return b["p"].compareTo(a["p"]);
+    });
+    return popular;
   }
 }
