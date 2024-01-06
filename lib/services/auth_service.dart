@@ -14,6 +14,8 @@ class AuthService {
 
   Future<bool> get isAuthenticated => _authStateStream.stream.last;
 
+  User? get currentProfile => _apiService.currentUser;
+
   AuthService(
       {required ApiService apiService,
       required SecureStorageService secureStorageService})

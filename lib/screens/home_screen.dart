@@ -50,6 +50,9 @@ class HomeScreen extends HookConsumerWidget {
                     ),
                   );
                 }),
+            const SizedBox(
+              height: 20,
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Column(
@@ -60,23 +63,43 @@ class HomeScreen extends HookConsumerWidget {
                   // Continue carousel
 
                   FutureItemCarousel(
-                      future: ref.read(apiProvider).getContinueWatching(),
-                      onTap: (index, id) {
-                        context.push(
-                            Uri(path: ScreenPaths.detail, queryParameters: {
-                          "id": id,
-                          "selectedIndex": "0",
-                        }).toString());
-                      },
-                      imageMapping: (e) => e.id!,
-                      blurHashMapping: (e) =>
-                          e.imageBlurHashes?.primary?.values.first,
-                      titleMapping: (e) => e.name!,
-                      subtitleMapping: (e) => e.productionYear == null
-                          ? ""
-                          : e.productionYear.toString(),
-                      title: "Continue Watching"),
-
+                    future: ref.read(apiProvider).getContinueWatching(),
+                    onTap: (index, id) {
+                      context
+                          .push(Uri(path: ScreenPaths.detail, queryParameters: {
+                        "id": id,
+                        "selectedIndex": "0",
+                      }).toString());
+                    },
+                    imageMapping: (e) => e.id!,
+                    blurHashMapping: (e) =>
+                        e.imageBlurHashes?.primary?.values.first,
+                    titleMapping: (e) => e.name!,
+                    subtitleMapping: (e) => e.productionYear == null
+                        ? ""
+                        : e.productionYear.toString(),
+                    title: "Continue Watching",
+                    overlay: (int index, BaseItemDto element) => Positioned(
+                        bottom: 5,
+                        left: 5,
+                        right: 5,
+                        child: LinearProgressIndicator(
+                          borderRadius: BorderRadius.circular(100.0),
+                          minHeight: 5,
+                          value: element.userData?.playbackPositionTicks != null
+                              ? element.userData!.playbackPositionTicks! /
+                                  element.runTimeTicks!
+                              : 0,
+                          backgroundColor: Colors.white.withOpacity(0.5),
+                          color: Theme.of(context)
+                              .buttonTheme
+                              .colorScheme!
+                              .onPrimary,
+                        )),
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
                   FutureItemCarousel(
                       future: ref.read(apiProvider).getLatestItems("movies"),
                       onTap: (index, id) {
@@ -93,7 +116,9 @@ class HomeScreen extends HookConsumerWidget {
                       titleMapping: (e) => e.name!,
                       subtitleMapping: (e) => e.productionYear.toString(),
                       posterType: PosterType.vertical),
-
+                  const SizedBox(
+                    height: 10,
+                  ),
                   FutureItemCarousel(
                     future: ref.read(apiProvider).getLatestItems("tvshows"),
                     onTap: (index, id) {
@@ -112,6 +137,36 @@ class HomeScreen extends HookConsumerWidget {
                     posterType: PosterType.vertical,
                   ),
                 ],
+              ),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: FutureItemCarousel(
+                titleMapping: (e) => e.name!,
+                imageMapping: (e) => e.id!,
+                blurHashMapping: (e) =>
+                    e.imageBlurHashes?.primary?.values.first,
+                future: ref.read(apiProvider).getTopTenPopular(),
+                subtitleMapping: (e) => e.productionYear.toString(),
+                title: "Top 10 in your library",
+                overlay: (index, element) => Positioned(
+                    child: Padding(
+                  padding: const EdgeInsets.all(5.0),
+                  child: Container(
+                      height: 25,
+                      width: 60,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10.0),
+                        color: Theme.of(context)
+                            .buttonTheme
+                            .colorScheme!
+                            .onPrimary,
+                      ),
+                      child: Center(child: Text("Top ${index + 1}"))),
+                )),
               ),
             ),
             const SizedBox(
