@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:jellyflix/providers/router_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -10,8 +11,10 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   // Necessary initialization for package:media_kit.
   MediaKit.ensureInitialized();
-  runApp(const ProviderScope(
-    child: MyApp(),
+  runApp(ProviderScope(
+    child: Shortcuts(shortcuts: <LogicalKeySet, Intent>{
+      LogicalKeySet(LogicalKeyboardKey.select): const ActivateIntent(),
+    }, child: const MyApp()),
   ));
 }
 
