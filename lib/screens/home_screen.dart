@@ -145,6 +145,12 @@ class HomeScreen extends HookConsumerWidget {
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: FutureItemCarousel(
+                onTap: (index, id) {
+                  context.push(Uri(path: ScreenPaths.detail, queryParameters: {
+                    "id": id,
+                    "selectedIndex": "0",
+                  }).toString());
+                },
                 titleMapping: (e) => e.name!,
                 imageMapping: (e) => e.id!,
                 blurHashMapping: (e) =>
