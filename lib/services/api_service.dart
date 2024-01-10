@@ -22,6 +22,8 @@ class ApiService {
     "Connection": "keep-alive",
   };
 
+  PlaybackInfoResponse? playbackInfo;
+
   User? get currentUser => _user;
 
   build() {
@@ -243,25 +245,25 @@ class ApiService {
                 .length ==
             1 ||
         response.data!.mediaSources!.first.defaultAudioStreamIndex! == 1;
+
+    String? url;
     //TODO use only directplay if static is available or is forced in settings
     if (canUseStatic) {
       if (response.data!.mediaSources!.toList().first.supportsDirectPlay ==
           true) {
-        String url =
+        url =
             "${_user!.serverAdress}/Videos/$itemId/stream?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}";
         if (canUseStatic) {
           url += "&Static=true";
         }
-        return (url, response.data!);
       }
       if (response.data!.mediaSources!.toList().first.supportsDirectStream ==
           true) {
-        String url =
+        url =
             "${_user!.serverAdress}/Videos/$itemId/stream.${response.data!.mediaSources!.first.container}?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}";
         if (canUseStatic) {
           url += "&Static=true";
         }
-        return (url, response.data!);
       }
     }
     if (response.data!.mediaSources!.first.supportsTranscoding == true) {
@@ -269,10 +271,13 @@ class ApiService {
         response = await postPlaybackInfoRequest(itemId, maxStreaminBitrate,
             audioStreamIndex, subtitleStreamIndex, startTimeTicks, true);
       }
-      return (
-        "${_user!.serverAdress}${response.data!.mediaSources!.first.transcodingUrl}",
-        response.data!
-      );
+      url =
+          "${_user!.serverAdress}${response.data!.mediaSources!.first.transcodingUrl}";
+    }
+
+    if (url != null) {
+      playbackInfo = response.data!;
+      return (url, response.data!);
     }
 
     throw Exception("Couldn't get stream url");
@@ -329,6 +334,8 @@ class ApiService {
             ..subtitleStreamIndex = subtitleStreamIndex
             ..deviceProfile = deviceProfile),
         );
+
+    playbackInfo = response.data;
     return response;
   }
 
@@ -423,5 +430,45 @@ class ApiService {
       return b["p"].compareTo(a["p"]);
     });
     return popular;
+  }
+
+  reportStartPlayback(int positionTicks) async {
+    await _jellyfinApi!.getPlaystateApi().reportPlaybackStart(
+        headers: headers,
+        playbackStartInfo: PlaybackStartInfo((b) => b
+          ..itemId = playbackInfo!.mediaSources!.first.id!
+          ..mediaSourceId = playbackInfo!.mediaSources!.first.id!
+          ..playbackStartTimeTicks =
+              DateTime.now().millisecondsSinceEpoch * 10000
+          ..positionTicks = positionTicks
+          ..playSessionId = playbackInfo!.playSessionId
+          ..audioStreamIndex =
+              playbackInfo!.mediaSources!.first.defaultAudioStreamIndex
+          ..subtitleStreamIndex =
+              playbackInfo!.mediaSources!.first.defaultSubtitleStreamIndex));
+  }
+
+  reportPlaybackProgress(int positionTicks) async {
+    await _jellyfinApi!.getPlaystateApi().reportPlaybackProgress(
+        headers: headers,
+        playbackProgressInfo: PlaybackProgressInfo((b) => b
+          ..itemId = playbackInfo!.mediaSources!.first.id!
+          ..mediaSourceId = playbackInfo!.mediaSources!.first.id!
+          ..positionTicks = positionTicks
+          ..playSessionId = playbackInfo!.playSessionId
+          ..audioStreamIndex =
+              playbackInfo!.mediaSources!.first.defaultAudioStreamIndex
+          ..subtitleStreamIndex =
+              playbackInfo!.mediaSources!.first.defaultSubtitleStreamIndex));
+  }
+
+  reportStopPlayback(int positionTicks) async {
+    await _jellyfinApi!.getPlaystateApi().reportPlaybackStopped(
+        headers: headers,
+        playbackStopInfo: PlaybackStopInfo((b) => b
+          ..itemId = playbackInfo!.mediaSources!.first.id!
+          ..mediaSourceId = playbackInfo!.mediaSources!.first.id!
+          ..positionTicks = positionTicks
+          ..playSessionId = playbackInfo!.playSessionId));
   }
 }

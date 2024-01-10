@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -33,6 +35,8 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
   late String streamUrl;
   late final Map<String, String> headers;
 
+  Timer? timer;
+
   @override
   void initState() {
     headers = ref.read(apiProvider).headers;
@@ -45,18 +49,20 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
         player.open(Media(streamUrl, httpHeaders: headers));
 
         jumpToPosition(widget.startTimeTicks);
+        ref.read(apiProvider).reportStartPlayback(widget.startTimeTicks);
 
         if (player.platform is NativePlayer) {
-          (player.platform as dynamic)
-              .setProperty(
-                'force-seekable',
-                'yes',
-              )
-              .then((value) => debugPrint(value + "DONE"));
+          (player.platform as dynamic).setProperty(
+            'force-seekable',
+            'yes',
+          );
         }
+
         player.stream.error.listen((error) => throw Exception(error));
         player.stream.completed.listen((completed) async {
           if (completed) {
+            await ref.read(apiProvider).reportStopPlayback(
+                player.state.position.inMilliseconds * 10000);
             await defaultExitNativeFullscreen();
             if (key.currentState?.isFullscreen() ?? false) {
               await key.currentState?.exitFullscreen();
@@ -69,9 +75,24 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
         WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
           key.currentState?.enterFullscreen();
         });
+
+        // report playback
+        timer = Timer.periodic(
+            const Duration(seconds: 5),
+            (Timer t) => () async {
+                  await ref.read(apiProvider).reportPlaybackProgress(
+                      player.state.position.inMilliseconds * 10000);
+                });
       },
     );
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    timer?.cancel();
+    player.dispose();
+    super.dispose();
   }
 
   void jumpToPosition(startTimeTicks) {
@@ -116,12 +137,6 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
         }
       }
     }
-  }
-
-  @override
-  void dispose() {
-    player.dispose();
-    super.dispose();
   }
 
   Future updateStream(
@@ -314,6 +329,10 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
       BackButton(
         onPressed: () async {
           await defaultExitNativeFullscreen();
+          unawaited(ref
+              .read(apiProvider)
+              .reportStopPlayback(player.state.position.inMilliseconds * 10000)
+              .then((value) {}));
           if (key.currentState?.isFullscreen() ?? false) {
             await key.currentState?.exitFullscreen();
           }
