@@ -34,6 +34,8 @@ dependencies:
   flutter_blurhash: ^0.8.2
   flutter_downloader: ^1.11.6
   dio: ^5.4.0
+  device_info_plus: ^9.1.1
+  package_info_plus: ^5.0.1
 
 dev_dependencies:
   flutter_test:

@@ -151,7 +151,11 @@ class LibraryScreen extends HookConsumerWidget {
                         if (sortType.value == SortType.name) {
                           return a.name!.compareTo(b.name!);
                         } else if (sortType.value == SortType.premiereDate) {
-                          return a.premiereDate!.compareTo(b.premiereDate!);
+                          return a.premiereDate == null
+                              ? 1
+                              : b.premiereDate == null
+                                  ? -1
+                                  : a.premiereDate!.compareTo(b.premiereDate!);
                         } else {
                           return 0;
                         }

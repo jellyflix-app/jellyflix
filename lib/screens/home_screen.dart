@@ -1,6 +1,8 @@
 import 'package:go_router/go_router.dart';
 import 'package:jellyflix/components/future_item_carousel.dart';
 import 'package:jellyflix/components/image_banner.dart';
+import 'package:jellyflix/components/playback_progress_overlay.dart';
+import 'package:jellyflix/components/recommendation_carousels.dart';
 import 'package:jellyflix/components/responsive_navigation_bar.dart';
 import 'package:jellyflix/models/poster_type.dart';
 import 'package:jellyflix/models/screen_paths.dart';
@@ -53,17 +55,18 @@ class HomeScreen extends HookConsumerWidget {
             const SizedBox(
               height: 20,
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                //mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Continue carousel
+            Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              //mainAxisSize: MainAxisSize.min,
+              children: [
+                // Continue carousel
 
-                  FutureItemCarousel(
-                    future: ref.read(apiProvider).getContinueWatching(),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 10.0, horizontal: 20.0),
+                  child: FutureItemCarousel(
+                    future: ref.read(apiProvider).continueWatchingAndNextUp(),
                     onTap: (index, id) {
                       context
                           .push(Uri(path: ScreenPaths.detail, queryParameters: {
@@ -79,47 +82,41 @@ class HomeScreen extends HookConsumerWidget {
                         ? ""
                         : e.productionYear.toString(),
                     title: "Continue Watching",
-                    overlay: (int index, BaseItemDto element) => Positioned(
-                        bottom: 5,
-                        left: 5,
-                        right: 5,
-                        child: LinearProgressIndicator(
-                          borderRadius: BorderRadius.circular(100.0),
-                          minHeight: 5,
-                          value: element.userData?.playbackPositionTicks != null
-                              ? element.userData!.playbackPositionTicks! /
-                                  element.runTimeTicks!
-                              : 0,
-                          backgroundColor: Colors.white.withOpacity(0.5),
-                          color: Theme.of(context)
-                              .buttonTheme
-                              .colorScheme!
-                              .onPrimary,
-                        )),
+                    overlay: (int index, BaseItemDto element) =>
+                        PlaybackProgressOverlay(
+                      progress: element.userData?.playedPercentage != null
+                          ? element.userData!.playedPercentage! / 100
+                          : null,
+                    ),
                   ),
-                  const SizedBox(
-                    height: 10,
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 10.0, horizontal: 20.0),
+                  child: FutureItemCarousel(
+                    future: ref.read(apiProvider).getLatestItems("movies"),
+                    onTap: (index, id) {
+                      context
+                          .push(Uri(path: ScreenPaths.detail, queryParameters: {
+                        "id": id,
+                        "selectedIndex": "0",
+                      }).toString());
+                    },
+                    title: "Recently Added Movies",
+                    imageMapping: (e) => e.id!,
+                    blurHashMapping: (e) =>
+                        e.imageBlurHashes?.primary?.values.first,
+                    titleMapping: (e) => e.name!,
+                    subtitleMapping: (e) => e.productionYear.toString(),
+                    posterType: PosterType.vertical,
                   ),
-                  FutureItemCarousel(
-                      future: ref.read(apiProvider).getLatestItems("movies"),
-                      onTap: (index, id) {
-                        context.push(
-                            Uri(path: ScreenPaths.detail, queryParameters: {
-                          "id": id,
-                          "selectedIndex": "0",
-                        }).toString());
-                      },
-                      title: "Recently Added Movies",
-                      imageMapping: (e) => e.id!,
-                      blurHashMapping: (e) =>
-                          e.imageBlurHashes?.primary?.values.first,
-                      titleMapping: (e) => e.name!,
-                      subtitleMapping: (e) => e.productionYear.toString(),
-                      posterType: PosterType.vertical),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  FutureItemCarousel(
+                ),
+
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 10.0, horizontal: 20.0),
+                  child: FutureItemCarousel(
                     future: ref.read(apiProvider).getLatestItems("tvshows"),
                     onTap: (index, id) {
                       context
@@ -136,14 +133,31 @@ class HomeScreen extends HookConsumerWidget {
                     subtitleMapping: (e) => e.productionYear.toString(),
                     posterType: PosterType.vertical,
                   ),
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 10,
+                ),
+              ],
             ),
             Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+              child: FutureItemCarousel(
+                titleMapping: (e) => e.name!,
+                subtitleMapping: (e) => e.productionYear.toString(),
+                imageMapping: (e) => e.id!,
+                blurHashMapping: (e) =>
+                    e.imageBlurHashes?.primary?.values.first,
+                future: ref.read(apiProvider).getWatchlist(),
+                title: "Your Watchlist",
+                onTap: (index, id) {
+                  context.push(Uri(path: ScreenPaths.detail, queryParameters: {
+                    "id": id,
+                    "selectedIndex": "0",
+                  }).toString());
+                },
+              ),
+            ),
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
               child: FutureItemCarousel(
                 onTap: (index, id) {
                   context.push(Uri(path: ScreenPaths.detail, queryParameters: {
@@ -175,6 +189,26 @@ class HomeScreen extends HookConsumerWidget {
                 )),
               ),
             ),
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+              child: FutureItemCarousel(
+                title: "Similar to your watch history",
+                titleMapping: (e) => e.name!,
+                subtitleMapping: (e) => e.productionYear.toString(),
+                imageMapping: (e) => e.id!,
+                blurHashMapping: (e) =>
+                    e.imageBlurHashes?.primary?.values.first,
+                future: ref.read(apiProvider).similarItemsByLastWatched(),
+                onTap: (index, id) {
+                  context.push(Uri(path: ScreenPaths.detail, queryParameters: {
+                    "id": id,
+                    "selectedIndex": "0",
+                  }).toString());
+                },
+              ),
+            ),
+            const RecommendationCarousels(),
             const SizedBox(
               height: 20,
             ),
