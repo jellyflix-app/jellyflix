@@ -87,15 +87,53 @@ class ProfileScreen extends HookConsumerWidget {
                     color:
                         Theme.of(context).colorScheme.primary.withOpacity(0.1),
                   ),
+                  child: Column(
+                    children: [
+                      ListTile(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15)),
+                        leading: const Icon(Icons.connected_tv_rounded),
+                        title: const Text("Quick Connect"),
+                        onTap: () {
+                          showDialog(
+                              context: context,
+                              builder: (context) => const QuickConnectDialog());
+                        },
+                      ),
+                      ListTile(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15)),
+                        leading: const Icon(Icons.qr_code_rounded),
+                        title: const Text("Scan library"),
+                        onTap: () async {
+                          await ref.read(apiProvider).startLibraryScan();
+                          // show snack bar
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text("Scan started"),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(15),
+                    color:
+                        Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  ),
                   child: ListTile(
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(15)),
-                    leading: const Icon(Icons.connected_tv_rounded),
-                    title: const Text("Quick Connect"),
+                    leading: const Icon(Icons.info_rounded),
+                    title: const Text("About"),
                     onTap: () {
-                      showDialog(
-                          context: context,
-                          builder: (context) => const QuickConnectDialog());
+                      showLicensePage(context: context);
                     },
                   ),
                 ),

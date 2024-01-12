@@ -245,11 +245,11 @@ class ApiService {
       {required String itemId,
       int? audioStreamIndex,
       int? subtitleStreamIndex,
-      int? maxStreaminBitrate,
+      int? maxStreamingBitrate,
       int? startTimeTicks}) async {
     Response<PlaybackInfoResponse> response = await postPlaybackInfoRequest(
         itemId,
-        maxStreaminBitrate,
+        maxStreamingBitrate,
         audioStreamIndex,
         subtitleStreamIndex,
         startTimeTicks,
@@ -264,27 +264,25 @@ class ApiService {
 
     String? url;
     //TODO use only directplay if static is available or is forced in settings
-    if (canUseStatic) {
-      if (response.data!.mediaSources!.toList().first.supportsDirectPlay ==
-          true) {
-        url =
-            "${_user!.serverAdress}/Videos/$itemId/stream?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}";
-        if (canUseStatic) {
-          url += "&Static=true";
-        }
+    if (canUseStatic &&
+        response.data!.mediaSources!.toList().first.supportsDirectPlay ==
+            true) {
+      url =
+          "${_user!.serverAdress}/Videos/$itemId/stream?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}";
+      if (canUseStatic) {
+        url += "&Static=true";
       }
-      if (response.data!.mediaSources!.toList().first.supportsDirectStream ==
-          true) {
-        url =
-            "${_user!.serverAdress}/Videos/$itemId/stream.${response.data!.mediaSources!.first.container}?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}";
-        if (canUseStatic) {
-          url += "&Static=true";
-        }
+    } else if (canUseStatic &&
+        response.data!.mediaSources!.toList().first.supportsDirectStream ==
+            true) {
+      url =
+          "${_user!.serverAdress}/Videos/$itemId/stream.${response.data!.mediaSources!.first.container}?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}";
+      if (canUseStatic) {
+        url += "&Static=true";
       }
-    }
-    if (response.data!.mediaSources!.first.supportsTranscoding == true) {
+    } else if (response.data!.mediaSources!.first.supportsTranscoding == true) {
       if (response.data!.mediaSources!.first.transcodingUrl == null) {
-        response = await postPlaybackInfoRequest(itemId, maxStreaminBitrate,
+        response = await postPlaybackInfoRequest(itemId, maxStreamingBitrate,
             audioStreamIndex, subtitleStreamIndex, startTimeTicks, true);
       }
       url =
@@ -308,7 +306,9 @@ class ApiService {
       bool forceTranscoding) async {
     var deviceProfile = ClientCapabilitiesDeviceProfileBuilder();
     deviceProfile.directPlayProfiles = ListBuilder([
-      DirectPlayProfile((b) => b..type = DlnaProfileType.video),
+      DirectPlayProfile((b) => b
+        ..type = DlnaProfileType.video
+        ..audioCodec = "aac,ac3,eac3,dts"),
     ]);
     deviceProfile.transcodingProfiles = ListBuilder<TranscodingProfile>([
       TranscodingProfile(
@@ -448,7 +448,7 @@ class ApiService {
     return popular;
   }
 
-  reportStartPlayback(int positionTicks) async {
+  Future<void> reportStartPlayback(int positionTicks) async {
     await _jellyfinApi!.getPlaystateApi().reportPlaybackStart(
         headers: headers,
         playbackStartInfo: PlaybackStartInfo((b) => b
@@ -464,7 +464,7 @@ class ApiService {
               playbackInfo!.mediaSources!.first.defaultSubtitleStreamIndex));
   }
 
-  reportPlaybackProgress(int positionTicks) async {
+  Future<void> reportPlaybackProgress(int positionTicks) async {
     await _jellyfinApi!.getPlaystateApi().reportPlaybackProgress(
         headers: headers,
         playbackProgressInfo: PlaybackProgressInfo((b) => b
@@ -585,5 +585,11 @@ class ApiService {
     }
 
     return recommendations;
+  }
+
+  Future<void> startLibraryScan() async {
+    await _jellyfinApi!.getLibraryApi().refreshLibrary(
+          headers: headers,
+        );
   }
 }
