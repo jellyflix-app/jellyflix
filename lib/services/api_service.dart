@@ -536,7 +536,7 @@ class ApiService {
     return response.data!.items!.toList();
   }
 
-  Future<List<BaseItemDto>> getWatchlist() async {
+  Future<String> getWatchlistId() async {
     var views = await _jellyfinApi!
         .getUserViewsApi()
         .getUserViews(userId: _user!.id!, headers: headers);
@@ -556,10 +556,52 @@ class ApiService {
           parentId: playlistsId,
           searchTerm: "watchlist",
         );
+    if (playlist.data!.items!.isNotEmpty) {
+      return playlist.data!.items!.first.id!;
+    } else {
+      // create watchlist playlist
+      var playlistResult = await _jellyfinApi!.getPlaylistsApi().createPlaylist(
+            headers: headers,
+            createPlaylistDto: CreatePlaylistDto(
+              (b) => b
+                ..name = "watchlist"
+                ..userId = _user!.id!,
+            ),
+          );
 
-    var watchlist = await getPlaylistItems(playlist.data!.items!.first.id!);
+      return playlistResult.data!.id!;
+    }
+  }
+
+  Future<List<BaseItemDto>> getWatchlist() async {
+    String watchlistId = await getWatchlistId();
+
+    var watchlist = await getPlaylistItems(watchlistId);
 
     return watchlist;
+  }
+
+  Future<void> updateWatchlist(String itemId, bool add) async {
+    String watchlistId = await getWatchlistId();
+    if (add) {
+      await _jellyfinApi!.getPlaylistsApi().addToPlaylist(
+          headers: headers,
+          userId: _user!.id!,
+          playlistId: watchlistId,
+          ids: [itemId].toBuiltList());
+    } else {
+      var watchlistItems = await getWatchlist();
+      // get playlist item id
+      String playlistItemId = watchlistItems.firstWhere((element) {
+            return element.id! == itemId;
+          }).playlistItemId ??
+          "";
+      await _jellyfinApi!.getPlaylistsApi().removeFromPlaylist(
+            headers: headers,
+            playlistId: watchlistId,
+            entryIds: [playlistItemId].toBuiltList(),
+          );
+    }
   }
 
   Future getRecommendations() async {

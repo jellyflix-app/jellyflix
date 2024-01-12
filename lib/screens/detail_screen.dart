@@ -23,6 +23,13 @@ class DetailScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final seasonSelection = useState(0);
+    final onWatchlist = useState(false);
+
+    ref.read(apiProvider).getWatchlist().then((value) {
+      onWatchlist.value =
+          value.where((element) => element.id == itemId).isNotEmpty;
+    });
+
     return ResponsiveNavigationBar(
       selectedIndex: selectedIndex,
       body: FutureBuilder(
@@ -290,8 +297,21 @@ class DetailScreen extends HookConsumerWidget {
                                 color: Colors.white.withOpacity(0.1),
                               ),
                               child: ElevatedButton(
-                                onPressed: () {
-                                  // Add your watched button logic here
+                                onPressed: () async {
+                                  await ref.read(apiProvider).updateWatchlist(
+                                      itemId, !onWatchlist.value);
+                                  onWatchlist.value = !onWatchlist.value;
+
+                                  if (context.mounted) {
+                                    // show snackbar
+                                    ScaffoldMessenger.of(context)
+                                        .showSnackBar(SnackBar(
+                                      content: Text(onWatchlist.value
+                                          ? "Added to watchlist"
+                                          : "Removed from watchlist"),
+                                      duration: const Duration(seconds: 1),
+                                    ));
+                                  }
                                 },
                                 style: ElevatedButton.styleFrom(
                                     minimumSize: Size.zero,
@@ -299,8 +319,10 @@ class DetailScreen extends HookConsumerWidget {
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(30),
                                     )),
-                                child: const Icon(
-                                  Icons.check_circle_outline_rounded,
+                                child: Icon(
+                                  onWatchlist.value
+                                      ? Icons.done_outlined
+                                      : Icons.add,
                                 ),
                               ),
                             ),
