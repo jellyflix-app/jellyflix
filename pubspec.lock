@@ -710,7 +710,7 @@ packages:
       path: "."
       ref: HEAD
       resolved-ref: "791fb189291815f0cbd525dffe127b087e359005"
-      url: "https://github.com/jdk-21/jellyfin-api-dart.git"
+      url: "https://github.com/jellyflix-app/jellyfin-api-dart.git"
     source: git
     version: "1.0.0"
   package_config:

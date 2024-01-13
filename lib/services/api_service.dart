@@ -376,9 +376,9 @@ class ApiService {
     // TODO cache to increase performance
     // get top 10000 from url
     var responseMovie = await Dio().get(
-        "https://raw.githubusercontent.com/jdk-21/popular-movies-data/main/US-popular-movie.json");
+        "https://raw.githubusercontent.com/jellyflix-app/popular-movies-data/main/US-popular-movie.json");
     var responseTv = await Dio().get(
-        "https://raw.githubusercontent.com/jdk-21/popular-movies-data/main/US-popular-tv.json");
+        "https://raw.githubusercontent.com/jellyflix-app/popular-movies-data/main/US-popular-tv.json");
 
     List movieJson = jsonDecode(responseMovie.data);
     List tvJson = jsonDecode(responseTv.data);
