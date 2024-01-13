@@ -10,10 +10,10 @@ Jellyflix is a cross platform Jellyfin Client for Desktop (Mac, Windows, Linux) 
 
 Supported platforms:
 - iOS (Build it yourself)
-- [Android](https://github.com/jdk-21/jellyflix/releases/latest/download/jellyflix.apk)
+- [Android](https://github.com/jellyflix-app/jellyflix/releases/latest/download/jellyflix.apk)
 - macOS (Build it yourself)
-- [Windows](https://github.com/jdk-21/jellyflix/releases/latest/download/jellyflix-windows.zip) (untested)
-- [Linux](https://github.com/jdk-21/jellyflix/releases/latest/download/jellyflix-linux.zip) (untested)
+- [Windows](https://github.com/jellyflix-app/jellyflix/releases/latest/download/jellyflix-windows.zip) (untested)
+- [Linux](https://github.com/jellyflix-app/jellyflix/releases/latest/download/jellyflix-linux.zip) (untested)
 - [Web](https://jellyflix.kiejon.com) (technically works, but it's only intended for demo usage)
 
 I plan on releasing Jellyflix on the App Stores and Play Store in the future, when the app is stable enough.

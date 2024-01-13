@@ -112,17 +112,37 @@ jobs:
       - name: Run Pub get
         run: flutter pub get
 
+      - name: Download Android keystore
+        id: android_keystore
+        uses: timheuer/base64-to-file@v1
+        with:
+          fileName: ${{ secrets.ANDROID_KEY_ALIAS }}
+          encodedString: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+
+      - name: Create key.properties
+        run: |
+          echo "storeFile=${{ steps.android_keystore.outputs.filePath }}" > android/key.properties
+          echo "storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> android/key.properties
+          echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> android/key.properties
+
       - name: Build apk
         run: flutter build apk --release
 
       - name: Build Android App Bundle
         run: flutter build appbundle --release
 
-      - name: Upload app bundle
+      - name: Upload apk
         uses: actions/upload-artifact@v2
         with:
           name: jellyflix-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Upload app bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: jellyflix-appbundle
+          path: build/app/outputs/bundle/release/app-release.aab
 
   build_linux:
     name: Build Linux
@@ -285,3 +305,22 @@ jobs:
           tag: ${{ steps.version.outputs.content }}
           commit: ${{ github.sha }}
           body: ${{ steps.create-release-notes.outputs.release-notes }}
+
+  release-play-store:
+    name: Release app to open testing track
+    needs: [build_android]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Get appbundle from artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: jellyflix-appbundle
+      - name: Release app to open testing track
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+          packageName: ${{ secrets.ANDROID_PACKAGE_NAME }}
+          releaseFiles: app-release.aab
+          track: beta
+          status: draft
