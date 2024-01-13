@@ -35,7 +35,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
   late String streamUrl;
   late final Map<String, String> headers;
 
-  Timer? timer;
+  Timer? _timer;
 
   @override
   void initState() {
@@ -49,7 +49,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
         player.open(Media(streamUrl, httpHeaders: headers));
 
         jumpToPosition(widget.startTimeTicks);
-        ref.read(apiProvider).reportStartPlayback(widget.startTimeTicks);
+        //ref.read(apiProvider).reportStartPlayback(widget.startTimeTicks);
 
         if (player.platform is NativePlayer) {
           (player.platform as dynamic).setProperty(
@@ -57,6 +57,11 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
             'yes',
           );
         }
+
+        _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+          await ref.read(apiProvider).reportPlaybackProgress(
+              player.state.position.inMilliseconds * 10000);
+        });
 
         player.stream.error.listen((error) => throw Exception(error));
         player.stream.completed.listen((completed) async {
@@ -75,22 +80,15 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
         WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
           key.currentState?.enterFullscreen();
         });
-
-        // report playback
-        timer = Timer.periodic(
-            const Duration(seconds: 5),
-            (Timer t) => () async {
-                  await ref.read(apiProvider).reportPlaybackProgress(
-                      player.state.position.inMilliseconds * 10000);
-                });
       },
     );
+
     super.initState();
   }
 
   @override
   void dispose() {
-    timer?.cancel();
+    _timer?.cancel();
     player.dispose();
     super.dispose();
   }
@@ -145,7 +143,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
     var newStreamUrlAndPlaybackInfo =
         await ref.read(apiProvider).getStreamUrlAndPlaybackInfo(
               itemId: playbackInfo.mediaSources!.first.id!,
-              maxStreaminBitrate: maxStreamingBitrate,
+              maxStreamingBitrate: maxStreamingBitrate,
               audioStreamIndex: audioStreamIndex,
               subtitleStreamIndex: subtitleStreamIndex,
               startTimeTicks: startTimeTicks,

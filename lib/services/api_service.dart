@@ -245,11 +245,11 @@ class ApiService {
       {required String itemId,
       int? audioStreamIndex,
       int? subtitleStreamIndex,
-      int? maxStreaminBitrate,
+      int? maxStreamingBitrate,
       int? startTimeTicks}) async {
     Response<PlaybackInfoResponse> response = await postPlaybackInfoRequest(
         itemId,
-        maxStreaminBitrate,
+        maxStreamingBitrate,
         audioStreamIndex,
         subtitleStreamIndex,
         startTimeTicks,
@@ -264,27 +264,25 @@ class ApiService {
 
     String? url;
     //TODO use only directplay if static is available or is forced in settings
-    if (canUseStatic) {
-      if (response.data!.mediaSources!.toList().first.supportsDirectPlay ==
-          true) {
-        url =
-            "${_user!.serverAdress}/Videos/$itemId/stream?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}";
-        if (canUseStatic) {
-          url += "&Static=true";
-        }
+    if (canUseStatic &&
+        response.data!.mediaSources!.toList().first.supportsDirectPlay ==
+            true) {
+      url =
+          "${_user!.serverAdress}/Videos/$itemId/stream?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}";
+      if (canUseStatic) {
+        url += "&Static=true";
       }
-      if (response.data!.mediaSources!.toList().first.supportsDirectStream ==
-          true) {
-        url =
-            "${_user!.serverAdress}/Videos/$itemId/stream.${response.data!.mediaSources!.first.container}?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}";
-        if (canUseStatic) {
-          url += "&Static=true";
-        }
+    } else if (canUseStatic &&
+        response.data!.mediaSources!.toList().first.supportsDirectStream ==
+            true) {
+      url =
+          "${_user!.serverAdress}/Videos/$itemId/stream.${response.data!.mediaSources!.first.container}?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}";
+      if (canUseStatic) {
+        url += "&Static=true";
       }
-    }
-    if (response.data!.mediaSources!.first.supportsTranscoding == true) {
+    } else if (response.data!.mediaSources!.first.supportsTranscoding == true) {
       if (response.data!.mediaSources!.first.transcodingUrl == null) {
-        response = await postPlaybackInfoRequest(itemId, maxStreaminBitrate,
+        response = await postPlaybackInfoRequest(itemId, maxStreamingBitrate,
             audioStreamIndex, subtitleStreamIndex, startTimeTicks, true);
       }
       url =
@@ -308,7 +306,9 @@ class ApiService {
       bool forceTranscoding) async {
     var deviceProfile = ClientCapabilitiesDeviceProfileBuilder();
     deviceProfile.directPlayProfiles = ListBuilder([
-      DirectPlayProfile((b) => b..type = DlnaProfileType.video),
+      DirectPlayProfile((b) => b
+        ..type = DlnaProfileType.video
+        ..audioCodec = "aac,ac3,eac3,dts"),
     ]);
     deviceProfile.transcodingProfiles = ListBuilder<TranscodingProfile>([
       TranscodingProfile(
@@ -376,9 +376,9 @@ class ApiService {
     // TODO cache to increase performance
     // get top 10000 from url
     var responseMovie = await Dio().get(
-        "https://raw.githubusercontent.com/jdk-21/popular-movies-data/main/US-popular-movie.json");
+        "https://raw.githubusercontent.com/jellyflix-app/popular-movies-data/main/US-popular-movie.json");
     var responseTv = await Dio().get(
-        "https://raw.githubusercontent.com/jdk-21/popular-movies-data/main/US-popular-tv.json");
+        "https://raw.githubusercontent.com/jellyflix-app/popular-movies-data/main/US-popular-tv.json");
 
     List movieJson = jsonDecode(responseMovie.data);
     List tvJson = jsonDecode(responseTv.data);
@@ -448,7 +448,7 @@ class ApiService {
     return popular;
   }
 
-  reportStartPlayback(int positionTicks) async {
+  Future<void> reportStartPlayback(int positionTicks) async {
     await _jellyfinApi!.getPlaystateApi().reportPlaybackStart(
         headers: headers,
         playbackStartInfo: PlaybackStartInfo((b) => b
@@ -464,7 +464,7 @@ class ApiService {
               playbackInfo!.mediaSources!.first.defaultSubtitleStreamIndex));
   }
 
-  reportPlaybackProgress(int positionTicks) async {
+  Future<void> reportPlaybackProgress(int positionTicks) async {
     await _jellyfinApi!.getPlaystateApi().reportPlaybackProgress(
         headers: headers,
         playbackProgressInfo: PlaybackProgressInfo((b) => b
@@ -536,7 +536,7 @@ class ApiService {
     return response.data!.items!.toList();
   }
 
-  Future<List<BaseItemDto>> getWatchlist() async {
+  Future<String> getWatchlistId() async {
     var views = await _jellyfinApi!
         .getUserViewsApi()
         .getUserViews(userId: _user!.id!, headers: headers);
@@ -556,10 +556,52 @@ class ApiService {
           parentId: playlistsId,
           searchTerm: "watchlist",
         );
+    if (playlist.data!.items!.isNotEmpty) {
+      return playlist.data!.items!.first.id!;
+    } else {
+      // create watchlist playlist
+      var playlistResult = await _jellyfinApi!.getPlaylistsApi().createPlaylist(
+            headers: headers,
+            createPlaylistDto: CreatePlaylistDto(
+              (b) => b
+                ..name = "watchlist"
+                ..userId = _user!.id!,
+            ),
+          );
 
-    var watchlist = await getPlaylistItems(playlist.data!.items!.first.id!);
+      return playlistResult.data!.id!;
+    }
+  }
+
+  Future<List<BaseItemDto>> getWatchlist() async {
+    String watchlistId = await getWatchlistId();
+
+    var watchlist = await getPlaylistItems(watchlistId);
 
     return watchlist;
+  }
+
+  Future<void> updateWatchlist(String itemId, bool add) async {
+    String watchlistId = await getWatchlistId();
+    if (add) {
+      await _jellyfinApi!.getPlaylistsApi().addToPlaylist(
+          headers: headers,
+          userId: _user!.id!,
+          playlistId: watchlistId,
+          ids: [itemId].toBuiltList());
+    } else {
+      var watchlistItems = await getWatchlist();
+      // get playlist item id
+      String playlistItemId = watchlistItems.firstWhere((element) {
+            return element.id! == itemId;
+          }).playlistItemId ??
+          "";
+      await _jellyfinApi!.getPlaylistsApi().removeFromPlaylist(
+            headers: headers,
+            playlistId: watchlistId,
+            entryIds: [playlistItemId].toBuiltList(),
+          );
+    }
   }
 
   Future getRecommendations() async {
@@ -585,5 +627,11 @@ class ApiService {
     }
 
     return recommendations;
+  }
+
+  Future<void> startLibraryScan() async {
+    await _jellyfinApi!.getLibraryApi().refreshLibrary(
+          headers: headers,
+        );
   }
 }
