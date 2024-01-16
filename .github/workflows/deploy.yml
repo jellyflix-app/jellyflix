@@ -345,55 +345,55 @@ jobs:
           name: jellyflix-windows
           path: jellyflix-windows.zip
 
-  create_release:
-    name: Create Release
-    needs: [build_android, build_linux, build_windows]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clone Repo
-        uses: actions/checkout@v3
+  # create_release:
+  #   name: Create Release
+  #   needs: [build_android, build_linux, build_windows]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Clone Repo
+  #       uses: actions/checkout@v3
 
-      - name: Get version.txt
-        uses: actions/download-artifact@v2
-        with:
-          name: gitversion
-      - name: Create new file without newline char from version.txt
-        run: tr -d '\n' < version.txt > version1.txt
-      - name: Read version
-        id: version
-        uses: juliangruber/read-file-action@v1
-        with:
-          path: version1.txt
+  #     - name: Get version.txt
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: gitversion
+  #     - name: Create new file without newline char from version.txt
+  #       run: tr -d '\n' < version.txt > version1.txt
+  #     - name: Read version
+  #       id: version
+  #       uses: juliangruber/read-file-action@v1
+  #       with:
+  #         path: version1.txt
 
-      - name: Download Artifacts APK
-        uses: actions/download-artifact@v2
-        with:
-          name: jellyflix-apk
-          path: jellyflix-apk
-      - name: Download Artifacts Linux
-        uses: actions/download-artifact@v2
-        with:
-          name: jellyflix-linux
-          path: jellyflix-linux
-      - name: Download Artifacts Windows
-        uses: actions/download-artifact@v2
-        with:
-          name: jellyflix-windows
-          path: jellyflix-windows
+  #     - name: Download Artifacts APK
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: jellyflix-apk
+  #         path: jellyflix-apk
+  #     - name: Download Artifacts Linux
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: jellyflix-linux
+  #         path: jellyflix-linux
+  #     - name: Download Artifacts Windows
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: jellyflix-windows
+  #         path: jellyflix-windows
     
-      - uses: johnyherangi/create-release-notes@main
-        id: create-release-notes
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Create Release
-        id: create_release
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: "jellyflix-apk/*.apk,jellyflix-linux/*,jellyflix-windows/*"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ steps.version.outputs.content }}
-          commit: ${{ github.sha }}
-          body: ${{ steps.create-release-notes.outputs.release-notes }}
+  #     - uses: johnyherangi/create-release-notes@main
+  #       id: create-release-notes
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Create Release
+  #       id: create_release
+  #       uses: ncipollo/release-action@v1
+  #       with:
+  #         artifacts: "jellyflix-apk/*.apk,jellyflix-linux/*,jellyflix-windows/*"
+  #         token: ${{ secrets.GITHUB_TOKEN }}
+  #         tag: ${{ steps.version.outputs.content }}
+  #         commit: ${{ github.sha }}
+  #         body: ${{ steps.create-release-notes.outputs.release-notes }}
 
   release-play-store:
     name: Release app to open testing track
