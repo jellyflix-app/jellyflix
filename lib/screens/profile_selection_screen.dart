@@ -15,7 +15,7 @@ class ProfileSelectionScreen extends HookConsumerWidget {
     return Scaffold(
         appBar: AppBar(title: const Text("Select Profile")),
         body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 60.0),
+          padding: const EdgeInsets.symmetric(horizontal: 30.0),
           child: FutureBuilder(
             future: ref.read(authProvider).getAllProfiles(),
             builder: (context, snapshot) {

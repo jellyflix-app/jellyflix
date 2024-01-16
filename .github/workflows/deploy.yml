@@ -112,17 +112,126 @@ jobs:
       - name: Run Pub get
         run: flutter pub get
 
+      - name: Download Android keystore
+        id: android_keystore
+        uses: timheuer/base64-to-file@v1
+        with:
+          fileName: ${{ secrets.ANDROID_KEY_ALIAS }}
+          encodedString: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+
+      - name: Create key.properties
+        run: |
+          echo "storeFile=${{ steps.android_keystore.outputs.filePath }}" > android/key.properties
+          echo "storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}" >> android/key.properties
+          echo "keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}" >> android/key.properties
+          echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> android/key.properties
+
       - name: Build apk
         run: flutter build apk --release
 
       - name: Build Android App Bundle
         run: flutter build appbundle --release
 
-      - name: Upload app bundle
+      - name: Upload apk
         uses: actions/upload-artifact@v2
         with:
           name: jellyflix-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+
+      - name: Upload app bundle
+        uses: actions/upload-artifact@v2
+        with:
+          name: jellyflix-appbundle
+          path: build/app/outputs/bundle/release/app-release.aab
+
+  build_ios:
+    runs-on: macos-latest
+  
+    steps:
+    - name: Checkout the code
+      uses: actions/checkout@v4
+    
+    # Install the Apple certificate and provisioning profile 
+    - name: Install the Apple certificate and provisioning profile
+      env:
+        BUILD_CERTIFICATE_BASE64: ${{ secrets.APPSTORE_CERT_BASE64 }}
+        P12_PASSWORD: ${{ secrets.APPSTORE_CERT_PASSWORD }}
+        BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.MOBILEPROVISION_BASE64 }}
+        KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+      run: |
+        CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+        PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
+        KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+        echo -n "$BUILD_CERTIFICATE_BASE64" | base64 --decode --output $CERTIFICATE_PATH
+        echo -n "$BUILD_PROVISION_PROFILE_BASE64" | base64 --decode --output $PP_PATH
+        security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+        security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+        security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+        security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
+        security list-keychain -d user -s $KEYCHAIN_PATH
+        mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+        cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+
+    - name: Get version.txt
+      uses: actions/download-artifact@v2
+      with:
+        name: gitversion
+    - name: Create new file without newline char from version.txt
+      run: tr -d '\n' < version.txt > version1.txt
+    - name: Read version
+      id: version
+      uses: juliangruber/read-file-action@v1
+      with:
+        path: version1.txt
+    - name: Update version in YAML
+      run: sed -i 's/99.99.99+99/${{ steps.version.outputs.content }}+${{ github.run_number }}/g' pubspec.yaml
+
+    - name: Setup Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'zulu'
+        java-version: '12.x'
+        cache: gradle
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        channel: 'stable'
+        cache: true
+
+    - name: Install packages
+      run: flutter pub get
+      
+    - name: Build Flutter
+      run: flutter build ipa --export-options-plist=ios/Runner/ExportOptions.plist
+
+    # Collect the file and upload as artifact         
+    - name: collect ipa artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: jellyflix-ipa
+        # Path to the release files
+        path: build/ios/ipa/*.ipa
+    # only important for selfhosted runners
+    - name: Clean up keychain and provisioning profile
+      if: ${{ always() }}
+      run: |
+        security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
+        rm ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.mobileprovision
+
+    - name: Check xcrun version
+      run: xcrun --version
+
+    - name: Save base64 encoded p8 cert
+      run: echo ${{ secrets.APPSTORE_CONNECT_API_KEY }} | base64 --decode > AuthKey_${{ secrets.APPSTORE_CONNECT_API_KEY_ID }}.p8
+
+    # deploy to TestFlight
+    - name: Deploy to TestFlight
+      env: 
+        API_PRIVATE_KEYS_DIR: ${{ github.workspace }}
+      run: |
+        xcrun notarytool submit build/ios/ipa/Jellyflix.ipa -k AuthKey_${{ secrets.APPSTORE_CONNECT_API_KEY_ID }}.p8 -d ${{ secrets.APPSTORE_CONNECT_API_KEY_ID }} -i ${{ secrets.APPSTORE_CONNECT_ISSUER_ID }} --wait --verbose
+    
 
   build_linux:
     name: Build Linux
@@ -236,52 +345,71 @@ jobs:
           name: jellyflix-windows
           path: jellyflix-windows.zip
 
-  create_release:
-    name: Create Release
-    needs: [build_android, build_linux, build_windows]
+  # create_release:
+  #   name: Create Release
+  #   needs: [build_android, build_linux, build_windows]
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Clone Repo
+  #       uses: actions/checkout@v3
+
+  #     - name: Get version.txt
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: gitversion
+  #     - name: Create new file without newline char from version.txt
+  #       run: tr -d '\n' < version.txt > version1.txt
+  #     - name: Read version
+  #       id: version
+  #       uses: juliangruber/read-file-action@v1
+  #       with:
+  #         path: version1.txt
+
+  #     - name: Download Artifacts APK
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: jellyflix-apk
+  #         path: jellyflix-apk
+  #     - name: Download Artifacts Linux
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: jellyflix-linux
+  #         path: jellyflix-linux
+  #     - name: Download Artifacts Windows
+  #       uses: actions/download-artifact@v2
+  #       with:
+  #         name: jellyflix-windows
+  #         path: jellyflix-windows
+    
+  #     - uses: johnyherangi/create-release-notes@main
+  #       id: create-release-notes
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Create Release
+  #       id: create_release
+  #       uses: ncipollo/release-action@v1
+  #       with:
+  #         artifacts: "jellyflix-apk/*.apk,jellyflix-linux/*,jellyflix-windows/*"
+  #         token: ${{ secrets.GITHUB_TOKEN }}
+  #         tag: ${{ steps.version.outputs.content }}
+  #         commit: ${{ github.sha }}
+  #         body: ${{ steps.create-release-notes.outputs.release-notes }}
+
+  release-play-store:
+    name: Release app to open testing track
+    needs: [build_android]
     runs-on: ubuntu-latest
     steps:
-      - name: Clone Repo
-        uses: actions/checkout@v3
-
-      - name: Get version.txt
+      - uses: actions/checkout@v1
+      - name: Get appbundle from artifacts
         uses: actions/download-artifact@v2
         with:
-          name: gitversion
-      - name: Create new file without newline char from version.txt
-        run: tr -d '\n' < version.txt > version1.txt
-      - name: Read version
-        id: version
-        uses: juliangruber/read-file-action@v1
+          name: jellyflix-appbundle
+      - name: Release app to open testing track
+        uses: r0adkll/upload-google-play@v1
         with:
-          path: version1.txt
-
-      - name: Download Artifacts APK
-        uses: actions/download-artifact@v2
-        with:
-          name: jellyflix-apk
-          path: jellyflix-apk
-      - name: Download Artifacts Linux
-        uses: actions/download-artifact@v2
-        with:
-          name: jellyflix-linux
-          path: jellyflix-linux
-      - name: Download Artifacts Windows
-        uses: actions/download-artifact@v2
-        with:
-          name: jellyflix-windows
-          path: jellyflix-windows
-    
-      - uses: johnyherangi/create-release-notes@main
-        id: create-release-notes
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Create Release
-        id: create_release
-        uses: ncipollo/release-action@v1
-        with:
-          artifacts: "jellyflix-apk/*.apk,jellyflix-linux/*,jellyflix-windows/*"
-          token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ steps.version.outputs.content }}
-          commit: ${{ github.sha }}
-          body: ${{ steps.create-release-notes.outputs.release-notes }}
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+          packageName: ${{ secrets.ANDROID_PACKAGE_NAME }}
+          releaseFiles: app-release.aab
+          track: beta
+          status: draft

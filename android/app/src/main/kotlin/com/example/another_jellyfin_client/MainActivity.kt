@@ -1,4 +1,4 @@
-package com.example.jellyflix
+package com.ambark.jellyflix
 
 import io.flutter.embedding.android.FlutterActivity
 

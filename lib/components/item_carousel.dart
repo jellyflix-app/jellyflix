@@ -1,11 +1,10 @@
-import 'dart:io';
-
 import 'package:flutter/scheduler.dart';
 import 'package:jellyflix/models/poster_type.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:openapi/openapi.dart';
+import 'package:universal_platform/universal_platform.dart';
 
 class ItemCarousel extends StatefulHookConsumerWidget {
   final String? title;
@@ -167,8 +166,8 @@ class _ItemCarouselState extends ConsumerState<ItemCarousel> {
             ),
             if (hasClients &&
                 scrollController.position.maxScrollExtent > 0 &&
-                !Platform.isAndroid &&
-                !Platform.isIOS)
+                !UniversalPlatform.isAndroid &&
+                !UniversalPlatform.isIOS)
               Positioned(
                 top: 50,
                 bottom: 100,
@@ -190,8 +189,8 @@ class _ItemCarouselState extends ConsumerState<ItemCarousel> {
               ),
             if (scrollController.hasClients &&
                 scrollController.position.maxScrollExtent > 0 &&
-                !Platform.isAndroid &&
-                !Platform.isIOS)
+                !UniversalPlatform.isAndroid &&
+                !UniversalPlatform.isIOS)
               Positioned(
                 top: 50,
                 bottom: 100,
