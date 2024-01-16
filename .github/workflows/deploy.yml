@@ -75,7 +75,7 @@ jobs:
         cname: jellyflix.kiejon.com
 
   build_android:
-    name: Build and Release Android
+    name: Build Android
     needs: [version]
     runs-on: ubuntu-latest
     steps:
@@ -145,6 +145,7 @@ jobs:
           path: build/app/outputs/bundle/release/app-release.aab
 
   build_ios:
+    name: Build iOS
     runs-on: macos-latest
   
     steps:
@@ -184,7 +185,7 @@ jobs:
       with:
         path: version1.txt
     - name: Update version in YAML
-      run: sed -i 's/99.99.99+99/${{ steps.version.outputs.content }}+${{ github.run_number }}/g' pubspec.yaml
+      run: sed -i '' 's/99.99.99+99/${{ steps.version.outputs.content }}+${{ github.run_number }}/g' pubspec.yaml
 
     - name: Setup Java
       uses: actions/setup-java@v3
