@@ -41,3 +41,8 @@ If you want to build Jellyflix for Linux you need some additional dependencies: 
 
 ## Privacy
 Jellyflix doesn't collect data and doesn't send data to third parties.
+
+## License
+Jellyflix is licensed under [GPLv3](LICENSE).
+
+The Jellyflix logo is licensed under [CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) and is a remix of the original [Jellyfin icon](https://github.com/jellyfin/jellyfin-ux/blob/master/branding/SVG/icon-transparent.svg) by the [Jellyfin Project](https://jellyfin.org/) which is licensed under [CC-BY-SA 4.0](https://github.com/jellyfin/jellyfin-ux/blob/master/LICENSE)
