@@ -145,6 +145,7 @@ jobs:
           path: build/app/outputs/bundle/release/app-release.aab
 
   build_ios:
+    needs: [version]
     name: Build iOS
     runs-on: macos-latest
   
