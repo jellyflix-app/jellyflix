@@ -11,7 +11,7 @@
 	<key>method</key>
 	<string>app-store</string>
 	<key>signingStyle</key>
-	<string>automatic</string>
+	<string>manual</string>
 	<key>stripSwiftSymbols</key>
 	<true/>
 	<key>teamID</key>
@@ -20,5 +20,12 @@
 	<false/>
 	<key>uploadSymbols</key>
 	<true/>
+	<key>signingCertificate</key>
+	<string>Apple Distribution: Jonathan-David Kienzle (G4U9F39LJ7)</string>
+	<key>provisioningProfiles</key>
+	<dict>
+		<key>com.ambark.jellyflix</key>
+		<string>AppStoreProvisioningProfile</string>
+	</dict>
 </dict>
 </plist>
