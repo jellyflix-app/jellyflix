@@ -41,9 +41,12 @@ class RecommendationCarousels extends HookConsumerWidget {
               physics: const NeverScrollableScrollPhysics(),
               itemCount: data.length,
               itemBuilder: (context, index) {
+                if (data[index].items!.isEmpty) {
+                  return const SizedBox.shrink();
+                }
                 return Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 20.0, vertical: 10.0),
+                      horizontal: 10.0, vertical: 10.0),
                   child: ItemCarousel(
                     imageList: data[index].items!.map((e) => e.id!).toList(),
                     titleList: data[index].items!.map((e) => e.name!).toList(),

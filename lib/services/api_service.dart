@@ -604,7 +604,7 @@ class ApiService {
     }
   }
 
-  Future getRecommendations() async {
+  Future<List<RecommendationDto>> getRecommendations() async {
     //! api only exists for movies
     var folders = await getMediaFolders();
 
@@ -633,5 +633,13 @@ class ApiService {
     await _jellyfinApi!.getLibraryApi().refreshLibrary(
           headers: headers,
         );
+  }
+
+  Future<List<BaseItemDto>> getHeaderRecommendation() async {
+    var response = await similarItemsByLastWatched();
+    var response2 = await getLatestItems("movies");
+    var response3 = await getLatestItems("tvshows");
+
+    return response + response2 + response3;
   }
 }

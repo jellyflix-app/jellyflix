@@ -26,7 +26,7 @@ class HomeScreen extends HookConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             FutureBuilder(
-                future: ref.read(apiProvider).getLatestItems("movies"),
+                future: ref.read(apiProvider).getHeaderRecommendation(),
                 builder: (context, AsyncSnapshot<List<BaseItemDto>> snapshot) {
                   List<BaseItemDto> items = [
                     SkeletonItem.baseItemDto,
@@ -40,8 +40,8 @@ class HomeScreen extends HookConsumerWidget {
                     // filter where backdrop image is not null
                     items = snapshot.data!;
                     items.shuffle();
-                    if (items.length > 5) {
-                      items = items.sublist(0, 5);
+                    if (items.length > 7) {
+                      items = items.sublist(0, 7);
                     }
                   }
 
@@ -64,7 +64,7 @@ class HomeScreen extends HookConsumerWidget {
 
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                      vertical: 10.0, horizontal: 20.0),
+                      vertical: 10.0, horizontal: 10.0),
                   child: FutureItemCarousel(
                     future: ref.read(apiProvider).continueWatchingAndNextUp(),
                     onTap: (index, id) {
@@ -93,7 +93,7 @@ class HomeScreen extends HookConsumerWidget {
 
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                      vertical: 10.0, horizontal: 20.0),
+                      vertical: 10.0, horizontal: 10.0),
                   child: FutureItemCarousel(
                     future: ref.read(apiProvider).getLatestItems("movies"),
                     onTap: (index, id) {
@@ -115,7 +115,7 @@ class HomeScreen extends HookConsumerWidget {
 
                 Padding(
                   padding: const EdgeInsets.symmetric(
-                      vertical: 10.0, horizontal: 20.0),
+                      vertical: 10.0, horizontal: 10.0),
                   child: FutureItemCarousel(
                     future: ref.read(apiProvider).getLatestItems("tvshows"),
                     onTap: (index, id) {
@@ -138,7 +138,7 @@ class HomeScreen extends HookConsumerWidget {
             ),
             Padding(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
               child: FutureItemCarousel(
                 titleMapping: (e) => e.name!,
                 subtitleMapping: (e) => e.productionYear.toString(),
@@ -157,7 +157,7 @@ class HomeScreen extends HookConsumerWidget {
             ),
             Padding(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
               child: FutureItemCarousel(
                 onTap: (index, id) {
                   context.push(Uri(path: ScreenPaths.detail, queryParameters: {
@@ -191,7 +191,7 @@ class HomeScreen extends HookConsumerWidget {
             ),
             Padding(
               padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
               child: FutureItemCarousel(
                 title: "Similar to your watch history",
                 titleMapping: (e) => e.name!,
