@@ -92,7 +92,7 @@ class ApiService {
           ? null
           : (context, url) {
               return ClipRRect(
-                borderRadius: BorderRadius.circular(10.0),
+                borderRadius: borderRadius ?? BorderRadius.circular(10.0),
                 child: BlurHash(
                   hash: blurHash,
                   imageFit: BoxFit.cover,

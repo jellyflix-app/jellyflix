@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/components/responsive_navigation_bar.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
 import 'package:jellyflix/screens/detail_screen.dart';
@@ -14,6 +15,7 @@ import 'package:jellyflix/screens/player_screen.dart';
 import 'package:openapi/openapi.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
+final shellNavigatorKey = GlobalKey<NavigatorState>();
 
 class AppRouter {
   GoRouter get router => _goRouter;
@@ -28,34 +30,59 @@ class AppRouter {
     debugLogDiagnostics: true,
     initialLocation: ScreenPaths.login,
     routes: [
-      GoRoute(
-        path: ScreenPaths.home,
-        pageBuilder: (context, state) => buildPageWithDefaultTransition(
-          context: context,
-          state: state,
-          child: const HomeScreen(),
-        ),
-      ),
-      GoRoute(
-        path: ScreenPaths.library,
-        pageBuilder: (context, state) => buildPageWithDefaultTransition(
-          context: context,
-          state: state,
-          child: const LibraryScreen(),
-        ),
-      ),
-      GoRoute(
-        path: ScreenPaths.detail,
-        pageBuilder: (context, state) => buildPageWithDefaultTransition(
-          context: context,
-          state: state,
-          child: DetailScreen(
-            itemId: state.uri.queryParameters['id']!,
-            selectedIndex:
-                int.parse(state.uri.queryParameters['selectedIndex']!),
-          ),
-        ),
-      ),
+      ShellRoute(
+          navigatorKey: shellNavigatorKey,
+          pageBuilder: (context, state, child) {
+            //print(state.location);
+            return NoTransitionPage(
+                child: ResponsiveNavigationBar(
+              body: child,
+            ));
+          },
+          routes: [
+            GoRoute(
+              path: ScreenPaths.home,
+              pageBuilder: (context, state) => buildPageWithDefaultTransition(
+                context: context,
+                state: state,
+                child: const HomeScreen(),
+              ),
+            ),
+            GoRoute(
+              path: ScreenPaths.library,
+              pageBuilder: (context, state) => buildPageWithDefaultTransition(
+                context: context,
+                state: state,
+                child: const LibraryScreen(),
+              ),
+            ),
+            GoRoute(
+              path: ScreenPaths.detail,
+              pageBuilder: (context, state) => CupertinoPage(
+                child: DetailScreen(
+                  itemId: state.uri.queryParameters['id']!,
+                  selectedIndex:
+                      int.parse(state.uri.queryParameters['selectedIndex']!),
+                ),
+              ),
+            ),
+            GoRoute(
+              path: ScreenPaths.search,
+              pageBuilder: (context, state) => buildPageWithDefaultTransition(
+                context: context,
+                state: state,
+                child: const SearchScreen(),
+              ),
+            ),
+            GoRoute(
+              path: ScreenPaths.profile,
+              pageBuilder: (context, state) => buildPageWithDefaultTransition(
+                context: context,
+                state: state,
+                child: const ProfileScreen(),
+              ),
+            ),
+          ]),
       GoRoute(
         path: ScreenPaths.player,
         pageBuilder: (context, state) => buildPageWithDefaultTransition(
@@ -66,22 +93,6 @@ class AppRouter {
                   int.parse(state.uri.queryParameters['startTimeTicks'] ?? "0"),
               streamUrlAndPlaybackInfo:
                   state.extra as (String, PlaybackInfoResponse)),
-        ),
-      ),
-      GoRoute(
-        path: ScreenPaths.search,
-        pageBuilder: (context, state) => buildPageWithDefaultTransition(
-          context: context,
-          state: state,
-          child: const SearchScreen(),
-        ),
-      ),
-      GoRoute(
-        path: ScreenPaths.profile,
-        pageBuilder: (context, state) => buildPageWithDefaultTransition(
-          context: context,
-          state: state,
-          child: const ProfileScreen(),
         ),
       ),
       GoRoute(

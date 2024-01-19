@@ -2,7 +2,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jellyflix/components/item_carousel.dart';
 import 'package:jellyflix/components/playback_progress_overlay.dart';
-import 'package:jellyflix/components/responsive_navigation_bar.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/models/skeleton_item.dart';
 import 'package:jellyflix/providers/api_provider.dart';
@@ -30,8 +29,7 @@ class DetailScreen extends HookConsumerWidget {
           value.where((element) => element.id == itemId).isNotEmpty;
     });
 
-    return ResponsiveNavigationBar(
-      selectedIndex: selectedIndex,
+    return Scaffold(
       body: FutureBuilder(
           future: ref.read(apiProvider).getItemDetails(itemId),
           builder: (context, AsyncSnapshot<BaseItemDto> snapshot) {

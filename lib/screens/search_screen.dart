@@ -3,7 +3,6 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/item_carousel.dart';
-import 'package:jellyflix/components/responsive_navigation_bar.dart';
 import 'package:jellyflix/models/poster_type.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
@@ -16,8 +15,7 @@ class SearchScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final searchQuery = useState<String?>(null);
 
-    return ResponsiveNavigationBar(
-      selectedIndex: 1,
+    return Scaffold(
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),

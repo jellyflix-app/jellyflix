@@ -3,7 +3,6 @@ import 'package:filter_list/filter_list.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jellyflix/components/responsive_navigation_bar.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/models/skeleton_item.dart';
 import 'package:jellyflix/models/sort_type.dart';
@@ -21,251 +20,246 @@ class LibraryScreen extends HookConsumerWidget {
     final order = useState<String>("Ascending");
     final filterType = useState<List<FilterType>>([]);
     final sortType = useState<SortType>(SortType.name);
-    return ResponsiveNavigationBar(
-      selectedIndex: 2,
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () async {
-                        genreFilter.value = await openGenreDialog(
-                          context,
-                          ref,
-                          selectedItemList: genreFilter.value ?? [],
-                          listData: await ref.read(apiProvider).getGenres(),
-                        );
-                      },
-                      child: Text(
-                        "Genre: ${genreFilter.value == null ? "All" : genreFilter.value!.map(
-                              (e) => e.name,
-                            ).isEmpty ? "All" : genreFilter.value!.map(
-                              (e) => e.name,
-                            ).join(", ")}",
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 20,
-                  ),
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () async {
-                        filterType.value = await openFilterDialog(context, ref,
-                                selectedItemList: filterType.value,
-                                listData: FilterType.values) ??
-                            [];
-                      },
-                      child: Text(
-                        "Filter: ${filterType.value.map((e) => e.toString().split(".").last).isEmpty ? "None" : filterType.value.map((e) => e.toString().split(".").last).join(", ")}",
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 20,
-                  ),
-                  Expanded(
-                      child: TextButton(
-                    onPressed: () {
-                      if (order.value == "Ascending") {
-                        order.value = "Descending";
-                      } else {
-                        order.value = "Ascending";
-                      }
+    return Scaffold(
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextButton(
+                    onPressed: () async {
+                      genreFilter.value = await openGenreDialog(
+                        context,
+                        ref,
+                        selectedItemList: genreFilter.value ?? [],
+                        listData: await ref.read(apiProvider).getGenres(),
+                      );
                     },
                     child: Text(
-                      "Order: ${order.value}",
+                      "Genre: ${genreFilter.value == null ? "All" : genreFilter.value!.map(
+                            (e) => e.name,
+                          ).isEmpty ? "All" : genreFilter.value!.map(
+                            (e) => e.name,
+                          ).join(", ")}",
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                  )),
-                  const SizedBox(
-                    width: 20,
                   ),
-                  Expanded(
-                    child: TextButton(
-                      onPressed: () {
-                        if (sortType.value == SortType.name) {
-                          sortType.value = SortType.premiereDate;
-                        } else if (sortType.value == SortType.premiereDate) {
-                          sortType.value = SortType.random;
-                        } else if (sortType.value == SortType.random) {
-                          sortType.value = SortType.name;
-                        }
-                      },
-                      child: Text(
-                        "Sort: ${sortType.value.name}",
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                ),
+                const SizedBox(
+                  width: 20,
+                ),
+                Expanded(
+                  child: TextButton(
+                    onPressed: () async {
+                      filterType.value = await openFilterDialog(context, ref,
+                              selectedItemList: filterType.value,
+                              listData: FilterType.values) ??
+                          [];
+                    },
+                    child: Text(
+                      "Filter: ${filterType.value.map((e) => e.toString().split(".").last).isEmpty ? "None" : filterType.value.map((e) => e.toString().split(".").last).join(", ")}",
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding:
-                    const EdgeInsets.only(left: 20.0, right: 20.0, top: 10),
-                child: FutureBuilder(
-                  future: ref
-                      .read(apiProvider)
-                      .getFilterItems(genreIds: genreFilter.value),
-                  builder:
-                      (context, AsyncSnapshot<List<BaseItemDto>> snapshot) {
-                    List<BaseItemDto> itemsList =
-                        List.filled(20, SkeletonItem.baseItemDto);
-                    if (snapshot.hasData) {
-                      itemsList = snapshot.data!;
-
-                      // only filter if filters are set
-                      if (filterType.value.isNotEmpty) {
-                        // return only items that matches every filter type
-                        itemsList = itemsList.where((element) {
-                          return filterType.value.every((filter) {
-                            if (filter == FilterType.unplayed) {
-                              return !(element.userData!.played ?? false);
-                            } else if (filter == FilterType.played) {
-                              return element.userData!.played ?? false;
-                            } else if (filter == FilterType.favorites) {
-                              return element.userData!.isFavorite == true;
-                            } else if (filter == FilterType.liked) {
-                              return element.userData!.likes == true;
-                            } else {
-                              return false;
-                            }
-                          });
-                        }).toList();
-                      }
-
-                      // first sort by sort type then by order
-                      itemsList.sort((a, b) {
-                        if (sortType.value == SortType.name) {
-                          return a.name!.compareTo(b.name!);
-                        } else if (sortType.value == SortType.premiereDate) {
-                          return a.premiereDate == null
-                              ? 1
-                              : b.premiereDate == null
-                                  ? -1
-                                  : a.premiereDate!.compareTo(b.premiereDate!);
-                        } else {
-                          return 0;
-                        }
-                      });
-                      if (sortType.value == SortType.random) {
-                        itemsList.shuffle();
-                      }
-                      if (order.value == "Descending") {
-                        itemsList = itemsList.reversed.toList();
-                      }
-
-                      if (itemsList.isEmpty) {
-                        return const Center(
-                          child: Text("No items found"),
-                        );
-                      }
-                    }
-                    return Skeletonizer(
-                      effect: ShimmerEffect(
-                        baseColor: Colors.grey.withOpacity(0.5),
-                        highlightColor: Colors.white.withOpacity(0.5),
-                      ),
-                      enabled: !snapshot.hasData,
-                      child: GridView.builder(
-                          gridDelegate:
-                              const SliverGridDelegateWithMaxCrossAxisExtent(
-                                  maxCrossAxisExtent: 125,
-                                  mainAxisExtent: 250,
-                                  crossAxisSpacing: 10,
-                                  mainAxisSpacing: 10),
-                          itemCount: itemsList.length,
-                          itemBuilder: (context, index) {
-                            return Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                AspectRatio(
-                                  aspectRatio: 2 / 3,
-                                  child: Stack(
-                                    children: [
-                                      Positioned.fill(
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black
-                                                    .withOpacity(0.5),
-                                                spreadRadius: 2,
-                                                blurRadius: 5,
-                                                offset: const Offset(0, 3),
-                                              ),
-                                            ],
-                                          ),
-                                          child: ref.read(apiProvider).getImage(
-                                              id: itemsList[index].id!,
-                                              type: ImageType.primary,
-                                              blurHash: itemsList[index]
-                                                  .imageBlurHashes
-                                                  ?.primary
-                                                  ?.values
-                                                  .first),
-                                        ),
-                                      ),
-                                      Positioned.fill(
-                                        child: Material(
-                                          color: Colors.transparent,
-                                          child: InkWell(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                            onTap: () {
-                                              context.push(Uri(
-                                                  path: ScreenPaths.detail,
-                                                  queryParameters: {
-                                                    "id": itemsList[index].id!,
-                                                    "selectedIndex": "2",
-                                                  }).toString());
-                                            },
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(height: 5.0),
-                                Flexible(
-                                  child: Text(
-                                    itemsList[index].name!,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                Flexible(
-                                  child: Text(
-                                    itemsList[index].productionYear.toString(),
-                                    style: const TextStyle(fontSize: 10),
-                                  ),
-                                ),
-                              ],
-                            );
-                          }),
-                    );
-                  },
                 ),
+                const SizedBox(
+                  width: 20,
+                ),
+                Expanded(
+                    child: TextButton(
+                  onPressed: () {
+                    if (order.value == "Ascending") {
+                      order.value = "Descending";
+                    } else {
+                      order.value = "Ascending";
+                    }
+                  },
+                  child: Text(
+                    "Order: ${order.value}",
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                )),
+                const SizedBox(
+                  width: 20,
+                ),
+                Expanded(
+                  child: TextButton(
+                    onPressed: () {
+                      if (sortType.value == SortType.name) {
+                        sortType.value = SortType.premiereDate;
+                      } else if (sortType.value == SortType.premiereDate) {
+                        sortType.value = SortType.random;
+                      } else if (sortType.value == SortType.random) {
+                        sortType.value = SortType.name;
+                      }
+                    },
+                    child: Text(
+                      "Sort: ${sortType.value.name}",
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 20.0, right: 20.0, top: 10),
+              child: FutureBuilder(
+                future: ref
+                    .read(apiProvider)
+                    .getFilterItems(genreIds: genreFilter.value),
+                builder: (context, AsyncSnapshot<List<BaseItemDto>> snapshot) {
+                  List<BaseItemDto> itemsList =
+                      List.filled(20, SkeletonItem.baseItemDto);
+                  if (snapshot.hasData) {
+                    itemsList = snapshot.data!;
+
+                    // only filter if filters are set
+                    if (filterType.value.isNotEmpty) {
+                      // return only items that matches every filter type
+                      itemsList = itemsList.where((element) {
+                        return filterType.value.every((filter) {
+                          if (filter == FilterType.unplayed) {
+                            return !(element.userData!.played ?? false);
+                          } else if (filter == FilterType.played) {
+                            return element.userData!.played ?? false;
+                          } else if (filter == FilterType.favorites) {
+                            return element.userData!.isFavorite == true;
+                          } else if (filter == FilterType.liked) {
+                            return element.userData!.likes == true;
+                          } else {
+                            return false;
+                          }
+                        });
+                      }).toList();
+                    }
+
+                    // first sort by sort type then by order
+                    itemsList.sort((a, b) {
+                      if (sortType.value == SortType.name) {
+                        return a.name!.compareTo(b.name!);
+                      } else if (sortType.value == SortType.premiereDate) {
+                        return a.premiereDate == null
+                            ? 1
+                            : b.premiereDate == null
+                                ? -1
+                                : a.premiereDate!.compareTo(b.premiereDate!);
+                      } else {
+                        return 0;
+                      }
+                    });
+                    if (sortType.value == SortType.random) {
+                      itemsList.shuffle();
+                    }
+                    if (order.value == "Descending") {
+                      itemsList = itemsList.reversed.toList();
+                    }
+
+                    if (itemsList.isEmpty) {
+                      return const Center(
+                        child: Text("No items found"),
+                      );
+                    }
+                  }
+                  return Skeletonizer(
+                    effect: ShimmerEffect(
+                      baseColor: Colors.grey.withOpacity(0.5),
+                      highlightColor: Colors.white.withOpacity(0.5),
+                    ),
+                    enabled: !snapshot.hasData,
+                    child: GridView.builder(
+                        gridDelegate:
+                            const SliverGridDelegateWithMaxCrossAxisExtent(
+                                maxCrossAxisExtent: 125,
+                                mainAxisExtent: 250,
+                                crossAxisSpacing: 10,
+                                mainAxisSpacing: 10),
+                        itemCount: itemsList.length,
+                        itemBuilder: (context, index) {
+                          return Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              AspectRatio(
+                                aspectRatio: 2 / 3,
+                                child: Stack(
+                                  children: [
+                                    Positioned.fill(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color:
+                                                  Colors.black.withOpacity(0.5),
+                                              spreadRadius: 2,
+                                              blurRadius: 5,
+                                              offset: const Offset(0, 3),
+                                            ),
+                                          ],
+                                        ),
+                                        child: ref.read(apiProvider).getImage(
+                                            id: itemsList[index].id!,
+                                            type: ImageType.primary,
+                                            blurHash: itemsList[index]
+                                                .imageBlurHashes
+                                                ?.primary
+                                                ?.values
+                                                .first),
+                                      ),
+                                    ),
+                                    Positioned.fill(
+                                      child: Material(
+                                        color: Colors.transparent,
+                                        child: InkWell(
+                                          borderRadius:
+                                              BorderRadius.circular(10.0),
+                                          onTap: () {
+                                            context.push(Uri(
+                                                path: ScreenPaths.detail,
+                                                queryParameters: {
+                                                  "id": itemsList[index].id!,
+                                                  "selectedIndex": "2",
+                                                }).toString());
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 5.0),
+                              Flexible(
+                                child: Text(
+                                  itemsList[index].name!,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              Flexible(
+                                child: Text(
+                                  itemsList[index].productionYear.toString(),
+                                  style: const TextStyle(fontSize: 10),
+                                ),
+                              ),
+                            ],
+                          );
+                        }),
+                  );
+                },
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

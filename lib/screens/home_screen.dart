@@ -3,7 +3,6 @@ import 'package:jellyflix/components/future_item_carousel.dart';
 import 'package:jellyflix/components/image_banner.dart';
 import 'package:jellyflix/components/playback_progress_overlay.dart';
 import 'package:jellyflix/components/recommendation_carousels.dart';
-import 'package:jellyflix/components/responsive_navigation_bar.dart';
 import 'package:jellyflix/models/poster_type.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/models/skeleton_item.dart';
@@ -18,8 +17,7 @@ class HomeScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return ResponsiveNavigationBar(
-      selectedIndex: 0,
+    return Scaffold(
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,

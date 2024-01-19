@@ -30,6 +30,12 @@ class MyApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       title: 'Another Jellyfin Client',
       theme: ThemeData(
+        pageTransitionsTheme: const PageTransitionsTheme(
+          builders: {
+            TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          },
+        ),
         colorScheme: ColorScheme.fromSeed(
             seedColor: Colors.deepPurple, brightness: Brightness.dark),
         useMaterial3: true,

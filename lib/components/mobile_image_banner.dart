@@ -68,6 +68,7 @@ class MobileImageBannerState extends ConsumerState<MobileImageBanner> {
 
               return Stack(children: [
                 ref.read(apiProvider).getImage(
+                    borderRadius: BorderRadius.zero,
                     id: widget.items[index].id!,
                     type: widget.items[index].backdropImageTags!.isNotEmpty
                         ? ImageType.backdrop
