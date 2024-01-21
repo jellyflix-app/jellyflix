@@ -232,7 +232,7 @@ jobs:
       env: 
         API_PRIVATE_KEYS_DIR: ${{ github.workspace }}
       run: |
-        xcrun notarytool submit build/ios/ipa/Jellyflix.ipa -k AuthKey_${{ secrets.APPSTORE_CONNECT_API_KEY_ID }}.p8 -d ${{ secrets.APPSTORE_CONNECT_API_KEY_ID }} -i ${{ secrets.APPSTORE_CONNECT_ISSUER_ID }} --wait --verbose
+        xcrun notarytool submit build/ios/ipa/Jellyflix.ipa -k AuthKey_${{ secrets.APPSTORE_CONNECT_API_KEY_ID }}.p8 -d ${{ secrets.APPSTORE_CONNECT_API_KEY_ID }} -i ${{ secrets.APPSTORE_CONNECT_ISSUER_ID }} --wait
     
   build_macos:
     name: Build macOS
@@ -247,7 +247,6 @@ jobs:
         env:
           BUILD_CERTIFICATE_BASE64: ${{ secrets.APPSTORE_CERT_BASE64 }}
           P12_PASSWORD: ${{ secrets.APPSTORE_CERT_PASSWORD }}
-          # TODO
           BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.MACPROVISION_BASE64 }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
@@ -299,6 +298,7 @@ jobs:
 
       - name: Get identity and store in env
         run: |
+          security find-identity -v -p codesigning
           security find-identity -v -p codesigning | grep "Developer ID Application" | head -1 | echo "IDENTITY=$(awk '{print $2}') >> $GITHUB_ENV"
 
 
