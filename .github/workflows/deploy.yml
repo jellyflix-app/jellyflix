@@ -301,11 +301,29 @@ jobs:
           codesign --force --deep --sign ${{ secrets.APPSTORE_CERT_FINGERPRINT }} build/macos/Build/Products/Release/jellyflix.app
           codesign --verify --verbose build/macos/Build/Products/Release/jellyflix.app
 
+      - name: Create a dmg
+        working-directory: build/macos/Build/Products/Release
+        run: |
+          echo "Install create-dmg"
+          brew install create-dmg
+          create-dmg \
+            --volname "Jellyflix" \
+            --window-pos 200 120 \
+            --window-size 800 529 \
+            --icon-size 130 \
+            --text-size 14 \
+            --icon "Jellyflix.app" 260 250 \
+            --hide-extension "Jellyflix.app" \
+            --app-drop-link 540 250 \
+            --hdiutil-quiet \
+            "Jellyflix.dmg" \
+            "Jellyflix.app"
+      
       - name: Upload macOS
         uses: actions/upload-artifact@v2
         with:
           name: jellyflix-macos
-          path: build/macos/Build/Products/Release/jellyflix.app
+          path: build/macos/Build/Products/Release/jellyflix.dmg
 
       # only important for selfhosted runners
       - name: Clean up keychain and provisioning profile
@@ -322,7 +340,7 @@ jobs:
         env: 
           API_PRIVATE_KEYS_DIR: ${{ github.workspace }}
         run: |
-          xcrun notarytool submit build/macos/Build/Products/Release/jellyflix.app -k AuthKey_${{ secrets.APPSTORE_CONNECT_API_KEY_ID }}.p8 -d ${{ secrets.APPSTORE_CONNECT_API_KEY_ID }} -i ${{ secrets.APPSTORE_CONNECT_ISSUER_ID }} --wait
+          xcrun notarytool submit build/macos/Build/Products/Release/jellyflix.dmg -k AuthKey_${{ secrets.APPSTORE_CONNECT_API_KEY_ID }}.p8 -d ${{ secrets.APPSTORE_CONNECT_API_KEY_ID }} -i ${{ secrets.APPSTORE_CONNECT_ISSUER_ID }} --wait
 
   build_linux:
     name: Build Linux
