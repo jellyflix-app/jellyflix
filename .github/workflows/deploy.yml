@@ -314,8 +314,8 @@ jobs:
           security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
           rm ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.provisionprofile
       
-          - name: Save base64 encoded p8 cert
-          run: echo ${{ secrets.APPSTORE_CONNECT_API_KEY }} | base64 --decode > AuthKey_${{ secrets.APPSTORE_CONNECT_API_KEY_ID }}.p8
+      - name: Save base64 encoded p8 cert
+        run: echo ${{ secrets.APPSTORE_CONNECT_API_KEY }} | base64 --decode > AuthKey_${{ secrets.APPSTORE_CONNECT_API_KEY_ID }}.p8
     
       # deploy to TestFlight
       - name: Deploy to TestFlight
