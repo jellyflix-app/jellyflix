@@ -316,6 +316,7 @@ jobs:
             --hide-extension "Jellyflix.app" \
             --app-drop-link 540 250 \
             --hdiutil-quiet \
+            --codesign ${{ secrets.APPSTORE_CERT_FINGERPRINT }} \
             "Jellyflix.dmg" \
             "Jellyflix.app"
       
