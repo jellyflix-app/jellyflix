@@ -36,6 +36,9 @@ dependencies:
   dio: ^5.4.0
   device_info_plus: ^9.1.1
   package_info_plus: ^5.0.1
+  flutter_localizations:
+    sdk: flutter
+  intl: any
 
 dev_dependencies:
   flutter_test:
@@ -49,6 +52,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  generate: true
 
 flutter_launcher_icons:
   android: "launcher_icon"

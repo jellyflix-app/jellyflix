@@ -1,0 +1,108 @@
+{
+    "@@locale": "en",
+
+    "continueWatching": "Continue Watching",
+    "recentlyAddedMovies": "Recently Added Movies",
+    "recentlyAddedShows": "Recently Added Shows",
+    "yourWatchlist": "Your Watchlist",
+    "top10inYourLibrary": "Top 10 in your Library",
+    "similarToWatchHistory": "Similar to your Watch History",
+    "becauseYouWatched": "Because you watched {title}",
+    "@becausYouWatched": {
+        "placeholders": {
+          "title": {
+            "type": "String",
+            "example": "Forrest Gump"
+          }
+        }
+      },
+    "becauseYouLiked": "Because you liked {title}",
+    "@becauseYouLiked": {
+        "placeholders": {
+          "title": {
+            "type": "String",
+            "example": "Forrest Gump"
+          }
+        }
+      },
+    "directedBy": "Directed by {director}",
+    "@directedBy": {
+        "placeholders": {
+          "director": {
+            "type": "String",
+            "example": "Robert Zemeckis"
+          }
+        }
+      },
+    "starring": "Starring {actor}",
+    "@starring": {
+        "placeholders": {
+          "actor": {
+            "type": "String",
+            "example": "Tom Hanks"
+          }
+        }
+      },
+    "recommendedForYou": "Recommended for you",
+    "play": "Play",
+    "moreInfo": "More Info",
+    "search": "Search",
+    "startTypingSearch": "Start typing to search",
+    "genre": "Genre",
+    "all": "All",
+    "filter": "Filter",
+    "none": "None",
+    "order": "Order",
+    "ascending": "Ascending",
+    "descending": "Descending",
+    "sort": "Sort",
+    "name": "Name",
+    "premiereDate": "Premiere Date",
+    "random": "Random",
+    "unplayed": "Unplayed",
+    "played": "Played",
+    "favorites": "Favorites",
+    "liked": "Liked",
+    "changeProfile": "Change Profile",
+    "logout": "Logout",
+    "about": "About",
+    "scanLibrary": "Scan Library",
+    "scanStarted": "Scan started",
+    "quickConnect": "Quick Connect",
+    "quickConnectDescription": "Enter the code displayed on your device",
+    "quickConnectError401": "Are you accessing the right server?",
+    "quickConnectError404": "Invalid code",
+    "quickConnectErrorUnknown": "Something went wrong",
+    "connect": "Connect",
+    "code": "Code",
+    "writers": "Writers",
+    "directors": "Directors",
+    "genres": "Genres",
+    "cast": "Cast",
+    "episodes": "Episodes",
+    "season": "Season",
+    "na": "N/A",
+    "addedToWatchlist": "Added to Watchlist",
+    "removedFromWatchlist": "Removed from Watchlist",
+    "noItemsFound": "No items found",
+    "noResultsFound": "No results found",
+    "movies": "Movies",
+    "series": "series",
+    "collections": "Collections",
+    "addProfile": "Add Profile",
+    "appSubtitle": "Another Jellyfin client",
+    "serverAddress": "Server Address",
+    "login": "Login",
+    "username": "Username",
+    "password": "Password",
+    "webDemoNote": "This is a demo version of Jellyflix. To use it, you can use the following credentials: \n\nServer Address: https://demo.jellyfin.org/stable \nUser Name: demo \nand empty password \n\n",
+    "quality": "Quality",
+    "audio": "Audio",
+    "subtitles": "Subtitles",
+    "settings": "Settings",
+    "home": "Home",
+    "library": "Library",
+    "profile": "Profile",
+    "appName": "Jellyflix"
+    
+}

@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:openapi/openapi.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class DetailScreen extends HookConsumerWidget {
@@ -137,7 +137,8 @@ class DetailScreen extends HookConsumerWidget {
                                         children: [
                                           Text(
                                             data.premiereDate == null
-                                                ? 'N/A'
+                                                ? AppLocalizations.of(context)!
+                                                    .na
                                                 : data.premiereDate!.year
                                                     .toString(),
                                             style: const TextStyle(
@@ -157,7 +158,10 @@ class DetailScreen extends HookConsumerWidget {
                                               padding:
                                                   const EdgeInsets.all(3.0),
                                               child: Text(
-                                                data.officialRating ?? 'N/A',
+                                                data.officialRating ??
+                                                    AppLocalizations.of(
+                                                            context)!
+                                                        .na,
                                                 style: const TextStyle(
                                                   fontSize: 10.0,
                                                 ),
@@ -182,7 +186,9 @@ class DetailScreen extends HookConsumerWidget {
                                                     Text(
                                                       (data.communityRating ==
                                                               null)
-                                                          ? 'N/A'
+                                                          ? AppLocalizations.of(
+                                                                  context)!
+                                                              .na
                                                           : data
                                                               .communityRating!
                                                               .roundToDouble()
@@ -231,7 +237,6 @@ class DetailScreen extends HookConsumerWidget {
                           children: [
                             ElevatedButton.icon(
                               onPressed: () async {
-                                //TODO use next up episode if tvshow
                                 String itemId;
                                 int playbackStartTicks = 0;
 
@@ -278,7 +283,7 @@ class DetailScreen extends HookConsumerWidget {
                                 }
                               },
                               icon: const Icon(Icons.play_arrow),
-                              label: const Text('Play'),
+                              label: Text(AppLocalizations.of(context)!.play),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor:
                                     Theme.of(context).colorScheme.primary,
@@ -305,8 +310,10 @@ class DetailScreen extends HookConsumerWidget {
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(SnackBar(
                                       content: Text(onWatchlist.value
-                                          ? "Added to watchlist"
-                                          : "Removed from watchlist"),
+                                          ? AppLocalizations.of(context)!
+                                              .addedToWatchlist
+                                          : AppLocalizations.of(context)!
+                                              .removedFromWatchlist),
                                       duration: const Duration(seconds: 1),
                                     ));
                                   }
@@ -335,9 +342,12 @@ class DetailScreen extends HookConsumerWidget {
                               child: ElevatedButton(
                                 onPressed: () {
                                   // Add your watched button logic here
-                                  showLicensePage(
-                                      context: context,
-                                      applicationName: "Jellyflix");
+                                  // showLicensePage(
+                                  //   context: context,
+                                  //   applicationName:
+                                  //       AppLocalizations.of(context)!.appName,
+                                  // );
+                                  // todo show menu
                                 },
                                 style: ElevatedButton.styleFrom(
                                     minimumSize: Size.zero,
@@ -357,7 +367,7 @@ class DetailScreen extends HookConsumerWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 20.0, vertical: 15.0),
                         child: Text(
-                          data.overview ?? 'N/A',
+                          data.overview ?? AppLocalizations.of(context)!.na,
                         ),
                       ),
                       // urls for review sites
@@ -392,20 +402,21 @@ class DetailScreen extends HookConsumerWidget {
                         padding: const EdgeInsets.all(20.0),
                         child: Row(
                           children: [
-                            const Column(
+                            Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Writers',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                  AppLocalizations.of(context)!.writers,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
                                 ),
-                                Text('Directors',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold)),
-                                Text('Genres',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold)),
+                                Text(AppLocalizations.of(context)!.directors,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold)),
+                                Text(AppLocalizations.of(context)!.genres,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold)),
                               ],
                             ),
                             const SizedBox(width: 20.0),
@@ -431,7 +442,7 @@ class DetailScreen extends HookConsumerWidget {
                                             .where((element) =>
                                                 element.type == 'Director')
                                             .isEmpty
-                                        ? 'N/A'
+                                        ? AppLocalizations.of(context)!.na
                                         : data.people!
                                             .where((element) =>
                                                 element.type == 'Director')
@@ -439,7 +450,7 @@ class DetailScreen extends HookConsumerWidget {
                                             .join(", ")),
                                     Text(
                                       data.genres!.isEmpty
-                                          ? "N/A"
+                                          ? AppLocalizations.of(context)!.na
                                           : data.genres!.join(", "),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -462,7 +473,8 @@ class DetailScreen extends HookConsumerWidget {
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
                                         vertical: 5.0),
-                                    child: Text("Episodes",
+                                    child: Text(
+                                        AppLocalizations.of(context)!.episodes,
                                         style: Theme.of(context)
                                             .textTheme
                                             .headlineSmall),
@@ -672,7 +684,9 @@ class DetailScreen extends HookConsumerWidget {
                                                                 ),
                                                                 Text(item.runTimeTicks ==
                                                                         null
-                                                                    ? "N/A"
+                                                                    ? AppLocalizations.of(
+                                                                            context)!
+                                                                        .na
                                                                     : "${(item.runTimeTicks! / 10000000 / 60).round()} min")
                                                               ],
                                                             ),
@@ -701,7 +715,7 @@ class DetailScreen extends HookConsumerWidget {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 20.0, vertical: 15.0),
                               child: ItemCarousel(
-                                title: 'Cast',
+                                title: AppLocalizations.of(context)!.cast,
                                 titleList:
                                     data.people!.map((e) => e.name!).toList(),
                                 imageList:

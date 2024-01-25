@@ -1,7 +1,3 @@
-⚠️ Please keep in mind, that Jellyflix development is in its early days. There are several (visual) bugs and many features missing. If you don't like the state of Jellyflix client right now, you can help improve it by contributing 😉.
-
----
-
 # Jellyflix - Another Jellyfin client
 
 Jellyflix is a cross platform Jellyfin Client for Desktop (Mac, Windows, Linux) and Mobile (iOS, Android). It aims to be a simple to use and reliable Jellyfin client for video content. It supports downloads (coming soon).
@@ -9,14 +5,12 @@ Jellyflix is a cross platform Jellyfin Client for Desktop (Mac, Windows, Linux) 
 ## Download
 
 Supported platforms:
-- iOS (Build it yourself)
-- [Android](https://github.com/jellyflix-app/jellyflix/releases/latest/download/jellyflix.apk)
-- macOS (Build it yourself)
+- [iOS](https://testflight.apple.com/join/Nc1Jw9tc) (Testflight) (App Store coming soon)
+- [Android](https://github.com/jellyflix-app/jellyflix/releases/latest/download/jellyflix.apk) (Google Play coming soon)
+- [macOS](https://github.com/jellyflix-app/jellyflix/releases/latest/download/jellyflix.dmg)
 - [Windows](https://github.com/jellyflix-app/jellyflix/releases/latest/download/jellyflix-windows.zip) (untested)
-- [Linux](https://github.com/jellyflix-app/jellyflix/releases/latest/download/jellyflix-linux.zip) (untested)
+- [Linux](https://github.com/jellyflix-app/jellyflix/releases/latest/download/jellyflix-linux.zip) (needs additional dependencies, see [below](#linux))
 - [Web](https://jellyflix.kiejon.com) (technically works, but it's only intended for demo usage)
-
-I plan on releasing Jellyflix on the App Stores and Play Store in the future, when the app is stable enough.
 
 ## Contribute
 Contributions are much appreciated. You can help the development by:

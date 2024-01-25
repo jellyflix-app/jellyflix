@@ -7,6 +7,7 @@ import 'package:jellyflix/models/poster_type.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:openapi/openapi.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SearchScreen extends HookConsumerWidget {
   const SearchScreen({super.key});
@@ -26,7 +27,7 @@ class SearchScreen extends HookConsumerWidget {
                 width: double.infinity,
                 height: 40,
                 child: SearchBar(
-                  hintText: "Search",
+                  hintText: AppLocalizations.of(context)!.search,
                   leading: const Icon(Icons.search_rounded),
                   onChanged: (value) {
                     if (value != "") {
@@ -42,7 +43,9 @@ class SearchScreen extends HookConsumerWidget {
               ),
               Expanded(
                 child: (searchQuery.value ?? "").isEmpty
-                    ? const Center(child: Text("Start typing to search"))
+                    ? Center(
+                        child: Text(
+                            AppLocalizations.of(context)!.startTypingSearch))
                     : SingleChildScrollView(
                         child: FutureBuilder(
                           future: ref
@@ -51,8 +54,9 @@ class SearchScreen extends HookConsumerWidget {
                           builder: (context, snapshot) {
                             if (snapshot.hasData) {
                               if (snapshot.data!.isEmpty) {
-                                return const Center(
-                                    child: Text("No results found"));
+                                return Center(
+                                    child: Text(AppLocalizations.of(context)!
+                                        .noResultsFound));
                               }
                               List<BaseItemDto> movieList = snapshot.data!
                                   .where((element) =>
@@ -96,7 +100,8 @@ class SearchScreen extends HookConsumerWidget {
                                                   "selectedIndex": "1",
                                                 }).toString());
                                           },
-                                          title: "Movies",
+                                          title: AppLocalizations.of(context)!
+                                              .movies,
                                         ),
                                   seriesList.isEmpty
                                       ? const SizedBox()
@@ -119,7 +124,8 @@ class SearchScreen extends HookConsumerWidget {
                                                   "selectedIndex": "1",
                                                 }).toString());
                                           },
-                                          title: "Series",
+                                          title: AppLocalizations.of(context)!
+                                              .series,
                                         ),
                                   episodeList.isEmpty
                                       ? const SizedBox()
@@ -143,7 +149,8 @@ class SearchScreen extends HookConsumerWidget {
                                                   "selectedIndex": "1",
                                                 }).toString());
                                           },
-                                          title: "Episodes",
+                                          title: AppLocalizations.of(context)!
+                                              .episodes,
                                         ),
                                   collectionList.isEmpty
                                       ? const SizedBox()
@@ -167,7 +174,8 @@ class SearchScreen extends HookConsumerWidget {
                                                   "selectedIndex": "1",
                                                 }).toString());
                                           },
-                                          title: "Collections",
+                                          title: AppLocalizations.of(context)!
+                                              .collections,
                                         ),
                                 ],
                               );

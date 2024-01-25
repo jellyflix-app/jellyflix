@@ -10,6 +10,7 @@ import 'package:jellyflix/providers/api_provider.dart';
 import 'package:jellyflix/models/filter_type.dart';
 import 'package:openapi/openapi.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LibraryScreen extends HookConsumerWidget {
   const LibraryScreen({super.key});
@@ -17,7 +18,7 @@ class LibraryScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final genreFilter = useState<List<BaseItemDto>?>([]);
-    final order = useState<String>("Ascending");
+    final order = useState<String>(AppLocalizations.of(context)!.ascending);
     final filterType = useState<List<FilterType>>([]);
     final sortType = useState<SortType>(SortType.name);
     return Scaffold(
@@ -39,9 +40,9 @@ class LibraryScreen extends HookConsumerWidget {
                         );
                       },
                       child: Text(
-                        "Genre: ${genreFilter.value == null ? "All" : genreFilter.value!.map(
+                        "${AppLocalizations.of(context)!.genre}: ${genreFilter.value == null ? AppLocalizations.of(context)!.all : genreFilter.value!.map(
                               (e) => e.name,
-                            ).isEmpty ? "All" : genreFilter.value!.map(
+                            ).isEmpty ? AppLocalizations.of(context)!.all : genreFilter.value!.map(
                               (e) => e.name,
                             ).join(", ")}",
                         maxLines: 2,
@@ -61,7 +62,7 @@ class LibraryScreen extends HookConsumerWidget {
                             [];
                       },
                       child: Text(
-                        "Filter: ${filterType.value.map((e) => e.toString().split(".").last).isEmpty ? "None" : filterType.value.map((e) => e.toString().split(".").last).join(", ")}",
+                        "${AppLocalizations.of(context)!.filter}: ${filterType.value.map((e) => e.toString().split(".").last).isEmpty ? AppLocalizations.of(context)!.none : filterType.value.map((e) => e.toString().split(".").last).join(", ")}",
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -73,14 +74,15 @@ class LibraryScreen extends HookConsumerWidget {
                   Expanded(
                       child: TextButton(
                     onPressed: () {
-                      if (order.value == "Ascending") {
-                        order.value = "Descending";
+                      if (order.value ==
+                          AppLocalizations.of(context)!.ascending) {
+                        order.value = AppLocalizations.of(context)!.descending;
                       } else {
-                        order.value = "Ascending";
+                        order.value = AppLocalizations.of(context)!.ascending;
                       }
                     },
                     child: Text(
-                      "Order: ${order.value}",
+                      "${AppLocalizations.of(context)!.order}: ${order.value}",
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -100,7 +102,7 @@ class LibraryScreen extends HookConsumerWidget {
                         }
                       },
                       child: Text(
-                        "Sort: ${sortType.value.name}",
+                        "${AppLocalizations.of(context)!.sort}: ${localizeSortType(context, sortType.value)}",
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -161,13 +163,15 @@ class LibraryScreen extends HookConsumerWidget {
                       if (sortType.value == SortType.random) {
                         itemsList.shuffle();
                       }
-                      if (order.value == "Descending") {
+                      if (order.value ==
+                          AppLocalizations.of(context)!.descending) {
                         itemsList = itemsList.reversed.toList();
                       }
 
                       if (itemsList.isEmpty) {
-                        return const Center(
-                          child: Text("No items found"),
+                        return Center(
+                          child:
+                              Text(AppLocalizations.of(context)!.noItemsFound),
                         );
                       }
                     }
@@ -408,5 +412,16 @@ class LibraryScreen extends HookConsumerWidget {
       return resultList;
     }
     return null;
+  }
+
+  String localizeSortType(BuildContext context, SortType sortType) {
+    switch (sortType) {
+      case SortType.name:
+        return AppLocalizations.of(context)!.name;
+      case SortType.premiereDate:
+        return AppLocalizations.of(context)!.premiereDate;
+      case SortType.random:
+        return AppLocalizations.of(context)!.random;
+    }
   }
 }

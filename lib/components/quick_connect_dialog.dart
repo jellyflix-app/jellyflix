@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/providers/api_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class QuickConnectDialog extends HookConsumerWidget {
   const QuickConnectDialog({
@@ -22,17 +23,17 @@ class QuickConnectDialog extends HookConsumerWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
-              "Quick Connect",
+              AppLocalizations.of(context)!.quickConnect,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             const SizedBox(height: 20),
-            const Text("Enter the code displayed on your device"),
+            Text(AppLocalizations.of(context)!.quickConnectDescription),
             const SizedBox(height: 20),
             SizedBox(
               width: 250,
               child: TextField(
                 decoration: InputDecoration(
-                  labelText: "Code",
+                  labelText: AppLocalizations.of(context)!.code,
                   hintText: "123456",
                   border: const OutlineInputBorder(),
                   errorText: errorText.value,
@@ -42,32 +43,38 @@ class QuickConnectDialog extends HookConsumerWidget {
             ),
             const SizedBox(height: 20),
             ElevatedButton(
-                onPressed: () async {
-                  int isSuccess = await ref
-                      .read(apiProvider)
-                      .authorizeQuickConnect(codeController.text);
-                  if (isSuccess == 200) {
-                  } else {
-                    errorText.value = "Invalid code";
-                  }
-                  switch (isSuccess) {
-                    case 200:
-                      if (context.mounted) {
-                        context.pop();
-                      }
-                      break;
-                    case 401:
-                      errorText.value = "Are you accessing the right server?";
-                      break;
-                    case 404:
-                      errorText.value = "Invalid code";
-                      break;
-                    default:
-                      errorText.value = "Something went wrong";
-                      break;
-                  }
-                },
-                child: const Text("Connect"))
+              onPressed: () async {
+                int isSuccess = await ref
+                    .read(apiProvider)
+                    .authorizeQuickConnect(codeController.text);
+                switch (isSuccess) {
+                  case 200:
+                    if (context.mounted) {
+                      context.pop();
+                    }
+                    break;
+                  case 401:
+                    if (context.mounted) {
+                      errorText.value =
+                          AppLocalizations.of(context)!.quickConnectError401;
+                    }
+                    break;
+                  case 404:
+                    if (context.mounted) {
+                      errorText.value =
+                          AppLocalizations.of(context)!.quickConnectError404;
+                    }
+                    break;
+                  default:
+                    if (context.mounted) {
+                      errorText.value = AppLocalizations.of(context)!
+                          .quickConnectErrorUnknown;
+                    }
+                    break;
+                }
+              },
+              child: Text(AppLocalizations.of(context)!.connect),
+            ),
           ],
         ),
       ),

@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:openapi/openapi.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class HomeScreen extends HookConsumerWidget {
   const HomeScreen({super.key});
@@ -79,7 +80,7 @@ class HomeScreen extends HookConsumerWidget {
                     subtitleMapping: (e) => e.productionYear == null
                         ? ""
                         : e.productionYear.toString(),
-                    title: "Continue Watching",
+                    title: AppLocalizations.of(context)!.continueWatching,
                     overlay: (int index, BaseItemDto element) =>
                         PlaybackProgressOverlay(
                       progress: element.userData?.playedPercentage != null
@@ -101,7 +102,7 @@ class HomeScreen extends HookConsumerWidget {
                         "selectedIndex": "0",
                       }).toString());
                     },
-                    title: "Recently Added Movies",
+                    title: AppLocalizations.of(context)!.recentlyAddedMovies,
                     imageMapping: (e) => e.id!,
                     blurHashMapping: (e) =>
                         e.imageBlurHashes?.primary?.values.first,
@@ -123,7 +124,7 @@ class HomeScreen extends HookConsumerWidget {
                         "selectedIndex": "0",
                       }).toString());
                     },
-                    title: "Recently Added Shows",
+                    title: AppLocalizations.of(context)!.recentlyAddedShows,
                     imageMapping: (e) => e.id!,
                     blurHashMapping: (e) =>
                         e.imageBlurHashes?.primary?.values.first,
@@ -144,7 +145,7 @@ class HomeScreen extends HookConsumerWidget {
                 blurHashMapping: (e) =>
                     e.imageBlurHashes?.primary?.values.first,
                 future: ref.read(apiProvider).getWatchlist(),
-                title: "Your Watchlist",
+                title: AppLocalizations.of(context)!.yourWatchlist,
                 onTap: (index, id) {
                   context.push(Uri(path: ScreenPaths.detail, queryParameters: {
                     "id": id,
@@ -169,7 +170,7 @@ class HomeScreen extends HookConsumerWidget {
                     e.imageBlurHashes?.primary?.values.first,
                 future: ref.read(apiProvider).getTopTenPopular(),
                 subtitleMapping: (e) => e.productionYear.toString(),
-                title: "Top 10 in your library",
+                title: AppLocalizations.of(context)!.top10inYourLibrary,
                 overlay: (index, element) => Positioned(
                     child: Padding(
                   padding: const EdgeInsets.all(5.0),
@@ -191,7 +192,7 @@ class HomeScreen extends HookConsumerWidget {
               padding:
                   const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
               child: FutureItemCarousel(
-                title: "Similar to your watch history",
+                title: AppLocalizations.of(context)!.similarToWatchHistory,
                 titleMapping: (e) => e.name!,
                 subtitleMapping: (e) => e.productionYear.toString(),
                 imageMapping: (e) => e.id!,

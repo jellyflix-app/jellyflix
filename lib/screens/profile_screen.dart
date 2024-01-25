@@ -5,6 +5,7 @@ import 'package:jellyflix/components/quick_connect_dialog.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProfileScreen extends HookConsumerWidget {
   const ProfileScreen({super.key});
@@ -75,7 +76,8 @@ class ProfileScreen extends HookConsumerWidget {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15)),
                           leading: const Icon(Icons.group_rounded),
-                          title: const Text("Change Profile"),
+                          title:
+                              Text(AppLocalizations.of(context)!.changeProfile),
                           onTap: () async {
                             await ref
                                 .read(authProvider)
@@ -103,7 +105,8 @@ class ProfileScreen extends HookConsumerWidget {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15)),
                           leading: const Icon(Icons.connected_tv_rounded),
-                          title: const Text("Quick Connect"),
+                          title:
+                              Text(AppLocalizations.of(context)!.quickConnect),
                           onTap: () {
                             showDialog(
                                 context: context,
@@ -115,14 +118,16 @@ class ProfileScreen extends HookConsumerWidget {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15)),
                           leading: const Icon(Icons.qr_code_rounded),
-                          title: const Text("Scan library"),
+                          title:
+                              Text(AppLocalizations.of(context)!.scanLibrary),
                           onTap: () async {
                             await ref.read(apiProvider).startLibraryScan();
                             // show snack bar
                             if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text("Scan started"),
+                                SnackBar(
+                                  content: Text(AppLocalizations.of(context)!
+                                      .scanStarted),
                                 ),
                               );
                             }
@@ -144,7 +149,7 @@ class ProfileScreen extends HookConsumerWidget {
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(15)),
                       leading: const Icon(Icons.info_rounded),
-                      title: const Text("About"),
+                      title: Text(AppLocalizations.of(context)!.about),
                       onTap: () {
                         showLicensePage(context: context);
                       },
@@ -164,7 +169,7 @@ class ProfileScreen extends HookConsumerWidget {
                           borderRadius: BorderRadius.circular(15)),
                       leading: Icon(Icons.logout,
                           color: Theme.of(context).colorScheme.error),
-                      title: const Text("Logout"),
+                      title: Text(AppLocalizations.of(context)!.logout),
                       onTap: () async {
                         await ref.read(authProvider).logout();
 
