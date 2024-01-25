@@ -70,7 +70,7 @@ class ProfileSelectionScreen extends HookConsumerWidget {
                 );
               }
               return const Center(
-                child: Text("Bla"),
+                child: CircularProgressIndicator(),
               );
             },
           ),

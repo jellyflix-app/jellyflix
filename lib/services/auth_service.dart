@@ -153,17 +153,21 @@ class AuthService {
     var allValues = await _secureStorageService.contains("username");
 
     List<User> profiles = [];
-    allValues.forEach((key, value) async {
-      var profileIndex = int.parse(key.split("username").last);
+
+    for (var i = 0; i < allValues.length; i++) {
+      var profileIndex =
+          int.parse(allValues.keys.toList()[i].split("username").last);
       var serverAdress =
           await _secureStorageService.read("serverAdress$profileIndex");
       var userId = await _secureStorageService.read("userid$profileIndex");
+      var name = await _secureStorageService.read("username$profileIndex");
       profiles.add(User(
           profileIndex: profileIndex,
-          name: value,
+          name: name!,
           serverAdress: serverAdress!,
           id: userId));
-    });
+    }
+
     return profiles;
   }
 }
