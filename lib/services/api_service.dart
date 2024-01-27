@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
@@ -382,7 +381,7 @@ class ApiService {
     // get top 10000 from url
     try {
       responseMovie = await Dio().get(
-          "https://raw.githubusercontent.com/jellyflix-app/popular-movies-data/main/${countryCode}-popular-movie.json");
+          "https://raw.githubusercontent.com/jellyflix-app/popular-movies-data/main/$countryCode-popular-movie.json");
     } catch (e) {
       responseMovie = await Dio().get(
           "https://raw.githubusercontent.com/jellyflix-app/popular-movies-data/main/US-popular-movie.json");
@@ -552,22 +551,32 @@ class ApiService {
         .getUserViewsApi()
         .getUserViews(userId: _user!.id!, headers: headers);
     // firstWhere views name == playlist
-    var playlistsId = views.data!.items!.firstWhere((element) {
-      return element.collectionType == "playlists";
-    }).id;
-    // filter playlist by name
-    var playlist = await _jellyfinApi!.getItemsApi().getItems(
-          userId: _user!.id!,
-          headers: headers,
-          includeItemTypes: BuiltList<BaseItemKind>(
-            [
-              BaseItemKind.folder,
-            ],
-          ),
-          parentId: playlistsId,
-          searchTerm: "watchlist",
-        );
-    if (playlist.data!.items!.isNotEmpty) {
+    Response<BaseItemDtoQueryResult>? playlist;
+    for (var view in views.data!.items!) {
+      if (view.collectionType == "playlists") {
+        String? playlistsId = view.id;
+        // abort if no playlists folder exists
+        if (playlistsId == null) {
+          break;
+        }
+
+        // filter playlist by name
+        playlist = await _jellyfinApi!.getItemsApi().getItems(
+              userId: _user!.id!,
+              headers: headers,
+              includeItemTypes: BuiltList<BaseItemKind>(
+                [
+                  BaseItemKind.folder,
+                ],
+              ),
+              parentId: playlistsId,
+              searchTerm: "watchlist",
+            );
+        break;
+      }
+    }
+
+    if (playlist != null && playlist.data!.items!.isNotEmpty) {
       return playlist.data!.items!.first.id!;
     } else {
       // create watchlist playlist
