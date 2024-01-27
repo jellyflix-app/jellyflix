@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ui';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:jellyflix/components/profile_placeholder_image.dart';
 import 'package:jellyflix/models/user.dart';
 import 'package:flutter/material.dart';
+import 'package:jellyflix/navigation/app_router.dart';
 import 'package:jellyflix/services/device_info_service.dart';
 import 'package:openapi/openapi.dart';
 import 'package:built_collection/built_collection.dart';
@@ -372,11 +374,20 @@ class ApiService {
   }
 
   Future<List<BaseItemDto>> getTopTenPopular() async {
-    // TODO depending on locale
     // TODO cache to increase performance
+    // get locale
+    Locale locale = Localizations.localeOf(navigatorKey.currentContext!);
+    String countryCode = locale.countryCode ?? locale.languageCode;
+    Response responseMovie;
     // get top 10000 from url
-    var responseMovie = await Dio().get(
-        "https://raw.githubusercontent.com/jellyflix-app/popular-movies-data/main/US-popular-movie.json");
+    try {
+      responseMovie = await Dio().get(
+          "https://raw.githubusercontent.com/jellyflix-app/popular-movies-data/main/${countryCode}-popular-movie.json");
+    } catch (e) {
+      responseMovie = await Dio().get(
+          "https://raw.githubusercontent.com/jellyflix-app/popular-movies-data/main/US-popular-movie.json");
+    }
+    // TMDB tv shows regions filter doesn't work
     var responseTv = await Dio().get(
         "https://raw.githubusercontent.com/jellyflix-app/popular-movies-data/main/US-popular-tv.json");
 
