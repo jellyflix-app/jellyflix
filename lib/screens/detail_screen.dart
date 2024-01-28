@@ -1,7 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jellyflix/components/episode_list_tile.dart';
 import 'package:jellyflix/components/item_carousel.dart';
-import 'package:jellyflix/components/playback_progress_overlay.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/models/skeleton_item.dart';
 import 'package:jellyflix/providers/api_provider.dart';
@@ -23,10 +25,16 @@ class DetailScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final seasonSelection = useState(0);
     final onWatchlist = useState(false);
+    final ValueNotifier<bool?> markedAsPlayed = useState(null);
+    final StreamController episodeStreamController = StreamController();
 
     ref.read(apiProvider).getWatchlist().then((value) {
       onWatchlist.value =
           value.where((element) => element.id == itemId).isNotEmpty;
+    });
+
+    ref.read(apiProvider).getEpisodes(itemId).then((value) {
+      episodeStreamController.add(value);
     });
 
     return Scaffold(
@@ -36,6 +44,8 @@ class DetailScreen extends HookConsumerWidget {
             BaseItemDto data = SkeletonItem.baseItemDto;
             if (snapshot.hasData) {
               data = snapshot.data!;
+
+              //markedAsPlayed.value = data.userData!.played!;
             }
             return Align(
               alignment: Alignment.topCenter,
@@ -332,37 +342,109 @@ class DetailScreen extends HookConsumerWidget {
                               ),
                             ),
                             const SizedBox(width: 8.0),
-                            Container(
-                              height: 40,
-                              width: 40,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(100.0),
-                                color: Colors.white.withOpacity(0.1),
-                              ),
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  // Add your watched button logic here
-                                  // showLicensePage(
-                                  //   context: context,
-                                  //   applicationName:
-                                  //       AppLocalizations.of(context)!.appName,
-                                  // );
-                                  // todo show menu
-                                },
-                                style: ElevatedButton.styleFrom(
-                                    minimumSize: Size.zero,
-                                    padding: EdgeInsets.zero,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    )),
-                                child: const Icon(
-                                  Icons.more_horiz_rounded,
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(100.0),
+                              child: Material(
+                                child: PopupMenuButton<String>(
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(15.0)),
+                                  itemBuilder: (BuildContext context) =>
+                                      <PopupMenuEntry<String>>[
+                                    if (data.remoteTrailers == null)
+                                      PopupMenuItem<String>(
+                                        value: 'watch_trailer',
+                                        child: ListTile(
+                                          leading:
+                                              const Icon(Icons.movie_outlined),
+                                          iconColor: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          title: Text(
+                                              AppLocalizations.of(context)!
+                                                  .watchTrailer),
+                                        ),
+                                      ),
+                                    PopupMenuItem<String>(
+                                      value: 'mark_as_played',
+                                      child: !(markedAsPlayed.value ??
+                                              data.userData!.played!)
+                                          ? ListTile(
+                                              leading: const Icon(Icons.check),
+                                              iconColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                              title: Text(
+                                                AppLocalizations.of(context)!
+                                                    .markAsPlayed,
+                                              ),
+                                            )
+                                          : ListTile(
+                                              leading: const Icon(Icons.close),
+                                              iconColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .tertiary,
+                                              title: Text(
+                                                AppLocalizations.of(context)!
+                                                    .markAsUnplayed,
+                                              ),
+                                            ),
+                                    ),
+                                  ],
+                                  onSelected: (String value) async {
+                                    if (value == 'watch_trailer') {
+                                      // open external youtube link
+                                      if (!await launchUrl(
+                                            Uri.parse(data
+                                                .remoteTrailers!.first.url!),
+                                          ) &&
+                                          context.mounted) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(
+                                          content: Text(
+                                              AppLocalizations.of(context)!
+                                                  .couldNotOpenTrailer),
+                                          duration: const Duration(seconds: 1),
+                                        ));
+                                      }
+                                    } else if (value == 'mark_as_played') {
+                                      await ref.read(apiProvider).markAsPlayed(
+                                          itemId: itemId,
+                                          played: !(markedAsPlayed.value ??
+                                              data.userData!.played!));
+                                      markedAsPlayed.value =
+                                          !(markedAsPlayed.value ??
+                                              data.userData!
+                                                  .played!); // toggle value
+                                      episodeStreamController.add(await ref
+                                          .read(apiProvider)
+                                          .getEpisodes(itemId));
+                                    }
+                                  },
+                                  child: Container(
+                                    height: 40,
+                                    width: 40,
+                                    decoration: BoxDecoration(
+                                      borderRadius:
+                                          BorderRadius.circular(100.0),
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withOpacity(0.05),
+                                    ),
+                                    child: Icon(
+                                      Icons.more_horiz_rounded,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
                           ],
                         ),
                       ),
+
                       Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 20.0, vertical: 15.0),
@@ -382,7 +464,7 @@ class DetailScreen extends HookConsumerWidget {
                               itemBuilder: (context, index) {
                                 return InkWell(
                                   onTap: () async {
-                                    await launchUrl(Uri.dataFromString(
+                                    await launchUrl(Uri.parse(
                                         data.externalUrls![index].url!));
                                   },
                                   child: Padding(
@@ -465,24 +547,22 @@ class DetailScreen extends HookConsumerWidget {
                       data.isFolder ?? false
                           ? Padding(
                               padding:
-                                  const EdgeInsets.symmetric(horizontal: 20.0),
+                                  const EdgeInsets.symmetric(horizontal: 10.0),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
-                                        vertical: 5.0),
+                                        vertical: 5.0, horizontal: 10.0),
                                     child: Text(
                                         AppLocalizations.of(context)!.episodes,
                                         style: Theme.of(context)
                                             .textTheme
                                             .headlineSmall),
                                   ),
-                                  FutureBuilder(
-                                    future: ref
-                                        .read(apiProvider)
-                                        .getEpisodes(itemId),
+                                  StreamBuilder(
+                                    stream: episodeStreamController.stream,
                                     builder: (context, snapshot) {
                                       var seasons = [];
                                       var seasonIds = [];
@@ -525,7 +605,7 @@ class DetailScreen extends HookConsumerWidget {
                                                     return Padding(
                                                       padding: const EdgeInsets
                                                           .symmetric(
-                                                          horizontal: 5.0),
+                                                          horizontal: 10.0),
                                                       child: ChoiceChip(
                                                           selected:
                                                               seasonSelection
@@ -550,154 +630,54 @@ class DetailScreen extends HookConsumerWidget {
                                               itemBuilder: (context, index) {
                                                 BaseItemDto item =
                                                     episodes[index];
-                                                return SizedBox(
-                                                  height: 125,
-                                                  child: InkWell(
-                                                    onTap: () async {
-                                                      var playbackInfo = await ref
+
+                                                return EpisodeListTile(
+                                                  item: item,
+                                                  data: data,
+                                                  onSelected: (value) async {
+                                                    if (value ==
+                                                        'mark_as_played') {
+                                                      await ref
                                                           .read(apiProvider)
-                                                          .getStreamUrlAndPlaybackInfo(
-                                                              itemId: item.id!);
-                                                      if (context.mounted) {
-                                                        context.push(
-                                                            Uri(
-                                                                path:
-                                                                    ScreenPaths
-                                                                        .player,
-                                                                queryParameters: {
-                                                                  "startTimeTicks": data
-                                                                      .userData
-                                                                      ?.playbackPositionTicks
-                                                                      ?.toString()
-                                                                }).toString(),
-                                                            extra:
-                                                                playbackInfo);
+                                                          .markAsPlayed(
+                                                              itemId: item.id!,
+                                                              played: !item
+                                                                  .userData!
+                                                                  .played!);
+                                                      if (markedAsPlayed
+                                                                  .value ==
+                                                              true &&
+                                                          item.userData!
+                                                              .played!) {
+                                                        markedAsPlayed.value =
+                                                            false;
+                                                      } else if (markedAsPlayed
+                                                                  .value ==
+                                                              false &&
+                                                          episodes
+                                                                  .where((element) =>
+                                                                      element
+                                                                          .userData!
+                                                                          .played ==
+                                                                      false)
+                                                                  .length ==
+                                                              1 &&
+                                                          !item.userData!
+                                                              .played!) {
+                                                        markedAsPlayed.value =
+                                                            true;
                                                       }
-                                                    },
-                                                    child: Row(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .symmetric(
-                                                                  vertical:
-                                                                      20.0),
-                                                          child: AspectRatio(
-                                                            aspectRatio:
-                                                                16 / 10,
-                                                            child: Stack(
-                                                              children: [
-                                                                Container(
-                                                                  decoration:
-                                                                      BoxDecoration(
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            10.0),
-                                                                    boxShadow: [
-                                                                      BoxShadow(
-                                                                        color: Colors
-                                                                            .black
-                                                                            .withOpacity(0.5),
-                                                                        spreadRadius:
-                                                                            2,
-                                                                        blurRadius:
-                                                                            5,
-                                                                        offset: const Offset(
-                                                                            0,
-                                                                            3),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                  child: ref.read(apiProvider).getImage(
-                                                                      id: item
-                                                                          .id!,
-                                                                      type: ImageType
-                                                                          .primary,
-                                                                      blurHash: item
-                                                                          .imageBlurHashes
-                                                                          ?.primary?[item.id!]),
-                                                                ),
-                                                                if (item.userData!
-                                                                        .playedPercentage !=
-                                                                    null)
-                                                                  PlaybackProgressOverlay(
-                                                                      progress: (item
-                                                                              .userData!
-                                                                              .playedPercentage! /
-                                                                          100)),
-                                                                if (item.userData!
-                                                                        .played ==
-                                                                    true)
-                                                                  Positioned(
-                                                                    bottom: 5.0,
-                                                                    right: 5.0,
-                                                                    child: Icon(
-                                                                      Icons
-                                                                          .check_circle_outline_rounded,
-                                                                      size: 20,
-                                                                      color: Colors
-                                                                          .white
-                                                                          .withOpacity(
-                                                                              0.8),
-                                                                    ),
-                                                                  ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        const SizedBox(
-                                                            width: 20.0),
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .symmetric(
-                                                                  vertical:
-                                                                      20.0),
-                                                          child: SizedBox(
-                                                            width: MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width *
-                                                                0.5,
-                                                            child: Column(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .min,
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                Text(
-                                                                  ("${item.indexNumber!}. ${item.name!}"),
-                                                                  maxLines: 2,
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis,
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          16.0,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold),
-                                                                ),
-                                                                Text(item.runTimeTicks ==
-                                                                        null
-                                                                    ? AppLocalizations.of(
-                                                                            context)!
-                                                                        .na
-                                                                    : "${(item.runTimeTicks! / 10000000 / 60).round()} min")
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ),
+
+                                                      episodeStreamController
+                                                          .add(await ref
+                                                              .read(apiProvider)
+                                                              .getEpisodes(
+                                                                  itemId));
+                                                    }
+                                                  },
                                                 );
                                               },
-                                            ),
+                                            )
                                           ],
                                         ),
                                       );

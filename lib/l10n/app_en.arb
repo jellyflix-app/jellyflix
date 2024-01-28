@@ -103,6 +103,9 @@
     "home": "Home",
     "library": "Library",
     "profile": "Profile",
+    "markAsPlayed": "Mark as played",
+    "markAsUnplayed": "Mark as unplayed",
+    "couldNotOpenTrailer": "Could not open trailer",
+    "watchTrailer": "Watch Trailer",
     "appName": "Jellyflix"
-    
 }

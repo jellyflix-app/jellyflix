@@ -662,4 +662,16 @@ class ApiService {
 
     return response + response2 + response3;
   }
+
+  Future<void> markAsPlayed(
+      {required String itemId, required bool played}) async {
+    if (played) {
+      await _jellyfinApi!
+          .getPlaystateApi()
+          .markPlayedItem(userId: _user!.id!, itemId: itemId, headers: headers);
+    } else {
+      await _jellyfinApi!.getPlaystateApi().markUnplayedItem(
+          userId: _user!.id!, itemId: itemId, headers: headers);
+    }
+  }
 }
