@@ -256,31 +256,19 @@ class ApiService {
         startTimeTicks,
         false);
 
-    var canUseStatic = response.data!.mediaSources!.first.mediaStreams!
-                .where((p0) => p0.type == MediaStreamType.audio)
-                .toList()
-                .length ==
-            1 ||
-        response.data!.mediaSources!.first.defaultAudioStreamIndex! == 1;
-
     String? url;
     //TODO use only directplay if static is available or is forced in settings
-    if (canUseStatic &&
-        response.data!.mediaSources!.toList().first.supportsDirectPlay ==
-            true) {
+    if (response.data!.mediaSources!.toList().first.supportsDirectPlay ==
+        true) {
       url =
-          "${_user!.serverAdress}/Videos/$itemId/stream?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}";
-      if (canUseStatic) {
-        url += "&Static=true";
-      }
-    } else if (canUseStatic &&
-        response.data!.mediaSources!.toList().first.supportsDirectStream ==
-            true) {
+          "${_user!.serverAdress}/Videos/$itemId/stream?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}&SubtitleStreamIndex=${subtitleStreamIndex ?? response.data!.mediaSources!.first.defaultSubtitleStreamIndex ?? -1}&Static=true";
+    } else if (response.data!.mediaSources!
+            .toList()
+            .first
+            .supportsDirectStream ==
+        true) {
       url =
-          "${_user!.serverAdress}/Videos/$itemId/stream.${response.data!.mediaSources!.first.container}?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}";
-      if (canUseStatic) {
-        url += "&Static=true";
-      }
+          "${_user!.serverAdress}/Videos/$itemId/stream.${response.data!.mediaSources!.first.container}?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}&SubtitleStreamIndex=${subtitleStreamIndex ?? response.data!.mediaSources!.first.defaultSubtitleStreamIndex ?? -1}&Static=true";
     } else if (response.data!.mediaSources!.first.supportsTranscoding == true) {
       if (response.data!.mediaSources!.first.transcodingUrl == null) {
         response = await postPlaybackInfoRequest(itemId, maxStreamingBitrate,
@@ -307,9 +295,7 @@ class ApiService {
       bool forceTranscoding) async {
     var deviceProfile = ClientCapabilitiesDeviceProfileBuilder();
     deviceProfile.directPlayProfiles = ListBuilder([
-      DirectPlayProfile((b) => b
-        ..type = DlnaProfileType.video
-        ..audioCodec = "aac,ac3,eac3,dts"),
+      DirectPlayProfile((b) => b..type = DlnaProfileType.video),
     ]);
     deviceProfile.transcodingProfiles = ListBuilder<TranscodingProfile>([
       TranscodingProfile(
@@ -326,13 +312,28 @@ class ApiService {
     deviceProfile.subtitleProfiles = ListBuilder<SubtitleProfile>([
       SubtitleProfile((b) => b
         ..format = "vtt"
-        ..method = SubtitleDeliveryMethod.external_),
+        ..method = SubtitleDeliveryMethod.embed),
       SubtitleProfile((b) => b
         ..format = "ssa"
-        ..method = SubtitleDeliveryMethod.external_),
+        ..method = SubtitleDeliveryMethod.embed),
       SubtitleProfile((b) => b
         ..format = "ass"
-        ..method = SubtitleDeliveryMethod.external_),
+        ..method = SubtitleDeliveryMethod.embed),
+      SubtitleProfile((b) => b
+        ..format = "srt"
+        ..method = SubtitleDeliveryMethod.embed),
+      SubtitleProfile((b) => b
+        ..format = "pgs"
+        ..method = SubtitleDeliveryMethod.embed),
+      SubtitleProfile((b) => b
+        ..format = "pgssub"
+        ..method = SubtitleDeliveryMethod.embed),
+      SubtitleProfile((b) => b
+        ..format = "dvdsub"
+        ..method = SubtitleDeliveryMethod.embed),
+      SubtitleProfile((b) => b
+        ..format = "dvbsub"
+        ..method = SubtitleDeliveryMethod.embed),
     ]);
     var response = await _jellyfinApi!.getMediaInfoApi().getPostedPlaybackInfo(
           itemId: itemId,
