@@ -161,6 +161,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
         useValueNotifier<bool>(playbackHelper.getDefaultSubtitleIndex() != -1);
     final subtitleTrack =
         useState<int>(playbackHelper.getDefaultSubtitleIndex());
+    final subtitleTracks = playbackHelper.getSubtitleList();
     final audioTrack = useState<int>(playbackHelper.getDefaultAudioIndex());
     final maxStreamingBitrate =
         useState<int>(playbackHelper.getDefaultBitrate());
@@ -175,52 +176,56 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
             // Use [Video] widget to display video output.
             child: MaterialVideoControlsTheme(
               normal: MaterialVideoControlsThemeData(
-                  topButtonBar: getTopButtonBarThemeData(context),
-                  bottomButtonBar: getBottomButtonBarThemeData(
-                      playbackHelper,
-                      subtitleEnabled,
-                      subtitleTrack,
-                      audioTrack,
-                      maxStreamingBitrate,
-                      context),
-                  seekBarColor: Theme.of(context).colorScheme.secondary,
-                  seekBarPositionColor: Theme.of(context).colorScheme.primary),
+                topButtonBar: getTopButtonBarThemeData(context),
+                bottomButtonBar: getBottomButtonBarThemeData(
+                    playbackHelper,
+                    subtitleEnabled,
+                    subtitleTrack,
+                    audioTrack,
+                    maxStreamingBitrate,
+                    context),
+                seekBarPositionColor: Theme.of(context).colorScheme.onPrimary,
+                seekBarThumbColor: Theme.of(context).colorScheme.primary,
+              ),
               fullscreen: MaterialVideoControlsThemeData(
-                  topButtonBar: getTopButtonBarThemeData(context),
-                  bottomButtonBar: getBottomButtonBarThemeData(
-                      playbackHelper,
-                      subtitleEnabled,
-                      subtitleTrack,
-                      audioTrack,
-                      maxStreamingBitrate,
-                      context),
-                  seekBarColor: Theme.of(context).colorScheme.secondary,
-                  seekBarPositionColor: Theme.of(context).colorScheme.primary),
+                topButtonBar: getTopButtonBarThemeData(context),
+                bottomButtonBar: getBottomButtonBarThemeData(
+                    playbackHelper,
+                    subtitleEnabled,
+                    subtitleTrack,
+                    audioTrack,
+                    maxStreamingBitrate,
+                    context),
+                seekBarPositionColor: Theme.of(context).colorScheme.onPrimary,
+                seekBarThumbColor: Theme.of(context).colorScheme.primary,
+              ),
               child: MaterialDesktopVideoControlsTheme(
                   normal: MaterialDesktopVideoControlsThemeData(
-                      topButtonBar: getTopButtonBarThemeData(context),
-                      bottomButtonBar: getBottomButtonBarThemeData(
-                          playbackHelper,
-                          subtitleEnabled,
-                          subtitleTrack,
-                          audioTrack,
-                          maxStreamingBitrate,
-                          context),
-                      seekBarColor: Theme.of(context).colorScheme.secondary,
-                      seekBarPositionColor:
-                          Theme.of(context).colorScheme.primary),
+                    topButtonBar: getTopButtonBarThemeData(context),
+                    bottomButtonBar: getBottomButtonBarThemeData(
+                        playbackHelper,
+                        subtitleEnabled,
+                        subtitleTrack,
+                        audioTrack,
+                        maxStreamingBitrate,
+                        context),
+                    seekBarPositionColor:
+                        Theme.of(context).colorScheme.onPrimary,
+                    seekBarThumbColor: Theme.of(context).colorScheme.primary,
+                  ),
                   fullscreen: MaterialDesktopVideoControlsThemeData(
-                      topButtonBar: getTopButtonBarThemeData(context),
-                      bottomButtonBar: getBottomButtonBarThemeData(
-                          playbackHelper,
-                          subtitleEnabled,
-                          subtitleTrack,
-                          audioTrack,
-                          maxStreamingBitrate,
-                          context),
-                      seekBarColor: Theme.of(context).colorScheme.secondary,
-                      seekBarPositionColor:
-                          Theme.of(context).colorScheme.primary),
+                    topButtonBar: getTopButtonBarThemeData(context),
+                    bottomButtonBar: getBottomButtonBarThemeData(
+                        playbackHelper,
+                        subtitleEnabled,
+                        subtitleTrack,
+                        audioTrack,
+                        maxStreamingBitrate,
+                        context),
+                    seekBarPositionColor:
+                        Theme.of(context).colorScheme.onPrimary,
+                    seekBarThumbColor: Theme.of(context).colorScheme.primary,
+                  ),
                   child: Video(
                     key: key,
                     controller: controller,
@@ -258,6 +263,10 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
             subtitleEnabled.value = !subtitleEnabled.value;
             int trackNumber;
             if (subtitleEnabled.value) {
+              if (subtitleTrack.value == -1) {
+                subtitleTrack.value =
+                    playbackHelper.getSubtitleList().first.index!;
+              }
               trackNumber = subtitleTrack.value;
             } else {
               trackNumber = -1;
@@ -272,6 +281,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
                 subtitleEnabled.value
                     ? Icons.subtitles_rounded
                     : Icons.subtitles_outlined,
+                size: 25,
               );
             },
           ),
@@ -316,7 +326,10 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
             ),
           );
         },
-        icon: const Icon(Icons.settings_rounded),
+        icon: const Icon(
+          Icons.settings_rounded,
+          size: 20,
+        ),
       ),
       const MaterialFullscreenButton(),
     ];
