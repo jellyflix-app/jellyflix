@@ -475,7 +475,8 @@ class ApiService {
               playbackInfo!.mediaSources!.first.defaultSubtitleStreamIndex));
   }
 
-  Future<void> reportPlaybackProgress(int positionTicks) async {
+  Future<void> reportPlaybackProgress(int positionTicks,
+      {int? audioStreamIndex, int? subtitleStreamIndex}) async {
     await _jellyfinApi!.getPlaystateApi().reportPlaybackProgress(
         headers: headers,
         playbackProgressInfo: PlaybackProgressInfo((b) => b
@@ -483,9 +484,9 @@ class ApiService {
           ..mediaSourceId = playbackInfo!.mediaSources!.first.id!
           ..positionTicks = positionTicks
           ..playSessionId = playbackInfo!.playSessionId
-          ..audioStreamIndex =
+          ..audioStreamIndex = audioStreamIndex ??
               playbackInfo!.mediaSources!.first.defaultAudioStreamIndex
-          ..subtitleStreamIndex =
+          ..subtitleStreamIndex = subtitleStreamIndex ??
               playbackInfo!.mediaSources!.first.defaultSubtitleStreamIndex));
   }
 
