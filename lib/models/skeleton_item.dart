@@ -18,5 +18,6 @@ class SkeletonItem {
     ..seasonName = 'Season 1'
     ..seasonId = 'abcdefc-1234-5678-9012-abcdefabcdef'
     ..seriesName = 'Series 1'
-    ..seriesId = 'abcdefc-1234-5678-9012-abcdefabcdef');
+    ..seriesId = 'abcdefc-1234-5678-9012-abcdefabcdef'
+    ..mediaSources = ListBuilder<MediaSourceInfo>());
 }

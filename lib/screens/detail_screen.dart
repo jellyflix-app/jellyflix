@@ -27,6 +27,7 @@ class DetailScreen extends HookConsumerWidget {
     final onWatchlist = useState(false);
     final ValueNotifier<bool?> markedAsPlayed = useState(null);
     final StreamController episodeStreamController = StreamController();
+    final playButtonHovered = useState(false);
 
     ref.read(apiProvider).getWatchlist().then((value) {
       onWatchlist.value =
@@ -245,62 +246,143 @@ class DetailScreen extends HookConsumerWidget {
                             horizontal: 10.0, vertical: 15.0),
                         child: Row(
                           children: [
-                            ElevatedButton.icon(
-                              onPressed: () async {
-                                String itemId;
-                                int playbackStartTicks = 0;
+                            data.mediaSources!.length > 1
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(100.0),
+                                    child: Material(
+                                      child: PopupMenuButton(
+                                        itemBuilder: (BuildContext context) {
+                                          List<PopupMenuEntry> popUpItems = [];
+                                          for (var element
+                                              in data.mediaSources!) {
+                                            popUpItems.add(PopupMenuItem(
+                                              value: element.id,
+                                              child: Text(element.name!),
+                                            ));
+                                          }
+                                          return popUpItems;
+                                        },
+                                        tooltip: "",
+                                        onSelected: (value) async {
+                                          await goToPlayerScreen(
+                                              ref,
+                                              value,
+                                              data.userData!
+                                                  .playbackPositionTicks!,
+                                              context);
+                                        },
+                                        child: MouseRegion(
+                                          onEnter: (event) {
+                                            playButtonHovered.value = true;
+                                          },
+                                          onExit: (event) {
+                                            playButtonHovered.value = false;
+                                          },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(100.0),
+                                              color: playButtonHovered.value
+                                                  ? Theme.of(context)
+                                                      .colorScheme
+                                                      .primary
+                                                      .withOpacity(0.9)
+                                                  : Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
+                                            ),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 15.0,
+                                                      vertical: 5.0),
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.play_arrow,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onPrimary,
+                                                  ),
+                                                  const SizedBox(width: 8.0),
+                                                  Text(
+                                                    AppLocalizations.of(
+                                                            context)!
+                                                        .play,
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .onPrimary,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 5.0),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : ElevatedButton.icon(
+                                    onPressed: () async {
+                                      String itemId;
+                                      int playbackStartTicks = 0;
 
-                                if (data.type == BaseItemKind.series) {
-                                  List<BaseItemDto> continueWatching = await ref
-                                      .read(apiProvider)
-                                      .getContinueWatching(parentId: data.id!);
-                                  if (continueWatching.isNotEmpty) {
-                                    itemId = continueWatching.first.id!;
-                                    playbackStartTicks = continueWatching
-                                        .first.userData!.playbackPositionTicks!;
-                                  } else {
-                                    List<BaseItemDto> result = await ref
-                                        .read(apiProvider)
-                                        .getNextUpEpisode(seriesId: data.id!);
-                                    if (result.isNotEmpty) {
-                                      itemId = result.first.id!;
-                                    } else {
-                                      List<BaseItemDto> episodes = await ref
-                                          .read(apiProvider)
-                                          .getEpisodes(data.id!);
-                                      itemId = episodes.first.id!;
-                                    }
-                                  }
-                                } else {
-                                  itemId = data.mediaSources!.first.id!;
-                                  playbackStartTicks =
-                                      data.userData!.playbackPositionTicks!;
-                                }
-                                var playbackInfo = await ref
-                                    .read(apiProvider)
-                                    .getStreamUrlAndPlaybackInfo(
-                                        itemId: itemId,
-                                        startTimeTicks: playbackStartTicks);
-                                if (context.mounted) {
-                                  context.push(
-                                      Uri(
-                                          path: ScreenPaths.player,
-                                          queryParameters: {
-                                            "startTimeTicks":
-                                                playbackStartTicks.toString()
-                                          }).toString(),
-                                      extra: playbackInfo);
-                                }
-                              },
-                              icon: const Icon(Icons.play_arrow),
-                              label: Text(AppLocalizations.of(context)!.play),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.primary,
-                                foregroundColor:
-                                    Theme.of(context).colorScheme.onPrimary,
-                              ),
-                            ),
+                                      if (data.type == BaseItemKind.series) {
+                                        List<BaseItemDto> continueWatching =
+                                            await ref
+                                                .read(apiProvider)
+                                                .getContinueWatching(
+                                                    parentId: data.id!);
+                                        if (continueWatching.isNotEmpty) {
+                                          itemId = continueWatching.first.id!;
+                                          playbackStartTicks = continueWatching
+                                              .first
+                                              .userData!
+                                              .playbackPositionTicks!;
+                                        } else {
+                                          List<BaseItemDto> result = await ref
+                                              .read(apiProvider)
+                                              .getNextUpEpisode(
+                                                  seriesId: data.id!);
+                                          if (result.isNotEmpty) {
+                                            itemId = result.first.id!;
+                                          } else {
+                                            List<BaseItemDto> episodes =
+                                                await ref
+                                                    .read(apiProvider)
+                                                    .getEpisodes(data.id!);
+                                            itemId = episodes.first.id!;
+                                          }
+                                        }
+                                      } else {
+                                        itemId = data.mediaSources!.first.id!;
+                                        playbackStartTicks = data
+                                            .userData!.playbackPositionTicks!;
+                                      }
+                                      if (context.mounted) {
+                                        await goToPlayerScreen(ref, itemId,
+                                            playbackStartTicks, context);
+                                      }
+                                    },
+                                    icon: const Icon(Icons.play_arrow),
+                                    label: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                      child: Text(
+                                          AppLocalizations.of(context)!.play),
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          Theme.of(context).colorScheme.primary,
+                                      foregroundColor: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                    ),
+                                  ),
                             const SizedBox(width: 8.0),
                             Container(
                               height: 40,
@@ -715,5 +797,18 @@ class DetailScreen extends HookConsumerWidget {
             // }
           }),
     );
+  }
+
+  Future<void> goToPlayerScreen(WidgetRef ref, String itemId,
+      int playbackStartTicks, BuildContext context) async {
+    var playbackInfo = await ref.read(apiProvider).getStreamUrlAndPlaybackInfo(
+        itemId: itemId, startTimeTicks: playbackStartTicks);
+    if (context.mounted) {
+      context.push(
+          Uri(path: ScreenPaths.player, queryParameters: {
+            "startTimeTicks": playbackStartTicks.toString()
+          }).toString(),
+          extra: playbackInfo);
+    }
   }
 }
