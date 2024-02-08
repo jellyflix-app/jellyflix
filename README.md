@@ -1,10 +1,10 @@
 # Jellyflix - Another Jellyfin client
+[![](https://img.shields.io/badge/matrix-000000?style=for-the-badge&logo=Matrix&logoColor=white)](https://matrix.to/#/%23jellyflix%3Amatrix.org)
 
 Jellyflix is a cross platform Jellyfin Client for Desktop (Mac, Windows, Linux) and Mobile (iOS, Android). It aims to be a simple to use and reliable Jellyfin client for video content. It supports downloads (coming soon).
 
 ## Download
 
-Supported platforms:
 - [iOS](https://testflight.apple.com/join/Nc1Jw9tc) (Testflight) (App Store coming soon)
 - [Android](https://github.com/jellyflix-app/jellyflix/releases/latest/download/jellyflix.apk) (Google Play coming soon)
 - [macOS](https://github.com/jellyflix-app/jellyflix/releases/latest/download/jellyflix.dmg)

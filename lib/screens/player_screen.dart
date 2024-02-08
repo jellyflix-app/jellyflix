@@ -61,9 +61,12 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
           List<AudioTrack> audioTracks = event.audio;
           List<SubtitleTrack> subtitleTracks = event.subtitle;
           if (audioTracks.length > 2) {
-            player.setAudioTrack(audioTracks[
-                playbackHelper.getDefaultAudioIndex() +
-                    1]); // index 0 should be auto
+            var index = playbackHelper.getDefaultAudioIndex();
+            if (index == 0) {
+              index = 1;
+            }
+            player.setAudioTrack(
+                audioTracks[index + 1]); // index 0 should be auto
           }
           if (subtitleTracks.length > 2) {
             player.setSubtitleTrack(subtitleTracks[

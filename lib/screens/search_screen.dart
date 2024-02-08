@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jellyflix/components/item_carousel.dart';
-import 'package:jellyflix/models/poster_type.dart';
+import 'package:jellyflix/components/future_item_carousel.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:openapi/openapi.dart';
@@ -47,143 +46,97 @@ class SearchScreen extends HookConsumerWidget {
                         child: Text(
                             AppLocalizations.of(context)!.startTypingSearch))
                     : SingleChildScrollView(
-                        child: FutureBuilder(
-                          future: ref
-                              .read(apiProvider)
-                              .getFilterItems(searchTerm: searchQuery.value),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              if (snapshot.data!.isEmpty) {
-                                return Center(
-                                    child: Text(AppLocalizations.of(context)!
-                                        .noResultsFound));
-                              }
-                              List<BaseItemDto> movieList = snapshot.data!
-                                  .where((element) =>
-                                      element.type == BaseItemKind.movie)
-                                  .toList();
-                              List<BaseItemDto> seriesList = snapshot.data!
-                                  .where((element) =>
-                                      element.type == BaseItemKind.series)
-                                  .toList();
-                              List<BaseItemDto> episodeList = snapshot.data!
-                                  .where((element) =>
-                                      element.type == BaseItemKind.episode)
-                                  .toList();
-                              List<BaseItemDto> collectionList = snapshot.data!
-                                  .where((element) =>
-                                      element.type == BaseItemKind.boxSet)
-                                  .toList();
-                              return Column(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  movieList.isEmpty
-                                      ? const SizedBox()
-                                      : ItemCarousel(
-                                          imageList: movieList.map((e) {
-                                            return e.id!;
-                                          }).toList(),
-                                          blurHashList: movieList.map((e) {
-                                            return e.imageBlurHashes?.primary
-                                                ?.values.first;
-                                          }).toList(),
-                                          titleList: movieList.map((e) {
-                                            return e.name!;
-                                          }).toList(),
-                                          onTap: (index) {
-                                            context.push(Uri(
-                                                path: ScreenPaths.detail,
-                                                queryParameters: {
-                                                  "id": movieList[index].id!,
-                                                  "selectedIndex": "1",
-                                                }).toString());
-                                          },
-                                          title: AppLocalizations.of(context)!
-                                              .movies,
-                                        ),
-                                  seriesList.isEmpty
-                                      ? const SizedBox()
-                                      : ItemCarousel(
-                                          imageList: seriesList.map((e) {
-                                            return e.id!;
-                                          }).toList(),
-                                          blurHashList: seriesList.map((e) {
-                                            return e.imageBlurHashes?.primary
-                                                ?.values.first;
-                                          }).toList(),
-                                          titleList: seriesList.map((e) {
-                                            return e.name!;
-                                          }).toList(),
-                                          onTap: (index) {
-                                            context.push(Uri(
-                                                path: ScreenPaths.detail,
-                                                queryParameters: {
-                                                  "id": seriesList[index].id!,
-                                                  "selectedIndex": "1",
-                                                }).toString());
-                                          },
-                                          title: AppLocalizations.of(context)!
-                                              .series,
-                                        ),
-                                  episodeList.isEmpty
-                                      ? const SizedBox()
-                                      : ItemCarousel(
-                                          posterType: PosterType.horizontal,
-                                          imageList: episodeList.map((e) {
-                                            return e.id!;
-                                          }).toList(),
-                                          blurHashList: episodeList.map((e) {
-                                            return e.imageBlurHashes?.primary
-                                                ?.values.first;
-                                          }).toList(),
-                                          titleList: episodeList.map((e) {
-                                            return e.name!;
-                                          }).toList(),
-                                          onTap: (index) {
-                                            context.push(Uri(
-                                                path: ScreenPaths.detail,
-                                                queryParameters: {
-                                                  "id": episodeList[index].id!,
-                                                  "selectedIndex": "1",
-                                                }).toString());
-                                          },
-                                          title: AppLocalizations.of(context)!
-                                              .episodes,
-                                        ),
-                                  collectionList.isEmpty
-                                      ? const SizedBox()
-                                      : ItemCarousel(
-                                          imageList: collectionList.map((e) {
-                                            return e.id!;
-                                          }).toList(),
-                                          blurHashList: collectionList.map((e) {
-                                            return e.imageBlurHashes?.primary
-                                                ?.values.first;
-                                          }).toList(),
-                                          titleList: collectionList.map((e) {
-                                            return e.name!;
-                                          }).toList(),
-                                          onTap: (index) {
-                                            context.push(Uri(
-                                                path: ScreenPaths.detail,
-                                                queryParameters: {
-                                                  "id":
-                                                      collectionList[index].id!,
-                                                  "selectedIndex": "1",
-                                                }).toString());
-                                          },
-                                          title: AppLocalizations.of(context)!
-                                              .collections,
-                                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            FutureItemCarousel(
+                              title: AppLocalizations.of(context)!.movies,
+                              titleMapping: (e) => e.name!,
+                              imageMapping: (e) => e.id!,
+                              blurHashMapping: (e) =>
+                                  e.imageBlurHashes?.primary?.values.first,
+                              future: ref.read(apiProvider).getFilterItems(
+                                searchTerm: searchQuery.value,
+                                includeItemTypes: [BaseItemKind.movie],
+                              ),
+                              onTap: (p0, p1) {
+                                context.push(Uri(
+                                    path: ScreenPaths.detail,
+                                    queryParameters: {
+                                      "id": p1,
+                                      "selectedIndex": "0",
+                                    }).toString());
+                              },
+                            ),
+                            FutureItemCarousel(
+                                title: AppLocalizations.of(context)!.series,
+                                titleMapping: (e) => e.name!,
+                                imageMapping: (e) => e.id!,
+                                blurHashMapping: (e) =>
+                                    e.imageBlurHashes?.primary?.values.first,
+                                future: ref.read(apiProvider).getFilterItems(
+                                  searchTerm: searchQuery.value,
+                                  includeItemTypes: [BaseItemKind.series],
+                                ),
+                                onTap: (p0, p1) {
+                                  context.push(Uri(
+                                      path: ScreenPaths.detail,
+                                      queryParameters: {
+                                        "id": p1,
+                                        "selectedIndex": "0",
+                                      }).toString());
+                                }),
+                            FutureItemCarousel(
+                                title: AppLocalizations.of(context)!.episodes,
+                                titleMapping: (e) => e.name!,
+                                imageMapping: (e) => e.id!,
+                                blurHashMapping: (e) =>
+                                    e.imageBlurHashes?.primary?.values.first,
+                                future: ref.read(apiProvider).getFilterItems(
+                                  searchTerm: searchQuery.value,
+                                  includeItemTypes: [BaseItemKind.episode],
+                                ),
+                                onTap: (p0, p1) {
+                                  context.push(Uri(
+                                      path: ScreenPaths.detail,
+                                      queryParameters: {
+                                        "id": p1,
+                                        "selectedIndex": "0",
+                                      }).toString());
+                                }),
+                            FutureItemCarousel(
+                              title: AppLocalizations.of(context)!.collections,
+                              titleMapping: (e) => e.name!,
+                              imageMapping: (e) => e.id!,
+                              blurHashMapping: (e) =>
+                                  e.imageBlurHashes?.primary?.values.first,
+                              future: ref.read(apiProvider).getFilterItems(
+                                searchTerm: searchQuery.value,
+                                includeItemTypes: [
+                                  BaseItemKind.boxSet,
                                 ],
-                              );
-                            } else {
-                              return const Center(
-                                  child: CircularProgressIndicator());
-                            }
-                          },
+                              ),
+                              onTap: (p0, p1) {
+                                context.push(Uri(
+                                    path: ScreenPaths.detail,
+                                    queryParameters: {
+                                      "id": p1,
+                                      "selectedIndex": "0",
+                                    }).toString());
+                              },
+                            ),
+                            // FutureItemCarousel(
+                            //     title: AppLocalizations.of(context)!.play,
+                            //     titleMapping: (e) => e.name!,
+                            //     imageMapping: (e) => e.id!,
+                            //     blurHashMapping: (e) =>
+                            //         e.imageBlurHashes?.primary?.values.first,
+                            //     future: ref.read(apiProvider).getFilterItems(
+                            //         searchTerm: searchQuery.value,
+                            //         includeItemTypes: [BaseItemKind.playlist])),
+                          ],
                         ),
                       ),
               ),

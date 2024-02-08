@@ -7,26 +7,65 @@ import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/models/skeleton_item.dart';
 import 'package:jellyflix/models/sort_type.dart';
 import 'package:jellyflix/providers/api_provider.dart';
-import 'package:jellyflix/models/filter_type.dart';
 import 'package:openapi/openapi.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LibraryScreen extends HookConsumerWidget {
-  const LibraryScreen({super.key});
-
+  final String? genreFilterParam;
+  final String? filterTypeParam;
+  final String? sortTypeParam;
+  final String? sortOrderParam;
+  final String? pageNumberParam;
+  const LibraryScreen(
+      {super.key,
+      this.genreFilterParam,
+      this.filterTypeParam,
+      this.sortTypeParam,
+      this.sortOrderParam,
+      this.pageNumberParam});
+  // TODO Test library without caching images
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final genreFilter = useState<List<BaseItemDto>?>([]);
-    final order = useState<String>(AppLocalizations.of(context)!.ascending);
-    final filterType = useState<List<FilterType>>([]);
-    final sortType = useState<SortType>(SortType.name);
+    final genreFilter = useState<List<BaseItemDto>?>(genreFilterParam == ""
+        ? null
+        : genreFilterParam?.split(",").map((e) {
+            return $BaseItemDto(
+              (p0) {
+                p0.id = e;
+              },
+            );
+          }).toList());
+    final order = useState<String>(
+        sortOrderParam ?? AppLocalizations.of(context)!.ascending);
+    final filterType = useState<List<ItemFilter>>(
+        filterTypeParam == null || filterTypeParam == ""
+            ? []
+            : filterTypeParam!.split(",").map((e) {
+                return ItemFilter.values.firstWhere((element) =>
+                    element.toString().split(".").last.toLowerCase() ==
+                    e.toLowerCase());
+              }).toList());
+    final sortType = useState<SortType>(sortTypeParam == null
+        ? SortType.sortName
+        : SortType.values
+            .where((element) =>
+                element.toString().split(".").last.toLowerCase() ==
+                sortTypeParam?.toLowerCase())
+            .first);
+    final sortOrder = useState<SortOrder>(sortOrderParam == null
+        ? SortOrder.ascending
+        : SortOrder.values.firstWhere((element) =>
+            element.toString().split(".").last.toLowerCase() ==
+            sortOrderParam!.toLowerCase()));
+    int page = int.parse(pageNumberParam ?? "0");
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
               child: Row(
                 children: [
                   Expanded(
@@ -58,7 +97,7 @@ class LibraryScreen extends HookConsumerWidget {
                       onPressed: () async {
                         filterType.value = await openFilterDialog(context, ref,
                                 selectedItemList: filterType.value,
-                                listData: FilterType.values) ??
+                                listData: ItemFilter.values.toList()) ??
                             [];
                       },
                       child: Text(
@@ -74,10 +113,11 @@ class LibraryScreen extends HookConsumerWidget {
                   Expanded(
                       child: TextButton(
                     onPressed: () {
-                      if (order.value ==
-                          AppLocalizations.of(context)!.ascending) {
+                      if (sortOrder.value == SortOrder.ascending) {
+                        sortOrder.value = SortOrder.descending;
                         order.value = AppLocalizations.of(context)!.descending;
                       } else {
+                        sortOrder.value = SortOrder.ascending;
                         order.value = AppLocalizations.of(context)!.ascending;
                       }
                     },
@@ -93,12 +133,12 @@ class LibraryScreen extends HookConsumerWidget {
                   Expanded(
                     child: TextButton(
                       onPressed: () {
-                        if (sortType.value == SortType.name) {
+                        if (sortType.value == SortType.sortName) {
                           sortType.value = SortType.premiereDate;
                         } else if (sortType.value == SortType.premiereDate) {
                           sortType.value = SortType.random;
                         } else if (sortType.value == SortType.random) {
-                          sortType.value = SortType.name;
+                          sortType.value = SortType.sortName;
                         }
                       },
                       child: Text(
@@ -116,57 +156,20 @@ class LibraryScreen extends HookConsumerWidget {
                 padding:
                     const EdgeInsets.only(left: 20.0, right: 20.0, top: 10),
                 child: FutureBuilder(
-                  future: ref
-                      .read(apiProvider)
-                      .getFilterItems(genreIds: genreFilter.value),
+                  future: ref.read(apiProvider).getFilterItems(
+                        genreIds: genreFilter.value,
+                        startIndex: page * 100,
+                        limit: 100,
+                        sortOrder: [sortOrder.value],
+                        sortBy: [sortType.value.toString().split(".").last],
+                        filters: filterType.value,
+                      ),
                   builder:
                       (context, AsyncSnapshot<List<BaseItemDto>> snapshot) {
                     List<BaseItemDto> itemsList =
                         List.filled(20, SkeletonItem.baseItemDto);
                     if (snapshot.hasData) {
                       itemsList = snapshot.data!;
-
-                      // only filter if filters are set
-                      if (filterType.value.isNotEmpty) {
-                        // return only items that matches every filter type
-                        itemsList = itemsList.where((element) {
-                          return filterType.value.every((filter) {
-                            if (filter == FilterType.unplayed) {
-                              return !(element.userData!.played ?? false);
-                            } else if (filter == FilterType.played) {
-                              return element.userData!.played ?? false;
-                            } else if (filter == FilterType.favorites) {
-                              return element.userData!.isFavorite == true;
-                            } else if (filter == FilterType.liked) {
-                              return element.userData!.likes == true;
-                            } else {
-                              return false;
-                            }
-                          });
-                        }).toList();
-                      }
-
-                      // first sort by sort type then by order
-                      itemsList.sort((a, b) {
-                        if (sortType.value == SortType.name) {
-                          return a.name!.compareTo(b.name!);
-                        } else if (sortType.value == SortType.premiereDate) {
-                          return a.premiereDate == null
-                              ? 1
-                              : b.premiereDate == null
-                                  ? -1
-                                  : a.premiereDate!.compareTo(b.premiereDate!);
-                        } else {
-                          return 0;
-                        }
-                      });
-                      if (sortType.value == SortType.random) {
-                        itemsList.shuffle();
-                      }
-                      if (order.value ==
-                          AppLocalizations.of(context)!.descending) {
-                        itemsList = itemsList.reversed.toList();
-                      }
 
                       if (itemsList.isEmpty) {
                         return Center(
@@ -175,92 +178,169 @@ class LibraryScreen extends HookConsumerWidget {
                         );
                       }
                     }
-                    return Skeletonizer(
-                      effect: ShimmerEffect(
-                        baseColor: Colors.grey.withOpacity(0.5),
-                        highlightColor: Colors.white.withOpacity(0.5),
-                      ),
-                      enabled: !snapshot.hasData,
-                      child: GridView.builder(
-                          gridDelegate:
-                              const SliverGridDelegateWithMaxCrossAxisExtent(
-                                  maxCrossAxisExtent: 125,
-                                  mainAxisExtent: 250,
-                                  crossAxisSpacing: 10,
-                                  mainAxisSpacing: 10),
-                          itemCount: itemsList.length,
-                          itemBuilder: (context, index) {
-                            return Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                AspectRatio(
-                                  aspectRatio: 2 / 3,
-                                  child: Stack(
-                                    children: [
-                                      Positioned.fill(
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: Colors.black
-                                                    .withOpacity(0.5),
-                                                spreadRadius: 2,
-                                                blurRadius: 5,
-                                                offset: const Offset(0, 3),
+                    return Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Expanded(
+                          child: Skeletonizer(
+                            effect: ShimmerEffect(
+                              baseColor: Colors.grey.withOpacity(0.5),
+                              highlightColor: Colors.white.withOpacity(0.5),
+                            ),
+                            enabled: !snapshot.hasData,
+                            child: GridView.builder(
+                              gridDelegate:
+                                  const SliverGridDelegateWithMaxCrossAxisExtent(
+                                      maxCrossAxisExtent: 125,
+                                      mainAxisExtent: 250,
+                                      crossAxisSpacing: 10,
+                                      mainAxisSpacing: 10),
+                              itemCount: itemsList.length,
+                              itemBuilder: (context, index) {
+                                return Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    AspectRatio(
+                                      aspectRatio: 2 / 3,
+                                      child: Stack(
+                                        children: [
+                                          Positioned.fill(
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(10.0),
+                                                boxShadow: [
+                                                  BoxShadow(
+                                                    color: Colors.black
+                                                        .withOpacity(0.5),
+                                                    spreadRadius: 2,
+                                                    blurRadius: 5,
+                                                    offset: const Offset(0, 3),
+                                                  ),
+                                                ],
                                               ),
-                                            ],
+                                              child: ref
+                                                  .read(apiProvider)
+                                                  .getImage(
+                                                    id: itemsList[index].id!,
+                                                    type: ImageType.primary,
+                                                    blurHash: itemsList[index]
+                                                        .imageBlurHashes
+                                                        ?.primary
+                                                        ?.values
+                                                        .first,
+                                                    cacheHeight: 300,
+                                                  ),
+                                            ),
                                           ),
-                                          child: ref.read(apiProvider).getImage(
-                                              id: itemsList[index].id!,
-                                              type: ImageType.primary,
-                                              blurHash: itemsList[index]
-                                                  .imageBlurHashes
-                                                  ?.primary
-                                                  ?.values
-                                                  .first),
-                                        ),
-                                      ),
-                                      Positioned.fill(
-                                        child: Material(
-                                          color: Colors.transparent,
-                                          child: InkWell(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                            onTap: () {
-                                              context.push(Uri(
-                                                  path: ScreenPaths.detail,
-                                                  queryParameters: {
-                                                    "id": itemsList[index].id!,
-                                                    "selectedIndex": "2",
-                                                  }).toString());
-                                            },
+                                          Positioned.fill(
+                                            child: Material(
+                                              color: Colors.transparent,
+                                              child: InkWell(
+                                                borderRadius:
+                                                    BorderRadius.circular(10.0),
+                                                onTap: () {
+                                                  context.push(Uri(
+                                                      path: ScreenPaths.detail,
+                                                      queryParameters: {
+                                                        "id": itemsList[index]
+                                                            .id!,
+                                                        "selectedIndex": "2",
+                                                      }).toString());
+                                                },
+                                              ),
+                                            ),
                                           ),
-                                        ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                    const SizedBox(height: 5.0),
+                                    Flexible(
+                                      child: Text(
+                                        itemsList[index].name!,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    Flexible(
+                                      child: Text(
+                                        itemsList[index]
+                                            .productionYear
+                                            .toString(),
+                                        style: const TextStyle(fontSize: 10),
+                                      ),
+                                    ),
+                                  ],
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              if (page > 0)
+                                IconButton(
+                                  onPressed: () {
+                                    context.push(Uri(
+                                        path: ScreenPaths.library,
+                                        queryParameters: {
+                                          "genreFilter": genreFilter.value
+                                              ?.map((e) => e.id)
+                                              .join(","),
+                                          "filterType": filterType.value
+                                              .map((e) =>
+                                                  e.toString().split(".").last)
+                                              .join(","),
+                                          "sortType": sortType.value
+                                              .toString()
+                                              .split(".")
+                                              .last,
+                                          "sortOrder": sortOrder.value
+                                              .toString()
+                                              .split(".")
+                                              .last,
+                                          "pageNumber": (page - 1).toString(),
+                                        }).toString());
+                                  },
+                                  icon: const Icon(Icons.arrow_back_ios),
                                 ),
-                                const SizedBox(height: 5.0),
-                                Flexible(
-                                  child: Text(
-                                    itemsList[index].name!,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                Flexible(
-                                  child: Text(
-                                    itemsList[index].productionYear.toString(),
-                                    style: const TextStyle(fontSize: 10),
-                                  ),
-                                ),
-                              ],
-                            );
-                          }),
+                              const SizedBox(
+                                width: 20,
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  context.push(Uri(
+                                      path: ScreenPaths.library,
+                                      queryParameters: {
+                                        "genreFilter": genreFilter.value
+                                            ?.map((e) => e.id)
+                                            .join(","),
+                                        "filterType": filterType.value
+                                            .map((e) =>
+                                                e.toString().split(".").last)
+                                            .join(","),
+                                        "sortType": sortType.value
+                                            .toString()
+                                            .split(".")
+                                            .last,
+                                        "sortOrder": sortOrder.value
+                                            .toString()
+                                            .split(".")
+                                            .last,
+                                        "pageNumber": (page + 1).toString(),
+                                      }).toString());
+                                },
+                                icon: const Icon(Icons.arrow_forward_ios),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                     );
                   },
                 ),
@@ -280,135 +360,132 @@ class LibraryScreen extends HookConsumerWidget {
   }) async {
     List<BaseItemDto>? resultList;
     if (context.mounted) {
-      await FilterListDialog.display<BaseItemDto>(
-        context,
-        listData: listData,
-        height: MediaQuery.of(context).size.height * 0.8 > 600
-            ? 600
-            : MediaQuery.of(context).size.height * 0.8,
-        width: MediaQuery.of(context).size.width * 0.8 > 500
-            ? 500
-            : MediaQuery.of(context).size.width * 0.8,
-        selectedListData: selectedItemList,
-        choiceChipLabel: (item) => item!.name,
-        validateSelectedItem: (list, val) => list!.contains(val),
-        onItemSearch: (item, query) {
-          return item.name!.toLowerCase().contains(query.toLowerCase());
-        },
-        onApplyButtonClick: (list) {
-          resultList = list;
-          Navigator.pop(context, list);
-        },
-        choiceChipBuilder: (context, item, isSelected) => Padding(
-          padding: const EdgeInsets.all(5.0),
-          child: ChoiceChip(
-              color: MaterialStateProperty.resolveWith((states) {
-                if (states.contains(MaterialState.selected)) {
-                  return Theme.of(context).buttonTheme.colorScheme!.primary;
-                }
-                return Theme.of(context).focusColor;
-              }),
-              label: Text(
-                item!.name,
-                style: const TextStyle(color: Colors.white),
-              ),
-              selected: isSelected ?? false),
-        ),
-        themeData: FilterListThemeData(
-          context,
-          backgroundColor: Theme.of(context).dialogBackgroundColor,
-          headerTheme: HeaderThemeData(
-            backgroundColor: Theme.of(context).dialogBackgroundColor,
-            searchFieldBackgroundColor: Theme.of(context).focusColor,
-            searchFieldIconColor: Theme.of(context).iconTheme.color,
-            closeIconColor: Theme.of(context).iconTheme.color!,
-          ),
-          controlButtonBarTheme: ControlButtonBarThemeData(
-            context,
-            backgroundColor: Theme.of(context).focusColor,
-            padding: EdgeInsets.zero,
-            controlButtonTheme: ControlButtonThemeData(
-              textStyle: TextStyle(
-                color: Theme.of(context).buttonTheme.colorScheme!.onSurface,
-              ),
-              primaryButtonBackgroundColor:
-                  Theme.of(context).buttonTheme.colorScheme!.primary,
+      await showDialog(
+        context: context,
+        builder: (context) {
+          return FilterListWidget<BaseItemDto>(
+            listData: listData,
+            selectedListData: selectedItemList,
+            choiceChipLabel: (item) => item!.name,
+            validateSelectedItem: (list, val) => list!.contains(val),
+            onItemSearch: (item, query) {
+              return item.name!.toLowerCase().contains(query.toLowerCase());
+            },
+            onApplyButtonClick: (list) {
+              resultList = list;
+              Navigator.pop(context, list);
+            },
+            choiceChipBuilder: (context, item, isSelected) => Padding(
+              padding: const EdgeInsets.all(5.0),
+              child: ChoiceChip(
+                  color: MaterialStateProperty.resolveWith((states) {
+                    if (states.contains(MaterialState.selected)) {
+                      return Theme.of(context).buttonTheme.colorScheme!.primary;
+                    }
+                    return Theme.of(context).focusColor;
+                  }),
+                  label: Text(
+                    item!.name,
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  selected: isSelected ?? false),
             ),
-          ),
-          wrapAlignment: WrapAlignment.center,
-        ),
+            themeData: FilterListThemeData(
+              context,
+              backgroundColor: Theme.of(context).dialogBackgroundColor,
+              headerTheme: HeaderThemeData(
+                backgroundColor: Theme.of(context).dialogBackgroundColor,
+                searchFieldBackgroundColor: Theme.of(context).focusColor,
+                searchFieldIconColor: Theme.of(context).iconTheme.color,
+                closeIconColor: Theme.of(context).iconTheme.color!,
+              ),
+              controlButtonBarTheme: ControlButtonBarThemeData(
+                context,
+                backgroundColor: Theme.of(context).focusColor,
+                padding: EdgeInsets.zero,
+                controlButtonTheme: ControlButtonThemeData(
+                  textStyle: TextStyle(
+                    color: Theme.of(context).buttonTheme.colorScheme!.onSurface,
+                  ),
+                  primaryButtonBackgroundColor:
+                      Theme.of(context).buttonTheme.colorScheme!.primary,
+                ),
+              ),
+              wrapAlignment: WrapAlignment.center,
+            ),
+          );
+        },
       );
       return resultList;
     }
     return null;
   }
 
-  Future<List<FilterType>?> openFilterDialog(
-    BuildContext context,
-    WidgetRef ref, {
-    required List<FilterType> selectedItemList,
-    required List<FilterType> listData,
-  }) async {
-    List<FilterType>? resultList;
+  Future<List<ItemFilter>?> openFilterDialog(
+      BuildContext context, WidgetRef ref,
+      {required List<ItemFilter> selectedItemList,
+      required List<ItemFilter> listData}) async {
+    List<ItemFilter>? resultList;
     if (context.mounted) {
-      await FilterListDialog.display<FilterType>(
-        context,
-        listData: listData,
-        height: MediaQuery.of(context).size.height * 0.8 > 600
-            ? 600
-            : MediaQuery.of(context).size.height * 0.8,
-        width: MediaQuery.of(context).size.width * 0.8 > 500
-            ? 500
-            : MediaQuery.of(context).size.width * 0.8,
-        selectedListData: selectedItemList,
-        choiceChipLabel: (item) => item!.name,
-        validateSelectedItem: (list, val) => list!.contains(val),
-        onItemSearch: (item, query) {
-          return item.name.toLowerCase().contains(query.toLowerCase());
-        },
-        onApplyButtonClick: (list) {
-          resultList = list;
-          Navigator.pop(context, list);
-        },
-        choiceChipBuilder: (context, item, isSelected) => Padding(
-          padding: const EdgeInsets.all(5.0),
-          child: ChoiceChip(
-              color: MaterialStateProperty.resolveWith((states) {
-                if (states.contains(MaterialState.selected)) {
-                  return Theme.of(context).buttonTheme.colorScheme!.primary;
-                }
-                return Theme.of(context).focusColor;
-              }),
-              label: Text(
-                item.toString().split(".").last,
-                style: const TextStyle(color: Colors.white),
+      await showDialog(
+          context: context,
+          builder: (context) {
+            return FilterListWidget<ItemFilter>(
+              listData: listData,
+              selectedListData: selectedItemList,
+              choiceChipLabel: (item) => item!.name,
+              validateSelectedItem: (list, val) => list!.contains(val),
+              onItemSearch: (item, query) {
+                return item.name.toLowerCase().contains(query.toLowerCase());
+              },
+              onApplyButtonClick: (list) {
+                resultList = list;
+                Navigator.pop(context, list);
+              },
+              choiceChipBuilder: (context, item, isSelected) => Padding(
+                padding: const EdgeInsets.all(5.0),
+                child: ChoiceChip(
+                    color: MaterialStateProperty.resolveWith((states) {
+                      if (states.contains(MaterialState.selected)) {
+                        return Theme.of(context)
+                            .buttonTheme
+                            .colorScheme!
+                            .primary;
+                      }
+                      return Theme.of(context).focusColor;
+                    }),
+                    label: Text(
+                      item.toString().split(".").last,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    selected: isSelected ?? false),
               ),
-              selected: isSelected ?? false),
-        ),
-        themeData: FilterListThemeData(
-          context,
-          backgroundColor: Theme.of(context).dialogBackgroundColor,
-          headerTheme: HeaderThemeData(
-            backgroundColor: Theme.of(context).dialogBackgroundColor,
-            searchFieldBackgroundColor: Theme.of(context).focusColor,
-            searchFieldIconColor: Theme.of(context).iconTheme.color,
-            closeIconColor: Theme.of(context).iconTheme.color!,
-          ),
-          controlButtonBarTheme: ControlButtonBarThemeData(
-            context,
-            backgroundColor: Theme.of(context).focusColor,
-            padding: EdgeInsets.zero,
-            controlButtonTheme: ControlButtonThemeData(
-              textStyle: TextStyle(
-                color: Theme.of(context).buttonTheme.colorScheme!.onSurface,
+              themeData: FilterListThemeData(
+                context,
+                backgroundColor: Theme.of(context).dialogBackgroundColor,
+                headerTheme: HeaderThemeData(
+                  backgroundColor: Theme.of(context).dialogBackgroundColor,
+                  searchFieldBackgroundColor: Theme.of(context).focusColor,
+                  searchFieldIconColor: Theme.of(context).iconTheme.color,
+                  closeIconColor: Theme.of(context).iconTheme.color!,
+                ),
+                controlButtonBarTheme: ControlButtonBarThemeData(
+                  context,
+                  backgroundColor: Theme.of(context).focusColor,
+                  padding: EdgeInsets.zero,
+                  controlButtonTheme: ControlButtonThemeData(
+                    textStyle: TextStyle(
+                      color:
+                          Theme.of(context).buttonTheme.colorScheme!.onSurface,
+                    ),
+                    primaryButtonBackgroundColor:
+                        Theme.of(context).buttonTheme.colorScheme!.primary,
+                  ),
+                ),
+                wrapAlignment: WrapAlignment.center,
               ),
-              primaryButtonBackgroundColor:
-                  Theme.of(context).buttonTheme.colorScheme!.primary,
-            ),
-          ),
-          wrapAlignment: WrapAlignment.center,
-        ),
-      );
+            );
+          });
       return resultList;
     }
     return null;
@@ -416,7 +493,7 @@ class LibraryScreen extends HookConsumerWidget {
 
   String localizeSortType(BuildContext context, SortType sortType) {
     switch (sortType) {
-      case SortType.name:
+      case SortType.sortName:
         return AppLocalizations.of(context)!.name;
       case SortType.premiereDate:
         return AppLocalizations.of(context)!.premiereDate;

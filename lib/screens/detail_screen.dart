@@ -246,7 +246,8 @@ class DetailScreen extends HookConsumerWidget {
                             horizontal: 10.0, vertical: 15.0),
                         child: Row(
                           children: [
-                            data.mediaSources!.length > 1
+                            data.mediaSources != null &&
+                                    data.mediaSources!.length > 1
                                 ? ClipRRect(
                                     borderRadius: BorderRadius.circular(100.0),
                                     child: Material(

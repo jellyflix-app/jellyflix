@@ -41,7 +41,12 @@ class ApiService {
   Future<User> login(String baseUrl, String username, String pw) async {
     // TODO add error handling
     await buildHeader();
-    _jellyfinApi = Openapi(basePathOverride: baseUrl);
+    _jellyfinApi = Openapi(
+        dio: Dio(BaseOptions(
+      baseUrl: baseUrl,
+      receiveTimeout: const Duration(seconds: 30),
+      sendTimeout: const Duration(seconds: 5),
+    )));
     var response = await _jellyfinApi!.getUserApi().authenticateUserByName(
         authenticateUserByName: AuthenticateUserByName((b) => b
           ..username = username
@@ -68,18 +73,23 @@ class ApiService {
     return response.data!;
   }
 
-  CachedNetworkImage getImage(
-      {required String id,
-      required ImageType type,
-      String? blurHash,
-      BorderRadius? borderRadius}) {
+  CachedNetworkImage getImage({
+    required String id,
+    required ImageType type,
+    String? blurHash,
+    BorderRadius? borderRadius,
+    int? cacheHeight,
+  }) {
     String url = "${_user!.serverAdress}/Items/$id/Images/${type.name}";
 
     return CachedNetworkImage(
+      //cacheManager: CustomCacheManager.instance,
       width: double.infinity,
       imageUrl: url,
       httpHeaders: headers,
       fit: BoxFit.cover,
+      memCacheHeight: cacheHeight,
+      maxHeightDiskCache: cacheHeight,
       imageBuilder: (context, imageProvider) => Container(
         decoration: BoxDecoration(
           borderRadius: borderRadius ?? BorderRadius.circular(10.0),
@@ -135,7 +145,8 @@ class ApiService {
     return response.data!.items!.toList();
   }
 
-  Future<List<BaseItemDto>> getLatestItems(String collectionType) async {
+  Future<List<BaseItemDto>> getLatestItems(String collectionType,
+      {int? limit}) async {
     List<BaseItemDto> items = [];
     var folders = await getMediaFolders();
     // get all movie collections and their ids
@@ -145,13 +156,20 @@ class ApiService {
     var movieCollectionIds = movieCollections.map((e) {
       return e.id!;
     }).toList();
+    if (limit != null) {
+      limit = (limit / movieCollectionIds.length).floor();
+      if (limit == 0) {
+        limit = 1;
+      }
+    }
 
     for (var id in movieCollectionIds) {
       var response = await _jellyfinApi!.getUserLibraryApi().getLatestMedia(
           userId: _user!.id!,
           parentId: id,
           headers: headers,
-          fields: BuiltList<ItemFields>(ItemFields.values));
+          fields: BuiltList<ItemFields>([ItemFields.overview]),
+          limit: limit);
 
       // add response to list
       items.addAll(response.data!);
@@ -184,36 +202,41 @@ class ApiService {
       String? searchTerm,
       bool? isPlayed,
       List<String>? sortBy,
-      int? limit}) async {
-    var folders = await getMediaFolders();
+      int? limit,
+      int? startIndex,
+      List<BaseItemKind>? includeItemTypes,
+      List<SortOrder>? sortOrder,
+      List<ItemFilter>? filters}) async {
     var ids = genreIds == null
         ? null
         : BuiltList<String>.from(genreIds.map((e) => e.id!));
-    List<BaseItemDto> items = [];
-    for (var folder in folders) {
-      var response = await _jellyfinApi!.getItemsApi().getItems(
-            userId: _user!.id!,
-            headers: headers,
-            parentId: folder.id,
-            genreIds: ids,
-            searchTerm: searchTerm,
-            recursive: true,
-            isPlayed: isPlayed,
-            sortBy: sortBy?.toBuiltList(),
-            limit: limit,
-            includeItemTypes: BuiltList<BaseItemKind>(
-              [
-                BaseItemKind.movie,
-                BaseItemKind.series,
-                BaseItemKind.episode,
-                BaseItemKind.boxSet
-              ],
-            ),
-            fields: BuiltList<ItemFields>(ItemFields.values),
-          );
-      items.addAll(response.data!.items!);
-    }
-    return items;
+    var response = await _jellyfinApi!.getItemsApi().getItems(
+          userId: _user!.id!,
+          headers: headers,
+          genreIds: ids,
+          searchTerm: searchTerm,
+          recursive: true,
+          isPlayed: isPlayed,
+          filters: filters?.toBuiltList(),
+          sortBy: sortBy?.toBuiltList(),
+          sortOrder: sortOrder == null ? null : BuiltList<SortOrder>(sortOrder),
+          limit: limit,
+          startIndex: startIndex,
+          enableTotalRecordCount: false,
+          includeItemTypes: BuiltList<BaseItemKind>(
+            includeItemTypes ??
+                [
+                  BaseItemKind.movie,
+                  BaseItemKind.series,
+                  BaseItemKind.episode,
+                  BaseItemKind.boxSet
+                ],
+          ),
+          fields: BuiltList<ItemFields>(
+              [ItemFields.overview, ItemFields.providerIds]),
+        );
+
+    return response.data!.items!.toList();
   }
 
   Future<List<BaseItemDto>> getGenres() async {
@@ -394,7 +417,8 @@ class ApiService {
     List movieJson = jsonDecode(responseMovie.data);
     List tvJson = jsonDecode(responseTv.data);
 
-    List<BaseItemDto> library = await getFilterItems();
+    List<BaseItemDto> library = await getFilterItems(
+        includeItemTypes: [BaseItemKind.movie, BaseItemKind.series]);
     List<BaseItemDto> movieLibrary = library.where((element) {
       return element.type == BaseItemKind.movie;
     }).toList();
@@ -501,19 +525,30 @@ class ApiService {
   }
 
   Future<List<BaseItemDto>> getNextUpEpisode({String? seriesId}) async {
-    Response<BaseItemDtoQueryResult> response = await _jellyfinApi!
-        .getTvShowsApi()
-        .getNextUp(headers: headers, userId: _user!.id!, seriesId: seriesId);
-    return response.data!.items!.toList();
+    try {
+      Response<BaseItemDtoQueryResult> response = await _jellyfinApi!
+          .getTvShowsApi()
+          .getNextUp(
+              headers: headers,
+              seriesId: seriesId,
+              enableTotalRecordCount: false,
+              userId: _user!.id!,
+              disableFirstEpisode: true);
+      return response.data!.items!.toList();
+    } catch (e) {
+      return [];
+    }
   }
 
   Future<List<BaseItemDto>> continueWatchingAndNextUp() async {
     var continueWatching = await getContinueWatching();
     var nextUp = await getNextUpEpisode();
+
     // keep only unique items
     nextUp = nextUp.where((element) {
       return !continueWatching.contains(element);
     }).toList();
+
     return continueWatching + nextUp;
   }
 
@@ -659,10 +694,13 @@ class ApiService {
 
   Future<List<BaseItemDto>> getHeaderRecommendation() async {
     var response = await similarItemsByLastWatched();
-    var response2 = await getLatestItems("movies");
-    var response3 = await getLatestItems("tvshows");
+    var response2 = await getFilterItems(
+        sortBy: ["DateCreated"],
+        sortOrder: [SortOrder.descending],
+        includeItemTypes: [BaseItemKind.series, BaseItemKind.movie],
+        limit: 5);
 
-    return response + response2 + response3;
+    return response + response2;
   }
 
   Future<void> markAsPlayed(

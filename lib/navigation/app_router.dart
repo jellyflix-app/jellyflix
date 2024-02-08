@@ -53,7 +53,13 @@ class AppRouter {
               pageBuilder: (context, state) => buildPageWithDefaultTransition(
                 context: context,
                 state: state,
-                child: const LibraryScreen(),
+                child: LibraryScreen(
+                  filterTypeParam: state.uri.queryParameters['filterType'],
+                  genreFilterParam: state.uri.queryParameters['genreFilter'],
+                  pageNumberParam: state.uri.queryParameters['pageNumber'],
+                  sortOrderParam: state.uri.queryParameters['sortOrder'],
+                  sortTypeParam: state.uri.queryParameters['sortType'],
+                ),
               ),
             ),
             GoRoute(
