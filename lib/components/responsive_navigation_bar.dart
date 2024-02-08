@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/navigation_drawer_tile.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/router_provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ResponsiveNavigationBar extends HookConsumerWidget {
   final Widget body;
@@ -92,15 +93,16 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                   ),
 
                   // navigation rail items
-                  destinations: const [
+                  destinations: [
                     NavigationRailDestination(
-                        icon: Icon(Icons.home_rounded), label: Text('Home')),
+                        icon: const Icon(Icons.home_rounded),
+                        label: Text(AppLocalizations.of(context)!.home)),
                     NavigationRailDestination(
-                        icon: Icon(Icons.search_rounded),
-                        label: Text('Search')),
+                        icon: const Icon(Icons.search_rounded),
+                        label: Text(AppLocalizations.of(context)!.search)),
                     NavigationRailDestination(
-                        icon: Icon(Icons.video_library_outlined),
-                        label: Text('Library')),
+                        icon: const Icon(Icons.video_library_outlined),
+                        label: Text(AppLocalizations.of(context)!.library)),
                   ],
                 ),
               ),
@@ -131,7 +133,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                   children: [
                     NavigationDrawerTile(
                       icon: Icons.home_rounded,
-                      label: "Home",
+                      label: AppLocalizations.of(context)!.home,
                       selected: ref.read(selectedScreenIndexProvider) == 0,
                       onTap: () {
                         ref.read(selectedScreenIndexProvider.notifier).state =
@@ -141,7 +143,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                     ),
                     NavigationDrawerTile(
                       icon: Icons.search_rounded,
-                      label: "Search",
+                      label: AppLocalizations.of(context)!.search,
                       selected: ref.read(selectedScreenIndexProvider) == 1,
                       onTap: () {
                         ref.read(selectedScreenIndexProvider.notifier).state =
@@ -151,7 +153,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                     ),
                     NavigationDrawerTile(
                       icon: Icons.video_library_outlined,
-                      label: "Library",
+                      label: AppLocalizations.of(context)!.library,
                       selected: ref.read(selectedScreenIndexProvider) == 2,
                       onTap: () {
                         ref.read(selectedScreenIndexProvider.notifier).state =
@@ -164,7 +166,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                     ),
                     NavigationDrawerTile(
                       icon: Icons.person_rounded,
-                      label: "Profile",
+                      label: AppLocalizations.of(context)!.profile,
                       selected: ref.read(selectedScreenIndexProvider) == 3,
                       onTap: () {
                         ref.read(selectedScreenIndexProvider.notifier).state =
@@ -214,16 +216,19 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                 }
               },
               // bottom tab items
-              items: const [
+              items: [
                   BottomNavigationBarItem(
-                      icon: Icon(Icons.home_rounded), label: 'Home'),
+                      icon: const Icon(Icons.home_rounded),
+                      label: AppLocalizations.of(context)!.home),
                   BottomNavigationBarItem(
-                      icon: Icon(Icons.search_rounded), label: 'Search'),
+                      icon: const Icon(Icons.search_rounded),
+                      label: AppLocalizations.of(context)!.search),
                   BottomNavigationBarItem(
-                      icon: Icon(Icons.video_library_outlined),
-                      label: 'Library'),
+                      icon: const Icon(Icons.video_library_outlined),
+                      label: AppLocalizations.of(context)!.library),
                   BottomNavigationBarItem(
-                      icon: Icon(Icons.person_rounded), label: 'Profile')
+                      icon: const Icon(Icons.person_rounded),
+                      label: AppLocalizations.of(context)!.profile)
                 ])
           : null,
     );

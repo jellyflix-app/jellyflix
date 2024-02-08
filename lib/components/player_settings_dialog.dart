@@ -1,14 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:jellyflix/services/playback_helper_service.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class PlayerSettingsDialog extends StatelessWidget {
+class PlayerSettingsDialog<T1, T2> extends StatelessWidget {
   final PlaybackHelperService playbackHelper;
-  final int audioTrack;
-  final int subtitleTrack;
+  final T1 audioTrack;
+  final T2 subtitleTrack;
+  final List<DropdownMenuEntry<T1>> audioEntries;
+  final List<DropdownMenuEntry<T2>> subtitleEntries;
   final int maxStreamingBitrate;
   final bool isSubtitleEnabled;
-  final Function(int?) onSubtitleSelected;
-  final Function(int?) onAudioSelected;
+  final Function(T2?) onSubtitleSelected;
+  final Function(T1?) onAudioSelected;
   final Function(int?) onBitrateSelected;
 
   const PlayerSettingsDialog({
@@ -21,16 +24,21 @@ class PlayerSettingsDialog extends StatelessWidget {
     required this.onAudioSelected,
     required this.onBitrateSelected,
     required this.isSubtitleEnabled,
+    required this.audioEntries,
+    required this.subtitleEntries,
   });
 
   @override
   Widget build(BuildContext context) {
-    List<DropdownMenuEntry<int>> subtitleMenuEntries =
-        playbackHelper.getSubtitleList().map((e) {
-      return DropdownMenuEntry(value: e.index!, label: e.displayTitle!);
-    }).toList();
-    // add "None" to the beginning
-    subtitleMenuEntries.insert(0, const DropdownMenuEntry(value: -1, label: "None"));
+    // List<DropdownMenuEntry<T2>> subtitleMenuEntries =
+    //     subtitleList.map((e) {
+    //   return DropdownMenuEntry(value: , label: e.displayTitle!);
+    // }).toList();
+    // // add "None" to the beginning
+    // subtitleMenuEntries.insert(
+    //     0,
+    //     DropdownMenuEntry(
+    //         value: -1, label: AppLocalizations.of(context)!.none));
     return SafeArea(
         child: Align(
             alignment: Alignment.bottomRight,
@@ -56,7 +64,7 @@ class PlayerSettingsDialog extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text("Settings",
+                              Text(AppLocalizations.of(context)!.settings,
                                   style: Theme.of(context)
                                       .textTheme
                                       .headlineSmall),
@@ -74,7 +82,8 @@ class PlayerSettingsDialog extends StatelessWidget {
                           child: DropdownMenu(
                               width: 250,
                               requestFocusOnTap: false,
-                              label: const Text("Resolution"),
+                              label:
+                                  Text(AppLocalizations.of(context)!.quality),
                               leadingIcon: const Icon(Icons.videocam_outlined),
                               initialSelection: maxStreamingBitrate,
                               dropdownMenuEntries: playbackHelper
@@ -89,30 +98,28 @@ class PlayerSettingsDialog extends StatelessWidget {
                         ),
                         const SizedBox(height: 10),
                         Material(
-                          child: DropdownMenu(
+                          child: DropdownMenu<T1>(
                             width: 250,
                             requestFocusOnTap: false,
-                            label: const Text("Audio"),
+                            label: Text(AppLocalizations.of(context)!.audio),
                             leadingIcon: const Icon(Icons.volume_up_rounded),
                             initialSelection: audioTrack,
-                            dropdownMenuEntries:
-                                playbackHelper.getAudioList().map((e) {
-                              return DropdownMenuEntry(
-                                  value: e.index!, label: e.displayTitle!);
-                            }).toList(),
+                            dropdownMenuEntries: audioEntries,
                             onSelected: onAudioSelected,
                           ),
                         ),
                         const SizedBox(height: 10),
                         if (!playbackHelper.subtitleListIsEmpty())
                           Material(
-                            child: DropdownMenu(
+                            child: DropdownMenu<T2>(
                                 width: 250,
-                                label: const Text("Subtitle"),
+                                label: Text(
+                                    AppLocalizations.of(context)!.subtitles),
                                 requestFocusOnTap: false,
-                                leadingIcon: const Icon(Icons.videocam_outlined),
+                                leadingIcon:
+                                    const Icon(Icons.videocam_outlined),
                                 initialSelection: subtitleTrack,
-                                dropdownMenuEntries: subtitleMenuEntries,
+                                dropdownMenuEntries: subtitleEntries,
                                 onSelected: onSubtitleSelected),
                           ),
                       ]),

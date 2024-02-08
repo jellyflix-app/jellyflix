@@ -1,5 +1,5 @@
 enum SortType {
-  name,
+  sortName,
   premiereDate,
   random,
 }

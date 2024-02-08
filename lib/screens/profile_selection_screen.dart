@@ -6,6 +6,7 @@ import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
 import 'package:jellyflix/screens/login_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ProfileSelectionScreen extends HookConsumerWidget {
   const ProfileSelectionScreen({super.key});
@@ -31,7 +32,7 @@ class ProfileSelectionScreen extends HookConsumerWidget {
                           List.generate(snapshot.data!.length + 1, (index) {
                         if (index == snapshot.data!.length) {
                           return ProfileCard(
-                            title: "Add Profile",
+                            title: AppLocalizations.of(context)!.addProfile,
                             subtitle: "",
                             image: const Icon(
                               Icons.add,
@@ -70,7 +71,7 @@ class ProfileSelectionScreen extends HookConsumerWidget {
                 );
               }
               return const Center(
-                child: Text("Bla"),
+                child: CircularProgressIndicator(),
               );
             },
           ),

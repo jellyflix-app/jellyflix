@@ -7,6 +7,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:openapi/openapi.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class MobileImageBanner extends StatefulHookConsumerWidget {
   final List<BaseItemDto> items;
@@ -128,7 +129,7 @@ class MobileImageBannerState extends ConsumerState<MobileImageBanner> {
                                       extra: playbackInfo);
                                 }
                               },
-                              label: const Text("Play"),
+                              label: Text(AppLocalizations.of(context)!.play),
                               icon: const Icon(Icons.play_arrow_rounded),
                             ),
                             const SizedBox(
@@ -143,7 +144,8 @@ class MobileImageBannerState extends ConsumerState<MobileImageBanner> {
                                         "selectedIndex": "0",
                                       }).toString());
                                 },
-                                child: const Text("More Info")),
+                                child: Text(
+                                    AppLocalizations.of(context)!.moreInfo)),
                           ],
                         ),
                       ],
