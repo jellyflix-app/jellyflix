@@ -240,17 +240,17 @@ class ApiService {
   }
 
   Future<List<BaseItemDto>> getGenres() async {
-    List<BaseItemDto> genres = [];
-    var folders = await getMediaFolders();
-    for (var folder in folders) {
-      var response = await _jellyfinApi!
-          .getGenresApi()
-          .getGenres(userId: _user!.id!, headers: headers, parentId: folder.id);
-      genres.addAll(response.data!.items!);
-    }
-    // keep only unique genres
-    genres = genres.toSet().toList();
-    return genres;
+    var response = await _jellyfinApi!.getGenresApi().getGenres(
+          userId: _user!.id!,
+          headers: headers,
+          includeItemTypes: [
+            BaseItemKind.movie,
+            BaseItemKind.series,
+            BaseItemKind.episode,
+            BaseItemKind.boxSet
+          ].toBuiltList(),
+        );
+    return response.data!.items!.toList();
   }
 
   /// Retrieves the stream URL and playback information for a video.
@@ -280,7 +280,6 @@ class ApiService {
         false);
 
     String? url;
-    //TODO use only directplay if static is available or is forced in settings
     if (response.data!.mediaSources!.toList().first.supportsDirectPlay ==
         true) {
       url =

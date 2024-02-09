@@ -168,7 +168,6 @@ class DestkopImageBannerState extends ConsumerState<DesktopImageBanner> {
                                         path: ScreenPaths.detail,
                                         queryParameters: {
                                           "id": widget.items[index].id!,
-                                          "selectedIndex": "0",
                                         }).toString());
                                   },
                                   child: Text(

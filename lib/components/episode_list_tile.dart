@@ -97,7 +97,7 @@ class EpisodeListTile extends HookConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        ("${item.indexNumber!}. ${item.name!}"),
+                        ("${item.indexNumber == null ? "" : "${item.indexNumber!}. "}${item.name!}"),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(

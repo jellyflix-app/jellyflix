@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:jellyflix/components/future_item_carousel.dart';
+import 'package:jellyflix/components/genre_banner.dart';
 import 'package:jellyflix/components/paginated_item_carousel.dart';
 import 'package:jellyflix/components/image_banner.dart';
 import 'package:jellyflix/components/playback_progress_overlay.dart';
@@ -56,15 +57,13 @@ class HomeScreen extends HookConsumerWidget {
               height: 20,
             ),
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: PaginatedItemCarousel(
                 future: (startIndex, limit) =>
                     ref.read(apiProvider).continueWatchingAndNextUp(),
                 onTap: (index, id) {
                   context.push(Uri(path: ScreenPaths.detail, queryParameters: {
                     "id": id,
-                    "selectedIndex": "0",
                   }).toString());
                 },
                 imageMapping: (e) => e.id!,
@@ -83,8 +82,7 @@ class HomeScreen extends HookConsumerWidget {
               ),
             ),
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: PaginatedItemCarousel(
                 pageSize: 20,
                 future: (startIndex, limit) => ref
@@ -98,7 +96,6 @@ class HomeScreen extends HookConsumerWidget {
                 onTap: (index, id) {
                   context.push(Uri(path: ScreenPaths.detail, queryParameters: {
                     "id": id,
-                    "selectedIndex": "0",
                   }).toString());
                 },
                 title: AppLocalizations.of(context)!.recentlyAddedMovies,
@@ -111,8 +108,7 @@ class HomeScreen extends HookConsumerWidget {
               ),
             ),
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: PaginatedItemCarousel(
                 pageSize: 20,
                 future: (startIndex, limit) => ref
@@ -126,7 +122,6 @@ class HomeScreen extends HookConsumerWidget {
                 onTap: (index, id) {
                   context.push(Uri(path: ScreenPaths.detail, queryParameters: {
                     "id": id,
-                    "selectedIndex": "0",
                   }).toString());
                 },
                 title: AppLocalizations.of(context)!.recentlyAddedShows,
@@ -138,9 +133,9 @@ class HomeScreen extends HookConsumerWidget {
                 posterType: PosterType.vertical,
               ),
             ),
+            const GenreBanner(),
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: PaginatedItemCarousel(
                 titleMapping: (e) => e.name!,
                 subtitleMapping: (e) => e.productionYear.toString(),
@@ -153,19 +148,16 @@ class HomeScreen extends HookConsumerWidget {
                 onTap: (index, id) {
                   context.push(Uri(path: ScreenPaths.detail, queryParameters: {
                     "id": id,
-                    "selectedIndex": "0",
                   }).toString());
                 },
               ),
             ),
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: FutureItemCarousel(
                 onTap: (index, id) {
                   context.push(Uri(path: ScreenPaths.detail, queryParameters: {
                     "id": id,
-                    "selectedIndex": "0",
                   }).toString());
                 },
                 titleMapping: (e) => e.name!,
@@ -193,8 +185,7 @@ class HomeScreen extends HookConsumerWidget {
               ),
             ),
             Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: PaginatedItemCarousel(
                 title: AppLocalizations.of(context)!.similarToWatchHistory,
                 titleMapping: (e) => e.name!,
@@ -207,7 +198,6 @@ class HomeScreen extends HookConsumerWidget {
                 onTap: (index, id) {
                   context.push(Uri(path: ScreenPaths.detail, queryParameters: {
                     "id": id,
-                    "selectedIndex": "0",
                   }).toString());
                 },
               ),

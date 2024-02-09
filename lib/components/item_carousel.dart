@@ -1,10 +1,10 @@
 import 'package:flutter/scheduler.dart';
+import 'package:jellyflix/components/item_carousel_row.dart';
 import 'package:jellyflix/models/poster_type.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:openapi/openapi.dart';
-import 'package:universal_platform/universal_platform.dart';
 
 class ItemCarousel extends StatefulHookConsumerWidget {
   final String? title;
@@ -86,46 +86,12 @@ class _ItemCarouselState extends ConsumerState<ItemCarousel> {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          children: [
-            widget.title == null
-                ? const SizedBox()
-                : Text(
-                    widget.title!,
-                    style: Theme.of(context).textTheme.headlineSmall,
-                  ),
-            const Spacer(),
-            if (!UniversalPlatform.isAndroid && !UniversalPlatform.isIOS)
-              IconButton(
-                icon: const Icon(Icons.arrow_back_ios),
-                hoverColor: Theme.of(context)
-                    .colorScheme
-                    .primaryContainer
-                    .withOpacity(0.2),
-                onPressed: () {
-                  scrollController.animateTo(
-                    scrollController.offset - (2 * width),
-                    curve: Curves.easeInOut,
-                    duration: const Duration(milliseconds: 400),
-                  );
-                },
-              ),
-            if (!UniversalPlatform.isAndroid && !UniversalPlatform.isIOS)
-              IconButton(
-                icon: const Icon(Icons.arrow_forward_ios),
-                hoverColor: Theme.of(context)
-                    .colorScheme
-                    .primaryContainer
-                    .withOpacity(0.2),
-                onPressed: () {
-                  scrollController.animateTo(
-                    scrollController.offset + (2 * width),
-                    curve: Curves.easeInOut,
-                    duration: const Duration(milliseconds: 400),
-                  );
-                },
-              ),
-          ],
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: ItemCarouselRow(
+              title: widget.title,
+              scrollController: scrollController,
+              offsetWidth: (3 * width)),
         ),
         const SizedBox(height: 5.0),
         SizedBox(
@@ -136,74 +102,79 @@ class _ItemCarouselState extends ConsumerState<ItemCarousel> {
             shrinkWrap: true,
             itemCount: widget.titleList.length,
             itemBuilder: (context, index) {
-              return SizedBox(
-                width: width,
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 12.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        width: width,
-                        height: height,
-                        child: Stack(
-                          children: [
-                            Positioned.fill(
-                              child: Container(
-                                  decoration: BoxDecoration(
+              return Padding(
+                padding: EdgeInsets.only(
+                    left: index == 0 ? 10.0 : 0.0,
+                    right: index == widget.titleList.length - 1 ? 10.0 : 0.0),
+                child: SizedBox(
+                  width: width,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 12.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: width,
+                          height: height,
+                          child: Stack(
+                            children: [
+                              Positioned.fill(
+                                child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10.0),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.5),
+                                          spreadRadius: 2,
+                                          blurRadius: 5,
+                                          offset: const Offset(0, 3),
+                                        ),
+                                      ],
+                                    ),
+                                    child: ref.read(apiProvider).getImage(
+                                        id: widget.imageList[index],
+                                        type: ImageType.primary,
+                                        blurHash: widget.blurHashList == null
+                                            ? null
+                                            : widget.blurHashList![index])),
+                              ),
+                              Positioned.fill(
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
                                     borderRadius: BorderRadius.circular(10.0),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withOpacity(0.5),
-                                        spreadRadius: 2,
-                                        blurRadius: 5,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ],
+                                    onTap: () {
+                                      if (widget.onTap != null) {
+                                        widget.onTap!(index);
+                                      }
+                                    },
                                   ),
-                                  child: ref.read(apiProvider).getImage(
-                                      id: widget.imageList[index],
-                                      type: ImageType.primary,
-                                      blurHash: widget.blurHashList == null
-                                          ? null
-                                          : widget.blurHashList![index])),
-                            ),
-                            Positioned.fill(
-                              child: Material(
-                                color: Colors.transparent,
-                                child: InkWell(
-                                  borderRadius: BorderRadius.circular(10.0),
-                                  onTap: () {
-                                    if (widget.onTap != null) {
-                                      widget.onTap!(index);
-                                    }
-                                  },
                                 ),
                               ),
-                            ),
-                            widget.overlay != null
-                                ? widget.overlay![index]
-                                : const SizedBox.shrink(),
-                          ],
+                              widget.overlay != null
+                                  ? widget.overlay![index]
+                                  : const SizedBox.shrink(),
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 5.0),
-                      Flexible(
-                        child: Text(
-                          widget.titleList[index],
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
+                        const SizedBox(height: 5.0),
+                        Flexible(
+                          child: Text(
+                            widget.titleList[index],
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
                         ),
-                      ),
-                      widget.subtitleList.isNotEmpty
-                          ? Text(
-                              widget.subtitleList[index],
-                              style: const TextStyle(fontSize: 10),
-                              overflow: TextOverflow.fade,
-                              maxLines: 1,
-                            )
-                          : const SizedBox(),
-                    ],
+                        widget.subtitleList.isNotEmpty
+                            ? Text(
+                                widget.subtitleList[index],
+                                style: const TextStyle(fontSize: 10),
+                                overflow: TextOverflow.fade,
+                                maxLines: 1,
+                              )
+                            : const SizedBox(),
+                      ],
+                    ),
                   ),
                 ),
               );

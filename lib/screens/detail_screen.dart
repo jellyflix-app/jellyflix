@@ -16,10 +16,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class DetailScreen extends HookConsumerWidget {
   final String itemId;
-  final int selectedIndex;
 
-  const DetailScreen(
-      {super.key, required this.itemId, required this.selectedIndex});
+  const DetailScreen({super.key, required this.itemId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -783,8 +781,11 @@ class DetailScreen extends HookConsumerWidget {
                                     data.people!.map((e) => e.name!).toList(),
                                 imageList:
                                     data.people!.map((e) => e.id!).toList(),
-                                subtitleList:
-                                    data.people!.map((e) => e.role!).toList(),
+                                subtitleList: data.people!
+                                    .map((e) =>
+                                        e.role ??
+                                        AppLocalizations.of(context)!.na)
+                                    .toList(),
                               ),
                             )
                           : const SizedBox(),

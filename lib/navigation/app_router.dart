@@ -67,8 +67,6 @@ class AppRouter {
               pageBuilder: (context, state) => CupertinoPage(
                 child: DetailScreen(
                   itemId: state.uri.queryParameters['id']!,
-                  selectedIndex:
-                      int.parse(state.uri.queryParameters['selectedIndex']!),
                 ),
               ),
             ),

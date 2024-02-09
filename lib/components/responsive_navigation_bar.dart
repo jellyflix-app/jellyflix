@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/navigation_drawer_tile.dart';
 import 'package:jellyflix/models/screen_paths.dart';
-import 'package:jellyflix/providers/router_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ResponsiveNavigationBar extends HookConsumerWidget {
@@ -14,6 +14,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final selectedIndex = useState(0);
     return Scaffold(
       body: Row(
         mainAxisSize: MainAxisSize.max,
@@ -43,26 +44,22 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                 child: NavigationRail(
                   backgroundColor: Colors.transparent,
                   minWidth: 55.0,
-                  selectedIndex: ref.read(selectedScreenIndexProvider) == 3
-                      ? null
-                      : ref.read(selectedScreenIndexProvider),
+                  selectedIndex:
+                      selectedIndex.value == 3 ? null : selectedIndex.value,
                   // Called when one tab is selected
                   onDestinationSelected: (int index) {
                     switch (index) {
                       case 0:
-                        ref.read(selectedScreenIndexProvider.notifier).state =
-                            0;
-                        context.push(ScreenPaths.home);
+                        selectedIndex.value = 0;
+                        context.go(ScreenPaths.home);
                         break;
                       case 1:
-                        ref.read(selectedScreenIndexProvider.notifier).state =
-                            1;
-                        context.push(ScreenPaths.search);
+                        selectedIndex.value = 1;
+                        context.go(ScreenPaths.search);
                         break;
                       case 2:
-                        ref.read(selectedScreenIndexProvider.notifier).state =
-                            2;
-                        context.push(ScreenPaths.library);
+                        selectedIndex.value = 2;
+                        context.go(ScreenPaths.library);
                         break;
                     }
                   },
@@ -73,7 +70,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
-                          color: ref.read(selectedScreenIndexProvider) == 3
+                          color: selectedIndex.value == 3
                               ? Theme.of(context)
                                   .colorScheme
                                   .primary
@@ -82,10 +79,8 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                         ),
                         child: IconButton(
                             onPressed: () {
-                              ref
-                                  .read(selectedScreenIndexProvider.notifier)
-                                  .state = 3;
-                              context.push(ScreenPaths.profile);
+                              selectedIndex.value = 3;
+                              context.go(ScreenPaths.profile);
                             },
                             icon: const Icon(Icons.person_rounded)),
                       ),
@@ -134,31 +129,28 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                     NavigationDrawerTile(
                       icon: Icons.home_rounded,
                       label: AppLocalizations.of(context)!.home,
-                      selected: ref.read(selectedScreenIndexProvider) == 0,
+                      selected: selectedIndex.value == 0,
                       onTap: () {
-                        ref.read(selectedScreenIndexProvider.notifier).state =
-                            0;
-                        context.push(ScreenPaths.home);
+                        selectedIndex.value = 0;
+                        context.go(ScreenPaths.home);
                       },
                     ),
                     NavigationDrawerTile(
                       icon: Icons.search_rounded,
                       label: AppLocalizations.of(context)!.search,
-                      selected: ref.read(selectedScreenIndexProvider) == 1,
+                      selected: selectedIndex.value == 1,
                       onTap: () {
-                        ref.read(selectedScreenIndexProvider.notifier).state =
-                            1;
-                        context.push(ScreenPaths.search);
+                        selectedIndex.value = 1;
+                        context.go(ScreenPaths.search);
                       },
                     ),
                     NavigationDrawerTile(
                       icon: Icons.video_library_outlined,
                       label: AppLocalizations.of(context)!.library,
-                      selected: ref.read(selectedScreenIndexProvider) == 2,
+                      selected: selectedIndex.value == 2,
                       onTap: () {
-                        ref.read(selectedScreenIndexProvider.notifier).state =
-                            2;
-                        context.push(ScreenPaths.library);
+                        selectedIndex.value = 2;
+                        context.go(ScreenPaths.library);
                       },
                     ),
                     const Expanded(
@@ -167,11 +159,10 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                     NavigationDrawerTile(
                       icon: Icons.person_rounded,
                       label: AppLocalizations.of(context)!.profile,
-                      selected: ref.read(selectedScreenIndexProvider) == 3,
+                      selected: selectedIndex.value == 3,
                       onTap: () {
-                        ref.read(selectedScreenIndexProvider.notifier).state =
-                            3;
-                        context.push(ScreenPaths.profile);
+                        selectedIndex.value = 3;
+                        context.go(ScreenPaths.profile);
                       },
                     ),
                   ],
@@ -187,7 +178,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
       ),
       bottomNavigationBar: MediaQuery.of(context).size.width < 640
           ? BottomNavigationBar(
-              currentIndex: ref.read(selectedScreenIndexProvider),
+              currentIndex: selectedIndex.value,
               type: BottomNavigationBarType.fixed,
               backgroundColor: Colors.black26,
               showSelectedLabels: false,
@@ -198,20 +189,20 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
               onTap: (int index) {
                 switch (index) {
                   case 0:
-                    ref.read(selectedScreenIndexProvider.notifier).state = 0;
-                    context.push(ScreenPaths.home);
+                    selectedIndex.value = 0;
+                    context.go(ScreenPaths.home);
                     break;
                   case 1:
-                    ref.read(selectedScreenIndexProvider.notifier).state = 1;
-                    context.push(ScreenPaths.search);
+                    selectedIndex.value = 1;
+                    context.go(ScreenPaths.search);
                     break;
                   case 2:
-                    ref.read(selectedScreenIndexProvider.notifier).state = 2;
-                    context.push(ScreenPaths.library);
+                    selectedIndex.value = 2;
+                    context.go(ScreenPaths.library);
                     break;
                   case 3:
-                    ref.read(selectedScreenIndexProvider.notifier).state = 3;
-                    context.push(ScreenPaths.profile);
+                    selectedIndex.value = 3;
+                    context.go(ScreenPaths.profile);
                     break;
                 }
               },
