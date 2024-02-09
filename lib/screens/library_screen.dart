@@ -24,7 +24,6 @@ class LibraryScreen extends HookConsumerWidget {
       this.sortTypeParam,
       this.sortOrderParam,
       this.pageNumberParam});
-  // TODO Test library without caching images
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final genreFilter = useState<List<BaseItemDto>?>(genreFilterParam == ""
@@ -60,6 +59,9 @@ class LibraryScreen extends HookConsumerWidget {
             sortOrderParam!.toLowerCase()));
     int page = int.parse(pageNumberParam ?? "0");
     return Scaffold(
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.library),
+      ),
       body: SafeArea(
         child: Column(
           children: [

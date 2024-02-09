@@ -781,8 +781,11 @@ class DetailScreen extends HookConsumerWidget {
                                     data.people!.map((e) => e.name!).toList(),
                                 imageList:
                                     data.people!.map((e) => e.id!).toList(),
-                                subtitleList:
-                                    data.people!.map((e) => e.role!).toList(),
+                                subtitleList: data.people!
+                                    .map((e) =>
+                                        e.role ??
+                                        AppLocalizations.of(context)!.na)
+                                    .toList(),
                               ),
                             )
                           : const SizedBox(),

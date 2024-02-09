@@ -51,15 +51,15 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                     switch (index) {
                       case 0:
                         selectedIndex.value = 0;
-                        context.push(ScreenPaths.home);
+                        context.go(ScreenPaths.home);
                         break;
                       case 1:
                         selectedIndex.value = 1;
-                        context.push(ScreenPaths.search);
+                        context.go(ScreenPaths.search);
                         break;
                       case 2:
                         selectedIndex.value = 2;
-                        context.push(ScreenPaths.library);
+                        context.go(ScreenPaths.library);
                         break;
                     }
                   },
@@ -80,7 +80,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                         child: IconButton(
                             onPressed: () {
                               selectedIndex.value = 3;
-                              context.push(ScreenPaths.profile);
+                              context.go(ScreenPaths.profile);
                             },
                             icon: const Icon(Icons.person_rounded)),
                       ),
@@ -132,7 +132,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       selected: selectedIndex.value == 0,
                       onTap: () {
                         selectedIndex.value = 0;
-                        context.push(ScreenPaths.home);
+                        context.go(ScreenPaths.home);
                       },
                     ),
                     NavigationDrawerTile(
@@ -141,7 +141,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       selected: selectedIndex.value == 1,
                       onTap: () {
                         selectedIndex.value = 1;
-                        context.push(ScreenPaths.search);
+                        context.go(ScreenPaths.search);
                       },
                     ),
                     NavigationDrawerTile(
@@ -150,7 +150,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       selected: selectedIndex.value == 2,
                       onTap: () {
                         selectedIndex.value = 2;
-                        context.push(ScreenPaths.library);
+                        context.go(ScreenPaths.library);
                       },
                     ),
                     const Expanded(
@@ -162,7 +162,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       selected: selectedIndex.value == 3,
                       onTap: () {
                         selectedIndex.value = 3;
-                        context.push(ScreenPaths.profile);
+                        context.go(ScreenPaths.profile);
                       },
                     ),
                   ],
@@ -190,19 +190,19 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                 switch (index) {
                   case 0:
                     selectedIndex.value = 0;
-                    context.push(ScreenPaths.home);
+                    context.go(ScreenPaths.home);
                     break;
                   case 1:
                     selectedIndex.value = 1;
-                    context.push(ScreenPaths.search);
+                    context.go(ScreenPaths.search);
                     break;
                   case 2:
                     selectedIndex.value = 2;
-                    context.push(ScreenPaths.library);
+                    context.go(ScreenPaths.library);
                     break;
                   case 3:
                     selectedIndex.value = 3;
-                    context.push(ScreenPaths.profile);
+                    context.go(ScreenPaths.profile);
                     break;
                 }
               },
