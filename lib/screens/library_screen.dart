@@ -247,7 +247,6 @@ class LibraryScreen extends HookConsumerWidget {
                                                       queryParameters: {
                                                         "id": itemsList[index]
                                                             .id!,
-                                                        "selectedIndex": "2",
                                                       }).toString());
                                                 },
                                               ),

@@ -16,10 +16,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class DetailScreen extends HookConsumerWidget {
   final String itemId;
-  final int selectedIndex;
 
-  const DetailScreen(
-      {super.key, required this.itemId, required this.selectedIndex});
+  const DetailScreen({super.key, required this.itemId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

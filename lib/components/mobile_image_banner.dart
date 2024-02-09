@@ -141,7 +141,6 @@ class MobileImageBannerState extends ConsumerState<MobileImageBanner> {
                                       path: ScreenPaths.detail,
                                       queryParameters: {
                                         "id": widget.items[index].id!,
-                                        "selectedIndex": "0",
                                       }).toString());
                                 },
                                 child: Text(

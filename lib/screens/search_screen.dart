@@ -66,7 +66,6 @@ class SearchScreen extends HookConsumerWidget {
                                     path: ScreenPaths.detail,
                                     queryParameters: {
                                       "id": p1,
-                                      "selectedIndex": "0",
                                     }).toString());
                               },
                             ),
@@ -85,7 +84,6 @@ class SearchScreen extends HookConsumerWidget {
                                       path: ScreenPaths.detail,
                                       queryParameters: {
                                         "id": p1,
-                                        "selectedIndex": "0",
                                       }).toString());
                                 }),
                             FutureItemCarousel(
@@ -103,7 +101,6 @@ class SearchScreen extends HookConsumerWidget {
                                       path: ScreenPaths.detail,
                                       queryParameters: {
                                         "id": p1,
-                                        "selectedIndex": "0",
                                       }).toString());
                                 }),
                             FutureItemCarousel(
@@ -123,7 +120,6 @@ class SearchScreen extends HookConsumerWidget {
                                     path: ScreenPaths.detail,
                                     queryParameters: {
                                       "id": p1,
-                                      "selectedIndex": "0",
                                     }).toString());
                               },
                             ),

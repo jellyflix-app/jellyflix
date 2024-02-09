@@ -64,7 +64,6 @@ class HomeScreen extends HookConsumerWidget {
                 onTap: (index, id) {
                   context.push(Uri(path: ScreenPaths.detail, queryParameters: {
                     "id": id,
-                    "selectedIndex": "0",
                   }).toString());
                 },
                 imageMapping: (e) => e.id!,
@@ -98,7 +97,6 @@ class HomeScreen extends HookConsumerWidget {
                 onTap: (index, id) {
                   context.push(Uri(path: ScreenPaths.detail, queryParameters: {
                     "id": id,
-                    "selectedIndex": "0",
                   }).toString());
                 },
                 title: AppLocalizations.of(context)!.recentlyAddedMovies,
@@ -126,7 +124,6 @@ class HomeScreen extends HookConsumerWidget {
                 onTap: (index, id) {
                   context.push(Uri(path: ScreenPaths.detail, queryParameters: {
                     "id": id,
-                    "selectedIndex": "0",
                   }).toString());
                 },
                 title: AppLocalizations.of(context)!.recentlyAddedShows,
@@ -153,7 +150,6 @@ class HomeScreen extends HookConsumerWidget {
                 onTap: (index, id) {
                   context.push(Uri(path: ScreenPaths.detail, queryParameters: {
                     "id": id,
-                    "selectedIndex": "0",
                   }).toString());
                 },
               ),
@@ -165,7 +161,6 @@ class HomeScreen extends HookConsumerWidget {
                 onTap: (index, id) {
                   context.push(Uri(path: ScreenPaths.detail, queryParameters: {
                     "id": id,
-                    "selectedIndex": "0",
                   }).toString());
                 },
                 titleMapping: (e) => e.name!,
@@ -207,7 +202,6 @@ class HomeScreen extends HookConsumerWidget {
                 onTap: (index, id) {
                   context.push(Uri(path: ScreenPaths.detail, queryParameters: {
                     "id": id,
-                    "selectedIndex": "0",
                   }).toString());
                 },
               ),
