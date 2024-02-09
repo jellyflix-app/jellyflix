@@ -107,5 +107,18 @@
     "markAsUnplayed": "Mark as unplayed",
     "couldNotOpenTrailer": "Could not open trailer",
     "watchTrailer": "Watch Trailer",
+    "showsMaybeMissed": "Shows you may have missed",
+    "moviesMaybeMissed": "Movies you may have missed",
+    "highesRatedMovies": "Highest Rated Movies",
+    "highestRatedShows": "Highest Rated Shows",
+    "top10": "Top {count}",
+    "@top10": {
+        "placeholders": {
+          "count": {
+            "type": "int",
+            "example": "10"
+          }
+        }
+      },
     "appName": "Jellyflix"
 }

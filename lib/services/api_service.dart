@@ -206,37 +206,44 @@ class ApiService {
       int? startIndex,
       List<BaseItemKind>? includeItemTypes,
       List<SortOrder>? sortOrder,
-      List<ItemFilter>? filters}) async {
+      List<ItemFilter>? filters,
+      double? minCommunityRating}) async {
     var ids = genreIds == null
         ? null
         : BuiltList<String>.from(genreIds.map((e) => e.id!));
-    var response = await _jellyfinApi!.getItemsApi().getItems(
-          userId: _user!.id!,
-          headers: headers,
-          genreIds: ids,
-          searchTerm: searchTerm,
-          recursive: true,
-          isPlayed: isPlayed,
-          filters: filters?.toBuiltList(),
-          sortBy: sortBy?.toBuiltList(),
-          sortOrder: sortOrder == null ? null : BuiltList<SortOrder>(sortOrder),
-          limit: limit,
-          startIndex: startIndex,
-          enableTotalRecordCount: false,
-          includeItemTypes: BuiltList<BaseItemKind>(
-            includeItemTypes ??
-                [
-                  BaseItemKind.movie,
-                  BaseItemKind.series,
-                  BaseItemKind.episode,
-                  BaseItemKind.boxSet
-                ],
-          ),
-          fields: BuiltList<ItemFields>(
-              [ItemFields.overview, ItemFields.providerIds]),
-        );
+    try {
+      var response = await _jellyfinApi!.getItemsApi().getItems(
+            userId: _user!.id!,
+            headers: headers,
+            genreIds: ids,
+            searchTerm: searchTerm,
+            recursive: true,
+            isPlayed: isPlayed,
+            filters: filters?.toBuiltList(),
+            sortBy: sortBy?.toBuiltList(),
+            sortOrder:
+                sortOrder == null ? null : BuiltList<SortOrder>(sortOrder),
+            limit: limit,
+            startIndex: startIndex,
+            enableTotalRecordCount: false,
+            minCommunityRating: minCommunityRating,
+            includeItemTypes: BuiltList<BaseItemKind>(
+              includeItemTypes ??
+                  [
+                    BaseItemKind.movie,
+                    BaseItemKind.series,
+                    BaseItemKind.episode,
+                    BaseItemKind.boxSet
+                  ],
+            ),
+            fields: BuiltList<ItemFields>(
+                [ItemFields.overview, ItemFields.providerIds]),
+          );
 
-    return response.data!.items!.toList();
+      return response.data!.items!.toList();
+    } catch (e) {
+      return [];
+    }
   }
 
   Future<List<BaseItemDto>> getGenres() async {
