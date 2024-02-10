@@ -558,11 +558,12 @@ class ApiService {
     return continueWatching + nextUp;
   }
 
-  Future<List<BaseItemDto>> similarItems(String itemId) async {
+  Future<List<BaseItemDto>> similarItems(String itemId, {int? limit}) async {
     var similarItems = await _jellyfinApi!.getLibraryApi().getSimilarItems(
           headers: headers,
           userId: _user!.id!,
           itemId: itemId,
+          limit: limit,
         );
 
     return similarItems.data!.items!.toList();

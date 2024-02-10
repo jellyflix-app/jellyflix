@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jellyflix/components/episode_list_tile.dart';
+import 'package:jellyflix/components/future_item_carousel.dart';
 import 'package:jellyflix/components/item_carousel.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/models/skeleton_item.dart';
@@ -773,8 +774,8 @@ class DetailScreen extends HookConsumerWidget {
                           : const SizedBox(),
                       data.people != null && data.people!.isNotEmpty
                           ? Padding(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 20.0, vertical: 15.0),
+                              padding:
+                                  const EdgeInsets.symmetric(vertical: 15.0),
                               child: ItemCarousel(
                                 title: AppLocalizations.of(context)!.cast,
                                 titleList:
@@ -786,9 +787,31 @@ class DetailScreen extends HookConsumerWidget {
                                         e.role ??
                                         AppLocalizations.of(context)!.na)
                                     .toList(),
+                                onTap: (index) {
+                                  context.push(Uri(
+                                      path: ScreenPaths.detail,
+                                      queryParameters: {
+                                        "id": data.people![index].id!,
+                                      }).toString());
+                                },
                               ),
                             )
                           : const SizedBox(),
+                      FutureItemCarousel(
+                        future: ref.read(apiProvider).similarItems(itemId),
+                        title: AppLocalizations.of(context)!.similar,
+                        titleMapping: (e) => e.name!,
+                        imageMapping: (e) => e.id!,
+                        subtitleMapping: (e) => e.productionYear.toString(),
+                        blurHashMapping: (e) =>
+                            e.imageBlurHashes?.primary?[e.id!],
+                        onTap: (index, id) {
+                          context.push(
+                              Uri(path: ScreenPaths.detail, queryParameters: {
+                            "id": id,
+                          }).toString());
+                        },
+                      ),
                     ],
                   ),
                 ),
