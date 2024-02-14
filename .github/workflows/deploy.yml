@@ -181,6 +181,7 @@ jobs:
       run: sed -i '' 's/00.00.00+0/${{ steps.version.outputs.content }}+${{ github.run_number }}/g' pubspec.yaml
 
     - uses: johnyherangi/create-release-notes@main
+      if: ${{ github.ref == 'refs/heads/main' }}
       id: create-release-notes
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -443,6 +444,9 @@ jobs:
     steps:
       - name: Clone Repo
         uses: actions/checkout@v3
+      
+      - name: Git:Enable long paths
+        run: git config --system core.longpaths true
 
       - name: Get version.txt
         uses: actions/download-artifact@v2
@@ -531,6 +535,7 @@ jobs:
           path: jellyflix-macos
     
       - uses: johnyherangi/create-release-notes@main
+        if: ${{ github.ref == 'refs/heads/main' }}
         id: create-release-notes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -546,7 +551,7 @@ jobs:
           prerelease: ${{ github.ref == 'refs/heads/development' }}
 
   release-play-store:
-    name: Release app to open testing track
+    name: Release app to play store
     needs: [build_android]
     runs-on: ubuntu-latest
     steps:
