@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:jellyflix/providers/router_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/providers/scaffold_key.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -24,6 +25,7 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final appRouter = ref.read(routerProvider).router;
     return MaterialApp.router(
+      scaffoldMessengerKey: rootScaffoldMessengerKey,
       // localization
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,

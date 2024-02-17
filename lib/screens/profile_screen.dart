@@ -1,17 +1,29 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/quick_connect_dialog.dart';
+import 'package:jellyflix/components/set_download_bitrate_dialog.dart';
+import 'package:jellyflix/models/bitrates.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/providers/secure_storage_provider.dart';
 
 class ProfileScreen extends HookConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final downloadBitrate = useState(8000000);
+
+    ref.read(secureStorageProvider).read("downloadBitrate").then((value) {
+      if (value != null) {
+        downloadBitrate.value = int.parse(value);
+      }
+    });
+
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -131,6 +143,40 @@ class ProfileScreen extends HookConsumerWidget {
                                 ),
                               );
                             }
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withOpacity(0.1),
+                    ),
+                    child: Column(
+                      children: [
+                        ListTile(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15)),
+                          leading: const Icon(Icons.video_file_outlined),
+                          title: Text("Set local download bitrate"),
+                          trailing:
+                              Text(BitRates().map[downloadBitrate.value]!),
+                          onTap: () async {
+                            // show dialog
+                            downloadBitrate.value = await showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return SetDownloadBitrateDialog(
+                                      downloadBitrate: downloadBitrate.value);
+                                });
+                            await ref.read(secureStorageProvider).write(
+                                "downloadBitrate",
+                                downloadBitrate.value.toString());
                           },
                         ),
                       ],

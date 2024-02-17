@@ -73,6 +73,10 @@ class ApiService {
     return response.data!;
   }
 
+  String getImageUrl(String id, ImageType type) {
+    return "${_user!.serverAdress}/Items/$id/Images/${type.name}";
+  }
+
   CachedNetworkImage getImage({
     required String id,
     required ImageType type,
@@ -80,7 +84,7 @@ class ApiService {
     BorderRadius? borderRadius,
     int? cacheHeight,
   }) {
-    String url = "${_user!.serverAdress}/Items/$id/Images/${type.name}";
+    String url = getImageUrl(id, type);
 
     return CachedNetworkImage(
       //cacheManager: CustomCacheManager.instance,
@@ -272,12 +276,13 @@ class ApiService {
   /// maxStreamingBitrate is the default bitrate set in the settings if null
   /// audioStreamIndex is the default audioStreamIndex set by jellyfin if null
   /// subtitleStreamIndex is the default subtitleStreamIndex set by jellyfin if null
-  Future<(String, PlaybackInfoResponse)> getStreamUrlAndPlaybackInfo(
-      {required String itemId,
-      int? audioStreamIndex,
-      int? subtitleStreamIndex,
-      int? maxStreamingBitrate,
-      int? startTimeTicks}) async {
+  Future<(String, PlaybackInfoResponse)> getStreamUrlAndPlaybackInfo({
+    required String itemId,
+    int? audioStreamIndex,
+    int? subtitleStreamIndex,
+    int? maxStreamingBitrate,
+    int? startTimeTicks,
+  }) async {
     Response<PlaybackInfoResponse> response = await postPlaybackInfoRequest(
         itemId,
         maxStreamingBitrate,

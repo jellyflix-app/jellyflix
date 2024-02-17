@@ -45,7 +45,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                   backgroundColor: Colors.transparent,
                   minWidth: 55.0,
                   selectedIndex:
-                      selectedIndex.value == 3 ? null : selectedIndex.value,
+                      selectedIndex.value == 4 ? null : selectedIndex.value,
                   // Called when one tab is selected
                   onDestinationSelected: (int index) {
                     switch (index) {
@@ -59,6 +59,10 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                         break;
                       case 2:
                         selectedIndex.value = 2;
+                        context.go(ScreenPaths.downloads);
+                        break;
+                      case 3:
+                        selectedIndex.value = 3;
                         context.go(ScreenPaths.library);
                         break;
                     }
@@ -70,7 +74,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
-                          color: selectedIndex.value == 3
+                          color: selectedIndex.value == 4
                               ? Theme.of(context)
                                   .colorScheme
                                   .primary
@@ -79,7 +83,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                         ),
                         child: IconButton(
                             onPressed: () {
-                              selectedIndex.value = 3;
+                              selectedIndex.value = 4;
                               context.go(ScreenPaths.profile);
                             },
                             icon: const Icon(Icons.person_rounded)),
@@ -95,6 +99,9 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                     NavigationRailDestination(
                         icon: const Icon(Icons.search_rounded),
                         label: Text(AppLocalizations.of(context)!.search)),
+                    NavigationRailDestination(
+                        icon: const Icon(Icons.file_download_outlined),
+                        label: Text(AppLocalizations.of(context)!.downloads)),
                     NavigationRailDestination(
                         icon: const Icon(Icons.video_library_outlined),
                         label: Text(AppLocalizations.of(context)!.library)),
@@ -145,11 +152,20 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       },
                     ),
                     NavigationDrawerTile(
-                      icon: Icons.video_library_outlined,
-                      label: AppLocalizations.of(context)!.library,
+                      icon: Icons.file_download_outlined,
+                      label: AppLocalizations.of(context)!.downloads,
                       selected: selectedIndex.value == 2,
                       onTap: () {
                         selectedIndex.value = 2;
+                        context.go(ScreenPaths.downloads);
+                      },
+                    ),
+                    NavigationDrawerTile(
+                      icon: Icons.video_library_outlined,
+                      label: AppLocalizations.of(context)!.library,
+                      selected: selectedIndex.value == 3,
+                      onTap: () {
+                        selectedIndex.value = 3;
                         context.go(ScreenPaths.library);
                       },
                     ),
@@ -159,9 +175,9 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                     NavigationDrawerTile(
                       icon: Icons.person_rounded,
                       label: AppLocalizations.of(context)!.profile,
-                      selected: selectedIndex.value == 3,
+                      selected: selectedIndex.value == 4,
                       onTap: () {
-                        selectedIndex.value = 3;
+                        selectedIndex.value = 4;
                         context.go(ScreenPaths.profile);
                       },
                     ),
@@ -198,10 +214,14 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                     break;
                   case 2:
                     selectedIndex.value = 2;
-                    context.go(ScreenPaths.library);
+                    context.go(ScreenPaths.downloads);
                     break;
                   case 3:
                     selectedIndex.value = 3;
+                    context.go(ScreenPaths.library);
+                    break;
+                  case 4:
+                    selectedIndex.value = 4;
                     context.go(ScreenPaths.profile);
                     break;
                 }
@@ -214,6 +234,9 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                   BottomNavigationBarItem(
                       icon: const Icon(Icons.search_rounded),
                       label: AppLocalizations.of(context)!.search),
+                  BottomNavigationBarItem(
+                      icon: const Icon(Icons.file_download_outlined),
+                      label: AppLocalizations.of(context)!.downloads),
                   BottomNavigationBarItem(
                       icon: const Icon(Icons.video_library_outlined),
                       label: AppLocalizations.of(context)!.library),
