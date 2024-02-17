@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/navigation_drawer_tile.dart';
 import 'package:jellyflix/models/screen_paths.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class ResponsiveNavigationBar extends StatelessWidget {
+class ResponsiveNavigationBar extends HookConsumerWidget {
   final Widget body;
-  final int selectedIndex;
 
-  const ResponsiveNavigationBar(
-      {Key? key, required this.body, required this.selectedIndex})
+  const ResponsiveNavigationBar({Key? key, required this.body})
       : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final selectedIndex = useState(0);
     return Scaffold(
       body: Row(
         mainAxisSize: MainAxisSize.max,
@@ -42,18 +44,22 @@ class ResponsiveNavigationBar extends StatelessWidget {
                 child: NavigationRail(
                   backgroundColor: Colors.transparent,
                   minWidth: 55.0,
-                  selectedIndex: selectedIndex == 3 ? null : selectedIndex,
+                  selectedIndex:
+                      selectedIndex.value == 3 ? null : selectedIndex.value,
                   // Called when one tab is selected
                   onDestinationSelected: (int index) {
                     switch (index) {
                       case 0:
-                        context.push(ScreenPaths.home);
+                        selectedIndex.value = 0;
+                        context.go(ScreenPaths.home);
                         break;
                       case 1:
-                        context.push(ScreenPaths.search);
+                        selectedIndex.value = 1;
+                        context.go(ScreenPaths.search);
                         break;
                       case 2:
-                        context.push(ScreenPaths.library);
+                        selectedIndex.value = 2;
+                        context.go(ScreenPaths.library);
                         break;
                     }
                   },
@@ -64,7 +70,7 @@ class ResponsiveNavigationBar extends StatelessWidget {
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(15),
-                          color: selectedIndex == 3
+                          color: selectedIndex.value == 3
                               ? Theme.of(context)
                                   .colorScheme
                                   .primary
@@ -73,7 +79,8 @@ class ResponsiveNavigationBar extends StatelessWidget {
                         ),
                         child: IconButton(
                             onPressed: () {
-                              context.push(ScreenPaths.profile);
+                              selectedIndex.value = 3;
+                              context.go(ScreenPaths.profile);
                             },
                             icon: const Icon(Icons.person_rounded)),
                       ),
@@ -81,15 +88,16 @@ class ResponsiveNavigationBar extends StatelessWidget {
                   ),
 
                   // navigation rail items
-                  destinations: const [
+                  destinations: [
                     NavigationRailDestination(
-                        icon: Icon(Icons.home_rounded), label: Text('Home')),
+                        icon: const Icon(Icons.home_rounded),
+                        label: Text(AppLocalizations.of(context)!.home)),
                     NavigationRailDestination(
-                        icon: Icon(Icons.search_rounded),
-                        label: Text('Search')),
+                        icon: const Icon(Icons.search_rounded),
+                        label: Text(AppLocalizations.of(context)!.search)),
                     NavigationRailDestination(
-                        icon: Icon(Icons.video_library_outlined),
-                        label: Text('Library')),
+                        icon: const Icon(Icons.video_library_outlined),
+                        label: Text(AppLocalizations.of(context)!.library)),
                   ],
                 ),
               ),
@@ -120,26 +128,29 @@ class ResponsiveNavigationBar extends StatelessWidget {
                   children: [
                     NavigationDrawerTile(
                       icon: Icons.home_rounded,
-                      label: "Home",
-                      selected: selectedIndex == 0,
+                      label: AppLocalizations.of(context)!.home,
+                      selected: selectedIndex.value == 0,
                       onTap: () {
-                        context.push(ScreenPaths.home);
+                        selectedIndex.value = 0;
+                        context.go(ScreenPaths.home);
                       },
                     ),
                     NavigationDrawerTile(
                       icon: Icons.search_rounded,
-                      label: "Search",
-                      selected: selectedIndex == 1,
+                      label: AppLocalizations.of(context)!.search,
+                      selected: selectedIndex.value == 1,
                       onTap: () {
-                        context.push(ScreenPaths.search);
+                        selectedIndex.value = 1;
+                        context.go(ScreenPaths.search);
                       },
                     ),
                     NavigationDrawerTile(
                       icon: Icons.video_library_outlined,
-                      label: "Library",
-                      selected: selectedIndex == 2,
+                      label: AppLocalizations.of(context)!.library,
+                      selected: selectedIndex.value == 2,
                       onTap: () {
-                        context.push(ScreenPaths.library);
+                        selectedIndex.value = 2;
+                        context.go(ScreenPaths.library);
                       },
                     ),
                     const Expanded(
@@ -147,10 +158,11 @@ class ResponsiveNavigationBar extends StatelessWidget {
                     ),
                     NavigationDrawerTile(
                       icon: Icons.person_rounded,
-                      label: "Profile",
-                      selected: selectedIndex == 3,
+                      label: AppLocalizations.of(context)!.profile,
+                      selected: selectedIndex.value == 3,
                       onTap: () {
-                        context.push(ScreenPaths.profile);
+                        selectedIndex.value = 3;
+                        context.go(ScreenPaths.profile);
                       },
                     ),
                   ],
@@ -166,7 +178,7 @@ class ResponsiveNavigationBar extends StatelessWidget {
       ),
       bottomNavigationBar: MediaQuery.of(context).size.width < 640
           ? BottomNavigationBar(
-              currentIndex: selectedIndex,
+              currentIndex: selectedIndex.value,
               type: BottomNavigationBarType.fixed,
               backgroundColor: Colors.black26,
               showSelectedLabels: false,
@@ -177,30 +189,37 @@ class ResponsiveNavigationBar extends StatelessWidget {
               onTap: (int index) {
                 switch (index) {
                   case 0:
-                    context.push(ScreenPaths.home);
+                    selectedIndex.value = 0;
+                    context.go(ScreenPaths.home);
                     break;
                   case 1:
-                    context.push(ScreenPaths.search);
+                    selectedIndex.value = 1;
+                    context.go(ScreenPaths.search);
                     break;
                   case 2:
-                    context.push(ScreenPaths.library);
+                    selectedIndex.value = 2;
+                    context.go(ScreenPaths.library);
                     break;
                   case 3:
-                    context.push(ScreenPaths.profile);
+                    selectedIndex.value = 3;
+                    context.go(ScreenPaths.profile);
                     break;
                 }
               },
               // bottom tab items
-              items: const [
+              items: [
                   BottomNavigationBarItem(
-                      icon: Icon(Icons.home_rounded), label: 'Home'),
+                      icon: const Icon(Icons.home_rounded),
+                      label: AppLocalizations.of(context)!.home),
                   BottomNavigationBarItem(
-                      icon: Icon(Icons.search_rounded), label: 'Search'),
+                      icon: const Icon(Icons.search_rounded),
+                      label: AppLocalizations.of(context)!.search),
                   BottomNavigationBarItem(
-                      icon: Icon(Icons.video_library_outlined),
-                      label: 'Library'),
+                      icon: const Icon(Icons.video_library_outlined),
+                      label: AppLocalizations.of(context)!.library),
                   BottomNavigationBarItem(
-                      icon: Icon(Icons.person_rounded), label: 'Profile')
+                      icon: const Icon(Icons.person_rounded),
+                      label: AppLocalizations.of(context)!.profile)
                 ])
           : null,
     );

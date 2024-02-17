@@ -7,6 +7,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:openapi/openapi.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DesktopImageBanner extends StatefulHookConsumerWidget {
   final List<BaseItemDto> items;
@@ -70,7 +71,8 @@ class DestkopImageBannerState extends ConsumerState<DesktopImageBanner> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.6,
+                    width: (MediaQuery.of(context).size.width * 0.6)
+                        .roundToDouble(),
                     child: ref.read(apiProvider).getImage(
                           borderRadius: BorderRadius.zero,
                           id: widget.items[index].id!,
@@ -90,7 +92,8 @@ class DestkopImageBannerState extends ConsumerState<DesktopImageBanner> {
                 Align(
                   alignment: Alignment.centerRight,
                   child: Container(
-                    width: MediaQuery.of(context).size.width * 0.6,
+                    width: (MediaQuery.of(context).size.width * 0.6)
+                        .roundToDouble(),
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         begin: const Alignment(0.1, 0),
@@ -153,7 +156,7 @@ class DestkopImageBannerState extends ConsumerState<DesktopImageBanner> {
                                         extra: playbackInfo);
                                   }
                                 },
-                                label: const Text("Play"),
+                                label: Text(AppLocalizations.of(context)!.play),
                                 icon: const Icon(Icons.play_arrow_rounded),
                               ),
                               const SizedBox(
@@ -165,10 +168,10 @@ class DestkopImageBannerState extends ConsumerState<DesktopImageBanner> {
                                         path: ScreenPaths.detail,
                                         queryParameters: {
                                           "id": widget.items[index].id!,
-                                          "selectedIndex": "0",
                                         }).toString());
                                   },
-                                  child: const Text("More Info")),
+                                  child: Text(
+                                      AppLocalizations.of(context)!.moreInfo)),
                             ],
                           ),
                         ],

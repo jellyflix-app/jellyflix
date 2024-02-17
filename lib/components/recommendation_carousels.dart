@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/item_carousel.dart';
+import 'package:jellyflix/navigation/app_router.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:openapi/openapi.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class RecommendationCarousels extends HookConsumerWidget {
   const RecommendationCarousels({
@@ -13,17 +15,22 @@ class RecommendationCarousels extends HookConsumerWidget {
     String title = recommendation.baselineItemName!;
     switch (recommendation.recommendationType) {
       case RecommendationType.similarToRecentlyPlayed:
-        return "Because you watched $title";
+        return AppLocalizations.of(navigatorKey.currentContext!)!
+            .becauseYouWatched(title);
       case RecommendationType.similarToLikedItem:
-        return "Because you liked $title";
+        return AppLocalizations.of(navigatorKey.currentContext!)!
+            .becauseYouLiked(title);
       case RecommendationType.hasActorFromRecentlyPlayed ||
             RecommendationType.hasLikedActor:
-        return "Starring $title";
+        return AppLocalizations.of(navigatorKey.currentContext!)!
+            .starring(title);
       case RecommendationType.hasDirectorFromRecentlyPlayed ||
             RecommendationType.hasLikedDirector:
-        return "Directed by $title";
+        return AppLocalizations.of(navigatorKey.currentContext!)!
+            .directedBy(title);
       default:
-        return "Recommended for you";
+        return AppLocalizations.of(navigatorKey.currentContext!)!
+            .recommendedForYou;
     }
   }
 
@@ -41,9 +48,12 @@ class RecommendationCarousels extends HookConsumerWidget {
               physics: const NeverScrollableScrollPhysics(),
               itemCount: data.length,
               itemBuilder: (context, index) {
+                if (data[index].items!.isEmpty) {
+                  return const SizedBox.shrink();
+                }
                 return Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 20.0, vertical: 10.0),
+                      horizontal: 10.0, vertical: 10.0),
                   child: ItemCarousel(
                     imageList: data[index].items!.map((e) => e.id!).toList(),
                     titleList: data[index].items!.map((e) => e.name!).toList(),

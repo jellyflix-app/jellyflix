@@ -1,8 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jellyflix/components/episode_list_tile.dart';
 import 'package:jellyflix/components/item_carousel.dart';
-import 'package:jellyflix/components/playback_progress_overlay.dart';
-import 'package:jellyflix/components/responsive_navigation_bar.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/models/skeleton_item.dart';
 import 'package:jellyflix/providers/api_provider.dart';
@@ -10,34 +11,40 @@ import 'package:flutter/material.dart';
 import 'package:openapi/openapi.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:url_launcher/url_launcher.dart';
-
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 class DetailScreen extends HookConsumerWidget {
   final String itemId;
-  final int selectedIndex;
 
-  const DetailScreen(
-      {super.key, required this.itemId, required this.selectedIndex});
+  const DetailScreen({super.key, required this.itemId});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final seasonSelection = useState(0);
     final onWatchlist = useState(false);
+    final ValueNotifier<bool?> markedAsPlayed = useState(null);
+    final StreamController episodeStreamController = StreamController();
+    final playButtonHovered = useState(false);
 
     ref.read(apiProvider).getWatchlist().then((value) {
       onWatchlist.value =
           value.where((element) => element.id == itemId).isNotEmpty;
     });
 
-    return ResponsiveNavigationBar(
-      selectedIndex: selectedIndex,
+    ref.read(apiProvider).getEpisodes(itemId).then((value) {
+      episodeStreamController.add(value);
+    });
+
+    return Scaffold(
       body: FutureBuilder(
           future: ref.read(apiProvider).getItemDetails(itemId),
           builder: (context, AsyncSnapshot<BaseItemDto> snapshot) {
             BaseItemDto data = SkeletonItem.baseItemDto;
             if (snapshot.hasData) {
               data = snapshot.data!;
+
+              //markedAsPlayed.value = data.userData!.played!;
             }
             return Align(
               alignment: Alignment.topCenter,
@@ -139,7 +146,8 @@ class DetailScreen extends HookConsumerWidget {
                                         children: [
                                           Text(
                                             data.premiereDate == null
-                                                ? 'N/A'
+                                                ? AppLocalizations.of(context)!
+                                                    .na
                                                 : data.premiereDate!.year
                                                     .toString(),
                                             style: const TextStyle(
@@ -159,7 +167,10 @@ class DetailScreen extends HookConsumerWidget {
                                               padding:
                                                   const EdgeInsets.all(3.0),
                                               child: Text(
-                                                data.officialRating ?? 'N/A',
+                                                data.officialRating ??
+                                                    AppLocalizations.of(
+                                                            context)!
+                                                        .na,
                                                 style: const TextStyle(
                                                   fontSize: 10.0,
                                                 ),
@@ -184,7 +195,9 @@ class DetailScreen extends HookConsumerWidget {
                                                     Text(
                                                       (data.communityRating ==
                                                               null)
-                                                          ? 'N/A'
+                                                          ? AppLocalizations.of(
+                                                                  context)!
+                                                              .na
                                                           : data
                                                               .communityRating!
                                                               .roundToDouble()
@@ -231,63 +244,144 @@ class DetailScreen extends HookConsumerWidget {
                             horizontal: 10.0, vertical: 15.0),
                         child: Row(
                           children: [
-                            ElevatedButton.icon(
-                              onPressed: () async {
-                                //TODO use next up episode if tvshow
-                                String itemId;
-                                int playbackStartTicks = 0;
+                            data.mediaSources != null &&
+                                    data.mediaSources!.length > 1
+                                ? ClipRRect(
+                                    borderRadius: BorderRadius.circular(100.0),
+                                    child: Material(
+                                      child: PopupMenuButton(
+                                        itemBuilder: (BuildContext context) {
+                                          List<PopupMenuEntry> popUpItems = [];
+                                          for (var element
+                                              in data.mediaSources!) {
+                                            popUpItems.add(PopupMenuItem(
+                                              value: element.id,
+                                              child: Text(element.name!),
+                                            ));
+                                          }
+                                          return popUpItems;
+                                        },
+                                        tooltip: "",
+                                        onSelected: (value) async {
+                                          await goToPlayerScreen(
+                                              ref,
+                                              value,
+                                              data.userData!
+                                                  .playbackPositionTicks!,
+                                              context);
+                                        },
+                                        child: MouseRegion(
+                                          onEnter: (event) {
+                                            playButtonHovered.value = true;
+                                          },
+                                          onExit: (event) {
+                                            playButtonHovered.value = false;
+                                          },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius:
+                                                  BorderRadius.circular(100.0),
+                                              color: playButtonHovered.value
+                                                  ? Theme.of(context)
+                                                      .colorScheme
+                                                      .primary
+                                                      .withOpacity(0.9)
+                                                  : Theme.of(context)
+                                                      .colorScheme
+                                                      .primary,
+                                            ),
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                      horizontal: 15.0,
+                                                      vertical: 5.0),
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                    Icons.play_arrow,
+                                                    color: Theme.of(context)
+                                                        .colorScheme
+                                                        .onPrimary,
+                                                  ),
+                                                  const SizedBox(width: 8.0),
+                                                  Text(
+                                                    AppLocalizations.of(
+                                                            context)!
+                                                        .play,
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: Theme.of(context)
+                                                          .colorScheme
+                                                          .onPrimary,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 5.0),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                : ElevatedButton.icon(
+                                    onPressed: () async {
+                                      String itemId;
+                                      int playbackStartTicks = 0;
 
-                                if (data.type == BaseItemKind.series) {
-                                  List<BaseItemDto> continueWatching = await ref
-                                      .read(apiProvider)
-                                      .getContinueWatching(parentId: data.id!);
-                                  if (continueWatching.isNotEmpty) {
-                                    itemId = continueWatching.first.id!;
-                                    playbackStartTicks = continueWatching
-                                        .first.userData!.playbackPositionTicks!;
-                                  } else {
-                                    List<BaseItemDto> result = await ref
-                                        .read(apiProvider)
-                                        .getNextUpEpisode(seriesId: data.id!);
-                                    if (result.isNotEmpty) {
-                                      itemId = result.first.id!;
-                                    } else {
-                                      List<BaseItemDto> episodes = await ref
-                                          .read(apiProvider)
-                                          .getEpisodes(data.id!);
-                                      itemId = episodes.first.id!;
-                                    }
-                                  }
-                                } else {
-                                  itemId = data.mediaSources!.first.id!;
-                                  playbackStartTicks =
-                                      data.userData!.playbackPositionTicks!;
-                                }
-                                var playbackInfo = await ref
-                                    .read(apiProvider)
-                                    .getStreamUrlAndPlaybackInfo(
-                                        itemId: itemId,
-                                        startTimeTicks: playbackStartTicks);
-                                if (context.mounted) {
-                                  context.push(
-                                      Uri(
-                                          path: ScreenPaths.player,
-                                          queryParameters: {
-                                            "startTimeTicks":
-                                                playbackStartTicks.toString()
-                                          }).toString(),
-                                      extra: playbackInfo);
-                                }
-                              },
-                              icon: const Icon(Icons.play_arrow),
-                              label: const Text('Play'),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    Theme.of(context).colorScheme.primary,
-                                foregroundColor:
-                                    Theme.of(context).colorScheme.onPrimary,
-                              ),
-                            ),
+                                      if (data.type == BaseItemKind.series) {
+                                        List<BaseItemDto> continueWatching =
+                                            await ref
+                                                .read(apiProvider)
+                                                .getContinueWatching(
+                                                    parentId: data.id!);
+                                        if (continueWatching.isNotEmpty) {
+                                          itemId = continueWatching.first.id!;
+                                          playbackStartTicks = continueWatching
+                                              .first
+                                              .userData!
+                                              .playbackPositionTicks!;
+                                        } else {
+                                          List<BaseItemDto> result = await ref
+                                              .read(apiProvider)
+                                              .getNextUpEpisode(
+                                                  seriesId: data.id!);
+                                          if (result.isNotEmpty) {
+                                            itemId = result.first.id!;
+                                          } else {
+                                            List<BaseItemDto> episodes =
+                                                await ref
+                                                    .read(apiProvider)
+                                                    .getEpisodes(data.id!);
+                                            itemId = episodes.first.id!;
+                                          }
+                                        }
+                                      } else {
+                                        itemId = data.mediaSources!.first.id!;
+                                        playbackStartTicks = data
+                                            .userData!.playbackPositionTicks!;
+                                      }
+                                      if (context.mounted) {
+                                        await goToPlayerScreen(ref, itemId,
+                                            playbackStartTicks, context);
+                                      }
+                                    },
+                                    icon: const Icon(Icons.play_arrow),
+                                    label: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 8.0),
+                                      child: Text(
+                                          AppLocalizations.of(context)!.play),
+                                    ),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor:
+                                          Theme.of(context).colorScheme.primary,
+                                      foregroundColor: Theme.of(context)
+                                          .colorScheme
+                                          .onPrimary,
+                                    ),
+                                  ),
                             const SizedBox(width: 8.0),
                             Container(
                               height: 40,
@@ -307,8 +401,10 @@ class DetailScreen extends HookConsumerWidget {
                                     ScaffoldMessenger.of(context)
                                         .showSnackBar(SnackBar(
                                       content: Text(onWatchlist.value
-                                          ? "Added to watchlist"
-                                          : "Removed from watchlist"),
+                                          ? AppLocalizations.of(context)!
+                                              .addedToWatchlist
+                                          : AppLocalizations.of(context)!
+                                              .removedFromWatchlist),
                                       duration: const Duration(seconds: 1),
                                     ));
                                   }
@@ -327,39 +423,114 @@ class DetailScreen extends HookConsumerWidget {
                               ),
                             ),
                             const SizedBox(width: 8.0),
-                            Container(
-                              height: 40,
-                              width: 40,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(100.0),
-                                color: Colors.white.withOpacity(0.1),
-                              ),
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  // Add your watched button logic here
-                                  showLicensePage(
-                                      context: context,
-                                      applicationName: "Jellyflix");
-                                },
-                                style: ElevatedButton.styleFrom(
-                                    minimumSize: Size.zero,
-                                    padding: EdgeInsets.zero,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    )),
-                                child: const Icon(
-                                  Icons.more_horiz_rounded,
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(100.0),
+                              child: Material(
+                                child: PopupMenuButton<String>(
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(15.0)),
+                                  itemBuilder: (BuildContext context) =>
+                                      <PopupMenuEntry<String>>[
+                                    if (data.remoteTrailers == null)
+                                      PopupMenuItem<String>(
+                                        value: 'watch_trailer',
+                                        child: ListTile(
+                                          leading:
+                                              const Icon(Icons.movie_outlined),
+                                          iconColor: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          title: Text(
+                                              AppLocalizations.of(context)!
+                                                  .watchTrailer),
+                                        ),
+                                      ),
+                                    PopupMenuItem<String>(
+                                      value: 'mark_as_played',
+                                      child: !(markedAsPlayed.value ??
+                                              data.userData!.played!)
+                                          ? ListTile(
+                                              leading: const Icon(Icons.check),
+                                              iconColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
+                                              title: Text(
+                                                AppLocalizations.of(context)!
+                                                    .markAsPlayed,
+                                              ),
+                                            )
+                                          : ListTile(
+                                              leading: const Icon(Icons.close),
+                                              iconColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .tertiary,
+                                              title: Text(
+                                                AppLocalizations.of(context)!
+                                                    .markAsUnplayed,
+                                              ),
+                                            ),
+                                    ),
+                                  ],
+                                  onSelected: (String value) async {
+                                    if (value == 'watch_trailer') {
+                                      // open external youtube link
+                                      if (!await launchUrl(
+                                            Uri.parse(data
+                                                .remoteTrailers!.first.url!),
+                                          ) &&
+                                          context.mounted) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(
+                                          content: Text(
+                                              AppLocalizations.of(context)!
+                                                  .couldNotOpenTrailer),
+                                          duration: const Duration(seconds: 1),
+                                        ));
+                                      }
+                                    } else if (value == 'mark_as_played') {
+                                      await ref.read(apiProvider).markAsPlayed(
+                                          itemId: itemId,
+                                          played: !(markedAsPlayed.value ??
+                                              data.userData!.played!));
+                                      markedAsPlayed.value =
+                                          !(markedAsPlayed.value ??
+                                              data.userData!
+                                                  .played!); // toggle value
+                                      episodeStreamController.add(await ref
+                                          .read(apiProvider)
+                                          .getEpisodes(itemId));
+                                    }
+                                  },
+                                  child: Container(
+                                    height: 40,
+                                    width: 40,
+                                    decoration: BoxDecoration(
+                                      borderRadius:
+                                          BorderRadius.circular(100.0),
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withOpacity(0.05),
+                                    ),
+                                    child: Icon(
+                                      Icons.more_horiz_rounded,
+                                      color:
+                                          Theme.of(context).colorScheme.primary,
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
                           ],
                         ),
                       ),
+
                       Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 20.0, vertical: 15.0),
                         child: Text(
-                          data.overview ?? 'N/A',
+                          data.overview ?? AppLocalizations.of(context)!.na,
                         ),
                       ),
                       // urls for review sites
@@ -374,7 +545,7 @@ class DetailScreen extends HookConsumerWidget {
                               itemBuilder: (context, index) {
                                 return InkWell(
                                   onTap: () async {
-                                    await launchUrl(Uri.dataFromString(
+                                    await launchUrl(Uri.parse(
                                         data.externalUrls![index].url!));
                                   },
                                   child: Padding(
@@ -394,20 +565,21 @@ class DetailScreen extends HookConsumerWidget {
                         padding: const EdgeInsets.all(20.0),
                         child: Row(
                           children: [
-                            const Column(
+                            Column(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Writers',
-                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                  AppLocalizations.of(context)!.writers,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
                                 ),
-                                Text('Directors',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold)),
-                                Text('Genres',
-                                    style:
-                                        TextStyle(fontWeight: FontWeight.bold)),
+                                Text(AppLocalizations.of(context)!.directors,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold)),
+                                Text(AppLocalizations.of(context)!.genres,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold)),
                               ],
                             ),
                             const SizedBox(width: 20.0),
@@ -433,7 +605,7 @@ class DetailScreen extends HookConsumerWidget {
                                             .where((element) =>
                                                 element.type == 'Director')
                                             .isEmpty
-                                        ? 'N/A'
+                                        ? AppLocalizations.of(context)!.na
                                         : data.people!
                                             .where((element) =>
                                                 element.type == 'Director')
@@ -441,7 +613,7 @@ class DetailScreen extends HookConsumerWidget {
                                             .join(", ")),
                                     Text(
                                       data.genres!.isEmpty
-                                          ? "N/A"
+                                          ? AppLocalizations.of(context)!.na
                                           : data.genres!.join(", "),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
@@ -456,23 +628,22 @@ class DetailScreen extends HookConsumerWidget {
                       data.isFolder ?? false
                           ? Padding(
                               padding:
-                                  const EdgeInsets.symmetric(horizontal: 20.0),
+                                  const EdgeInsets.symmetric(horizontal: 10.0),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
-                                        vertical: 5.0),
-                                    child: Text("Episodes",
+                                        vertical: 5.0, horizontal: 10.0),
+                                    child: Text(
+                                        AppLocalizations.of(context)!.episodes,
                                         style: Theme.of(context)
                                             .textTheme
                                             .headlineSmall),
                                   ),
-                                  FutureBuilder(
-                                    future: ref
-                                        .read(apiProvider)
-                                        .getEpisodes(itemId),
+                                  StreamBuilder(
+                                    stream: episodeStreamController.stream,
                                     builder: (context, snapshot) {
                                       var seasons = [];
                                       var seasonIds = [];
@@ -515,7 +686,7 @@ class DetailScreen extends HookConsumerWidget {
                                                     return Padding(
                                                       padding: const EdgeInsets
                                                           .symmetric(
-                                                          horizontal: 5.0),
+                                                          horizontal: 10.0),
                                                       child: ChoiceChip(
                                                           selected:
                                                               seasonSelection
@@ -540,152 +711,54 @@ class DetailScreen extends HookConsumerWidget {
                                               itemBuilder: (context, index) {
                                                 BaseItemDto item =
                                                     episodes[index];
-                                                return SizedBox(
-                                                  height: 125,
-                                                  child: InkWell(
-                                                    onTap: () async {
-                                                      var playbackInfo = await ref
+
+                                                return EpisodeListTile(
+                                                  item: item,
+                                                  data: data,
+                                                  onSelected: (value) async {
+                                                    if (value ==
+                                                        'mark_as_played') {
+                                                      await ref
                                                           .read(apiProvider)
-                                                          .getStreamUrlAndPlaybackInfo(
-                                                              itemId: item.id!);
-                                                      if (context.mounted) {
-                                                        context.push(
-                                                            Uri(
-                                                                path:
-                                                                    ScreenPaths
-                                                                        .player,
-                                                                queryParameters: {
-                                                                  "startTimeTicks": data
-                                                                      .userData
-                                                                      ?.playbackPositionTicks
-                                                                      ?.toString()
-                                                                }).toString(),
-                                                            extra:
-                                                                playbackInfo);
+                                                          .markAsPlayed(
+                                                              itemId: item.id!,
+                                                              played: !item
+                                                                  .userData!
+                                                                  .played!);
+                                                      if (markedAsPlayed
+                                                                  .value ==
+                                                              true &&
+                                                          item.userData!
+                                                              .played!) {
+                                                        markedAsPlayed.value =
+                                                            false;
+                                                      } else if (markedAsPlayed
+                                                                  .value ==
+                                                              false &&
+                                                          episodes
+                                                                  .where((element) =>
+                                                                      element
+                                                                          .userData!
+                                                                          .played ==
+                                                                      false)
+                                                                  .length ==
+                                                              1 &&
+                                                          !item.userData!
+                                                              .played!) {
+                                                        markedAsPlayed.value =
+                                                            true;
                                                       }
-                                                    },
-                                                    child: Row(
-                                                      mainAxisSize:
-                                                          MainAxisSize.min,
-                                                      children: [
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .symmetric(
-                                                                  vertical:
-                                                                      20.0),
-                                                          child: AspectRatio(
-                                                            aspectRatio:
-                                                                16 / 10,
-                                                            child: Stack(
-                                                              children: [
-                                                                Container(
-                                                                  decoration:
-                                                                      BoxDecoration(
-                                                                    borderRadius:
-                                                                        BorderRadius.circular(
-                                                                            10.0),
-                                                                    boxShadow: [
-                                                                      BoxShadow(
-                                                                        color: Colors
-                                                                            .black
-                                                                            .withOpacity(0.5),
-                                                                        spreadRadius:
-                                                                            2,
-                                                                        blurRadius:
-                                                                            5,
-                                                                        offset: const Offset(
-                                                                            0,
-                                                                            3),
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                  child: ref.read(apiProvider).getImage(
-                                                                      id: item
-                                                                          .id!,
-                                                                      type: ImageType
-                                                                          .primary,
-                                                                      blurHash: item
-                                                                          .imageBlurHashes
-                                                                          ?.primary?[item.id!]),
-                                                                ),
-                                                                if (item.userData!
-                                                                        .playedPercentage !=
-                                                                    null)
-                                                                  PlaybackProgressOverlay(
-                                                                      progress: (item
-                                                                              .userData!
-                                                                              .playedPercentage! /
-                                                                          100)),
-                                                                if (item.userData!
-                                                                        .played ==
-                                                                    true)
-                                                                  Positioned(
-                                                                    bottom: 5.0,
-                                                                    right: 5.0,
-                                                                    child: Icon(
-                                                                      Icons
-                                                                          .check_circle_outline_rounded,
-                                                                      size: 20,
-                                                                      color: Colors
-                                                                          .white
-                                                                          .withOpacity(
-                                                                              0.8),
-                                                                    ),
-                                                                  ),
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        const SizedBox(
-                                                            width: 20.0),
-                                                        Padding(
-                                                          padding:
-                                                              const EdgeInsets
-                                                                  .symmetric(
-                                                                  vertical:
-                                                                      20.0),
-                                                          child: SizedBox(
-                                                            width: MediaQuery.of(
-                                                                        context)
-                                                                    .size
-                                                                    .width *
-                                                                0.5,
-                                                            child: Column(
-                                                              mainAxisSize:
-                                                                  MainAxisSize
-                                                                      .min,
-                                                              crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                              children: [
-                                                                Text(
-                                                                  ("${item.indexNumber!}. ${item.name!}"),
-                                                                  maxLines: 2,
-                                                                  overflow:
-                                                                      TextOverflow
-                                                                          .ellipsis,
-                                                                  style: const TextStyle(
-                                                                      fontSize:
-                                                                          16.0,
-                                                                      fontWeight:
-                                                                          FontWeight
-                                                                              .bold),
-                                                                ),
-                                                                Text(item.runTimeTicks ==
-                                                                        null
-                                                                    ? "N/A"
-                                                                    : "${(item.runTimeTicks! / 10000000 / 60).round()} min")
-                                                              ],
-                                                            ),
-                                                          ),
-                                                        )
-                                                      ],
-                                                    ),
-                                                  ),
+
+                                                      episodeStreamController
+                                                          .add(await ref
+                                                              .read(apiProvider)
+                                                              .getEpisodes(
+                                                                  itemId));
+                                                    }
+                                                  },
                                                 );
                                               },
-                                            ),
+                                            )
                                           ],
                                         ),
                                       );
@@ -703,13 +776,16 @@ class DetailScreen extends HookConsumerWidget {
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 20.0, vertical: 15.0),
                               child: ItemCarousel(
-                                title: 'Cast',
+                                title: AppLocalizations.of(context)!.cast,
                                 titleList:
                                     data.people!.map((e) => e.name!).toList(),
                                 imageList:
                                     data.people!.map((e) => e.id!).toList(),
-                                subtitleList:
-                                    data.people!.map((e) => e.role!).toList(),
+                                subtitleList: data.people!
+                                    .map((e) =>
+                                        e.role ??
+                                        AppLocalizations.of(context)!.na)
+                                    .toList(),
                               ),
                             )
                           : const SizedBox(),
@@ -723,5 +799,18 @@ class DetailScreen extends HookConsumerWidget {
             // }
           }),
     );
+  }
+
+  Future<void> goToPlayerScreen(WidgetRef ref, String itemId,
+      int playbackStartTicks, BuildContext context) async {
+    var playbackInfo = await ref.read(apiProvider).getStreamUrlAndPlaybackInfo(
+        itemId: itemId, startTimeTicks: playbackStartTicks);
+    if (context.mounted) {
+      context.push(
+          Uri(path: ScreenPaths.player, queryParameters: {
+            "startTimeTicks": playbackStartTicks.toString()
+          }).toString(),
+          extra: playbackInfo);
+    }
   }
 }

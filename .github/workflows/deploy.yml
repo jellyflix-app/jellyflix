@@ -3,6 +3,12 @@ on:
   push:
     branches:
       - main
+      - development
+    paths-ignore:
+      - "README.md"
+      - "LICENSE"
+      - "CONTRIBUTING.md"
+      - "CODE_OF_CONDUCT.md"
 
 jobs:
   version:
@@ -175,6 +181,7 @@ jobs:
       run: sed -i '' 's/00.00.00+0/${{ steps.version.outputs.content }}+${{ github.run_number }}/g' pubspec.yaml
 
     - uses: johnyherangi/create-release-notes@main
+      if: ${{ github.ref == 'refs/heads/main' }}
       id: create-release-notes
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -437,6 +444,9 @@ jobs:
     steps:
       - name: Clone Repo
         uses: actions/checkout@v3
+      
+      - name: Git:Enable long paths
+        run: git config --system core.longpaths true
 
       - name: Get version.txt
         uses: actions/download-artifact@v2
@@ -525,6 +535,7 @@ jobs:
           path: jellyflix-macos
     
       - uses: johnyherangi/create-release-notes@main
+        if: ${{ github.ref == 'refs/heads/main' }}
         id: create-release-notes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -537,9 +548,10 @@ jobs:
           tag: ${{ steps.version.outputs.content }}
           commit: ${{ github.sha }}
           body: ${{ steps.create-release-notes.outputs.release-notes }}
+          prerelease: ${{ github.ref == 'refs/heads/development' }}
 
   release-play-store:
-    name: Release app to open testing track
+    name: Release app to play store
     needs: [build_android]
     runs-on: ubuntu-latest
     steps:
@@ -548,11 +560,20 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: jellyflix-appbundle
-      - name: Release app to open testing track
+      - name: Release app to internal testing track
+        if: ${{ github.ref == 'refs/heads/development' }}
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
           packageName: ${{ secrets.ANDROID_PACKAGE_NAME }}
           releaseFiles: app-release.aab
-          track: beta
-          status: draft
+          track: internal
+      # - name: Release app to open testing track
+      #   if: ${{ github.ref == 'refs/heads/main' }}
+      #   uses: r0adkll/upload-google-play@v1
+      #   with:
+      #     serviceAccountJsonPlainText: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+      #     packageName: ${{ secrets.ANDROID_PACKAGE_NAME }}
+      #     releaseFiles: app-release.aab
+      #     track: beta
+      #     status: draft

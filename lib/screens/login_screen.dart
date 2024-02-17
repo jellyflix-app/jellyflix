@@ -5,6 +5,7 @@ import 'package:jellyflix/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LoginScreen extends HookConsumerWidget {
   const LoginScreen({super.key});
@@ -24,10 +25,10 @@ class LoginScreen extends HookConsumerWidget {
             padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
-                Text("Jellyflix",
+                Text(AppLocalizations.of(context)!.appName,
                     style: Theme.of(context).textTheme.displaySmall),
-                const Text(
-                  "Another Jellyfin Client",
+                Text(
+                  AppLocalizations.of(context)!.appSubtitle,
                 ),
                 const SizedBox(
                   height: 20,
@@ -36,9 +37,9 @@ class LoginScreen extends HookConsumerWidget {
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: TextField(
                     controller: serverAddress,
-                    decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Server Address',
+                    decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        labelText: AppLocalizations.of(context)!.serverAddress,
                         hintText: 'http://'),
                   ),
                 ),
@@ -46,9 +47,9 @@ class LoginScreen extends HookConsumerWidget {
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: TextField(
                     controller: userName,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'User Name',
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      labelText: AppLocalizations.of(context)!.username,
                     ),
                   ),
                 ),
@@ -57,9 +58,9 @@ class LoginScreen extends HookConsumerWidget {
                   child: TextField(
                     obscureText: true,
                     controller: password,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      labelText: 'Password',
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      labelText: AppLocalizations.of(context)!.password,
                     ),
                   ),
                 ),
@@ -81,13 +82,12 @@ class LoginScreen extends HookConsumerWidget {
                           //print(e);
                         }
                       },
-                      child: const Text("Login"),
+                      child: Text(AppLocalizations.of(context)!.login),
                     ),
                   ),
                 ),
                 kIsWeb
-                    ? const Text(
-                        "This is a demo version of Jellyflix. To use it, you can use the following credentials: \n\nServer Address: https://demo.jellyfin.org/stable \nUser Name: demo \nand empty password \n\n")
+                    ? Text(AppLocalizations.of(context)!.webDemoNote)
                     : const SizedBox(),
               ],
             ),

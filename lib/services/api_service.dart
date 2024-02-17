@@ -7,6 +7,7 @@ import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:jellyflix/components/profile_placeholder_image.dart';
 import 'package:jellyflix/models/user.dart';
 import 'package:flutter/material.dart';
+import 'package:jellyflix/navigation/app_router.dart';
 import 'package:jellyflix/services/device_info_service.dart';
 import 'package:openapi/openapi.dart';
 import 'package:built_collection/built_collection.dart';
@@ -40,7 +41,12 @@ class ApiService {
   Future<User> login(String baseUrl, String username, String pw) async {
     // TODO add error handling
     await buildHeader();
-    _jellyfinApi = Openapi(basePathOverride: baseUrl);
+    _jellyfinApi = Openapi(
+        dio: Dio(BaseOptions(
+      baseUrl: baseUrl,
+      receiveTimeout: const Duration(seconds: 30),
+      sendTimeout: const Duration(seconds: 5),
+    )));
     var response = await _jellyfinApi!.getUserApi().authenticateUserByName(
         authenticateUserByName: AuthenticateUserByName((b) => b
           ..username = username
@@ -67,18 +73,23 @@ class ApiService {
     return response.data!;
   }
 
-  CachedNetworkImage getImage(
-      {required String id,
-      required ImageType type,
-      String? blurHash,
-      BorderRadius? borderRadius}) {
+  CachedNetworkImage getImage({
+    required String id,
+    required ImageType type,
+    String? blurHash,
+    BorderRadius? borderRadius,
+    int? cacheHeight,
+  }) {
     String url = "${_user!.serverAdress}/Items/$id/Images/${type.name}";
 
     return CachedNetworkImage(
+      //cacheManager: CustomCacheManager.instance,
       width: double.infinity,
       imageUrl: url,
       httpHeaders: headers,
       fit: BoxFit.cover,
+      memCacheHeight: cacheHeight,
+      maxHeightDiskCache: cacheHeight,
       imageBuilder: (context, imageProvider) => Container(
         decoration: BoxDecoration(
           borderRadius: borderRadius ?? BorderRadius.circular(10.0),
@@ -92,7 +103,7 @@ class ApiService {
           ? null
           : (context, url) {
               return ClipRRect(
-                borderRadius: BorderRadius.circular(10.0),
+                borderRadius: borderRadius ?? BorderRadius.circular(10.0),
                 child: BlurHash(
                   hash: blurHash,
                   imageFit: BoxFit.cover,
@@ -134,7 +145,8 @@ class ApiService {
     return response.data!.items!.toList();
   }
 
-  Future<List<BaseItemDto>> getLatestItems(String collectionType) async {
+  Future<List<BaseItemDto>> getLatestItems(String collectionType,
+      {int? limit}) async {
     List<BaseItemDto> items = [];
     var folders = await getMediaFolders();
     // get all movie collections and their ids
@@ -144,13 +156,20 @@ class ApiService {
     var movieCollectionIds = movieCollections.map((e) {
       return e.id!;
     }).toList();
+    if (limit != null) {
+      limit = (limit / movieCollectionIds.length).floor();
+      if (limit == 0) {
+        limit = 1;
+      }
+    }
 
     for (var id in movieCollectionIds) {
       var response = await _jellyfinApi!.getUserLibraryApi().getLatestMedia(
           userId: _user!.id!,
           parentId: id,
           headers: headers,
-          fields: BuiltList<ItemFields>(ItemFields.values));
+          fields: BuiltList<ItemFields>([ItemFields.overview]),
+          limit: limit);
 
       // add response to list
       items.addAll(response.data!);
@@ -183,50 +202,55 @@ class ApiService {
       String? searchTerm,
       bool? isPlayed,
       List<String>? sortBy,
-      int? limit}) async {
-    var folders = await getMediaFolders();
+      int? limit,
+      int? startIndex,
+      List<BaseItemKind>? includeItemTypes,
+      List<SortOrder>? sortOrder,
+      List<ItemFilter>? filters}) async {
     var ids = genreIds == null
         ? null
         : BuiltList<String>.from(genreIds.map((e) => e.id!));
-    List<BaseItemDto> items = [];
-    for (var folder in folders) {
-      var response = await _jellyfinApi!.getItemsApi().getItems(
-            userId: _user!.id!,
-            headers: headers,
-            parentId: folder.id,
-            genreIds: ids,
-            searchTerm: searchTerm,
-            recursive: true,
-            isPlayed: isPlayed,
-            sortBy: sortBy?.toBuiltList(),
-            limit: limit,
-            includeItemTypes: BuiltList<BaseItemKind>(
-              [
-                BaseItemKind.movie,
-                BaseItemKind.series,
-                BaseItemKind.episode,
-                BaseItemKind.boxSet
-              ],
-            ),
-            fields: BuiltList<ItemFields>(ItemFields.values),
-          );
-      items.addAll(response.data!.items!);
-    }
-    return items;
+    var response = await _jellyfinApi!.getItemsApi().getItems(
+          userId: _user!.id!,
+          headers: headers,
+          genreIds: ids,
+          searchTerm: searchTerm,
+          recursive: true,
+          isPlayed: isPlayed,
+          filters: filters?.toBuiltList(),
+          sortBy: sortBy?.toBuiltList(),
+          sortOrder: sortOrder == null ? null : BuiltList<SortOrder>(sortOrder),
+          limit: limit,
+          startIndex: startIndex,
+          enableTotalRecordCount: false,
+          includeItemTypes: BuiltList<BaseItemKind>(
+            includeItemTypes ??
+                [
+                  BaseItemKind.movie,
+                  BaseItemKind.series,
+                  BaseItemKind.episode,
+                  BaseItemKind.boxSet
+                ],
+          ),
+          fields: BuiltList<ItemFields>(
+              [ItemFields.overview, ItemFields.providerIds]),
+        );
+
+    return response.data!.items!.toList();
   }
 
   Future<List<BaseItemDto>> getGenres() async {
-    List<BaseItemDto> genres = [];
-    var folders = await getMediaFolders();
-    for (var folder in folders) {
-      var response = await _jellyfinApi!
-          .getGenresApi()
-          .getGenres(userId: _user!.id!, headers: headers, parentId: folder.id);
-      genres.addAll(response.data!.items!);
-    }
-    // keep only unique genres
-    genres = genres.toSet().toList();
-    return genres;
+    var response = await _jellyfinApi!.getGenresApi().getGenres(
+          userId: _user!.id!,
+          headers: headers,
+          includeItemTypes: [
+            BaseItemKind.movie,
+            BaseItemKind.series,
+            BaseItemKind.episode,
+            BaseItemKind.boxSet
+          ].toBuiltList(),
+        );
+    return response.data!.items!.toList();
   }
 
   /// Retrieves the stream URL and playback information for a video.
@@ -255,31 +279,18 @@ class ApiService {
         startTimeTicks,
         false);
 
-    var canUseStatic = response.data!.mediaSources!.first.mediaStreams!
-                .where((p0) => p0.type == MediaStreamType.audio)
-                .toList()
-                .length ==
-            1 ||
-        response.data!.mediaSources!.first.defaultAudioStreamIndex! == 1;
-
     String? url;
-    //TODO use only directplay if static is available or is forced in settings
-    if (canUseStatic &&
-        response.data!.mediaSources!.toList().first.supportsDirectPlay ==
-            true) {
+    if (response.data!.mediaSources!.toList().first.supportsDirectPlay ==
+        true) {
       url =
-          "${_user!.serverAdress}/Videos/$itemId/stream?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}";
-      if (canUseStatic) {
-        url += "&Static=true";
-      }
-    } else if (canUseStatic &&
-        response.data!.mediaSources!.toList().first.supportsDirectStream ==
-            true) {
+          "${_user!.serverAdress}/Videos/$itemId/stream?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}&SubtitleStreamIndex=${subtitleStreamIndex ?? response.data!.mediaSources!.first.defaultSubtitleStreamIndex ?? -1}&Static=true";
+    } else if (response.data!.mediaSources!
+            .toList()
+            .first
+            .supportsDirectStream ==
+        true) {
       url =
-          "${_user!.serverAdress}/Videos/$itemId/stream.${response.data!.mediaSources!.first.container}?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}";
-      if (canUseStatic) {
-        url += "&Static=true";
-      }
+          "${_user!.serverAdress}/Videos/$itemId/stream.${response.data!.mediaSources!.first.container}?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}&SubtitleStreamIndex=${subtitleStreamIndex ?? response.data!.mediaSources!.first.defaultSubtitleStreamIndex ?? -1}&Static=true";
     } else if (response.data!.mediaSources!.first.supportsTranscoding == true) {
       if (response.data!.mediaSources!.first.transcodingUrl == null) {
         response = await postPlaybackInfoRequest(itemId, maxStreamingBitrate,
@@ -306,9 +317,7 @@ class ApiService {
       bool forceTranscoding) async {
     var deviceProfile = ClientCapabilitiesDeviceProfileBuilder();
     deviceProfile.directPlayProfiles = ListBuilder([
-      DirectPlayProfile((b) => b
-        ..type = DlnaProfileType.video
-        ..audioCodec = "aac,ac3,eac3,dts"),
+      DirectPlayProfile((b) => b..type = DlnaProfileType.video),
     ]);
     deviceProfile.transcodingProfiles = ListBuilder<TranscodingProfile>([
       TranscodingProfile(
@@ -325,13 +334,28 @@ class ApiService {
     deviceProfile.subtitleProfiles = ListBuilder<SubtitleProfile>([
       SubtitleProfile((b) => b
         ..format = "vtt"
-        ..method = SubtitleDeliveryMethod.external_),
+        ..method = SubtitleDeliveryMethod.embed),
       SubtitleProfile((b) => b
         ..format = "ssa"
-        ..method = SubtitleDeliveryMethod.external_),
+        ..method = SubtitleDeliveryMethod.embed),
       SubtitleProfile((b) => b
         ..format = "ass"
-        ..method = SubtitleDeliveryMethod.external_),
+        ..method = SubtitleDeliveryMethod.embed),
+      SubtitleProfile((b) => b
+        ..format = "srt"
+        ..method = SubtitleDeliveryMethod.embed),
+      SubtitleProfile((b) => b
+        ..format = "pgs"
+        ..method = SubtitleDeliveryMethod.embed),
+      SubtitleProfile((b) => b
+        ..format = "pgssub"
+        ..method = SubtitleDeliveryMethod.embed),
+      SubtitleProfile((b) => b
+        ..format = "dvdsub"
+        ..method = SubtitleDeliveryMethod.embed),
+      SubtitleProfile((b) => b
+        ..format = "dvbsub"
+        ..method = SubtitleDeliveryMethod.embed),
     ]);
     var response = await _jellyfinApi!.getMediaInfoApi().getPostedPlaybackInfo(
           itemId: itemId,
@@ -372,18 +396,28 @@ class ApiService {
   }
 
   Future<List<BaseItemDto>> getTopTenPopular() async {
-    // TODO depending on locale
     // TODO cache to increase performance
+    // get locale
+    Locale locale = Localizations.localeOf(navigatorKey.currentContext!);
+    String countryCode = locale.countryCode ?? locale.languageCode;
+    Response responseMovie;
     // get top 10000 from url
-    var responseMovie = await Dio().get(
-        "https://raw.githubusercontent.com/jellyflix-app/popular-movies-data/main/US-popular-movie.json");
+    try {
+      responseMovie = await Dio().get(
+          "https://raw.githubusercontent.com/jellyflix-app/popular-movies-data/main/$countryCode-popular-movie.json");
+    } catch (e) {
+      responseMovie = await Dio().get(
+          "https://raw.githubusercontent.com/jellyflix-app/popular-movies-data/main/US-popular-movie.json");
+    }
+    // TMDB tv shows regions filter doesn't work
     var responseTv = await Dio().get(
         "https://raw.githubusercontent.com/jellyflix-app/popular-movies-data/main/US-popular-tv.json");
 
     List movieJson = jsonDecode(responseMovie.data);
     List tvJson = jsonDecode(responseTv.data);
 
-    List<BaseItemDto> library = await getFilterItems();
+    List<BaseItemDto> library = await getFilterItems(
+        includeItemTypes: [BaseItemKind.movie, BaseItemKind.series]);
     List<BaseItemDto> movieLibrary = library.where((element) {
       return element.type == BaseItemKind.movie;
     }).toList();
@@ -464,7 +498,8 @@ class ApiService {
               playbackInfo!.mediaSources!.first.defaultSubtitleStreamIndex));
   }
 
-  Future<void> reportPlaybackProgress(int positionTicks) async {
+  Future<void> reportPlaybackProgress(int positionTicks,
+      {int? audioStreamIndex, int? subtitleStreamIndex}) async {
     await _jellyfinApi!.getPlaystateApi().reportPlaybackProgress(
         headers: headers,
         playbackProgressInfo: PlaybackProgressInfo((b) => b
@@ -472,9 +507,9 @@ class ApiService {
           ..mediaSourceId = playbackInfo!.mediaSources!.first.id!
           ..positionTicks = positionTicks
           ..playSessionId = playbackInfo!.playSessionId
-          ..audioStreamIndex =
+          ..audioStreamIndex = audioStreamIndex ??
               playbackInfo!.mediaSources!.first.defaultAudioStreamIndex
-          ..subtitleStreamIndex =
+          ..subtitleStreamIndex = subtitleStreamIndex ??
               playbackInfo!.mediaSources!.first.defaultSubtitleStreamIndex));
   }
 
@@ -489,19 +524,30 @@ class ApiService {
   }
 
   Future<List<BaseItemDto>> getNextUpEpisode({String? seriesId}) async {
-    Response<BaseItemDtoQueryResult> response = await _jellyfinApi!
-        .getTvShowsApi()
-        .getNextUp(headers: headers, userId: _user!.id!, seriesId: seriesId);
-    return response.data!.items!.toList();
+    try {
+      Response<BaseItemDtoQueryResult> response = await _jellyfinApi!
+          .getTvShowsApi()
+          .getNextUp(
+              headers: headers,
+              seriesId: seriesId,
+              enableTotalRecordCount: false,
+              userId: _user!.id!,
+              disableFirstEpisode: true);
+      return response.data!.items!.toList();
+    } catch (e) {
+      return [];
+    }
   }
 
   Future<List<BaseItemDto>> continueWatchingAndNextUp() async {
     var continueWatching = await getContinueWatching();
     var nextUp = await getNextUpEpisode();
+
     // keep only unique items
     nextUp = nextUp.where((element) {
       return !continueWatching.contains(element);
     }).toList();
+
     return continueWatching + nextUp;
   }
 
@@ -541,22 +587,32 @@ class ApiService {
         .getUserViewsApi()
         .getUserViews(userId: _user!.id!, headers: headers);
     // firstWhere views name == playlist
-    var playlistsId = views.data!.items!.firstWhere((element) {
-      return element.collectionType == "playlists";
-    }).id;
-    // filter playlist by name
-    var playlist = await _jellyfinApi!.getItemsApi().getItems(
-          userId: _user!.id!,
-          headers: headers,
-          includeItemTypes: BuiltList<BaseItemKind>(
-            [
-              BaseItemKind.folder,
-            ],
-          ),
-          parentId: playlistsId,
-          searchTerm: "watchlist",
-        );
-    if (playlist.data!.items!.isNotEmpty) {
+    Response<BaseItemDtoQueryResult>? playlist;
+    for (var view in views.data!.items!) {
+      if (view.collectionType == "playlists") {
+        String? playlistsId = view.id;
+        // abort if no playlists folder exists
+        if (playlistsId == null) {
+          break;
+        }
+
+        // filter playlist by name
+        playlist = await _jellyfinApi!.getItemsApi().getItems(
+              userId: _user!.id!,
+              headers: headers,
+              includeItemTypes: BuiltList<BaseItemKind>(
+                [
+                  BaseItemKind.folder,
+                ],
+              ),
+              parentId: playlistsId,
+              searchTerm: "watchlist",
+            );
+        break;
+      }
+    }
+
+    if (playlist != null && playlist.data!.items!.isNotEmpty) {
       return playlist.data!.items!.first.id!;
     } else {
       // create watchlist playlist
@@ -604,7 +660,7 @@ class ApiService {
     }
   }
 
-  Future getRecommendations() async {
+  Future<List<RecommendationDto>> getRecommendations() async {
     //! api only exists for movies
     var folders = await getMediaFolders();
 
@@ -633,5 +689,28 @@ class ApiService {
     await _jellyfinApi!.getLibraryApi().refreshLibrary(
           headers: headers,
         );
+  }
+
+  Future<List<BaseItemDto>> getHeaderRecommendation() async {
+    var response = await similarItemsByLastWatched();
+    var response2 = await getFilterItems(
+        sortBy: ["DateCreated"],
+        sortOrder: [SortOrder.descending],
+        includeItemTypes: [BaseItemKind.series, BaseItemKind.movie],
+        limit: 5);
+
+    return response + response2;
+  }
+
+  Future<void> markAsPlayed(
+      {required String itemId, required bool played}) async {
+    if (played) {
+      await _jellyfinApi!
+          .getPlaystateApi()
+          .markPlayedItem(userId: _user!.id!, itemId: itemId, headers: headers);
+    } else {
+      await _jellyfinApi!.getPlaystateApi().markUnplayedItem(
+          userId: _user!.id!, itemId: itemId, headers: headers);
+    }
   }
 }
