@@ -4,11 +4,13 @@ class User {
   String? serverAdress;
   String? password;
   int? profileIndex;
+  String? token;
 
   User(
       {this.id,
       this.name,
       this.serverAdress,
       this.password,
-      this.profileIndex});
+      this.profileIndex,
+      this.token});
 }

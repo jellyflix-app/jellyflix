@@ -508,17 +508,6 @@ class DetailScreen extends HookConsumerWidget {
                                         .removeDownload();
                                     isDownloaded.value = null;
                                   }
-
-                                  if (context.mounted) {
-                                    // show snackbar
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(SnackBar(
-                                      content: Text(isDownloaded.value != null
-                                          ? "Removed download"
-                                          : "Started download"),
-                                      duration: const Duration(seconds: 1),
-                                    ));
-                                  }
                                 },
                                 style: ElevatedButton.styleFrom(
                                     minimumSize: Size.zero,
@@ -533,7 +522,7 @@ class DetailScreen extends HookConsumerWidget {
                                     builder: (context, snapshot) {
                                       if (snapshot.hasData) {
                                         if (snapshot.data == 100) {
-                                          return Icon(
+                                          return const Icon(
                                               Icons.delete_outline_rounded);
                                         }
                                         return Stack(

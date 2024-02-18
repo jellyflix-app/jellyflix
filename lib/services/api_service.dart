@@ -60,6 +60,7 @@ class ApiService {
       id: response.data!.user!.id,
       name: response.data!.user!.name,
       serverAdress: baseUrl,
+      token: response.data!.accessToken!,
     );
     return _user!;
   }
@@ -525,14 +526,15 @@ class ApiService {
               playbackInfo!.mediaSources!.first.defaultSubtitleStreamIndex));
   }
 
-  reportStopPlayback(int positionTicks) async {
+  reportStopPlayback(int positionTicks,
+      {String? itemId, String? playSessionId}) async {
     await _jellyfinApi!.getPlaystateApi().reportPlaybackStopped(
         headers: headers,
         playbackStopInfo: PlaybackStopInfo((b) => b
-          ..itemId = playbackInfo!.mediaSources!.first.id!
-          ..mediaSourceId = playbackInfo!.mediaSources!.first.id!
+          ..itemId = itemId ?? playbackInfo?.mediaSources?.first.id
+          ..mediaSourceId = itemId ?? playbackInfo?.mediaSources?.first.id
           ..positionTicks = positionTicks
-          ..playSessionId = playbackInfo!.playSessionId));
+          ..playSessionId = playSessionId ?? playbackInfo?.playSessionId));
   }
 
   Future<List<BaseItemDto>> getNextUpEpisode({String? seriesId}) async {

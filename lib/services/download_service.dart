@@ -167,6 +167,7 @@ class DownloadService {
   }
 
   Future<void> resumeDownload() async {
+    // TODO make own download implementation + check for already downloaded files
     // TODO Implementation for direct stream
     // Resume download
     bool masterM3UExists =
@@ -177,24 +178,53 @@ class DownloadService {
             .exists();
 
     if (masterM3UExists && mainM3UExists) {
-      int? downloadProgess = await this.downloadProgess(5).last;
-
-      if (downloadProgess != 100 && downloadProgess != null) {
-        // open main.m3u8
-        var downloadDirectory = await getDownloadDirectory();
-        var masterM3U =
-            await File("$downloadDirectory/$itemId/master.m3u8").readAsString();
-        var downloadUrl = masterM3U.split("\n")[2];
-        isDownloading = true;
-        _download = CancelableOperation.fromFuture(
-            downloadTranscodedStream(downloadUrl), onCancel: () {
+      isDownloading = true;
+      _download = CancelableOperation.fromFuture(
+        _resumeTranscodedDownload(),
+        onCancel: () {
+          isDownloading = false;
           print("Download cancelled");
-        })
-          ..value.whenComplete(() {
-            isDownloading = false;
-          }).onError((error, stackTrace) {
-            isDownloading = false;
-          });
+        },
+      )..value.whenComplete(() {
+          print("Download finished");
+          isDownloading = false;
+        }).onError((error, stackTrace) {
+          print("Error downloading");
+          print(error);
+          print(stackTrace);
+          isDownloading = false;
+        });
+    } else {
+      await removeDownload();
+      rootScaffoldMessengerKey.currentState
+          ?.showSnackBar(SnackBar(content: Text("Couldn't resume download!")));
+    }
+  }
+
+  _resumeTranscodedDownload() async {
+    // open main.m3u8
+    var downloadDirectory = await getDownloadDirectory();
+    var downloadPath = "$downloadDirectory/$itemId";
+    var mainM3U =
+        await File("$downloadDirectory/$itemId/main.m3u8").readAsString();
+
+    var prefix = "${_api.currentUser!.serverAdress}/Videos/$itemId/";
+
+    for (var line in mainM3U.split("\n")) {
+      if (line.startsWith("hls1/main")) {
+        var fileName = line.split("/").last.split("?").first;
+        var pattern = line
+            .split("&")
+            .firstWhere((element) => element.startsWith("api_key"));
+        line = line.replaceAll(pattern, "api_key=${_api.currentUser!.token}");
+        await _dio.download(prefix + line, "$downloadPath/$fileName",
+            cancelToken: cancelToken);
+        mainM3U = mainM3U.replaceAll(line, "file://$downloadPath/$fileName");
+        await File("$downloadPath/main.m3u8").writeAsString(mainM3U);
+
+        print("Downloaded $fileName");
+      } else {
+        print("Already downloaded $line");
       }
     }
   }
@@ -313,7 +343,7 @@ class DownloadService {
     // cancel the future
     await _download.cancel();
     await removeDownload();
-    await _api.reportStopPlayback(0);
+    await _api.reportStopPlayback(0, itemId: itemId);
     cancelToken = CancelToken();
   }
 

@@ -46,6 +46,8 @@ class DownloadItemTile extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dismissed = useState(false);
+    final isDownloading =
+        useState(ref.read(downloadProvider(index)).isDownloading);
 
     return FutureBuilder(
         future: ref.read(downloadProvider(index)).getMetadata(),
@@ -111,9 +113,22 @@ class DownloadItemTile extends HookConsumerWidget {
               }
             },
             popupMenuEntries: [
+              if (!ref.read(downloadProvider(index)).isDownloading &&
+                  ref.read(downloadProvider(index)).downloadProgess(1).last !=
+                      100)
+                PopupMenuItem(
+                  value: "resume",
+                  child: ListTile(
+                    leading: const Icon(Icons.play_arrow_rounded),
+                    iconColor: Theme.of(context).colorScheme.primary,
+                    title: Text(
+                      "Resume Download",
+                    ),
+                  ),
+                ),
               PopupMenuItem(
                 value: "delete",
-                child: ref.read(downloadProvider(index)).isDownloading
+                child: isDownloading.value
                     ? ListTile(
                         leading: const Icon(Icons.close_rounded),
                         iconColor: Theme.of(context).colorScheme.primary,
@@ -132,12 +147,16 @@ class DownloadItemTile extends HookConsumerWidget {
             ],
             onSelectedMenuItem: (p0) async {
               if (p0 == "delete") {
-                if (ref.read(downloadProvider(index)).isDownloading) {
+                if (isDownloading.value) {
                   await ref.read(downloadProvider(index)).cancelDownload();
                 } else {
                   await ref.read(downloadProvider(index)).removeDownload();
                 }
                 dismissed.value = true;
+              }
+              if (p0 == "resume" && !isDownloading.value) {
+                await ref.read(downloadProvider(index)).resumeDownload();
+                isDownloading.value = true;
               }
             },
           );
