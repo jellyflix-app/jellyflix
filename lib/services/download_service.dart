@@ -194,6 +194,25 @@ class DownloadService {
           print(stackTrace);
           isDownloading = false;
         });
+    } else if (await File(
+            "${await getDownloadDirectory()}/$itemId/temp_download_data")
+        .exists()) {
+      isDownloading = true;
+      _download = CancelableOperation.fromFuture(
+        _resumeDirectStreamDownload(),
+        onCancel: () {
+          isDownloading = false;
+          print("Download cancelled");
+        },
+      )..value.whenComplete(() {
+          print("Download finished");
+          isDownloading = false;
+        }).onError((error, stackTrace) {
+          print("Error downloading");
+          print(error);
+          print(stackTrace);
+          isDownloading = false;
+        });
     } else {
       await removeDownload();
       rootScaffoldMessengerKey.currentState
@@ -226,6 +245,71 @@ class DownloadService {
       } else {
         print("Already downloaded $line");
       }
+    }
+  }
+
+  _resumeDirectStreamDownload() async {
+    var downloadDirectory = await getDownloadDirectory();
+    var downloadPath = "$downloadDirectory/$itemId";
+
+    if (await File("$downloadPath/temp_download_data").exists() &&
+        await File("$downloadPath/temp_chunk0").exists()) {
+      // load temp_download_data
+      var tempDownloadData =
+          await File("$downloadPath/temp_download_data").readAsString();
+      var tempData = tempDownloadData.split("\n");
+      var streamUrl = tempData[0];
+      var contentLength = int.parse(tempData[1]);
+      var localFilePath = tempData[2];
+
+      // check if temp_chunk files exist
+      var list = await Directory(downloadPath).list().toList();
+      List<FileSystemEntity> chunks = list
+          .where((element) =>
+              element.path.split("/").last.startsWith("temp_chunk"))
+          .toList();
+      // get size of all chunks
+      var downloadedSize = 0;
+      for (var chunk in chunks) {
+        var stats = await chunk.stat();
+        downloadedSize += stats.size;
+      }
+      if (downloadedSize < contentLength) {
+        // download remaining data
+        var tempFile = File("$downloadPath/temp_chunk${chunks.length}");
+        Options options = Options(
+          headers: {
+            "Range": "bytes=$downloadedSize-",
+          },
+        );
+        await _dio.download(
+          streamUrl,
+          tempFile.path,
+          options: options,
+          cancelToken: cancelToken,
+          onReceiveProgress: (received, total) {
+            // add progress to stream
+            print("${received / total * 100}% downloaded");
+          },
+        );
+        for (int i = 0; i <= chunks.length; i++) {
+          var chunk = File("$downloadPath/temp_chunk$i");
+          var bytes = await chunk.readAsBytes();
+          await File(localFilePath).writeAsBytes(bytes, mode: FileMode.append);
+          await chunk.delete();
+        }
+      } else {
+        for (int i = 0; i < chunks.length; i++) {
+          var chunk = File("$downloadPath/temp_chunk$i");
+          var bytes = await chunk.readAsBytes();
+          await File(localFilePath).writeAsBytes(bytes, mode: FileMode.append);
+          await chunk.delete();
+        }
+      }
+      // delete temp_download_data
+      await File("$downloadPath/temp_download_data").delete();
+    } else {
+      await removeDownload();
     }
   }
 
@@ -282,8 +366,71 @@ class DownloadService {
         ?.showSnackBar(SnackBar(content: Text("Download finished!")));
   }
 
-  downloadDirectStream(String streamUrl) {
+  downloadDirectStream(String streamUrl) async {
+    _download = CancelableOperation.fromFuture(
+      _cancelableDownloadDirectStream(streamUrl),
+      onCancel: () {
+        isDownloading = false;
+        print("Download cancelled");
+      },
+    )..value.whenComplete(() {
+        print("Download finished");
+        isDownloading = false;
+      }).onError((error, stackTrace) {
+        print("Error downloading");
+        print(error);
+        print(stackTrace);
+        isDownloading = false;
+      });
+    // var response = await _dio.download(
+    //   streamUrl,
+    //   savePath,
+    //   onReceiveProgress: (receivedBytes, totalBytes) {
+    //     if (totalBytes != -1) {
+    //       var progress = (receivedBytes / totalBytes * 100).toStringAsFixed(0);
+    //       print('Download progress: $progress%');
+    //     }
+    //   },
+    //   cancelToken: cancelToken,
+    // );
+  }
+
+  _cancelableDownloadDirectStream(String streamUrl) async {
     print("Downloading direct stream");
+    var downloadDirectory = await getDownloadDirectory();
+    var downloadPath = "$downloadDirectory/$itemId";
+    var fileExtension =
+        streamUrl.split("/").last.split("?").first.split(".").last;
+
+    // get download info
+    var downloadInfo = await _dio.head(streamUrl);
+
+    var contentLength =
+        int.parse(downloadInfo.headers.value("content-length")!);
+
+    var localFilePath = "$downloadPath/$itemId.$fileExtension";
+    var localFile = File(localFilePath);
+
+    // write temp_download_data to file
+    await File("$downloadPath/temp_download_data")
+        .writeAsString("$streamUrl\n$contentLength\n${localFile.path}");
+
+    var tempFile = File("$downloadPath/temp_chunk0");
+
+    await _dio.download(
+      streamUrl,
+      tempFile.path,
+      cancelToken: cancelToken,
+      onReceiveProgress: (received, total) {
+        // add progress to stream
+        print("${received / total * 100}% downloaded");
+      },
+    );
+
+    // rename file
+    await tempFile.rename(localFilePath);
+    // remove temp_download_data
+    await File("$downloadPath/temp_download_data").delete();
   }
 
   Stream<int?> downloadProgess(int interval) async* {
