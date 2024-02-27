@@ -236,8 +236,11 @@ class ApiService {
                     BaseItemKind.boxSet
                   ],
             ),
-            fields: BuiltList<ItemFields>(
-                [ItemFields.overview, ItemFields.providerIds]),
+            fields: BuiltList<ItemFields>([
+              ItemFields.overview,
+              ItemFields.providerIds,
+              ItemFields.mediaSources
+            ]),
           );
 
       return response.data!.items!.toList();
