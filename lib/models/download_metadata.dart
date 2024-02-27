@@ -1,4 +1,5 @@
 import 'package:built_collection/built_collection.dart';
+import 'package:flutter/material.dart';
 import 'package:openapi/openapi.dart';
 
 class DownloadMetadata extends BaseItemDto {
@@ -20,6 +21,7 @@ class DownloadMetadata extends BaseItemDto {
   final int? parentIndexNumber;
   @override
   final String? path;
+  final int? downloadSize;
 
   DownloadMetadata({
     required this.id,
@@ -31,6 +33,7 @@ class DownloadMetadata extends BaseItemDto {
     required this.indexNumber,
     required this.parentIndexNumber,
     required this.path,
+    this.downloadSize,
   });
 
   Map<String, dynamic> toJson() {
@@ -44,6 +47,7 @@ class DownloadMetadata extends BaseItemDto {
       "IndexNumber": indexNumber,
       "ParentIndexNumber": parentIndexNumber,
       "Path": path,
+      "DownloadSize": downloadSize,
     };
   }
 
@@ -58,6 +62,7 @@ class DownloadMetadata extends BaseItemDto {
       indexNumber: json["IndexNumber"],
       parentIndexNumber: json["ParentIndexNumber"],
       path: json["Path"],
+      downloadSize: json["DownloadSize"],
     );
   }
 

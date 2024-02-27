@@ -7,3 +7,7 @@ final downloadProvider = Provider.family<DownloadService, String>(
 
 final getDownloadsProvider = Provider.autoDispose<Future<List<String>>>(
     (ref) => DownloadService.getDownloadedItems());
+
+final cancelAndDeleteDownloadProvider = Provider(
+  (ref) => DownloadService.cancelAndDeleteAllDownloads(),
+);

@@ -9,6 +9,7 @@ import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/providers/download_provider.dart';
 import 'package:jellyflix/providers/secure_storage_provider.dart';
 
 class ProfileScreen extends HookConsumerWidget {
@@ -177,6 +178,15 @@ class ProfileScreen extends HookConsumerWidget {
                             await ref.read(secureStorageProvider).write(
                                 "downloadBitrate",
                                 downloadBitrate.value.toString());
+                          },
+                        ),
+                        ListTile(
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15)),
+                          leading: const Icon(Icons.delete_outline_rounded),
+                          title: Text("Cancel and remove all downloads"),
+                          onTap: () async {
+                            await ref.read(cancelAndDeleteDownloadProvider);
                           },
                         ),
                       ],
