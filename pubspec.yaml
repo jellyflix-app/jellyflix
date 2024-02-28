@@ -4,7 +4,7 @@ description: "Another Jellyfin client for Android, iOS, Windows, macOS, Linux an
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' 
 
-version: 99.99.99+99
+version: 00.00.00+0
 
 environment:
   sdk: '>=3.2.2 <4.0.0'
