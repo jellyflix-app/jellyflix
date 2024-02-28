@@ -567,6 +567,7 @@ class ApiService {
           userId: _user!.id!,
           itemId: itemId,
           limit: limit,
+          fields: [ItemFields.overview].toBuiltList(),
         );
 
     return similarItems.data!.items!.toList();

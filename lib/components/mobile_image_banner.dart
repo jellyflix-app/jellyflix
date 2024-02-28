@@ -107,6 +107,14 @@ class MobileImageBannerState extends ConsumerState<MobileImageBanner> {
                         const SizedBox(
                           height: 10,
                         ),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.7,
+                          child: Text(widget.items[index].overview ?? "",
+                              maxLines: 2, overflow: TextOverflow.ellipsis),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [

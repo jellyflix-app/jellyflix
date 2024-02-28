@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
@@ -27,36 +28,77 @@ class DetailScreen extends HookConsumerWidget {
     final ValueNotifier<bool?> markedAsPlayed = useState(null);
     final StreamController episodeStreamController = StreamController();
     final playButtonHovered = useState(false);
+    final scrollController = useScrollController();
+    final appBarColorTransaparent = useState(true);
+    final itemIsSeries = useState(false);
+
+    useEffect(() {
+      listener() {
+        if (scrollController.position.pixels > 0) {
+          appBarColorTransaparent.value = false;
+        } else {
+          appBarColorTransaparent.value = true;
+        }
+      }
+
+      scrollController.addListener(listener);
+      return () {
+        return scrollController.removeListener(listener);
+      };
+    }, [scrollController]);
 
     ref.read(apiProvider).getWatchlist().then((value) {
       onWatchlist.value =
           value.where((element) => element.id == itemId).isNotEmpty;
     });
-
-    ref.read(apiProvider).getEpisodes(itemId).then((value) {
-      episodeStreamController.add(value);
-    });
+    if (itemIsSeries.value) {
+      ref.read(apiProvider).getEpisodes(itemId).then((value) {
+        episodeStreamController.add(value);
+      });
+    }
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: appBarColorTransaparent.value
+          ? AppBar(
+              backgroundColor: Colors.transparent,
+            )
+          : PreferredSize(
+              preferredSize: const Size(
+                double.infinity,
+                56.0,
+              ),
+              child: ClipRRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: AppBar(
+                    elevation: 0.0,
+                    backgroundColor: Colors.black.withOpacity(0.2),
+                  ),
+                ),
+              ),
+            ),
       body: FutureBuilder(
           future: ref.read(apiProvider).getItemDetails(itemId),
           builder: (context, AsyncSnapshot<BaseItemDto> snapshot) {
             BaseItemDto data = SkeletonItem.baseItemDto;
             if (snapshot.hasData) {
               data = snapshot.data!;
+              itemIsSeries.value = data.type == BaseItemKind.series;
 
               //markedAsPlayed.value = data.userData!.played!;
             }
             return Align(
               alignment: Alignment.topCenter,
               child: SingleChildScrollView(
+                controller: scrollController,
                 child: Skeletonizer(
                   enabled: !snapshot.hasData,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        height: 300 + MediaQuery.of(context).padding.top,
+                        height: 250 + MediaQuery.of(context).padding.top,
                         child: Stack(
                           children: [
                             Stack(
@@ -89,19 +131,10 @@ class DetailScreen extends HookConsumerWidget {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                          top: MediaQuery.of(context)
-                                              .padding
-                                              .top),
-                                      child: Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: BackButton(
-                                            color: Colors.white,
-                                            onPressed: () {
-                                              context.pop();
-                                            }),
-                                      ),
+                                    SizedBox(
+                                      height:
+                                          MediaQuery.of(context).padding.top +
+                                              17,
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.only(
