@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:filter_list/filter_list.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -154,36 +156,33 @@ class LibraryScreen extends HookConsumerWidget {
               ),
             ),
             Expanded(
-              child: Padding(
-                padding:
-                    const EdgeInsets.only(left: 20.0, right: 20.0, top: 10),
-                child: FutureBuilder(
-                  future: ref.read(apiProvider).getFilterItems(
-                        genreIds: genreFilter.value,
-                        startIndex: page * 100,
-                        limit: 100,
-                        sortOrder: [sortOrder.value],
-                        sortBy: [sortType.value.toString().split(".").last],
-                        filters: filterType.value,
-                      ),
-                  builder:
-                      (context, AsyncSnapshot<List<BaseItemDto>> snapshot) {
-                    List<BaseItemDto> itemsList =
-                        List.filled(20, SkeletonItem.baseItemDto);
-                    if (snapshot.hasData) {
-                      itemsList = snapshot.data!;
+              child: FutureBuilder(
+                future: ref.read(apiProvider).getFilterItems(
+                      genreIds: genreFilter.value,
+                      startIndex: page * 100,
+                      limit: 100,
+                      sortOrder: [sortOrder.value],
+                      sortBy: [sortType.value.toString().split(".").last],
+                      filters: filterType.value,
+                    ),
+                builder: (context, AsyncSnapshot<List<BaseItemDto>> snapshot) {
+                  List<BaseItemDto> itemsList =
+                      List.filled(20, SkeletonItem.baseItemDto);
+                  if (snapshot.hasData) {
+                    itemsList = snapshot.data!;
 
-                      if (itemsList.isEmpty) {
-                        return Center(
-                          child:
-                              Text(AppLocalizations.of(context)!.noItemsFound),
-                        );
-                      }
+                    if (itemsList.isEmpty) {
+                      return Center(
+                        child: Text(AppLocalizations.of(context)!.noItemsFound),
+                      );
                     }
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Expanded(
+                  }
+                  return Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 10.0, right: 10.0, top: 10),
+                        child: Expanded(
                           child: Skeletonizer(
                             effect: ShimmerEffect(
                               baseColor: Colors.grey.withOpacity(0.5),
@@ -279,72 +278,106 @@ class LibraryScreen extends HookConsumerWidget {
                             ),
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              if (page > 0)
-                                IconButton(
-                                  onPressed: () {
-                                    context.push(Uri(
-                                        path: ScreenPaths.library,
-                                        queryParameters: {
-                                          "genreFilter": genreFilter.value
-                                              ?.map((e) => e.id)
-                                              .join(","),
-                                          "filterType": filterType.value
-                                              .map((e) =>
-                                                  e.toString().split(".").last)
-                                              .join(","),
-                                          "sortType": sortType.value
-                                              .toString()
-                                              .split(".")
-                                              .last,
-                                          "sortOrder": sortOrder.value
-                                              .toString()
-                                              .split(".")
-                                              .last,
-                                          "pageNumber": (page - 1).toString(),
-                                        }).toString());
-                                  },
-                                  icon: const Icon(Icons.arrow_back_ios),
+                      ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: ClipRRect(
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Theme.of(context)
+                                        .scaffoldBackgroundColor
+                                        .withOpacity(0.2),
+                                    Theme.of(context).scaffoldBackgroundColor,
+                                  ],
                                 ),
-                              const SizedBox(
-                                width: 20,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.5),
+                                    spreadRadius: 2,
+                                    blurRadius: 5,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
                               ),
-                              IconButton(
-                                onPressed: () {
-                                  context.push(Uri(
-                                      path: ScreenPaths.library,
-                                      queryParameters: {
-                                        "genreFilter": genreFilter.value
-                                            ?.map((e) => e.id)
-                                            .join(","),
-                                        "filterType": filterType.value
-                                            .map((e) =>
-                                                e.toString().split(".").last)
-                                            .join(","),
-                                        "sortType": sortType.value
-                                            .toString()
-                                            .split(".")
-                                            .last,
-                                        "sortOrder": sortOrder.value
-                                            .toString()
-                                            .split(".")
-                                            .last,
-                                        "pageNumber": (page + 1).toString(),
-                                      }).toString());
-                                },
-                                icon: const Icon(Icons.arrow_forward_ios),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (page > 0)
+                                    IconButton(
+                                      onPressed: () {
+                                        context.push(Uri(
+                                            path: ScreenPaths.library,
+                                            queryParameters: {
+                                              "genreFilter": genreFilter.value
+                                                  ?.map((e) => e.id)
+                                                  .join(","),
+                                              "filterType": filterType.value
+                                                  .map((e) => e
+                                                      .toString()
+                                                      .split(".")
+                                                      .last)
+                                                  .join(","),
+                                              "sortType": sortType.value
+                                                  .toString()
+                                                  .split(".")
+                                                  .last,
+                                              "sortOrder": sortOrder.value
+                                                  .toString()
+                                                  .split(".")
+                                                  .last,
+                                              "pageNumber":
+                                                  (page - 1).toString(),
+                                            }).toString());
+                                      },
+                                      icon: const Icon(Icons.arrow_back_ios),
+                                    ),
+                                  const SizedBox(
+                                    width: 20,
+                                  ),
+                                  if (itemsList.length == 100)
+                                    IconButton(
+                                      onPressed: () {
+                                        context.push(Uri(
+                                            path: ScreenPaths.library,
+                                            queryParameters: {
+                                              "genreFilter": genreFilter.value
+                                                  ?.map((e) => e.id)
+                                                  .join(","),
+                                              "filterType": filterType.value
+                                                  .map((e) => e
+                                                      .toString()
+                                                      .split(".")
+                                                      .last)
+                                                  .join(","),
+                                              "sortType": sortType.value
+                                                  .toString()
+                                                  .split(".")
+                                                  .last,
+                                              "sortOrder": sortOrder.value
+                                                  .toString()
+                                                  .split(".")
+                                                  .last,
+                                              "pageNumber":
+                                                  (page + 1).toString(),
+                                            }).toString());
+                                      },
+                                      icon: const Icon(Icons.arrow_forward_ios),
+                                    ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
-                      ],
-                    );
-                  },
-                ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ],
