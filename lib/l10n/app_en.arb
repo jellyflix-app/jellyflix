@@ -121,5 +121,8 @@
         }
       },
     "similar": "Similar",
+    "details": "Details",
+    "showMore": "Show more",
+    "showLess": "Show less",
     "appName": "Jellyflix"
 }

@@ -169,7 +169,7 @@ class _ItemCarouselState extends ConsumerState<ItemCarousel> {
                             ? Text(
                                 widget.subtitleList[index],
                                 style: const TextStyle(fontSize: 10),
-                                overflow: TextOverflow.fade,
+                                overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                               )
                             : const SizedBox(),
