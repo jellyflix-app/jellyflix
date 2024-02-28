@@ -181,7 +181,6 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
               currentIndex: selectedIndex.value,
               type: BottomNavigationBarType.fixed,
               backgroundColor: Colors.black26,
-              showSelectedLabels: false,
               unselectedItemColor: Colors.grey,
               selectedItemColor: Theme.of(context).colorScheme.primary,
               showUnselectedLabels: false,

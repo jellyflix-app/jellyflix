@@ -35,7 +35,7 @@ class GenreBanner extends HookConsumerWidget {
                         scrollController: pageController,
                         offsetWidth: MediaQuery.of(context).size.width * 0.9)),
                 SizedBox(
-                  height: 250,
+                  height: MediaQuery.of(context).size.width >= 640 ? 250 : 150,
                   child: PageView.builder(
                     controller: pageController,
                     itemBuilder: (context, index) {

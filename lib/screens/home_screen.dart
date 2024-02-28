@@ -180,7 +180,9 @@ class HomeScreen extends HookConsumerWidget {
                             .colorScheme!
                             .onPrimary,
                       ),
-                      child: Center(child: Text("Top ${index + 1}"))),
+                      child: Center(
+                          child: Text(
+                              AppLocalizations.of(context)!.top10(index + 1)))),
                 )),
               ),
             ),
@@ -195,6 +197,104 @@ class HomeScreen extends HookConsumerWidget {
                     e.imageBlurHashes?.primary?.values.first,
                 future: (startIndex, limit) =>
                     ref.read(apiProvider).similarItemsByLastWatched(),
+                onTap: (index, id) {
+                  context.push(Uri(path: ScreenPaths.detail, queryParameters: {
+                    "id": id,
+                  }).toString());
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: PaginatedItemCarousel(
+                title: AppLocalizations.of(context)!.highesRatedMovies,
+                titleMapping: (e) => e.name!,
+                subtitleMapping: (e) => e.productionYear.toString(),
+                imageMapping: (e) => e.id!,
+                blurHashMapping: (e) =>
+                    e.imageBlurHashes?.primary?.values.first,
+                future: (startIndex, limit) =>
+                    ref.read(apiProvider).getFilterItems(
+                        sortBy: ["Random"],
+                        minCommunityRating: 7.5,
+                        includeItemTypes: [BaseItemKind.movie],
+                        //filters: [ItemFilter.isUnplayed],
+                        startIndex: startIndex,
+                        limit: limit),
+                onTap: (index, id) {
+                  context.push(Uri(path: ScreenPaths.detail, queryParameters: {
+                    "id": id,
+                  }).toString());
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: PaginatedItemCarousel(
+                title: AppLocalizations.of(context)!.highestRatedShows,
+                titleMapping: (e) => e.name!,
+                subtitleMapping: (e) => e.productionYear.toString(),
+                imageMapping: (e) => e.id!,
+                blurHashMapping: (e) =>
+                    e.imageBlurHashes?.primary?.values.first,
+                future: (startIndex, limit) => ref
+                    .read(apiProvider)
+                    .getFilterItems(
+                        sortBy: ["Random"],
+                        minCommunityRating: 7.5,
+                        includeItemTypes: [BaseItemKind.series],
+                        startIndex: startIndex,
+                        limit: limit),
+                onTap: (index, id) {
+                  context.push(Uri(path: ScreenPaths.detail, queryParameters: {
+                    "id": id,
+                  }).toString());
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: PaginatedItemCarousel(
+                title: AppLocalizations.of(context)!.moviesMaybeMissed,
+                titleMapping: (e) => e.name!,
+                subtitleMapping: (e) => e.productionYear.toString(),
+                imageMapping: (e) => e.id!,
+                blurHashMapping: (e) =>
+                    e.imageBlurHashes?.primary?.values.first,
+                future: (startIndex, limit) => ref
+                    .read(apiProvider)
+                    .getFilterItems(
+                        sortBy: ["Random"],
+                        sortOrder: [SortOrder.descending],
+                        includeItemTypes: [BaseItemKind.movie],
+                        filters: [ItemFilter.isUnplayed],
+                        startIndex: startIndex,
+                        limit: limit),
+                onTap: (index, id) {
+                  context.push(Uri(path: ScreenPaths.detail, queryParameters: {
+                    "id": id,
+                  }).toString());
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: PaginatedItemCarousel(
+                title: AppLocalizations.of(context)!.showsMaybeMissed,
+                titleMapping: (e) => e.name!,
+                subtitleMapping: (e) => e.productionYear.toString(),
+                imageMapping: (e) => e.id!,
+                blurHashMapping: (e) =>
+                    e.imageBlurHashes?.primary?.values.first,
+                future: (startIndex, limit) => ref
+                    .read(apiProvider)
+                    .getFilterItems(
+                        sortBy: ["Random"],
+                        sortOrder: [SortOrder.descending],
+                        includeItemTypes: [BaseItemKind.series],
+                        filters: [ItemFilter.isUnplayed],
+                        startIndex: startIndex,
+                        limit: limit),
                 onTap: (index, id) {
                   context.push(Uri(path: ScreenPaths.detail, queryParameters: {
                     "id": id,

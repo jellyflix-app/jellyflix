@@ -107,5 +107,22 @@
   "markAsUnplayed": "Als ungespielt markieren",
   "couldNotOpenTrailer": "Trailer konnte nicht geöffnet werden",
   "watchTrailer": "Trailer ansehen",
+  "showsMaybeMissed": "Serien, die du vielleicht verpasst hast",
+    "moviesMaybeMissed": "Filme, die du vielleicht verpasst hast",
+    "highesRatedMovies": "Höchstbewertete Filme",
+    "highestRatedShows": "Höchstbewertete Serien",
+    "top10": "Top {count}",
+    "@top10": {
+        "placeholders": {
+          "count": {
+            "type": "int",
+            "example": "10"
+          }
+        }
+      },
+  "similar": "Ähnlich",
+  "details": "Details",
+  "showMore": "Mehr anzeigen",
+  "showLess": "Weniger anzeigen",
   "appName": "Jellyflix"
 }

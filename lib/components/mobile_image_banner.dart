@@ -13,10 +13,12 @@ class MobileImageBanner extends StatefulHookConsumerWidget {
   final List<BaseItemDto> items;
   final Duration scrollDuration;
   final double? height;
+  final Function(BaseItemDto) onPressedPlay;
 
   const MobileImageBanner(
       {super.key,
       required this.items,
+      required this.onPressedPlay,
       this.height = 600,
       this.scrollDuration = const Duration(seconds: 5)});
 
@@ -105,29 +107,21 @@ class MobileImageBannerState extends ConsumerState<MobileImageBanner> {
                         const SizedBox(
                           height: 10,
                         ),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.7,
+                          child: Text(widget.items[index].overview ?? "",
+                              maxLines: 2, overflow: TextOverflow.ellipsis),
+                        ),
+                        const SizedBox(
+                          height: 20,
+                        ),
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             ElevatedButton.icon(
-                              onPressed: () async {
-                                var playbackInfo = await ref
-                                    .read(apiProvider)
-                                    .getStreamUrlAndPlaybackInfo(
-                                        itemId: widget.items[index]
-                                            .mediaSources!.first.id!);
-                                if (context.mounted) {
-                                  context.push(
-                                      Uri(
-                                          path: ScreenPaths.player,
-                                          queryParameters: {
-                                            "startTimeTicks": widget
-                                                .items[index]
-                                                .userData
-                                                ?.playbackPositionTicks
-                                                ?.toString()
-                                          }).toString(),
-                                      extra: playbackInfo);
-                                }
+                              onPressed: () {
+                                BaseItemDto item = widget.items[index];
+                                widget.onPressedPlay(item);
                               },
                               label: Text(AppLocalizations.of(context)!.play),
                               icon: const Icon(Icons.play_arrow_rounded),
