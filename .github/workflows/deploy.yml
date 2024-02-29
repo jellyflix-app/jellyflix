@@ -153,7 +153,7 @@ jobs:
   build_ios:
     needs: [version]
     name: Build iOS
-    runs-on: macos-latest
+    runs-on: macos-14
   
     steps:
     - name: Checkout the code
