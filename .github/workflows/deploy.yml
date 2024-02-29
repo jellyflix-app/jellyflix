@@ -560,20 +560,21 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: jellyflix-appbundle
-      - name: Release app to internal testing track
+      - name: Release app to open testing track
         if: ${{ github.ref == 'refs/heads/preview' }}
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
           packageName: ${{ secrets.ANDROID_PACKAGE_NAME }}
           releaseFiles: app-release.aab
-          track: internal
-      # - name: Release app to open testing track
-      #   if: ${{ github.ref == 'refs/heads/main' }}
-      #   uses: r0adkll/upload-google-play@v1
-      #   with:
-      #     serviceAccountJsonPlainText: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
-      #     packageName: ${{ secrets.ANDROID_PACKAGE_NAME }}
-      #     releaseFiles: app-release.aab
-      #     track: beta
-      #     status: draft
+          track: beta
+          status: draft
+      - name: Release app to production track
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+          packageName: ${{ secrets.ANDROID_PACKAGE_NAME }}
+          releaseFiles: app-release.aab
+          track: production
+          status: draft
