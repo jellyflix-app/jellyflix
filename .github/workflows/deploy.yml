@@ -569,6 +569,7 @@ jobs:
           releaseFiles: app-release.aab
           track: beta
           status: draft
+          changesNotSentForReview: true
       - name: Release app to production track
         if: ${{ github.ref == 'refs/heads/main' }}
         uses: r0adkll/upload-google-play@v1
@@ -578,3 +579,4 @@ jobs:
           releaseFiles: app-release.aab
           track: production
           status: draft
+          changesNotSentForReview: true
