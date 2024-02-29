@@ -186,13 +186,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    - name: Setup Java
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'zulu'
-        java-version: '12.x'
-        cache: gradle
-
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
       with:
@@ -257,7 +250,7 @@ jobs:
   build_macos:
     name: Build macOS
     needs: [version]
-    runs-on: macos-latest
+    runs-on: macos-14
     steps:
       - name: Clone Repo
         uses: actions/checkout@v4
@@ -296,13 +289,6 @@ jobs:
           path: version1.txt
       - name: Update version in YAML
         run: sed -i '' 's/00.00.00+0/${{ steps.version.outputs.content }}+${{ github.run_number }}/g' pubspec.yaml
-
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: '12.x'
-          cache: gradle
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
