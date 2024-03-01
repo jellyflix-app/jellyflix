@@ -31,7 +31,7 @@ class DownloadScreen extends HookConsumerWidget {
               );
             }
             return Center(
-              child: CircularProgressIndicator(),
+              child: Text(AppLocalizations.of(context)!.noDownloads),
             );
           }),
     );

@@ -122,5 +122,7 @@
       },
   "similar": "Ähnlich",
   "downloads": "Downloads",
+  "download": "Download",
+  "noDownloads": "Keine Downloads gefunden",
   "appName": "Jellyflix"
 }

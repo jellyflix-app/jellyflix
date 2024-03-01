@@ -70,6 +70,17 @@ class EpisodeListTile extends HookConsumerWidget {
                   ),
                 ),
         ),
+        PopupMenuItem(
+          value: 'download',
+          child: ListTile(
+            leading: const Icon(Icons.file_download_outlined),
+            iconColor: Theme.of(context).colorScheme.primary,
+            title: Text(
+              AppLocalizations.of(context)!.download,
+            ),
+            onTap: () {},
+          ),
+        )
       ],
       overlay: episode.userData!.playedPercentage != null
           ? PlaybackProgressOverlay(
