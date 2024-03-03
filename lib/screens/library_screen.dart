@@ -75,11 +75,14 @@ class LibraryScreen extends HookConsumerWidget {
                   Expanded(
                     child: TextButton(
                       onPressed: () async {
+                        final listData =
+                            await ref.read(apiProvider).getGenres();
+                        if (!context.mounted) return;
                         genreFilter.value = await openGenreDialog(
                           context,
                           ref,
                           selectedItemList: genreFilter.value ?? [],
-                          listData: await ref.read(apiProvider).getGenres(),
+                          listData: listData,
                         );
                       },
                       child: Text(
