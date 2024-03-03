@@ -4,7 +4,7 @@ import 'dart:ui';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jellyflix/components/description_text.dart';
-import 'package:jellyflix/components/episode_list_tile.dart';
+import 'package:jellyflix/components/episode_list.dart';
 import 'package:jellyflix/components/future_item_carousel.dart';
 import 'package:jellyflix/components/item_carousel.dart';
 import 'package:jellyflix/components/item_information_details.dart';
@@ -13,7 +13,6 @@ import 'package:jellyflix/models/skeleton_item.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:openapi/openapi.dart';
-import 'package:skeletonizer/skeletonizer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -25,14 +24,13 @@ class DetailScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final seasonSelection = useState(0);
     final onWatchlist = useState(false);
     final ValueNotifier<bool?> markedAsPlayed = useState(null);
-    final StreamController episodeStreamController = StreamController();
+    final StreamController<List<BaseItemDto>> episodeStreamController =
+        StreamController();
     final playButtonHovered = useState(false);
     final scrollController = useScrollController();
     final appBarColorTransaparent = useState(true);
-    final itemIsSeries = useState(false);
 
     useEffect(() {
       listener() {
@@ -53,12 +51,6 @@ class DetailScreen extends HookConsumerWidget {
       onWatchlist.value =
           value.where((element) => element.id == itemId).isNotEmpty;
     });
-
-    if (itemIsSeries.value) {
-      ref.read(apiProvider).getEpisodes(itemId).then((value) {
-        episodeStreamController.add(value);
-      });
-    }
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -92,7 +84,11 @@ class DetailScreen extends HookConsumerWidget {
               );
             } else if (snapshot.hasData) {
               data = snapshot.data!;
-              itemIsSeries.value = data.type == BaseItemKind.series;
+              if (data.type == BaseItemKind.series) {
+                ref.read(apiProvider).getEpisodes(itemId).then((value) {
+                  episodeStreamController.add(value);
+                });
+              }
 
               return Align(
                 alignment: Alignment.topCenter,
@@ -574,150 +570,11 @@ class DetailScreen extends HookConsumerWidget {
                       ),
 
                       data.isFolder ?? false
-                          ? Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 10.0),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                        vertical: 5.0, horizontal: 10.0),
-                                    child: Text(
-                                        AppLocalizations.of(context)!.episodes,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .headlineSmall),
-                                  ),
-                                  StreamBuilder(
-                                    stream: episodeStreamController.stream,
-                                    builder: (context, snapshot) {
-                                      var seasons = [];
-                                      var seasonIds = [];
-                                      var episodes = [];
-                                      if (snapshot.hasData) {
-                                        seasons = snapshot.data!
-                                            .map((e) => e.seasonName)
-                                            .toSet()
-                                            .toList();
-
-                                        // get season ids
-                                        seasonIds = snapshot.data!
-                                            .map((e) => e.seasonId)
-                                            .toSet()
-                                            .toList();
-                                        // get episodes for season
-                                        episodes = snapshot.data!
-                                            .where((element) =>
-                                                element.seasonId ==
-                                                seasonIds[
-                                                    seasonSelection.value])
-                                            .toList();
-                                      }
-                                      return Skeletonizer(
-                                        enabled: !snapshot.hasData,
-                                        child: Column(
-                                          children: [
-                                            SizedBox(
-                                              width: MediaQuery.of(context)
-                                                  .size
-                                                  .width,
-                                              height: 60,
-                                              child: ListView.builder(
-                                                  scrollDirection:
-                                                      Axis.horizontal,
-                                                  shrinkWrap: true,
-                                                  itemCount: seasons.length,
-                                                  itemBuilder:
-                                                      (context, index) {
-                                                    return Padding(
-                                                      padding: const EdgeInsets
-                                                          .symmetric(
-                                                          horizontal: 10.0),
-                                                      child: ChoiceChip(
-                                                          selected:
-                                                              seasonSelection
-                                                                      .value ==
-                                                                  index,
-                                                          onSelected:
-                                                              (selected) {
-                                                            seasonSelection
-                                                                .value = index;
-                                                          },
-                                                          label: Text(
-                                                              seasons[index])),
-                                                    );
-                                                  }),
-                                            ),
-                                            ListView.builder(
-                                              padding: EdgeInsets.zero,
-                                              shrinkWrap: true,
-                                              physics:
-                                                  const NeverScrollableScrollPhysics(),
-                                              itemCount: episodes.length,
-                                              itemBuilder: (context, index) {
-                                                BaseItemDto item =
-                                                    episodes[index];
-
-                                                return EpisodeListTile(
-                                                  item: item,
-                                                  data: data,
-                                                  onSelected: (value) async {
-                                                    if (value ==
-                                                        'mark_as_played') {
-                                                      await ref
-                                                          .read(apiProvider)
-                                                          .markAsPlayed(
-                                                              itemId: item.id!,
-                                                              played: !item
-                                                                  .userData!
-                                                                  .played!);
-                                                      if (markedAsPlayed
-                                                                  .value ==
-                                                              true &&
-                                                          item.userData!
-                                                              .played!) {
-                                                        markedAsPlayed.value =
-                                                            false;
-                                                      } else if (markedAsPlayed
-                                                                  .value ==
-                                                              false &&
-                                                          episodes
-                                                                  .where((element) =>
-                                                                      element
-                                                                          .userData!
-                                                                          .played ==
-                                                                      false)
-                                                                  .length ==
-                                                              1 &&
-                                                          !item.userData!
-                                                              .played!) {
-                                                        markedAsPlayed.value =
-                                                            true;
-                                                      }
-
-                                                      episodeStreamController
-                                                          .add(await ref
-                                                              .read(apiProvider)
-                                                              .getEpisodes(
-                                                                  itemId));
-                                                    }
-                                                  },
-                                                );
-                                              },
-                                            )
-                                          ],
-                                        ),
-                                      );
-                                      // } else {
-                                      //   return const CircularProgressIndicator();
-                                      // }
-                                    },
-                                  ),
-                                ],
-                              ),
-                            )
+                          ? EpisodeList(
+                              episodeStreamController: episodeStreamController,
+                              data: data,
+                              markedAsPlayed: markedAsPlayed,
+                              itemId: itemId)
                           : const SizedBox(),
                       data.people != null && data.people!.isNotEmpty
                           ? Padding(
