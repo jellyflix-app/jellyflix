@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jellyflix/components/download_settings_dialog.dart';
 import 'package:jellyflix/components/episode_list_tile.dart';
 import 'package:jellyflix/components/future_item_carousel.dart';
 import 'package:jellyflix/components/item_carousel.dart';
@@ -36,8 +37,6 @@ class DetailScreen extends HookConsumerWidget {
 
     ref.read(downloadProvider(itemId)).downloadProgess(1).first.then((value) {
       isDownloaded.value = value;
-      print(value);
-      print(isDownloaded.value);
     });
 
     ref.read(apiProvider).getWatchlist().then((value) {
@@ -466,7 +465,8 @@ class DetailScreen extends HookConsumerWidget {
                                       return;
                                     }
                                     if (context.mounted) {
-                                      await showDialog(
+                                      (int?, int?) selectedSettings =
+                                          await showDialog(
                                         context: context,
                                         builder: (context) {
                                           return DownloadSettingsDialog(
@@ -474,6 +474,7 @@ class DetailScreen extends HookConsumerWidget {
                                           );
                                         },
                                       );
+
                                       String? downloadBitrateString = await ref
                                           .read(secureStorageProvider)
                                           .read("downloadBitrate");
@@ -487,21 +488,29 @@ class DetailScreen extends HookConsumerWidget {
                                       ref
                                           .read(downloadProvider(itemId))
                                           .downloadItem(
+                                              audioStreamIndex:
+                                                  selectedSettings.$1,
+                                              subtitleStreamIndex:
+                                                  selectedSettings.$2,
                                               downloadBitrate: downloadBitrate);
                                     }
                                     if (context.mounted) {
                                       // show snackbar
                                       ScaffoldMessenger.of(context)
-                                          .showSnackBar(const SnackBar(
-                                        content: Text("Started download"),
-                                        duration: Duration(seconds: 1),
+                                          .showSnackBar(SnackBar(
+                                        content: Text(
+                                            AppLocalizations.of(context)!
+                                                .startedDownload),
+                                        duration: const Duration(seconds: 1),
                                       ));
                                     }
                                   } else {
                                     ScaffoldMessenger.of(context)
-                                        .showSnackBar(const SnackBar(
-                                      content: Text("Removed download"),
-                                      duration: Duration(seconds: 1),
+                                        .showSnackBar(SnackBar(
+                                      content: Text(
+                                          AppLocalizations.of(context)!
+                                              .removedDownload),
+                                      duration: const Duration(seconds: 1),
                                     ));
                                     await ref
                                         .read(downloadProvider(itemId))
@@ -540,13 +549,13 @@ class DetailScreen extends HookConsumerWidget {
                                                     .read(downloadProvider(
                                                         itemId))
                                                     .isDownloading
-                                                ? Icon(Icons.close)
-                                                : Icon(Icons
+                                                ? const Icon(Icons.close)
+                                                : const Icon(Icons
                                                     .file_download_outlined)
                                           ],
                                         );
                                       } else {
-                                        return Icon(
+                                        return const Icon(
                                             Icons.file_download_outlined);
                                       }
                                     }),
@@ -963,91 +972,5 @@ class DetailScreen extends HookConsumerWidget {
           }).toString(),
           extra: playbackInfo);
     }
-  }
-}
-
-class DownloadSettingsDialog extends StatelessWidget {
-  final BaseItemDto item;
-
-  const DownloadSettingsDialog({
-    super.key,
-    required this.item,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final audioList = item.mediaSources![0].mediaStreams!
-        .where((element) => element.type == MediaStreamType.audio)
-        .toList();
-
-    List<MediaStream> subtitleList = [
-      MediaStream(
-        (b) {
-          b
-            ..index = -1
-            ..displayTitle = "None";
-        },
-      )
-    ];
-
-    subtitleList += item.mediaSources![0].mediaStreams!
-        .where((element) => element.type == MediaStreamType.subtitle)
-        .toList();
-
-    return AlertDialog(
-      title: Text("Set audio and subtitle language"),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text("Set the maximum download bitrate for local downloads."),
-          const SizedBox(height: 20),
-          DropdownMenu<int>(
-            enableSearch: false,
-            enableFilter: false,
-            leadingIcon: Icon(Icons.audiotrack),
-            initialSelection: audioList.first.index!,
-            label: Text("Audio"),
-            dropdownMenuEntries: audioList
-                .map(
-                  (e) => DropdownMenuEntry(
-                    value: e.index!,
-                    label: e.displayTitle ?? "Unknown",
-                  ),
-                )
-                .toList(),
-          ),
-          const SizedBox(height: 20),
-          DropdownMenu<int>(
-            enableSearch: false,
-            enableFilter: false,
-            leadingIcon: Icon(Icons.subtitles_outlined),
-            initialSelection: subtitleList.first.index!,
-            label: Text("Subtitle"),
-            dropdownMenuEntries: subtitleList
-                .map(
-                  (e) => DropdownMenuEntry(
-                    value: e.index!,
-                    label: e.displayTitle ?? "Unknown",
-                  ),
-                )
-                .toList(),
-          ),
-        ],
-      ),
-      actions: [
-        TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: Text("Cancel"),
-        ),
-        TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: Text("Save"),
-        ),
-      ],
-    );
   }
 }

@@ -110,7 +110,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
             if (key.currentState?.isFullscreen() ?? false) {
               await key.currentState?.exitFullscreen();
             }
-            if (context.mounted) {
+            if (mounted) {
               context.pop();
             }
           }

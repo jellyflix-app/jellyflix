@@ -164,7 +164,8 @@ class ProfileScreen extends HookConsumerWidget {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15)),
                           leading: const Icon(Icons.video_file_outlined),
-                          title: Text("Set local download bitrate"),
+                          title: Text(AppLocalizations.of(context)!
+                              .setLocalDownloadBitrate),
                           trailing:
                               Text(BitRates().map[downloadBitrate.value]!),
                           onTap: () async {
@@ -184,7 +185,8 @@ class ProfileScreen extends HookConsumerWidget {
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15)),
                           leading: const Icon(Icons.delete_outline_rounded),
-                          title: Text("Cancel and remove all downloads"),
+                          title: Text(AppLocalizations.of(context)!
+                              .cancelAndRemoveAllDownloads),
                           onTap: () async {
                             await ref.read(cancelAndDeleteDownloadProvider);
                           },

@@ -124,5 +124,28 @@
     "downloads": "Téléchargements",
     "download": "Télécharger",
     "noDownloads": "Aucun téléchargement trouvé",
+    "resumeDownload": "Reprendre le téléchargement",
+    "deleteDownload": "Supprimer le téléchargement",
+    "removedDownload": "Téléchargement supprimé",
+    "startedDownload": "Téléchargement commencé",
+    "cancelDownload": "Annuler le téléchargement",
+    "cancelAndRemoveAllDownloads": "Annuler et supprimer tous les téléchargements",
+    "downloaded": "téléchargé",
+    "couldNotResumeDownload": "Impossible de reprendre le téléchargement",
+    "allDownloadsRemoved": "Tous les téléchargements ont été supprimés",
+    "cancel": "Annuler",
+    "save": "Sauvegarder",
+    "setAudioAndSubtitleLanguage": "Définir la langue de l'audio et des sous-titres",
+    "setLocalDownloadBitrate": "Débit binaire de téléchargement",
+    "maxDownloadBitrateText":  "Définir le débit binaire maximal de téléchargement local",
+    "downloadApproxFilesize": "1h de lecture équivaut à environ {size}Go",
+    "@downloadApproxFilesize": {
+        "placeholders": {
+          "size": {
+            "type": "String",
+            "example": "1.5"
+          }
+        }
+      },
     "appName": "Jellyflix"
 }

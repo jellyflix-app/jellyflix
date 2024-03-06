@@ -55,7 +55,6 @@ class DownloadItemTile extends HookConsumerWidget {
           if (!metaData.hasData || dismissed.value) {
             return const SizedBox.shrink();
           }
-          Key key = Key(metaData.data!.id);
           return StreamBuilder(
               stream: ref.read(downloadProvider(index)).downloadProgess(5),
               builder: (context, snapshot) {
@@ -76,10 +75,11 @@ class DownloadItemTile extends HookConsumerWidget {
                               "${(metaData.data!.runTimeTicks / 10000000 / 60).round()} min");
                         }
                         return Text(
-                          "${snapshot.data!.round()}% downloaded",
+                          "${snapshot.data!.round()}% ${AppLocalizations.of(context)!.downloaded}",
                         );
                       }
-                      return const Text("0% downloaded");
+                      return Text(
+                          "0% ${AppLocalizations.of(context)!.downloaded}");
                     },
                   ),
                   leading: FutureBuilder(
@@ -124,7 +124,7 @@ class DownloadItemTile extends HookConsumerWidget {
                           leading: const Icon(Icons.play_arrow_rounded),
                           iconColor: Theme.of(context).colorScheme.primary,
                           title: Text(
-                            "Resume Download",
+                            AppLocalizations.of(context)!.resumeDownload,
                           ),
                         ),
                       ),
@@ -135,14 +135,14 @@ class DownloadItemTile extends HookConsumerWidget {
                               leading: const Icon(Icons.close_rounded),
                               iconColor: Theme.of(context).colorScheme.primary,
                               title: Text(
-                                "Cancel Download",
+                                AppLocalizations.of(context)!.cancelDownload,
                               ),
                             )
                           : ListTile(
                               leading: const Icon(Icons.delete_outline_rounded),
                               iconColor: Theme.of(context).colorScheme.primary,
                               title: Text(
-                                "Delete Download",
+                                AppLocalizations.of(context)!.deleteDownload,
                               ),
                             ),
                     ),

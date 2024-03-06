@@ -5,11 +5,13 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:jellyflix/models/download_metadata.dart';
+import 'package:jellyflix/navigation/app_router.dart';
 import 'package:jellyflix/providers/scaffold_key.dart';
 import 'package:jellyflix/services/api_service.dart';
 import 'package:openapi/openapi.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:async/async.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DownloadService {
   static final Map<String, DownloadService> _instances = {};
@@ -77,14 +79,8 @@ class DownloadService {
       ),
       onCancel: () {
         isDownloading = false;
-        print("Download cancelled");
       },
-    )..value.whenComplete(() {
-        print("Download finished");
-      }).onError((error, stackTrace) {
-        print("Error downloading");
-        print(error);
-        print(stackTrace);
+    )..value.whenComplete(() {}).onError((error, stackTrace) {
         isDownloading = false;
       });
   }
@@ -100,13 +96,15 @@ class DownloadService {
     }
     isDownloading = true;
     var response = await _api.getStreamUrlAndPlaybackInfo(
-        itemId: itemId, maxStreamingBitrate: downloadBitrate);
+        itemId: itemId,
+        maxStreamingBitrate: downloadBitrate,
+        audioStreamIndex: audioStreamIndex,
+        subtitleStreamIndex: subtitleStreamIndex);
     PlaybackInfoResponse playbackInfo = response.$2;
 
     await writeMetadataToFile(playbackInfo, response.$1);
 
     if (playbackInfo.mediaSources![0].transcodingUrl == null) {
-      print("This is a direct stream");
       await downloadDirectStream(response.$1);
     } else {
       await downloadTranscodedStream(
@@ -182,8 +180,6 @@ class DownloadService {
   }
 
   Future<void> resumeDownload() async {
-    // TODO make own download implementation + check for already downloaded files
-    // TODO Implementation for direct stream
     // Resume download
     bool masterM3UExists =
         await File("${await getDownloadDirectory()}/$itemId/master.m3u8")
@@ -209,8 +205,9 @@ class DownloadService {
         }
       } else {
         await removeDownload();
-        rootScaffoldMessengerKey.currentState?.showSnackBar(
-            SnackBar(content: Text("Couldn't resume download!")));
+        rootScaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
+            content: Text(AppLocalizations.of(navigatorKey.currentContext!)!
+                .couldNotResumeDownload)));
       }
     } else if (masterM3UExists && mainM3UExists) {
       isDownloading = true;
@@ -218,14 +215,8 @@ class DownloadService {
         _resumeTranscodedDownload(),
         onCancel: () {
           isDownloading = false;
-          print("Download cancelled");
         },
-      )..value.whenComplete(() {
-          print("Download finished");
-        }).onError((error, stackTrace) {
-          print("Error downloading");
-          print(error);
-          print(stackTrace);
+      )..value.whenComplete(() {}).onError((error, stackTrace) {
           isDownloading = false;
         });
     } else if (await File(
@@ -236,20 +227,15 @@ class DownloadService {
         _resumeDirectStreamDownload(),
         onCancel: () {
           isDownloading = false;
-          print("Download cancelled");
         },
-      )..value.whenComplete(() {
-          print("Download finished");
-        }).onError((error, stackTrace) {
-          print("Error downloading");
-          print(error);
-          print(stackTrace);
+      )..value.whenComplete(() {}).onError((error, stackTrace) {
           isDownloading = false;
         });
     } else {
       await removeDownload();
-      rootScaffoldMessengerKey.currentState
-          ?.showSnackBar(SnackBar(content: Text("Couldn't resume download!")));
+      rootScaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
+          content: Text(AppLocalizations.of(navigatorKey.currentContext!)!
+              .couldNotResumeDownload)));
     }
   }
 
@@ -273,11 +259,7 @@ class DownloadService {
             cancelToken: cancelToken);
         mainM3U = mainM3U.replaceAll(line, "file://$downloadPath/$fileName");
         await File("$downloadPath/main.m3u8").writeAsString(mainM3U);
-
-        print("Downloaded $fileName");
-      } else {
-        print("Already downloaded $line");
-      }
+      } else {}
     }
   }
 
@@ -320,10 +302,6 @@ class DownloadService {
           tempFile.path,
           options: options,
           cancelToken: cancelToken,
-          onReceiveProgress: (received, total) {
-            // add progress to stream
-            print("${received / total * 100}% downloaded");
-          },
         );
         for (int i = 0; i <= chunks.length; i++) {
           var chunk = File("$downloadPath/temp_chunk$i");
@@ -409,14 +387,8 @@ class DownloadService {
         mainM3U.data =
             mainM3U.data.replaceAll(line, "file://$downloadPath/$fileName");
         await File("$downloadPath/main.m3u8").writeAsString(mainM3U.data);
-
-        // print("Downloaded $fileName");
       }
     }
-
-    // show snackbar
-    rootScaffoldMessengerKey.currentState
-        ?.showSnackBar(SnackBar(content: Text("Download finished!")));
   }
 
   downloadDirectStream(String streamUrl) async {
@@ -424,38 +396,20 @@ class DownloadService {
       _cancelableDownloadDirectStream(streamUrl),
       onCancel: () {
         isDownloading = false;
-        print("Download cancelled");
       },
-    )..value.whenComplete(() {
-        print("Download finished");
-      }).onError((error, stackTrace) {
-        print("Error downloading");
-        print(error);
-        print(stackTrace);
+    )..value.whenComplete(() {}).onError((error, stackTrace) {
         isDownloading = false;
       });
-    // var response = await _dio.download(
-    //   streamUrl,
-    //   savePath,
-    //   onReceiveProgress: (receivedBytes, totalBytes) {
-    //     if (totalBytes != -1) {
-    //       var progress = (receivedBytes / totalBytes * 100).toStringAsFixed(0);
-    //       print('Download progress: $progress%');
-    //     }
-    //   },
-    //   cancelToken: cancelToken,
-    // );
   }
 
   _cancelableDownloadDirectStream(String streamUrl) async {
-    print("Downloading direct stream");
     var downloadDirectory = await getDownloadDirectory();
     var downloadPath = "$downloadDirectory/$itemId";
     var fileExtension =
         streamUrl.split("/").last.split("?").first.split(".").last;
 
     if (Platform.isAndroid || Platform.isIOS) {
-      var bla = await FlutterDownloader.enqueue(
+      await FlutterDownloader.enqueue(
         url: streamUrl,
         savedDir: downloadPath,
         fileName: "$itemId.$fileExtension",
@@ -463,8 +417,6 @@ class DownloadService {
         openFileFromNotification: false,
         headers: _api.headers,
       );
-      print(downloadPath);
-      print(bla);
     } else {
       // get download info
       var downloadInfo = await _dio.head(streamUrl);
@@ -485,10 +437,6 @@ class DownloadService {
         streamUrl,
         tempFile.path,
         cancelToken: cancelToken,
-        onReceiveProgress: (received, total) {
-          // add progress to stream
-          print("${received / total * 100}% downloaded");
-        },
       );
 
       // rename file
@@ -629,7 +577,8 @@ class DownloadService {
       await Directory(downloadDir).delete(recursive: true);
     }
     // show snackbar
-    rootScaffoldMessengerKey.currentState
-        ?.showSnackBar(SnackBar(content: Text("All downloads removed!")));
+    rootScaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
+        content: Text(AppLocalizations.of(navigatorKey.currentContext!)!
+            .allDownloadsRemoved)));
   }
 }

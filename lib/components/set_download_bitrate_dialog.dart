@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/models/bitrates.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SetDownloadBitrateDialog extends HookConsumerWidget {
   const SetDownloadBitrateDialog({
@@ -16,11 +17,11 @@ class SetDownloadBitrateDialog extends HookConsumerWidget {
     final downloadBitrate = useState(_downloadBitrate);
 
     return AlertDialog(
-      title: Text("Set local download bitrate"),
+      title: Text(AppLocalizations.of(context)!.setLocalDownloadBitrate),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text("Set the maximum download bitrate for local downloads."),
+          Text(AppLocalizations.of(context)!.maxDownloadBitrateText),
           const SizedBox(height: 20),
           SizedBox(
             height: 250,
@@ -44,9 +45,8 @@ class SetDownloadBitrateDialog extends HookConsumerWidget {
               },
             ),
           ),
-          Text("1h of playback equals approx. " +
-              (downloadBitrate.value * 360 / 1000000000).toStringAsFixed(2) +
-              "GB")
+          Text(AppLocalizations.of(context)!.downloadApproxFilesize(
+              (downloadBitrate.value * 360 / 1000000000).toStringAsFixed(2)))
         ],
       ),
       actions: [
@@ -54,13 +54,13 @@ class SetDownloadBitrateDialog extends HookConsumerWidget {
           onPressed: () {
             Navigator.pop(context);
           },
-          child: Text("Cancel"),
+          child: Text(AppLocalizations.of(context)!.cancel),
         ),
         TextButton(
           onPressed: () {
             Navigator.pop(context, downloadBitrate.value);
           },
-          child: Text("Save"),
+          child: Text(AppLocalizations.of(context)!.save),
         ),
       ],
     );
