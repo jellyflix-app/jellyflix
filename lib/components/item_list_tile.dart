@@ -64,10 +64,9 @@ class ItemListTile<T1 extends BaseItemDto, T2> extends HookConsumerWidget {
                 ),
               ),
               const SizedBox(width: 20.0),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20.0),
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.5,
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 20.0),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -78,7 +77,6 @@ class ItemListTile<T1 extends BaseItemDto, T2> extends HookConsumerWidget {
                   ),
                 ),
               ),
-              const Spacer(),
               if (popupMenuEntries != null)
                 Align(
                   alignment: Alignment.bottomCenter,
