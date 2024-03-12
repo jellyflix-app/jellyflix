@@ -15,17 +15,17 @@
 	<key>stripSwiftSymbols</key>
 	<true/>
 	<key>teamID</key>
-	<string>G4U9F39LJ7</string>
+	<string>TEAM_ID</string>
 	<key>testFlightInternalTestingOnly</key>
 	<false/>
 	<key>uploadSymbols</key>
 	<true/>
 	<key>signingCertificate</key>
-	<string>Apple Distribution: Jonathan-David Kienzle (G4U9F39LJ7)</string>
+	<string>Apple Distribution</string>
 	<key>provisioningProfiles</key>
 	<dict>
 		<key>com.ambark.jellyflix</key>
-		<string>AppStoreProvisioningProfile</string>
+		<string>match AppStore com.ambark.jellyflix</string>
 	</dict>
 </dict>
 </plist>

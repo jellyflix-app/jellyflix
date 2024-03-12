@@ -149,5 +149,8 @@
       },
     "resumedDownload": "Téléchargement repris",
     "canceledDownload": "Téléchargement annulé",
+    "details": "Détails",
+    "showMore": "Afficher plus",
+    "showLess": "Afficher moins",
     "appName": "Jellyflix"
 }

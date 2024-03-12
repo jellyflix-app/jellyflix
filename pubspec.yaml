@@ -4,7 +4,7 @@ description: "Another Jellyfin client for Android, iOS, Windows, macOS, Linux an
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' 
 
-version: 99.99.99+99
+version: 00.00.00+0
 
 environment:
   sdk: '>=3.2.2 <4.0.0'
@@ -113,13 +113,13 @@ flutter_launcher_icons:
   min_sdk_android: 21 # android min sdk min:16, default 21
   web:
     generate: true
-    image_path: "assets/icon/icon.png"
+    image_path: "assets/icon/app_icon.png"
     background_color: "#000000"
     theme_color: "#673AB7"
   windows:
     generate: true
-    image_path: "assets/icon/icon.png"
-    icon_size: 48 # min:48, max:256, default: 48
+    image_path: "assets/icon/app_icon.png"
+    icon_size: 256 # min:48, max:256, default: 48
   macos:
     generate: true
     image_path: "assets/icon/macOS_icon.png"

@@ -13,10 +13,12 @@ class DesktopImageBanner extends StatefulHookConsumerWidget {
   final List<BaseItemDto> items;
   final Duration scrollDuration;
   final double? height;
+  final Function(BaseItemDto) onPressedPlay;
 
   const DesktopImageBanner(
       {super.key,
       required this.items,
+      required this.onPressedPlay,
       this.height = 600,
       this.scrollDuration = const Duration(seconds: 5)});
 
@@ -111,71 +113,64 @@ class DestkopImageBannerState extends ConsumerState<DesktopImageBanner> {
                       horizontal: 20.0, vertical: 40),
                   child: Align(
                     alignment: Alignment.bottomLeft,
-                    child: SizedBox(
-                      width: MediaQuery.of(context).size.width * 0.3,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            widget.items[index].name!,
-                            style: Theme.of(context).textTheme.headlineSmall,
-                            maxLines: 2,
-                          ),
-                          Text(widget.items[index].productionYear.toString(),
-                              style: Theme.of(context).textTheme.titleMedium),
-                          const SizedBox(
-                            height: 10,
-                          ),
-                          Text(widget.items[index].overview ?? "",
-                              maxLines: 3, overflow: TextOverflow.ellipsis),
-                          const SizedBox(
-                            height: 20,
-                          ),
-                          Row(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.4,
+                          child: Column(
                             mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              ElevatedButton.icon(
-                                onPressed: () async {
-                                  var playbackInfo = await ref
-                                      .read(apiProvider)
-                                      .getStreamUrlAndPlaybackInfo(
-                                          itemId: widget.items[index]
-                                              .mediaSources!.first.id!);
-                                  if (context.mounted) {
-                                    context.push(
-                                        Uri(
-                                            path: ScreenPaths.player,
-                                            queryParameters: {
-                                              "startTimeTicks": widget
-                                                  .items[index]
-                                                  .userData
-                                                  ?.playbackPositionTicks
-                                                  ?.toString()
-                                            }).toString(),
-                                        extra: playbackInfo);
-                                  }
-                                },
-                                label: Text(AppLocalizations.of(context)!.play),
-                                icon: const Icon(Icons.play_arrow_rounded),
+                              Text(
+                                widget.items[index].name!,
+                                style:
+                                    Theme.of(context).textTheme.headlineSmall,
+                                maxLines: 2,
                               ),
+                              Text(
+                                  widget.items[index].productionYear.toString(),
+                                  style:
+                                      Theme.of(context).textTheme.titleMedium),
                               const SizedBox(
-                                width: 10,
+                                height: 10,
                               ),
-                              TextButton(
-                                  onPressed: () {
-                                    context.push(Uri(
-                                        path: ScreenPaths.detail,
-                                        queryParameters: {
-                                          "id": widget.items[index].id!,
-                                        }).toString());
-                                  },
-                                  child: Text(
-                                      AppLocalizations.of(context)!.moreInfo)),
+                              Text(widget.items[index].overview ?? "",
+                                  maxLines: 3, overflow: TextOverflow.ellipsis),
+                              const SizedBox(
+                                height: 20,
+                              ),
                             ],
                           ),
-                        ],
-                      ),
+                        ),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                BaseItemDto item = widget.items[index];
+                                widget.onPressedPlay(item);
+                              },
+                              label: Text(AppLocalizations.of(context)!.play),
+                              icon: const Icon(Icons.play_arrow_rounded),
+                            ),
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            TextButton(
+                                onPressed: () {
+                                  context.push(Uri(
+                                      path: ScreenPaths.detail,
+                                      queryParameters: {
+                                        "id": widget.items[index].id!,
+                                      }).toString());
+                                },
+                                child: Text(
+                                    AppLocalizations.of(context)!.moreInfo)),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                 ),
