@@ -39,51 +39,55 @@ class DownloadSettingsDialog extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const SizedBox(height: 20),
-          DropdownMenu<int>(
-            enableSearch: false,
-            enableFilter: false,
-            leadingIcon: const Icon(Icons.audiotrack),
-            initialSelection: audioList.first.index!,
-            label: Text(AppLocalizations.of(context)!.audio),
-            dropdownMenuEntries: audioList
-                .map(
-                  (e) => DropdownMenuEntry(
-                    value: e.index!,
-                    label: e.displayTitle ?? AppLocalizations.of(context)!.none,
-                  ),
-                )
-                .toList(),
-            onSelected: (value) {
-              selectedAudio =
-                  audioList.firstWhere((element) => element.index == value);
-            },
-          ),
+          if (audioList.length > 1)
+            DropdownMenu<int>(
+              enableSearch: false,
+              enableFilter: false,
+              leadingIcon: const Icon(Icons.audiotrack),
+              initialSelection: audioList.first.index!,
+              label: Text(AppLocalizations.of(context)!.audio),
+              dropdownMenuEntries: audioList
+                  .map(
+                    (e) => DropdownMenuEntry(
+                      value: e.index!,
+                      label:
+                          e.displayTitle ?? AppLocalizations.of(context)!.none,
+                    ),
+                  )
+                  .toList(),
+              onSelected: (value) {
+                selectedAudio =
+                    audioList.firstWhere((element) => element.index == value);
+              },
+            ),
           const SizedBox(height: 20),
-          DropdownMenu<int>(
-            enableSearch: false,
-            enableFilter: false,
-            leadingIcon: const Icon(Icons.subtitles_outlined),
-            initialSelection: subtitleList.first.index!,
-            label: Text(AppLocalizations.of(context)!.subtitles),
-            dropdownMenuEntries: subtitleList
-                .map(
-                  (e) => DropdownMenuEntry(
-                    value: e.index!,
-                    label: e.displayTitle ?? AppLocalizations.of(context)!.none,
-                  ),
-                )
-                .toList(),
-            onSelected: (value) {
-              selectedSubtitle =
-                  subtitleList.firstWhere((element) => element.index == value);
-            },
-          ),
+          if (subtitleList.isNotEmpty)
+            DropdownMenu<int>(
+              enableSearch: false,
+              enableFilter: false,
+              leadingIcon: const Icon(Icons.subtitles_outlined),
+              initialSelection: subtitleList.first.index!,
+              label: Text(AppLocalizations.of(context)!.subtitles),
+              dropdownMenuEntries: subtitleList
+                  .map(
+                    (e) => DropdownMenuEntry(
+                      value: e.index!,
+                      label:
+                          e.displayTitle ?? AppLocalizations.of(context)!.none,
+                    ),
+                  )
+                  .toList(),
+              onSelected: (value) {
+                selectedSubtitle = subtitleList
+                    .firstWhere((element) => element.index == value);
+              },
+            ),
         ],
       ),
       actions: [
         TextButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(context, (null, null));
           },
           child: Text(AppLocalizations.of(context)!.cancel),
         ),

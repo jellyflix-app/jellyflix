@@ -196,9 +196,11 @@ class ApiService {
   }
 
   Future<List<BaseItemDto>> getEpisodes(String id) async {
-    var response = await _jellyfinApi!
-        .getTvShowsApi()
-        .getEpisodes(userId: _user!.id!, seriesId: id, headers: headers);
+    var response = await _jellyfinApi!.getTvShowsApi().getEpisodes(
+        userId: _user!.id!,
+        seriesId: id,
+        headers: headers,
+        fields: [ItemFields.mediaSources].toBuiltList());
     return response.data!.items!.toList();
   }
 

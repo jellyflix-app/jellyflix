@@ -146,5 +146,7 @@
           }
         }
       },
+  "resumedDownload": "Download fortgesetzt",
+  "canceledDownload": "Download abgebrochen",
   "appName": "Jellyflix"
 }

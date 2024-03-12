@@ -147,5 +147,7 @@
           }
         }
       },
+    "resumedDownload": "Resumed download",
+    "canceledDownload": "Canceled download",
     "appName": "Jellyflix"
 }

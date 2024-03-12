@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jellyflix/components/download_icon.dart';
 import 'package:jellyflix/components/download_settings_dialog.dart';
 import 'package:jellyflix/components/episode_list_tile.dart';
 import 'package:jellyflix/components/future_item_carousel.dart';
@@ -35,7 +36,7 @@ class DetailScreen extends HookConsumerWidget {
     final playButtonHovered = useState(false);
     final ValueNotifier<int?> isDownloaded = useState(null);
 
-    ref.read(downloadProvider(itemId)).downloadProgess(1).first.then((value) {
+    ref.read(downloadProvider(itemId)).downloadProgress(1).first.then((value) {
       isDownloaded.value = value;
     });
 
@@ -434,46 +435,50 @@ class DetailScreen extends HookConsumerWidget {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 8.0),
-                            Container(
-                              height: 40,
-                              width: 40,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(100.0),
-                                color: Colors.white.withOpacity(0.1),
-                              ),
-                              child: ElevatedButton(
-                                onPressed: () async {
-                                  if (ref
-                                      .read(downloadProvider(itemId))
-                                      .isDownloading) {
-                                    await ref
+                            if (data.type != BaseItemKind.series)
+                              const SizedBox(width: 8.0),
+                            if (data.type != BaseItemKind.series)
+                              Container(
+                                height: 40,
+                                width: 40,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(100.0),
+                                  color: Colors.white.withOpacity(0.1),
+                                ),
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    if (ref
                                         .read(downloadProvider(itemId))
-                                        .cancelDownload();
-                                    if (context.mounted) {
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(const SnackBar(
-                                        content: Text("Canceled download"),
-                                        duration: Duration(seconds: 1),
-                                      ));
-                                    }
-                                  } else if (isDownloaded.value == null) {
-                                    if ((Platform.isAndroid ||
-                                            Platform.isIOS) &&
-                                        !(await Permission.storage.request())
-                                            .isGranted) {
-                                      return;
-                                    }
-                                    if (context.mounted) {
-                                      (int?, int?) selectedSettings =
-                                          await showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return DownloadSettingsDialog(
-                                            item: data,
-                                          );
-                                        },
-                                      );
+                                        .isDownloading) {
+                                      await ref
+                                          .read(downloadProvider(itemId))
+                                          .cancelDownload();
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(const SnackBar(
+                                          content: Text("Canceled download"),
+                                          duration: Duration(seconds: 1),
+                                        ));
+                                      }
+                                    } else if (isDownloaded.value == null) {
+                                      if ((Platform.isAndroid ||
+                                              Platform.isIOS) &&
+                                          !(await Permission.storage.request())
+                                              .isGranted) {
+                                        return;
+                                      }
+                                      int audioCount = data
+                                          .mediaSources![0].mediaStreams!
+                                          .where((element) =>
+                                              element.type ==
+                                              MediaStreamType.audio)
+                                          .length;
+                                      int subtitleCount = data
+                                          .mediaSources![0].mediaStreams!
+                                          .where((element) =>
+                                              element.type ==
+                                              MediaStreamType.subtitle)
+                                          .length;
 
                                       String? downloadBitrateString = await ref
                                           .read(secureStorageProvider)
@@ -485,82 +490,96 @@ class DetailScreen extends HookConsumerWidget {
                                             int.parse(downloadBitrateString);
                                       }
 
-                                      ref
-                                          .read(downloadProvider(itemId))
-                                          .downloadItem(
-                                              audioStreamIndex:
-                                                  selectedSettings.$1,
-                                              subtitleStreamIndex:
-                                                  selectedSettings.$2,
-                                              downloadBitrate: downloadBitrate);
-                                    }
-                                    if (context.mounted) {
-                                      // show snackbar
+                                      if (context.mounted &&
+                                          (audioCount != 1 ||
+                                              subtitleCount != 0)) {
+                                        (int?, int?) selectedSettings =
+                                            await showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return DownloadSettingsDialog(
+                                              item: data,
+                                            );
+                                          },
+                                        );
+
+                                        if (selectedSettings.$1 == null &&
+                                            selectedSettings.$2 == null) {
+                                          return;
+                                        }
+
+                                        ref
+                                            .read(downloadProvider(itemId))
+                                            .downloadItem(
+                                                audioStreamIndex:
+                                                    selectedSettings.$1,
+                                                subtitleStreamIndex:
+                                                    selectedSettings.$2,
+                                                downloadBitrate:
+                                                    downloadBitrate);
+                                      } else {
+                                        ref
+                                            .read(downloadProvider(itemId))
+                                            .downloadItem(
+                                                downloadBitrate:
+                                                    downloadBitrate);
+                                      }
+                                      if (context.mounted) {
+                                        // show snackbar
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(
+                                          content: Text(
+                                              AppLocalizations.of(context)!
+                                                  .startedDownload),
+                                          duration: const Duration(seconds: 1),
+                                        ));
+                                      }
+                                    } else if (isDownloaded.value == 100) {
                                       ScaffoldMessenger.of(context)
                                           .showSnackBar(SnackBar(
                                         content: Text(
                                             AppLocalizations.of(context)!
-                                                .startedDownload),
+                                                .removedDownload),
                                         duration: const Duration(seconds: 1),
                                       ));
-                                    }
-                                  } else {
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(SnackBar(
-                                      content: Text(
-                                          AppLocalizations.of(context)!
-                                              .removedDownload),
-                                      duration: const Duration(seconds: 1),
-                                    ));
-                                    await ref
-                                        .read(downloadProvider(itemId))
-                                        .removeDownload();
-                                    isDownloaded.value = null;
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                    minimumSize: Size.zero,
-                                    padding: EdgeInsets.zero,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    )),
-                                child: StreamBuilder(
-                                    stream: ref
-                                        .read(downloadProvider(itemId))
-                                        .downloadProgess(1),
-                                    builder: (context, snapshot) {
-                                      if (snapshot.hasData) {
-                                        if (snapshot.data == 100) {
-                                          return const Icon(
-                                              Icons.delete_outline_rounded);
-                                        }
-                                        return Stack(
-                                          alignment: Alignment.center,
-                                          children: [
-                                            CircularProgressIndicator(
-                                              value: snapshot.data! / 100,
-                                              valueColor:
-                                                  AlwaysStoppedAnimation(
-                                                      Theme.of(context)
-                                                          .colorScheme
-                                                          .primary),
-                                            ),
-                                            ref
-                                                    .read(downloadProvider(
-                                                        itemId))
-                                                    .isDownloading
-                                                ? const Icon(Icons.close)
-                                                : const Icon(Icons
-                                                    .file_download_outlined)
-                                          ],
-                                        );
-                                      } else {
-                                        return const Icon(
-                                            Icons.file_download_outlined);
+                                      await ref
+                                          .read(downloadProvider(itemId))
+                                          .removeDownload();
+                                      isDownloaded.value = null;
+                                    } else {
+                                      ref
+                                          .read(downloadProvider(itemId))
+                                          .resumeDownload();
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(
+                                          content: Text(
+                                              AppLocalizations.of(context)!
+                                                  .resumedDownload),
+                                          duration: const Duration(seconds: 1),
+                                        ));
                                       }
-                                    }),
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                      minimumSize: Size.zero,
+                                      padding: EdgeInsets.zero,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(30),
+                                      )),
+                                  child: StreamBuilder(
+                                      stream: ref
+                                          .read(downloadProvider(itemId))
+                                          .downloadProgress(1),
+                                      builder: (context, snapshot) {
+                                        return DownloadIcon(
+                                            progress: snapshot.data,
+                                            isDownloading: ref
+                                                .read(downloadProvider(itemId))
+                                                .isDownloading);
+                                      }),
+                                ),
                               ),
-                            ),
                             const SizedBox(width: 8.0),
                             ClipRRect(
                               borderRadius: BorderRadius.circular(100.0),

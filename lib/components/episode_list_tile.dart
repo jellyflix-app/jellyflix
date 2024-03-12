@@ -3,11 +3,18 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/components/download_icon.dart';
+import 'package:jellyflix/components/download_settings_dialog.dart';
 import 'package:jellyflix/components/item_list_tile.dart';
 import 'package:jellyflix/components/playback_progress_overlay.dart';
+import 'package:jellyflix/models/bitrates.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
+import 'package:jellyflix/providers/download_provider.dart';
+import 'package:jellyflix/providers/secure_storage_provider.dart';
 import 'package:openapi/openapi.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:universal_io/io.dart';
 
 class EpisodeListTile extends HookConsumerWidget {
   const EpisodeListTile(
@@ -19,8 +26,17 @@ class EpisodeListTile extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ValueNotifier<bool?> mark = useState(null);
+    final ValueNotifier<int?> isDownloaded = useState(null);
 
     mark.value = episode.userData!.played!;
+
+    ref
+        .read(downloadProvider(episode.id!))
+        .downloadProgress(1)
+        .first
+        .then((value) {
+      isDownloaded.value = value;
+    });
 
     return ItemListTile<BaseItemDto, String>(
       item: episode,
@@ -73,12 +89,114 @@ class EpisodeListTile extends HookConsumerWidget {
         PopupMenuItem(
           value: 'download',
           child: ListTile(
-            leading: const Icon(Icons.file_download_outlined),
+            leading: StreamBuilder(
+                stream:
+                    ref.read(downloadProvider(episode.id!)).downloadProgress(1),
+                builder: (context, snapshot) {
+                  return SizedBox(
+                    width: 25,
+                    height: 25,
+                    child: DownloadIcon(
+                        progress: snapshot.data,
+                        isDownloading: ref
+                            .read(downloadProvider(episode.id!))
+                            .isDownloading),
+                  );
+                }),
             iconColor: Theme.of(context).colorScheme.primary,
             title: Text(
-              AppLocalizations.of(context)!.download,
+              isDownloaded.value == null
+                  ? AppLocalizations.of(context)!.download
+                  : isDownloaded.value == 100
+                      ? AppLocalizations.of(context)!.deleteDownload
+                      : ref.read(downloadProvider(episode.id!)).isDownloading
+                          ? AppLocalizations.of(context)!.cancelDownload
+                          : AppLocalizations.of(context)!.resumeDownload,
             ),
-            onTap: () {},
+            onTap: () async {
+              String itemId = episode.id!;
+              if (ref.read(downloadProvider(itemId)).isDownloading) {
+                await ref.read(downloadProvider(itemId)).cancelDownload();
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content:
+                        Text(AppLocalizations.of(context)!.canceledDownload),
+                    duration: const Duration(seconds: 1),
+                  ));
+                }
+              } else if (isDownloaded.value == null) {
+                if ((Platform.isAndroid || Platform.isIOS) &&
+                    !(await Permission.storage.request()).isGranted) {
+                  return;
+                }
+                int audioCount = episode.mediaSources![0].mediaStreams!
+                    .where((element) => element.type == MediaStreamType.audio)
+                    .length;
+                int subtitleCount = episode.mediaSources![0].mediaStreams!
+                    .where(
+                        (element) => element.type == MediaStreamType.subtitle)
+                    .length;
+
+                String? downloadBitrateString = await ref
+                    .read(secureStorageProvider)
+                    .read("downloadBitrate");
+                int downloadBitrate = BitRates().defaultBitrate();
+                if (downloadBitrateString != null) {
+                  downloadBitrate = int.parse(downloadBitrateString);
+                }
+
+                if (context.mounted &&
+                    (audioCount != 1 || subtitleCount != 0)) {
+                  var selectedSettings = await showDialog(
+                    context: context,
+                    builder: (context) {
+                      return DownloadSettingsDialog(
+                        item: episode,
+                      );
+                    },
+                  );
+
+                  if (selectedSettings?.$1 == null &&
+                          selectedSettings?.$2 == null ||
+                      selectedSettings == null) {
+                    return;
+                  }
+
+                  ref.read(downloadProvider(itemId)).downloadItem(
+                      audioStreamIndex: selectedSettings.$1,
+                      subtitleStreamIndex: selectedSettings.$2,
+                      downloadBitrate: downloadBitrate);
+                } else {
+                  ref
+                      .read(downloadProvider(itemId))
+                      .downloadItem(downloadBitrate: downloadBitrate);
+                }
+                if (context.mounted) {
+                  // show snackbar
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content:
+                        Text(AppLocalizations.of(context)!.startedDownload),
+                    duration: const Duration(seconds: 1),
+                  ));
+                }
+              } else if (isDownloaded.value == 100) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(AppLocalizations.of(context)!.removedDownload),
+                  duration: const Duration(seconds: 1),
+                ));
+                await ref.read(downloadProvider(itemId)).removeDownload();
+                isDownloaded.value = null;
+              } else {
+                ref.read(downloadProvider(itemId)).resumeDownload();
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content:
+                        Text(AppLocalizations.of(context)!.resumedDownload),
+                    duration: const Duration(seconds: 1),
+                  ));
+                }
+              }
+            },
           ),
         )
       ],

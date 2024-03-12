@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -125,9 +126,12 @@ class DownloadService {
     }
 
     int? downloadSize;
-    if (playbackInfo.mediaSources![0].transcodingUrl == null) {
+    MediaSourceInfo sourceInfo = playbackInfo.mediaSources![0];
+    String path = "$downloadPath/main.m3u8";
+    if (sourceInfo.transcodingUrl == null) {
       downloadSize = int.parse(
           (await _dio.head(streamUrl)).headers.value("content-length")!);
+      path = "$downloadPath/${sourceInfo.id}.${sourceInfo.container}";
     }
 
     var metadata = DownloadMetadata(
@@ -139,7 +143,7 @@ class DownloadService {
             seriesId: itemDetails.seriesId ?? "",
             indexNumber: itemDetails.indexNumber ?? 0,
             parentIndexNumber: itemDetails.parentIndexNumber ?? 0,
-            path: "$downloadPath/main.m3u8",
+            path: path,
             downloadSize: downloadSize)
         .toJson();
 
@@ -446,12 +450,19 @@ class DownloadService {
     }
   }
 
-  Stream<int?> downloadProgess(int interval) async* {
-    yield await calculateProgress();
+  Stream<int?> downloadProgress(int interval) {
+    var controller = StreamController<int?>.broadcast();
 
-    await for (var _ in Stream.periodic(Duration(seconds: interval))) {
-      yield await calculateProgress();
+    void updateProgress() async {
+      while (true) {
+        controller.add(await calculateProgress());
+        await Future.delayed(Duration(seconds: interval));
+      }
     }
+
+    updateProgress();
+
+    return controller.stream;
   }
 
   Future<int?> calculateProgress() async {
@@ -515,6 +526,11 @@ class DownloadService {
           if (contents.isNotEmpty) {
             int downloadedSize = 0;
             for (var chunk in contents) {
+              // skip metadata file and image
+              if (chunk.path.endsWith("metadata.json") ||
+                  chunk.path.endsWith("image.jpg")) {
+                continue;
+              }
               var stats = await chunk.stat();
               downloadedSize += stats.size;
             }
