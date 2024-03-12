@@ -60,7 +60,8 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
         player.stream.tracks.listen((event) {
           List<AudioTrack> audioTracks = event.audio;
           List<SubtitleTrack> subtitleTracks = event.subtitle;
-          if (audioTracks.length > 2) {
+          if (audioTracks.length > 2 &&
+              playbackInfo.mediaSources!.first.transcodingUrl == null) {
             var index = playbackHelper.getDefaultAudioIndex();
             if (index == 0) {
               index = 1;
@@ -68,7 +69,8 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
             player.setAudioTrack(
                 audioTracks[index + 1]); // index 0 should be auto
           }
-          if (subtitleTracks.length > 2) {
+          if (subtitleTracks.length > 2 &&
+              playbackInfo.mediaSources!.first.transcodingUrl == null) {
             player.setSubtitleTrack(subtitleTracks[
                 playbackHelper.getDefaultSubtitleIndex() == -1
                     ? 1
@@ -90,9 +92,13 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
         _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
           await ref.read(apiProvider).reportPlaybackProgress(
               player.state.position.inMilliseconds * 10000,
-              audioStreamIndex: int.parse(player.state.track.audio.id),
-              subtitleStreamIndex: playbackHelper.getAudioList().length +
-                  int.parse(player.state.track.subtitle.id));
+              audioStreamIndex: player.state.track.audio.id == "auto"
+                  ? playbackHelper.getDefaultAudioIndex()
+                  : int.parse(player.state.track.audio.id),
+              subtitleStreamIndex: player.state.track.subtitle.id == "auto"
+                  ? playbackHelper.getDefaultSubtitleIndex()
+                  : playbackHelper.getAudioList().length +
+                      int.parse(player.state.track.subtitle.id));
         });
 
         player.stream.error.listen((error) => throw Exception(error));
@@ -104,7 +110,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
             if (key.currentState?.isFullscreen() ?? false) {
               await key.currentState?.exitFullscreen();
             }
-            if (context.mounted) {
+            if (mounted) {
               context.pop();
             }
           }
@@ -331,7 +337,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
         onPressed: () {
           var subtitles = player.state.tracks.subtitle;
           var audio = player.state.tracks.audio;
-          if (audio.length > 2) {
+          if (playbackInfo.mediaSources!.first.transcodingUrl == null) {
             audio = audio.sublist(2);
             subtitles = subtitles.sublist(1);
 

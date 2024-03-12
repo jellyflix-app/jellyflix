@@ -5,10 +5,12 @@ import 'package:jellyflix/components/responsive_navigation_bar.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
 import 'package:jellyflix/screens/detail_screen.dart';
+import 'package:jellyflix/screens/download_screen.dart';
 import 'package:jellyflix/screens/home_screen.dart';
 import 'package:jellyflix/screens/library_screen.dart';
 import 'package:jellyflix/screens/loading_screen.dart';
 import 'package:jellyflix/screens/login_wrapper_screen.dart';
+import 'package:jellyflix/screens/offline_player_screen.dart';
 import 'package:jellyflix/screens/profile_screen.dart';
 import 'package:jellyflix/screens/search_screen.dart';
 import 'package:jellyflix/screens/player_screen.dart';
@@ -86,6 +88,14 @@ class AppRouter {
                 child: const ProfileScreen(),
               ),
             ),
+            GoRoute(
+              path: ScreenPaths.downloads,
+              pageBuilder: (context, state) => buildPageWithDefaultTransition(
+                context: context,
+                state: state,
+                child: const DownloadScreen(),
+              ),
+            ),
           ]),
       GoRoute(
         path: ScreenPaths.player,
@@ -97,6 +107,17 @@ class AppRouter {
                   int.parse(state.uri.queryParameters['startTimeTicks'] ?? "0"),
               streamUrlAndPlaybackInfo:
                   state.extra as (String, PlaybackInfoResponse)),
+        ),
+      ),
+      GoRoute(
+        path: ScreenPaths.offlinePlayer,
+        pageBuilder: (context, state) => buildPageWithDefaultTransition(
+          context: context,
+          state: state,
+          child: OfflinePlayerScreen(
+              startTimeTicks:
+                  int.parse(state.uri.queryParameters['startTimeTicks'] ?? "0"),
+              streamPath: state.extra as String),
         ),
       ),
       GoRoute(

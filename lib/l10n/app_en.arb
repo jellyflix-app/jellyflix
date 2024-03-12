@@ -121,6 +121,34 @@
         }
       },
     "similar": "Similar",
+    "downloads": "Downloads",
+    "download": "Download",
+    "noDownloads": "No downloads found",
+    "resumeDownload": "Resume Download",
+    "deleteDownload": "Delete Download",
+    "removedDownload": "Removed Download",
+    "startedDownload": "Started Download",
+    "cancelDownload": "Cancel Download",
+    "cancelAndRemoveAllDownloads": "Cancel and remove all downloads",
+    "downloaded": "downloaded",
+    "couldNotResumeDownload": "Couldn't resume download!",
+    "allDownloadsRemoved": "All downloads removed",
+    "cancel": "Cancel",
+    "save": "Save",
+    "setAudioAndSubtitleLanguage": "Set audio and subtitle language",
+    "setLocalDownloadBitrate": "Set local download bitrate",
+    "maxDownloadBitrateText": "Set the maximum bitrate for local downloads.",
+    "downloadApproxFilesize": "1h of playback equals approx. {size}GB",
+    "@downloadApproxFilesize": {
+        "placeholders": {
+          "size": {
+            "type": "String",
+            "example": "1.5"
+          }
+        }
+      },
+    "resumedDownload": "Resumed download",
+    "canceledDownload": "Canceled download",
     "details": "Details",
     "showMore": "Show more",
     "showLess": "Show less",
