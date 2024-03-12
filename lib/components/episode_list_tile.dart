@@ -3,148 +3,217 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/components/download_icon.dart';
+import 'package:jellyflix/components/download_settings_dialog.dart';
+import 'package:jellyflix/components/item_list_tile.dart';
 import 'package:jellyflix/components/playback_progress_overlay.dart';
+import 'package:jellyflix/models/bitrates.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
+import 'package:jellyflix/providers/download_provider.dart';
+import 'package:jellyflix/providers/secure_storage_provider.dart';
 import 'package:openapi/openapi.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:universal_io/io.dart';
 
 class EpisodeListTile extends HookConsumerWidget {
   const EpisodeListTile(
-      {super.key,
-      required this.item,
-      required this.data,
-      required this.onSelected});
+      {super.key, required this.episode, required this.onSelected});
 
-  final BaseItemDto item;
-  final BaseItemDto data;
+  final BaseItemDto episode;
   final Function(String) onSelected;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final ValueNotifier<bool?> mark = useState(null);
+    final ValueNotifier<int?> isDownloaded = useState(null);
 
-    mark.value = item.userData!.played!;
+    mark.value = episode.userData!.played!;
 
-    return SizedBox(
-      height: 125,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(10.0),
-        onTap: () async {
-          var playbackInfo = await ref
-              .read(apiProvider)
-              .getStreamUrlAndPlaybackInfo(itemId: item.id!);
-          if (context.mounted) {
-            context.push(
-                Uri(path: ScreenPaths.player, queryParameters: {
-                  "startTimeTicks":
-                      data.userData?.playbackPositionTicks?.toString()
-                }).toString(),
-                extra: playbackInfo);
-          }
-        },
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20.0),
-                child: AspectRatio(
-                  aspectRatio: 16 / 10,
-                  child: Stack(
-                    children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10.0),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.5),
-                              spreadRadius: 2,
-                              blurRadius: 5,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: ref.read(apiProvider).getImage(
-                            id: item.id!,
-                            type: ImageType.primary,
-                            blurHash: item.imageBlurHashes?.primary?[item.id!]),
-                      ),
-                      if (item.userData!.playedPercentage != null)
-                        PlaybackProgressOverlay(
-                            progress: (item.userData!.playedPercentage! / 100)),
-                      if (mark.value == true)
-                        Positioned(
-                          bottom: 5.0,
-                          right: 5.0,
-                          child: Icon(
-                            Icons.check_circle_outline_rounded,
-                            size: 20,
-                            color: Colors.white.withOpacity(0.8),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 20.0),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 20.0),
-                child: SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.5,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        ("${item.indexNumber == null ? "" : "${item.indexNumber!}. "}${item.name!}"),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontSize: 16.0, fontWeight: FontWeight.bold),
-                      ),
-                      Text(item.runTimeTicks == null
-                          ? AppLocalizations.of(context)!.na
-                          : "${(item.runTimeTicks! / 10000000 / 60).round()} min")
-                    ],
-                  ),
-                ),
-              ),
-              const Spacer(),
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: PopupMenuButton<String>(
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15.0)),
-                  itemBuilder: (BuildContext context) =>
-                      <PopupMenuEntry<String>>[
-                    PopupMenuItem<String>(
-                      value: 'mark_as_played',
-                      child: !mark.value!
-                          ? ListTile(
-                              leading: const Icon(Icons.check),
-                              iconColor: Theme.of(context).colorScheme.primary,
-                              title: Text(
-                                AppLocalizations.of(context)!.markAsPlayed,
-                              ),
-                            )
-                          : ListTile(
-                              leading: const Icon(Icons.close),
-                              iconColor: Theme.of(context).colorScheme.tertiary,
-                              title: Text(
-                                AppLocalizations.of(context)!.markAsUnplayed,
-                              ),
-                            ),
-                    ),
-                  ],
-                  onSelected: onSelected,
-                  icon: const Icon(Icons.more_vert),
-                ),
-              ),
-            ],
-          ),
-        ),
+    ref
+        .read(downloadProvider(episode.id!))
+        .downloadProgress(1)
+        .first
+        .then((value) {
+      isDownloaded.value = value;
+    });
+
+    return ItemListTile<BaseItemDto, String>(
+      item: episode,
+      title: Text(
+        ("${episode.indexNumber == null ? "" : "${episode.indexNumber!}. "}${episode.name!}"),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+        style: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
       ),
+      subtitle: Text(episode.runTimeTicks == null
+          ? AppLocalizations.of(context)!.na
+          : "${(episode.runTimeTicks! / 10000000 / 60).round()} min"),
+      leading: ref.read(apiProvider).getImage(
+          id: episode.id!,
+          type: ImageType.primary,
+          blurHash: episode.imageBlurHashes?.primary?[episode.id!]),
+      onTap: () async {
+        var playbackInfo = await ref
+            .read(apiProvider)
+            .getStreamUrlAndPlaybackInfo(itemId: episode.id!);
+        if (context.mounted) {
+          context.push(
+              Uri(path: ScreenPaths.player, queryParameters: {
+                "startTimeTicks":
+                    episode.userData?.playbackPositionTicks?.toString()
+              }).toString(),
+              extra: playbackInfo);
+        }
+      },
+      onSelectedMenuItem: onSelected,
+      popupMenuEntries: [
+        PopupMenuItem<String>(
+          value: 'mark_as_played',
+          child: !mark.value!
+              ? ListTile(
+                  leading: const Icon(Icons.check),
+                  iconColor: Theme.of(context).colorScheme.primary,
+                  title: Text(
+                    AppLocalizations.of(context)!.markAsPlayed,
+                  ),
+                )
+              : ListTile(
+                  leading: const Icon(Icons.close),
+                  iconColor: Theme.of(context).colorScheme.tertiary,
+                  title: Text(
+                    AppLocalizations.of(context)!.markAsUnplayed,
+                  ),
+                ),
+        ),
+        PopupMenuItem(
+          value: 'download',
+          child: ListTile(
+            leading: StreamBuilder(
+                stream:
+                    ref.read(downloadProvider(episode.id!)).downloadProgress(1),
+                builder: (context, snapshot) {
+                  return SizedBox(
+                    width: 25,
+                    height: 25,
+                    child: DownloadIcon(
+                        progress: snapshot.data,
+                        isDownloading: ref
+                            .read(downloadProvider(episode.id!))
+                            .isDownloading),
+                  );
+                }),
+            iconColor: Theme.of(context).colorScheme.primary,
+            title: Text(
+              isDownloaded.value == null
+                  ? AppLocalizations.of(context)!.download
+                  : isDownloaded.value == 100
+                      ? AppLocalizations.of(context)!.deleteDownload
+                      : ref.read(downloadProvider(episode.id!)).isDownloading
+                          ? AppLocalizations.of(context)!.cancelDownload
+                          : AppLocalizations.of(context)!.resumeDownload,
+            ),
+            onTap: () async {
+              String itemId = episode.id!;
+              if (ref.read(downloadProvider(itemId)).isDownloading) {
+                await ref.read(downloadProvider(itemId)).cancelDownload();
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content:
+                        Text(AppLocalizations.of(context)!.canceledDownload),
+                    duration: const Duration(seconds: 1),
+                  ));
+                }
+              } else if (isDownloaded.value == null) {
+                if ((Platform.isAndroid || Platform.isIOS) &&
+                    !(await Permission.storage.request()).isGranted) {
+                  return;
+                }
+                int audioCount = episode.mediaSources![0].mediaStreams!
+                    .where((element) => element.type == MediaStreamType.audio)
+                    .length;
+                int subtitleCount = episode.mediaSources![0].mediaStreams!
+                    .where(
+                        (element) => element.type == MediaStreamType.subtitle)
+                    .length;
+
+                String? downloadBitrateString = await ref
+                    .read(secureStorageProvider)
+                    .read("downloadBitrate");
+                int downloadBitrate = BitRates().defaultBitrate();
+                if (downloadBitrateString != null) {
+                  downloadBitrate = int.parse(downloadBitrateString);
+                }
+
+                if (context.mounted &&
+                    (audioCount != 1 || subtitleCount != 0)) {
+                  var selectedSettings = await showDialog(
+                    context: context,
+                    builder: (context) {
+                      return DownloadSettingsDialog(
+                        item: episode,
+                      );
+                    },
+                  );
+
+                  if (selectedSettings?.$1 == null &&
+                          selectedSettings?.$2 == null ||
+                      selectedSettings == null) {
+                    return;
+                  }
+
+                  ref.read(downloadProvider(itemId)).downloadItem(
+                      audioStreamIndex: selectedSettings.$1,
+                      subtitleStreamIndex: selectedSettings.$2,
+                      downloadBitrate: downloadBitrate);
+                } else {
+                  ref
+                      .read(downloadProvider(itemId))
+                      .downloadItem(downloadBitrate: downloadBitrate);
+                }
+                if (context.mounted) {
+                  // show snackbar
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content:
+                        Text(AppLocalizations.of(context)!.startedDownload),
+                    duration: const Duration(seconds: 1),
+                  ));
+                }
+              } else if (isDownloaded.value == 100) {
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                  content: Text(AppLocalizations.of(context)!.removedDownload),
+                  duration: const Duration(seconds: 1),
+                ));
+                await ref.read(downloadProvider(itemId)).removeDownload();
+                isDownloaded.value = null;
+              } else {
+                ref.read(downloadProvider(itemId)).resumeDownload();
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content:
+                        Text(AppLocalizations.of(context)!.resumedDownload),
+                    duration: const Duration(seconds: 1),
+                  ));
+                }
+              }
+            },
+          ),
+        )
+      ],
+      overlay: episode.userData!.playedPercentage != null
+          ? PlaybackProgressOverlay(
+              progress: (episode.userData!.playedPercentage! / 100))
+          : mark.value == true
+              ? Positioned(
+                  bottom: 5.0,
+                  right: 5.0,
+                  child: Icon(
+                    Icons.check_circle_outline_rounded,
+                    size: 20,
+                    color: Colors.white.withOpacity(0.8),
+                  ),
+                )
+              : const SizedBox.shrink(),
     );
   }
 }

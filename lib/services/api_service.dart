@@ -60,6 +60,7 @@ class ApiService {
       id: response.data!.user!.id,
       name: response.data!.user!.name,
       serverAdress: baseUrl,
+      token: response.data!.accessToken!,
     );
     return _user!;
   }
@@ -73,6 +74,10 @@ class ApiService {
     return response.data!;
   }
 
+  String getImageUrl(String id, ImageType type) {
+    return "${_user!.serverAdress}/Items/$id/Images/${type.name}";
+  }
+
   CachedNetworkImage getImage({
     required String id,
     required ImageType type,
@@ -80,7 +85,7 @@ class ApiService {
     BorderRadius? borderRadius,
     int? cacheHeight,
   }) {
-    String url = "${_user!.serverAdress}/Items/$id/Images/${type.name}";
+    String url = getImageUrl(id, type);
 
     return CachedNetworkImage(
       //cacheManager: CustomCacheManager.instance,
@@ -191,9 +196,11 @@ class ApiService {
   }
 
   Future<List<BaseItemDto>> getEpisodes(String id) async {
-    var response = await _jellyfinApi!
-        .getTvShowsApi()
-        .getEpisodes(userId: _user!.id!, seriesId: id, headers: headers);
+    var response = await _jellyfinApi!.getTvShowsApi().getEpisodes(
+        userId: _user!.id!,
+        seriesId: id,
+        headers: headers,
+        fields: [ItemFields.mediaSources].toBuiltList());
     return response.data!.items!.toList();
   }
 
@@ -275,12 +282,13 @@ class ApiService {
   /// maxStreamingBitrate is the default bitrate set in the settings if null
   /// audioStreamIndex is the default audioStreamIndex set by jellyfin if null
   /// subtitleStreamIndex is the default subtitleStreamIndex set by jellyfin if null
-  Future<(String, PlaybackInfoResponse)> getStreamUrlAndPlaybackInfo(
-      {required String itemId,
-      int? audioStreamIndex,
-      int? subtitleStreamIndex,
-      int? maxStreamingBitrate,
-      int? startTimeTicks}) async {
+  Future<(String, PlaybackInfoResponse)> getStreamUrlAndPlaybackInfo({
+    required String itemId,
+    int? audioStreamIndex,
+    int? subtitleStreamIndex,
+    int? maxStreamingBitrate,
+    int? startTimeTicks,
+  }) async {
     Response<PlaybackInfoResponse> response = await postPlaybackInfoRequest(
         itemId,
         maxStreamingBitrate,
@@ -290,14 +298,12 @@ class ApiService {
         false);
 
     String? url;
-    if (response.data!.mediaSources!.toList().first.supportsDirectPlay ==
-        true) {
-      url =
-          "${_user!.serverAdress}/Videos/$itemId/stream?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}&SubtitleStreamIndex=${subtitleStreamIndex ?? response.data!.mediaSources!.first.defaultSubtitleStreamIndex ?? -1}&Static=true";
-    } else if (response.data!.mediaSources!
-            .toList()
-            .first
-            .supportsDirectStream ==
+    // if (response.data!.mediaSources!.toList().first.supportsDirectPlay ==
+    //     true) {
+    //   url =
+    //       "${_user!.serverAdress}/Videos/$itemId/stream?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}&SubtitleStreamIndex=${subtitleStreamIndex ?? response.data!.mediaSources!.first.defaultSubtitleStreamIndex ?? -1}&Static=true";
+    // } else
+    if (response.data!.mediaSources!.toList().first.supportsDirectStream ==
         true) {
       url =
           "${_user!.serverAdress}/Videos/$itemId/stream.${response.data!.mediaSources!.first.container}?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}&SubtitleStreamIndex=${subtitleStreamIndex ?? response.data!.mediaSources!.first.defaultSubtitleStreamIndex ?? -1}&Static=true";
@@ -523,14 +529,15 @@ class ApiService {
               playbackInfo!.mediaSources!.first.defaultSubtitleStreamIndex));
   }
 
-  reportStopPlayback(int positionTicks) async {
+  reportStopPlayback(int positionTicks,
+      {String? itemId, String? playSessionId}) async {
     await _jellyfinApi!.getPlaystateApi().reportPlaybackStopped(
         headers: headers,
         playbackStopInfo: PlaybackStopInfo((b) => b
-          ..itemId = playbackInfo!.mediaSources!.first.id!
-          ..mediaSourceId = playbackInfo!.mediaSources!.first.id!
+          ..itemId = itemId ?? playbackInfo?.mediaSources?.first.id
+          ..mediaSourceId = itemId ?? playbackInfo?.mediaSources?.first.id
           ..positionTicks = positionTicks
-          ..playSessionId = playbackInfo!.playSessionId));
+          ..playSessionId = playSessionId ?? playbackInfo?.playSessionId));
   }
 
   Future<List<BaseItemDto>> getNextUpEpisode({String? seriesId}) async {

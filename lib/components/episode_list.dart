@@ -87,8 +87,7 @@ class EpisodeList extends HookConsumerWidget {
                       BaseItemDto item = episodes[index];
 
                       return EpisodeListTile(
-                        item: item,
-                        data: data,
+                        episode: item,
                         onSelected: (value) async {
                           if (value == 'mark_as_played') {
                             await ref.read(apiProvider).markAsPlayed(

@@ -1,12 +1,25 @@
+import 'dart:io';
+
 import 'package:flutter/services.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:jellyflix/providers/router_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/providers/scaffold_key.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isAndroid || Platform.isIOS) {
+    await FlutterDownloader.initialize(
+        debug:
+            true, // optional: set to false to disable printing logs to console (default: true)
+        ignoreSsl:
+            true // option: set to false to disable working with http links (default: false)
+        );
+  }
+
   // Necessary initialization for package:media_kit.
   MediaKit.ensureInitialized();
   runApp(ProviderScope(
@@ -24,6 +37,7 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final appRouter = ref.read(routerProvider).router;
     return MaterialApp.router(
+      scaffoldMessengerKey: rootScaffoldMessengerKey,
       // localization
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,

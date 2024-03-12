@@ -1,6 +1,5 @@
 {
   "@@locale": "de",
-
   "continueWatching": "Weiterschauen",
   "recentlyAddedMovies": "Kürzlich hinzugefügte Filme",
   "recentlyAddedShows": "Kürzlich hinzugefügte Serien",
@@ -9,40 +8,40 @@
   "similarToWatchHistory": "Ähnlich wie deine Watch History",
   "becauseYouWatched": "Weil du {title} geschaut hast",
   "@becausYouWatched": {
-      "placeholders": {
-        "title": {
-          "type": "String",
-          "example": "Forrest Gump"
-        }
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Forrest Gump"
       }
-    },
+    }
+  },
   "becauseYouLiked": "Weil du {title} mochtest",
   "@becauseYouLiked": {
-      "placeholders": {
-        "title": {
-          "type": "String",
-          "example": "Forrest Gump"
-        }
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Forrest Gump"
       }
-    },
+    }
+  },
   "directedBy": "Regie von {director}",
   "@directedBy": {
-      "placeholders": {
-        "director": {
-          "type": "String",
-          "example": "Robert Zemeckis"
-        }
+    "placeholders": {
+      "director": {
+        "type": "String",
+        "example": "Robert Zemeckis"
       }
-    },
+    }
+  },
   "starring": "Mit {actor}",
   "@starring": {
-      "placeholders": {
-        "actor": {
-          "type": "String",
-          "example": "Tom Hanks"
-        }
+    "placeholders": {
+      "actor": {
+        "type": "String",
+        "example": "Tom Hanks"
       }
-    },
+    }
+  },
   "recommendedForYou": "Empfohlen für dich",
   "play": "Abspielen",
   "moreInfo": "Mehr Infos",
@@ -108,19 +107,47 @@
   "couldNotOpenTrailer": "Trailer konnte nicht geöffnet werden",
   "watchTrailer": "Trailer ansehen",
   "showsMaybeMissed": "Serien, die du vielleicht verpasst hast",
-    "moviesMaybeMissed": "Filme, die du vielleicht verpasst hast",
-    "highesRatedMovies": "Höchstbewertete Filme",
-    "highestRatedShows": "Höchstbewertete Serien",
-    "top10": "Top {count}",
-    "@top10": {
+  "moviesMaybeMissed": "Filme, die du vielleicht verpasst hast",
+  "highesRatedMovies": "Höchstbewertete Filme",
+  "highestRatedShows": "Höchstbewertete Serien",
+  "top10": "Top {count}",
+  "@top10": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "10"
+      }
+    }
+  },
+  "similar": "Ähnlich",
+  "downloads": "Downloads",
+  "download": "Download",
+  "noDownloads": "Keine Downloads gefunden",
+  "resumeDownload": "Download fortsetzen",
+  "deleteDownload": "Download löschen",
+  "removedDownload": "Download entfernt",
+  "startedDownload": "Download gestartet",
+  "cancelDownload": "Download abbrechen",
+  "cancelAndRemoveAllDownloads": "Alle Downloads abbrechen und entfernen",
+  "downloaded": "heruntergeladen",
+  "couldNotResumeDownload": "Download konnte nicht fortgesetzt werden",
+  "allDownloadsRemoved": "Alle Downloads entfernt",
+  "cancel": "Abbrechen",
+  "save": "Speichern",
+  "setAudioAndSubtitleLanguage": "Ton und Untertitel Sprache einstellen",
+  "setLocalDownloadBitrate": "Lokale Download Bitrate einstellen",
+  "maxDownloadBitrateText": "Maxmiale Bitrate für Downloads einstellen",
+  "downloadApproxFilesize": "1h Wiedergabezeit entspricht ca. {size}GB",
+    "@downloadApproxFilesize": {
         "placeholders": {
-          "count": {
-            "type": "int",
-            "example": "10"
+          "size": {
+            "type": "String",
+            "example": "1.5"
           }
         }
       },
-  "similar": "Ähnlich",
+  "resumedDownload": "Download fortgesetzt",
+  "canceledDownload": "Download abgebrochen",
   "details": "Details",
   "showMore": "Mehr anzeigen",
   "showLess": "Weniger anzeigen",

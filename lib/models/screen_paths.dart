@@ -7,4 +7,6 @@ class ScreenPaths {
   static const String login = '/login';
   static const String library = '/library';
   static const String profileSelection = '/profileSelection';
+  static const String downloads = '/downloads';
+  static const String offlinePlayer = '/offlinePlayer';
 }
