@@ -53,7 +53,6 @@ dependencies:
   intl: any
   async: ^2.11.0
   universal_io: ^2.2.2
-  background_downloader: ^8.2.0
 
 dependency_overrides: 
   media_kit: 
