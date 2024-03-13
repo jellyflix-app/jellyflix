@@ -455,13 +455,21 @@ jobs:
         with:
           distribution: 'zulu'
           java-version: '12.x'
-          #cache: gradle
+          cache: gradle
+      
+      # fixes #278 https://github.com/subosito/flutter-action/issues/278
+      - name: Export pub environment variable on Windows
+        run: |
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            echo "PUB_CACHE=$LOCALAPPDATA\\Pub\\Cache" >> $GITHUB_ENV
+          fi
+        shell: bash
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          #cache: true
+          cache: true
 
       - name: Run Pub get
         run: flutter pub get

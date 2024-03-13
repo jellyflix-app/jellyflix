@@ -35,6 +35,16 @@
     <meta-data
       android:name="flutterEmbedding"
       android:value="2" />
+
+    <provider
+      android:name="vn.hunghd.flutterdownloader.DownloadedFileProvider"
+      android:authorities="${applicationId}.flutter_downloader.provider"
+      android:exported="false"
+      android:grantUriPermissions="true">
+      <meta-data
+        android:name="android.support.FILE_PROVIDER_PATHS"
+        android:resource="@xml/provider_paths" />
+    </provider>
   </application>
   <!--
       Internet access permissions.
@@ -54,18 +64,5 @@
   <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
   <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-
-  <!-- Flutter Downloader config -->
-  <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-
-  <provider
-    android:name="vn.hunghd.flutterdownloader.DownloadedFileProvider"
-    android:authorities="${applicationId}.flutter_downloader.provider"
-    android:exported="false"
-    android:grantUriPermissions="true">
-    <meta-data
-      android:name="android.support.FILE_PROVIDER_PATHS"
-      android:resource="@xml/provider_paths" />
-  </provider>
 
 </manifest>
