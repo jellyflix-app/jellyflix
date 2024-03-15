@@ -14,7 +14,8 @@ class ProfileSelectionScreen extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-        appBar: AppBar(title: const Text("Select Profile")),
+        appBar:
+            AppBar(title: Text(AppLocalizations.of(context)!.selectProfile)),
         body: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 30.0),
           child: FutureBuilder(
@@ -56,14 +57,10 @@ class ProfileSelectionScreen extends HookConsumerWidget {
                                     user: snapshot.data![index]),
                               ),
                             ),
-                            onTap: () async {
-                              await ref
-                                  .read(authProvider)
-                                  .updateCurrentProfileIndex(
-                                      snapshot.data![index].profileIndex!);
-                              if (context.mounted) {
-                                context.push(ScreenPaths.home);
-                              }
+                            onTap: () {
+                              ref.read(authProvider).updateCurrentProfileIndex(
+                                  snapshot.data![index].id!);
+                              context.push(ScreenPaths.home);
                             });
                       }),
                     ),

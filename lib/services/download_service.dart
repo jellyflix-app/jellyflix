@@ -9,6 +9,7 @@ import 'package:jellyflix/models/download_metadata.dart';
 import 'package:jellyflix/navigation/app_router.dart';
 import 'package:jellyflix/providers/scaffold_key.dart';
 import 'package:jellyflix/services/api_service.dart';
+import 'package:jellyflix/services/connectivity_service.dart';
 import 'package:openapi/openapi.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:async/async.dart';
@@ -20,7 +21,8 @@ class DownloadService {
   final ApiService _api;
   late CancelableOperation<void> _download;
   late final String itemId;
-  late Dio _dio;
+  late ConnectivityService connectivityService;
+  Dio? _dio;
 
   bool isDownloading = false;
   CancelToken cancelToken = CancelToken();
@@ -29,11 +31,13 @@ class DownloadService {
   factory DownloadService(
     api, {
     required String itemId,
+    required ConnectivityService connectivityService,
   }) {
     if (_instances.containsKey(itemId)) {
       return _instances[itemId]!;
     } else {
-      final instance = DownloadService._internal(api, itemId: itemId);
+      final instance = DownloadService._internal(api,
+          itemId: itemId, connectivityService: connectivityService);
       _instances[itemId] = instance;
       return instance;
     }
@@ -42,13 +46,20 @@ class DownloadService {
   DownloadService._internal(
     this._api, {
     required this.itemId,
+    required this.connectivityService,
   }) {
-    _dio = Dio(
-      BaseOptions(
-        headers: _api.headers,
-        baseUrl: _api.currentUser!.serverAdress!,
-      ),
-    );
+    connectivityService.connectionStatusStream.listen((isConnected) {
+      if (isConnected) {
+        _dio = Dio(
+          BaseOptions(
+            headers: _api.headers,
+            baseUrl: _api.currentUser!.serverAdress!,
+          ),
+        );
+      } else {
+        _dio = null;
+      }
+    });
   }
 
   static Future<List<String>> getDownloadedItems() async {
@@ -130,7 +141,7 @@ class DownloadService {
     String path = "$downloadPath/main.m3u8";
     if (sourceInfo.transcodingUrl == null) {
       downloadSize = int.parse(
-          (await _dio.head(streamUrl)).headers.value("content-length")!);
+          (await _dio!.head(streamUrl)).headers.value("content-length")!);
       path = "$downloadPath/${sourceInfo.id}.${sourceInfo.container}";
     }
 
@@ -154,11 +165,11 @@ class DownloadService {
     // download backdrop image
     try {
       var imageUrl = _api.getImageUrl(itemId, ImageType.backdrop);
-      await _dio.download(imageUrl, "$downloadPath/image.jpg");
+      await _dio!.download(imageUrl, "$downloadPath/image.jpg");
     } on DioException catch (e) {
       if (e.response!.statusCode == 404) {
         var imageUrl = _api.getImageUrl(itemId, ImageType.primary);
-        await _dio.download(imageUrl, "$downloadPath/image.jpg");
+        await _dio!.download(imageUrl, "$downloadPath/image.jpg");
       }
     }
   }
@@ -259,7 +270,7 @@ class DownloadService {
             .split("&")
             .firstWhere((element) => element.startsWith("api_key"));
         line = line.replaceAll(pattern, "api_key=${_api.currentUser!.token}");
-        await _dio.download(prefix + line, "$downloadPath/$fileName",
+        await _dio!.download(prefix + line, "$downloadPath/$fileName",
             cancelToken: cancelToken);
         mainM3U = mainM3U.replaceAll(line, "file://$downloadPath/$fileName");
         await File("$downloadPath/main.m3u8").writeAsString(mainM3U);
@@ -301,7 +312,7 @@ class DownloadService {
             "Range": "bytes=$downloadedSize-",
           },
         );
-        await _dio.download(
+        await _dio!.download(
           streamUrl,
           tempFile.path,
           options: options,
@@ -353,12 +364,12 @@ class DownloadService {
     if (!await Directory(downloadPath).exists()) {
       await Directory(downloadPath).create();
     }
-    var masterM3U = await _dio.get(streamUrl, cancelToken: cancelToken);
+    var masterM3U = await _dio!.get(streamUrl, cancelToken: cancelToken);
     await File("$downloadPath/master.m3u8").writeAsString(masterM3U.data);
     var prefix =
         "${streamUrl.split("/").sublist(0, streamUrl.split("/").length - 1).join("/")}/";
-    var mainM3U = await _dio.get(prefix + masterM3U.data.split("\n")[2],
-        cancelToken: cancelToken);
+    var mainM3U = await _dio!
+        .get(prefix + masterM3U.data.split("\n")[2], cancelToken: cancelToken);
 
     // write original mainM3U to file
     await File("$downloadPath/main.m3u8").writeAsString(mainM3U.data);
@@ -385,7 +396,7 @@ class DownloadService {
       if (line.startsWith("hls1/main")) {
         var fileName = line.split("/").last.split("?").first;
         if (!Platform.isAndroid && !Platform.isIOS) {
-          await _dio.download(prefix + line, "$downloadPath/$fileName",
+          await _dio!.download(prefix + line, "$downloadPath/$fileName",
               cancelToken: cancelToken);
         }
         mainM3U.data =
@@ -423,7 +434,7 @@ class DownloadService {
       );
     } else {
       // get download info
-      var downloadInfo = await _dio.head(streamUrl);
+      var downloadInfo = await _dio!.head(streamUrl);
 
       var contentLength =
           int.parse(downloadInfo.headers.value("content-length")!);
@@ -437,7 +448,7 @@ class DownloadService {
 
       var tempFile = File("$downloadPath/temp_chunk0");
 
-      await _dio.download(
+      await _dio!.download(
         streamUrl,
         tempFile.path,
         cancelToken: cancelToken,

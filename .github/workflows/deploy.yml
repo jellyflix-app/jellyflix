@@ -133,10 +133,10 @@ jobs:
           echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> android/key.properties
 
       - name: Build apk
-        run: flutter build apk --release
+        run: flutter build apk --release --dart-define=ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}
 
       - name: Build Android App Bundle
-        run: flutter build appbundle --release
+        run: flutter build appbundle --release --dart-define=ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}
 
       - name: Upload apk
         uses: actions/upload-artifact@v2
@@ -307,7 +307,7 @@ jobs:
           sed -i "" "s/SENSITIVE_REPLACE_ME/$TEAM_ID/g" ./Runner.xcodeproj/project.pbxproj
 
       - name: Build macOS
-        run: flutter build macos
+        run: flutter build macos --dart-define=ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}
 
       - name: Sign app
         run: |
@@ -408,7 +408,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Linux
-        run: flutter build linux --release
+        run: flutter build linux --release --dart-define=ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}
 
       - name: Install zip
         uses: montudor/action-zip@v0.1.1
@@ -475,7 +475,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Windows
-        run: flutter build windows --release
+        run: flutter build windows --release --dart-define=ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}
 
       - name: Zip Windows
         run: Compress-Archive -Path ./build/windows/x64/runner/Release/* -Destination jellyflix-windows.zip
