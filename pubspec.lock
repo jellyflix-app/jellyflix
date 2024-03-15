@@ -497,10 +497,10 @@ packages:
     dependency: "direct main"
     description:
       name: go_router
-      sha256: "170c46e237d6eb0e6e9f0e8b3f56101e14fb64f787016e42edd74c39cf8b176a"
+      sha256: "7ecb2f391edbca5473db591b48555a8912dde60edd0fb3013bd6743033b2d3f8"
       url: "https://pub.dev"
     source: hosted
-    version: "13.2.0"
+    version: "13.2.1"
   graphs:
     dependency: transitive
     description:
@@ -674,7 +674,7 @@ packages:
     description:
       path: media_kit
       ref: main
-      resolved-ref: "5069adeb456a8aeec8fad2f6cc577a3eb585e70b"
+      resolved-ref: "27f693b7b7061adbce4bdd29ea51375c5ffbd1b9"
       url: "https://github.com/jellyflix-app/media-kit.git"
     source: git
     version: "1.1.10+1"
@@ -683,7 +683,7 @@ packages:
     description:
       path: "libs/android/media_kit_libs_android_video"
       ref: main
-      resolved-ref: "5069adeb456a8aeec8fad2f6cc577a3eb585e70b"
+      resolved-ref: "27f693b7b7061adbce4bdd29ea51375c5ffbd1b9"
       url: "https://github.com/jellyflix-app/media-kit.git"
     source: git
     version: "1.3.6"
@@ -692,7 +692,7 @@ packages:
     description:
       path: "libs/ios/media_kit_libs_ios_video"
       ref: main
-      resolved-ref: "5069adeb456a8aeec8fad2f6cc577a3eb585e70b"
+      resolved-ref: "27f693b7b7061adbce4bdd29ea51375c5ffbd1b9"
       url: "https://github.com/jellyflix-app/media-kit.git"
     source: git
     version: "1.1.4"
@@ -709,7 +709,7 @@ packages:
     description:
       path: "libs/macos/media_kit_libs_macos_video"
       ref: main
-      resolved-ref: "5069adeb456a8aeec8fad2f6cc577a3eb585e70b"
+      resolved-ref: "27f693b7b7061adbce4bdd29ea51375c5ffbd1b9"
       url: "https://github.com/jellyflix-app/media-kit.git"
     source: git
     version: "1.1.4"
@@ -718,7 +718,7 @@ packages:
     description:
       path: "libs/universal/media_kit_libs_video"
       ref: main
-      resolved-ref: "5069adeb456a8aeec8fad2f6cc577a3eb585e70b"
+      resolved-ref: "27f693b7b7061adbce4bdd29ea51375c5ffbd1b9"
       url: "https://github.com/jellyflix-app/media-kit.git"
     source: git
     version: "1.0.4"
@@ -727,7 +727,7 @@ packages:
     description:
       path: "libs/windows/media_kit_libs_windows_video"
       ref: main
-      resolved-ref: "5069adeb456a8aeec8fad2f6cc577a3eb585e70b"
+      resolved-ref: "27f693b7b7061adbce4bdd29ea51375c5ffbd1b9"
       url: "https://github.com/jellyflix-app/media-kit.git"
     source: git
     version: "1.0.9"
@@ -744,7 +744,7 @@ packages:
     description:
       path: media_kit_video
       ref: main
-      resolved-ref: "5069adeb456a8aeec8fad2f6cc577a3eb585e70b"
+      resolved-ref: "27f693b7b7061adbce4bdd29ea51375c5ffbd1b9"
       url: "https://github.com/jellyflix-app/media-kit.git"
     source: git
     version: "1.2.4"
