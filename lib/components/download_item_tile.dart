@@ -20,7 +20,6 @@ class DownloadItemTile extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dismissed = useState(false);
-    print(ref.read(downloadProvider(index)).isDownloading);
     final isDownloading =
         useState(ref.read(downloadProvider(index)).isDownloading);
 

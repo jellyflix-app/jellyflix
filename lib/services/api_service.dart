@@ -11,6 +11,7 @@ import 'package:jellyflix/navigation/app_router.dart';
 import 'package:jellyflix/services/device_info_service.dart';
 import 'package:openapi/openapi.dart';
 import 'package:built_collection/built_collection.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class ApiService {
   final DeviceInfoService _deviceInfoService = DeviceInfoService();
@@ -30,6 +31,10 @@ class ApiService {
 
   User? get currentUser => _user;
 
+  bool? disableImageCaching;
+
+  ApiService(this.disableImageCaching);
+
   Future buildHeader() async {
     var model = await _deviceInfoService.getDeviceModel();
     var deviceId = await _deviceInfoService.getDeviceId();
@@ -47,6 +52,7 @@ class ApiService {
       receiveTimeout: const Duration(seconds: 30),
       sendTimeout: const Duration(seconds: 5),
     )));
+
     var response = await _jellyfinApi!.getUserApi().authenticateUserByName(
         authenticateUserByName: AuthenticateUserByName((b) => b
           ..username = username
@@ -78,7 +84,7 @@ class ApiService {
     return "${_user!.serverAdress}/Items/$id/Images/${type.name}";
   }
 
-  CachedNetworkImage getImage({
+  getImage({
     required String id,
     required ImageType type,
     String? blurHash,
@@ -86,9 +92,23 @@ class ApiService {
     int? cacheHeight,
   }) {
     String url = getImageUrl(id, type);
+    if (disableImageCaching == true) {
+      return ClipRRect(
+        borderRadius: borderRadius ?? BorderRadius.circular(10.0),
+        // BlurHash has an issue the generates bad state in some cases
+        // https://github.com/fluttercommunity/flutter_blurhash/issues/40
+        child: BlurHash(
+          hash: blurHash ?? "L5H2EC=PM+yV0g-mq.wG9GofR*of",
+          imageFit: BoxFit.cover,
+          image: url,
+          errorBuilder: (context, error, stackTrace) {
+            return Image.memory(kTransparentImage, fit: BoxFit.cover);
+          },
+        ),
+      );
+    }
 
     return CachedNetworkImage(
-      //cacheManager: CustomCacheManager.instance,
       width: double.infinity,
       imageUrl: url,
       httpHeaders: headers,

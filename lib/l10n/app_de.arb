@@ -152,5 +152,10 @@
   "showMore": "Mehr anzeigen",
   "showLess": "Weniger anzeigen",
   "offlineNotice": "Du bist offline",
+  "disableImageCaching": "Bildercache deaktivieren",
+  "restartApp": "App neustarten",
+  "restartAppDescription": "Bitte starte die App neu, um die Änderungen zu übernehmen",
+  "ok": "OK",
+  "selectProfile": "Profil auswählen",
   "appName": "Jellyflix"
 }

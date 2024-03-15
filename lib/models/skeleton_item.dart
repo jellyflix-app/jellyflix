@@ -2,6 +2,21 @@ import 'package:built_collection/built_collection.dart';
 import 'package:openapi/openapi.dart';
 
 class SkeletonItem {
+  static generateBlurHashes() {
+    BaseItemDtoImageBlurHashesBuilder blurhashes =
+        BaseItemDtoImageBlurHashesBuilder();
+    blurhashes.backdrop = MapBuilder({
+      "0": "L5H2EC=PM+yV0g-mq.wG9GofR*of",
+    });
+    blurhashes.primary = MapBuilder({
+      "0": "L5H2EC=PM+yV0g-mq.wG9GofR*of",
+    });
+    blurhashes.banner = MapBuilder({
+      "0": "L5H2EC=PM+yV0g-mq.wG9GofR*of",
+    });
+    return blurhashes;
+  }
+
   static final BaseItemDto baseItemDto = $BaseItemDto((p0) => p0
     ..name = 'Captain America: The Winter Soldier'
     ..overview =
@@ -11,6 +26,7 @@ class SkeletonItem {
     ..officialRating = 'FSK-18'
     ..productionYear = 2100
     ..backdropImageTags = ListBuilder<String>()
+    ..imageBlurHashes = generateBlurHashes()
     ..id = 'abcdefc-1234-5678-9012-abcdefabcdef'
     ..imageTags = MapBuilder<String, String>()
     ..people = ListBuilder<BaseItemPerson>()

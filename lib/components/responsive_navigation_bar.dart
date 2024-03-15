@@ -117,7 +117,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                               bool online = await showOfflineSnackbar(
                                   context, ref.read(connectivityProvider));
                               if (online) {
-                                selectedIndex.value = 1;
+                                selectedIndex.value = 4;
                               }
                               if (!context.mounted) return;
                               context.go(ScreenPaths.profile);
