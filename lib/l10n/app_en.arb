@@ -152,5 +152,6 @@
     "details": "Details",
     "showMore": "Show more",
     "showLess": "Show less",
+    "offlineNotice": "You're offline",
     "appName": "Jellyflix"
 }

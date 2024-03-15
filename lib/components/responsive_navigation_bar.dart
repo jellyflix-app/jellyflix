@@ -1,3 +1,4 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
@@ -5,6 +6,8 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/navigation_drawer_tile.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/providers/connectivity_provider.dart';
+import 'package:jellyflix/services/connectivity_service.dart';
 
 class ResponsiveNavigationBar extends HookConsumerWidget {
   final Widget body;
@@ -15,6 +18,15 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = useState(0);
+
+    // switch index if offline
+    ref.read(connectivityProvider).checkConnectivityOnce().then(
+      (online) {
+        if (!online) {
+          selectedIndex.value = 2;
+        }
+      },
+    );
     return Scaffold(
       body: Row(
         mainAxisSize: MainAxisSize.max,
@@ -47,22 +59,42 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                   selectedIndex:
                       selectedIndex.value == 4 ? null : selectedIndex.value,
                   // Called when one tab is selected
-                  onDestinationSelected: (int index) {
+                  onDestinationSelected: (int index) async {
                     switch (index) {
                       case 0:
-                        selectedIndex.value = 0;
+                        bool online = await showOfflineSnackbar(
+                            context, ref.read(connectivityProvider));
+                        if (online) {
+                          selectedIndex.value = 0;
+                        }
+                        if (!context.mounted) return;
                         context.go(ScreenPaths.home);
                         break;
                       case 1:
-                        selectedIndex.value = 1;
+                        bool online = await showOfflineSnackbar(
+                            context, ref.read(connectivityProvider));
+                        if (online) {
+                          selectedIndex.value = 1;
+                        }
+                        if (!context.mounted) return;
                         context.go(ScreenPaths.search);
                         break;
                       case 2:
-                        selectedIndex.value = 2;
+                        bool online = await showOfflineSnackbar(
+                            context, ref.read(connectivityProvider));
+                        if (online) {
+                          selectedIndex.value = 2;
+                        }
+                        if (!context.mounted) return;
                         context.go(ScreenPaths.downloads);
                         break;
                       case 3:
-                        selectedIndex.value = 3;
+                        bool online = await showOfflineSnackbar(
+                            context, ref.read(connectivityProvider));
+                        if (online) {
+                          selectedIndex.value = 3;
+                        }
+                        if (!context.mounted) return;
                         context.go(ScreenPaths.library);
                         break;
                     }
@@ -82,8 +114,13 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                               : Colors.transparent,
                         ),
                         child: IconButton(
-                            onPressed: () {
-                              selectedIndex.value = 4;
+                            onPressed: () async {
+                              bool online = await showOfflineSnackbar(
+                                  context, ref.read(connectivityProvider));
+                              if (online) {
+                                selectedIndex.value = 1;
+                              }
+                              if (!context.mounted) return;
                               context.go(ScreenPaths.profile);
                             },
                             icon: const Icon(Icons.person_rounded)),
@@ -137,8 +174,13 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       icon: Icons.home_rounded,
                       label: AppLocalizations.of(context)!.home,
                       selected: selectedIndex.value == 0,
-                      onTap: () {
-                        selectedIndex.value = 0;
+                      onTap: () async {
+                        bool online = await showOfflineSnackbar(
+                            context, ref.read(connectivityProvider));
+                        if (online) {
+                          selectedIndex.value = 0;
+                        }
+                        if (!context.mounted) return;
                         context.go(ScreenPaths.home);
                       },
                     ),
@@ -146,8 +188,13 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       icon: Icons.search_rounded,
                       label: AppLocalizations.of(context)!.search,
                       selected: selectedIndex.value == 1,
-                      onTap: () {
-                        selectedIndex.value = 1;
+                      onTap: () async {
+                        bool online = await showOfflineSnackbar(
+                            context, ref.read(connectivityProvider));
+                        if (online) {
+                          selectedIndex.value = 1;
+                        }
+                        if (!context.mounted) return;
                         context.go(ScreenPaths.search);
                       },
                     ),
@@ -155,8 +202,13 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       icon: Icons.file_download_outlined,
                       label: AppLocalizations.of(context)!.downloads,
                       selected: selectedIndex.value == 2,
-                      onTap: () {
-                        selectedIndex.value = 2;
+                      onTap: () async {
+                        bool online = await showOfflineSnackbar(
+                            context, ref.read(connectivityProvider));
+                        if (online) {
+                          selectedIndex.value = 2;
+                        }
+                        if (!context.mounted) return;
                         context.go(ScreenPaths.downloads);
                       },
                     ),
@@ -164,8 +216,13 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       icon: Icons.video_library_outlined,
                       label: AppLocalizations.of(context)!.library,
                       selected: selectedIndex.value == 3,
-                      onTap: () {
-                        selectedIndex.value = 3;
+                      onTap: () async {
+                        bool online = await showOfflineSnackbar(
+                            context, ref.read(connectivityProvider));
+                        if (online) {
+                          selectedIndex.value = 3;
+                        }
+                        if (!context.mounted) return;
                         context.go(ScreenPaths.library);
                       },
                     ),
@@ -176,8 +233,13 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       icon: Icons.person_rounded,
                       label: AppLocalizations.of(context)!.profile,
                       selected: selectedIndex.value == 4,
-                      onTap: () {
-                        selectedIndex.value = 4;
+                      onTap: () async {
+                        bool online = await showOfflineSnackbar(
+                            context, ref.read(connectivityProvider));
+                        if (online) {
+                          selectedIndex.value = 4;
+                        }
+                        if (!context.mounted) return;
                         context.go(ScreenPaths.profile);
                       },
                     ),
@@ -201,14 +263,24 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
               selectedItemColor: Theme.of(context).colorScheme.primary,
               showUnselectedLabels: false,
               // called when one tab is selected
-              onTap: (int index) {
+              onTap: (int index) async {
                 switch (index) {
                   case 0:
-                    selectedIndex.value = 0;
+                    bool online = await showOfflineSnackbar(
+                        context, ref.read(connectivityProvider));
+                    if (online) {
+                      selectedIndex.value = 0;
+                    }
+                    if (!context.mounted) return;
                     context.go(ScreenPaths.home);
                     break;
                   case 1:
-                    selectedIndex.value = 1;
+                    bool online = await showOfflineSnackbar(
+                        context, ref.read(connectivityProvider));
+                    if (online) {
+                      selectedIndex.value = 1;
+                    }
+                    if (!context.mounted) return;
                     context.go(ScreenPaths.search);
                     break;
                   case 2:
@@ -216,11 +288,21 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                     context.go(ScreenPaths.downloads);
                     break;
                   case 3:
-                    selectedIndex.value = 3;
+                    bool online = await showOfflineSnackbar(
+                        context, ref.read(connectivityProvider));
+                    if (online) {
+                      selectedIndex.value = 3;
+                    }
+                    if (!context.mounted) return;
                     context.go(ScreenPaths.library);
                     break;
                   case 4:
-                    selectedIndex.value = 4;
+                    bool online = await showOfflineSnackbar(
+                        context, ref.read(connectivityProvider));
+                    if (online) {
+                      selectedIndex.value = 4;
+                    }
+                    if (!context.mounted) return;
                     context.go(ScreenPaths.profile);
                     break;
                 }
@@ -245,5 +327,23 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                 ])
           : null,
     );
+  }
+
+  Future<bool> showOfflineSnackbar(
+      BuildContext context, ConnectivityService connectivityService) async {
+    if (!await connectivityService.checkConnectivityOnce()) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.offlineNotice),
+            duration: const Duration(seconds: 1),
+          ),
+        );
+      }
+      // is Offline
+      return false;
+    }
+    // is Online
+    return true;
   }
 }

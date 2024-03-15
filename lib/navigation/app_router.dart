@@ -1,9 +1,12 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/responsive_navigation_bar.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
+import 'package:jellyflix/providers/connectivity_provider.dart';
+import 'package:jellyflix/providers/scaffold_key.dart';
 import 'package:jellyflix/screens/detail_screen.dart';
 import 'package:jellyflix/screens/download_screen.dart';
 import 'package:jellyflix/screens/home_screen.dart';
@@ -135,12 +138,28 @@ class AppRouter {
       return const LoadingScreen();
     },
     redirect: (context, state) async {
-      final isGoingToLogin = state.matchedLocation == ScreenPaths.login;
-      final loggedIn = await _ref.watch(authProvider).checkAuthentication();
-      if (isGoingToLogin && loggedIn) {
-        return ScreenPaths.home;
-      } else if (!isGoingToLogin && !loggedIn) {
-        return ScreenPaths.login;
+      final isGoingToOfflinePlayer =
+          state.matchedLocation == ScreenPaths.offlinePlayer;
+      final isGoingToDownloads = state.matchedLocation == ScreenPaths.downloads;
+      final isConnected =
+          await _ref.read(connectivityProvider).checkConnectivityOnce();
+      _ref
+          .read(connectivityProvider)
+          .connectionStatusStream
+          .listen((isConnected) {});
+      if (!isConnected && !isGoingToDownloads && !isGoingToOfflinePlayer) {
+        return ScreenPaths.downloads;
+      } else if (!isConnected) {
+        return null;
+      } else {
+        final loggedIn = await _ref.watch(authProvider).checkAuthentication();
+        final isGoingToLogin = state.matchedLocation == ScreenPaths.login;
+
+        if (isGoingToLogin && loggedIn) {
+          return ScreenPaths.home;
+        } else if (!isGoingToLogin && !loggedIn) {
+          return ScreenPaths.login;
+        }
       }
       return null;
     },
