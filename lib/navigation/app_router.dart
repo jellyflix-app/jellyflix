@@ -1,12 +1,12 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/responsive_navigation_bar.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
 import 'package:jellyflix/providers/connectivity_provider.dart';
-import 'package:jellyflix/providers/scaffold_key.dart';
 import 'package:jellyflix/screens/detail_screen.dart';
 import 'package:jellyflix/screens/download_screen.dart';
 import 'package:jellyflix/screens/home_screen.dart';
@@ -141,27 +141,30 @@ class AppRouter {
       final isGoingToOfflinePlayer =
           state.matchedLocation == ScreenPaths.offlinePlayer;
       final isGoingToDownloads = state.matchedLocation == ScreenPaths.downloads;
+      final isGoingToLogin = state.matchedLocation == ScreenPaths.login;
       final isConnected =
           await _ref.read(connectivityProvider).checkConnectivityOnce();
-      _ref
-          .read(connectivityProvider)
-          .connectionStatusStream
-          .listen((isConnected) {});
-      if (!isConnected && !isGoingToDownloads && !isGoingToOfflinePlayer) {
-        return ScreenPaths.downloads;
-      } else if (!isConnected) {
-        return null;
-      } else {
-        final loggedIn = await _ref.watch(authProvider).checkAuthentication();
-        final isGoingToLogin = state.matchedLocation == ScreenPaths.login;
+      bool serverIsReachable = true;
+      bool loggedIn = false;
+      try {
+        loggedIn = await _ref.watch(authProvider).checkAuthentication();
+      } on SocketException catch (_) {
+        serverIsReachable = false;
+      }
 
+      if (isConnected && serverIsReachable) {
         if (isGoingToLogin && loggedIn) {
           return ScreenPaths.home;
         } else if (!isGoingToLogin && !loggedIn) {
           return ScreenPaths.login;
         }
+        return null;
+      } else {
+        if (!isGoingToDownloads && !isGoingToOfflinePlayer) {
+          return ScreenPaths.downloads;
+        }
+        return null;
       }
-      return null;
     },
     //refreshListenable: GoRouterRefreshStream(_ref),
     navigatorKey: navigatorKey,
