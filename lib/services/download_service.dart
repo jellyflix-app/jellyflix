@@ -1,19 +1,20 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:universal_io/io.dart';
+import 'package:openapi/openapi.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:async/async.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 import 'package:jellyflix/models/download_metadata.dart';
 import 'package:jellyflix/navigation/app_router.dart';
 import 'package:jellyflix/providers/scaffold_key.dart';
 import 'package:jellyflix/services/api_service.dart';
 import 'package:jellyflix/services/connectivity_service.dart';
-import 'package:openapi/openapi.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:async/async.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DownloadService {
   static final Map<String, DownloadService> _instances = {};

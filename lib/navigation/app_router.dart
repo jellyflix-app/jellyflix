@@ -1,8 +1,9 @@
-import 'dart:io';
-
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:universal_io/io.dart';
+import 'package:openapi/openapi.dart';
+
 import 'package:jellyflix/components/responsive_navigation_bar.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
@@ -17,7 +18,6 @@ import 'package:jellyflix/screens/offline_player_screen.dart';
 import 'package:jellyflix/screens/profile_screen.dart';
 import 'package:jellyflix/screens/search_screen.dart';
 import 'package:jellyflix/screens/player_screen.dart';
-import 'package:openapi/openapi.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final shellNavigatorKey = GlobalKey<NavigatorState>();
