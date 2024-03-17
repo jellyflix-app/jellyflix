@@ -50,7 +50,7 @@ class _FutureItemCarouselState extends ConsumerState<PaginatedItemCarousel> {
     final isLoading = useState(false);
     final isLastPage = useState(false);
 
-    if (data.isEmpty) {
+    if (data.isEmpty && !isLastPage.value) {
       isLoading.value = true;
       widget.future(startIndex, widget.pageSize).then((value) {
         data.addAll(value);
