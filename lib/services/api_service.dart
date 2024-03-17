@@ -298,11 +298,11 @@ class ApiService {
         false);
 
     String? url;
-    // if (response.data!.mediaSources!.toList().first.supportsDirectPlay ==
-    //     true) {
-    //   url =
-    //       "${_user!.serverAdress}/Videos/$itemId/stream?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}&SubtitleStreamIndex=${subtitleStreamIndex ?? response.data!.mediaSources!.first.defaultSubtitleStreamIndex ?? -1}&Static=true";
-    // } else
+    if (response.data!.mediaSources!.toList().first.supportsDirectPlay ==
+        true) {
+      url =
+          "${_user!.serverAdress}/Videos/$itemId/stream?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}&SubtitleStreamIndex=${subtitleStreamIndex ?? response.data!.mediaSources!.first.defaultSubtitleStreamIndex ?? -1}";
+    } else
     if (response.data!.mediaSources!.toList().first.supportsDirectStream ==
         true) {
       url =
