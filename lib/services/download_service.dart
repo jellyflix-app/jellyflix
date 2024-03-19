@@ -49,6 +49,14 @@ class DownloadService {
     required this.itemId,
     required this.connectivityService,
   }) {
+    if (_api.currentUser != null) {
+      _dio = Dio(
+        BaseOptions(
+          headers: _api.headers,
+          baseUrl: _api.currentUser!.serverAdress!,
+        ),
+      );
+    }
     connectivityService.connectionStatusStream.listen((isConnected) {
       if (isConnected) {
         _dio = Dio(
@@ -462,19 +470,11 @@ class DownloadService {
     }
   }
 
-  Stream<int?> downloadProgress(int interval) {
-    var controller = StreamController<int?>.broadcast();
-
-    void updateProgress() async {
-      while (true) {
-        controller.add(await calculateProgress());
-        await Future.delayed(Duration(seconds: interval));
-      }
+  Stream<int?> downloadProgress(int interval) async* {
+    while (true) {
+      yield await calculateProgress();
+      await Future.delayed(Duration(seconds: interval));
     }
-
-    updateProgress();
-
-    return controller.stream;
   }
 
   Future<int?> calculateProgress() async {
