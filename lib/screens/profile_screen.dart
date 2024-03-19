@@ -100,7 +100,7 @@ class ProfileScreen extends HookConsumerWidget {
                             onTap: () {
                               ref
                                   .read(authProvider)
-                                  .updateCurrentProfileIndex(null);
+                                  .updateCurrentProfileId(null);
                               context.go(ScreenPaths.profileSelection);
                             },
                           ),

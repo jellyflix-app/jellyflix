@@ -77,7 +77,7 @@ class AuthService {
     _authStateStream.add(true);
   }
 
-  void updateCurrentProfileIndex(String? profileId) async {
+  void updateCurrentProfileId(String? profileId) async {
     if (profileId == null) {
       _databaseService.delete("currentProfileId");
     }
