@@ -12,13 +12,15 @@ class ConnectivityService {
   }
 
   Future<bool> checkConnectivityOnce() async {
+    ConnectivityResult result = await Connectivity().checkConnectivity();
     isConnected =
-        (await Connectivity().checkConnectivity()) != ConnectivityResult.none;
+        result != ConnectivityResult.none && result != ConnectivityResult.other;
     return isConnected;
   }
 
   void _updateConnectionStatus(ConnectivityResult result) {
-    isConnected = result != ConnectivityResult.none;
+    isConnected =
+        result != ConnectivityResult.none && result != ConnectivityResult.other;
     _connectionStatusController.add(isConnected);
   }
 }
