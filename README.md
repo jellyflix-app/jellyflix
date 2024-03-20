@@ -1,6 +1,7 @@
 # Jellyflix - Another Jellyfin client
 
-[![](https://img.shields.io/badge/matrix-000000?style=for-the-badge&logo=Matrix&logoColor=white)](https://matrix.to/#/%23jellyflix%3Amatrix.org)
+[![](https://img.shields.io/badge/matrix-000000?style=for-the-badge&logo=Matrix&logoColor=white)](https://matrix.to/#/#jellyflix-space:matrix.org)
+
 
 Jellyflix is a cross platform Jellyfin Client for Desktop (Mac, Windows, Linux) and Mobile (iOS, Android). It aims to be a simple to use and reliable Jellyfin client for video content. It supports transcoded downloads and much more.
 

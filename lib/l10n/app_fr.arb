@@ -152,5 +152,11 @@
     "details": "Détails",
     "showMore": "Afficher plus",
     "showLess": "Afficher moins",
+    "offlineNotice": "Vous êtes hors ligne",
+    "disableImageCaching": "Désactiver le cache d'images",
+    "restartApp": "Redémarrer l'application",
+    "restartAppDescription": "Pour appliquer les modifications, l'application doit être redémarrée",
+    "ok": "OK",
+    "selectProfile": "Sélectionner un profil",
     "appName": "Jellyflix"
 }

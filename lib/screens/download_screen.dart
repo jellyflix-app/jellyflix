@@ -20,7 +20,7 @@ class DownloadScreen extends HookConsumerWidget {
             return ListView.builder(
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
-                return DownloadItemTile(index: snapshot.data![index]);
+                return DownloadItemTile(itemId: snapshot.data![index]);
               },
             );
           } else {

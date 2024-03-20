@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jellyflix/providers/api_provider.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -48,8 +47,8 @@ class _PlayerSreenState extends ConsumerState<OfflinePlayerScreen> {
         player.stream.error.listen((error) => throw Exception(error));
         player.stream.completed.listen((completed) async {
           if (completed) {
-            await ref.read(apiProvider).reportStopPlayback(
-                player.state.position.inMilliseconds * 10000);
+            // await ref.read(apiProvider).reportStopPlayback(
+            //     player.state.position.inMilliseconds * 10000);
             await defaultExitNativeFullscreen();
             if (key.currentState?.isFullscreen() ?? false) {
               await key.currentState?.exitFullscreen();
@@ -179,10 +178,10 @@ class _PlayerSreenState extends ConsumerState<OfflinePlayerScreen> {
       BackButton(
         onPressed: () async {
           await defaultExitNativeFullscreen();
-          unawaited(ref
-              .read(apiProvider)
-              .reportStopPlayback(player.state.position.inMilliseconds * 10000)
-              .then((value) {}));
+          // unawaited(ref
+          //     .read(apiProvider)
+          //     .reportStopPlayback(player.state.position.inMilliseconds * 10000)
+          //     .then((value) {}));
           if (key.currentState?.isFullscreen() ?? false) {
             await key.currentState?.exitFullscreen();
           }

@@ -3,11 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:jellyflix/models/user.dart';
 import 'package:jellyflix/services/api_service.dart';
-import 'package:jellyflix/services/secure_storage_service.dart';
+import 'package:jellyflix/services/database_service.dart';
 
 class AuthService {
   final ApiService _apiService;
-  final SecureStorageService _secureStorageService;
+  //final SecureStorageService _secureStorageService;
+  final DatabaseService _databaseService;
 
   final StreamController<bool> _authStateStream = StreamController();
   Stream<bool> get authStateChange => _authStateStream.stream;
@@ -18,33 +19,28 @@ class AuthService {
 
   AuthService(
       {required ApiService apiService,
-      required SecureStorageService secureStorageService})
+      required DatabaseService databaseService})
       : _apiService = apiService,
-        _secureStorageService = secureStorageService {
+        _databaseService = databaseService {
     _authStateStream.add(false);
     checkAuthentication().then((value) {
       _authStateStream.add(value);
     });
   }
 
-  Future<bool> checkAuthentication({int? profileIndex}) async {
-    profileIndex ??= await currentProfileIndex();
-    if (profileIndex == null) {
+  Future<bool> checkAuthentication({String? profileId}) async {
+    profileId ??= currentProfileid();
+    if (profileId == null) {
       _authStateStream.add(false);
       return false;
     }
-    String? storedUsername =
-        await _secureStorageService.read("username$profileIndex");
-    String? storedPassword =
-        await _secureStorageService.read("password$profileIndex");
-    String? storedServerAdress =
-        await _secureStorageService.read("serverAdress$profileIndex");
+    User? user = _databaseService.get(profileId);
     try {
-      if (storedUsername != null &&
-          storedPassword != null &&
-          storedServerAdress != null) {
-        await _apiService.login(
-            storedServerAdress, storedUsername, storedPassword);
+      if (user != null &&
+          user.name != null &&
+          user.password != null &&
+          user.serverAdress != null) {
+        await _apiService.login(user.serverAdress!, user.name!, user.password!);
         _authStateStream.add(true);
         return true;
       }
@@ -74,99 +70,50 @@ class AuthService {
         rethrow;
       }
     }
-    int profileIndex = await saveProfile(user, password, serverAdress);
-    await updateCurrentProfileIndex(profileIndex);
+    user.password = password;
+    _databaseService.put(user.id! + user.serverAdress!, user);
+    _databaseService.put("currentProfileId", user.id! + user.serverAdress!);
+
     _authStateStream.add(true);
   }
 
-  Future<void> updateCurrentProfileIndex(int? profileIndex) async {
-    await _secureStorageService.delete("currentProfileIndex");
-    await _secureStorageService.write(
-        "currentProfileIndex", profileIndex == null ? null : "$profileIndex");
+  void updateCurrentProfileId(String? profileId) async {
+    if (profileId == null) {
+      _databaseService.delete("currentProfileId");
+    }
+    _databaseService.put("currentProfileId", profileId);
   }
 
-  Future logout({int? profileIndex}) async {
-    profileIndex ??= await currentProfileIndex();
-    await _secureStorageService.delete("username${profileIndex!}");
-    await _secureStorageService.delete("password$profileIndex");
-    await _secureStorageService.delete("serverAdress$profileIndex");
-    await _secureStorageService.delete("userid$profileIndex");
-    await _secureStorageService.delete("currentProfileIndex");
+  Future logout({String? profileId}) async {
+    profileId ??= currentProfileid();
+    _databaseService.delete(profileId!);
+    _databaseService.delete("currentProfileId");
     _authStateStream.add(false);
   }
 
-  Future<int> saveProfile(
-    User user,
-    String password,
-    String serverAdress,
-  ) async {
-    var profileIndex = 0;
-    // check if username with same name exists
-    var allValues = await _secureStorageService.readAll();
-    // max 25 profiles
-    while (
-        allValues.containsKey("username$profileIndex") || profileIndex > 24) {
-      profileIndex++;
-    }
-    if (profileIndex > 24) {
-      throw Exception("Max 25 profiles allowed");
-    }
-    await _secureStorageService.write("username$profileIndex", user.name);
-    await _secureStorageService.write("password$profileIndex", password);
-    await _secureStorageService.write("userid$profileIndex", user.id);
-    await _secureStorageService.write(
-        "serverAdress$profileIndex", serverAdress);
-
-    return profileIndex;
-  }
-
-  Future switchProfile(profileIndex) async {
-    String? storedUsername =
-        await _secureStorageService.read("username$profileIndex");
-    String? storedPassword =
-        await _secureStorageService.read("password$profileIndex");
-    String? storedServerAdress =
-        await _secureStorageService.read("serverAdress$profileIndex");
-    if (storedUsername != null &&
-        storedPassword != null &&
-        storedServerAdress != null) {
-      await _apiService.login(
-          storedServerAdress, storedUsername, storedPassword);
+  Future switchProfile(String profileId) async {
+    User? user = _databaseService.get(profileId);
+    if (user != null &&
+        user.serverAdress != null &&
+        user.name != null &&
+        user.password != null) {
+      await _apiService.login(user.serverAdress!, user.name!, user.password!);
       _authStateStream.add(true);
     } else {
       throw Exception("Profile not found");
     }
   }
 
-  Future<int?> currentProfileIndex() async {
-    String currentProfileIndexString =
-        await _secureStorageService.read("currentProfileIndex") ?? "";
-    return int.tryParse(currentProfileIndexString);
-  }
-
-  Future<bool> profilesIsNotEmpty() async {
-    var allValues = await _secureStorageService.contains("username");
-    return allValues.isNotEmpty;
+  String? currentProfileid() {
+    String? currentProfileIndexString =
+        _databaseService.get("currentProfileId");
+    return currentProfileIndexString;
   }
 
   Future<List<User>> getAllProfiles() async {
-    var allValues = await _secureStorageService.contains("username");
-
-    List<User> profiles = [];
-
-    for (var i = 0; i < allValues.length; i++) {
-      var profileIndex =
-          int.parse(allValues.keys.toList()[i].split("username").last);
-      var serverAdress =
-          await _secureStorageService.read("serverAdress$profileIndex");
-      var userId = await _secureStorageService.read("userid$profileIndex");
-      var name = await _secureStorageService.read("username$profileIndex");
-      profiles.add(User(
-          profileIndex: profileIndex,
-          name: name!,
-          serverAdress: serverAdress!,
-          id: userId));
-    }
+    Map allValues = await _databaseService.getAll();
+    allValues.remove("currentProfileId");
+    List<User> profiles = allValues.values.map((e) => e as User).toList();
 
     return profiles;
   }

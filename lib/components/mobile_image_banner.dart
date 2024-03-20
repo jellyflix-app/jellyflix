@@ -48,6 +48,7 @@ class MobileImageBannerState extends ConsumerState<MobileImageBanner> {
   @override
   void dispose() {
     _timer?.cancel();
+    _controller.dispose();
     super.dispose();
   }
 

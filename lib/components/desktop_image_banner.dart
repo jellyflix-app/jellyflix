@@ -48,6 +48,7 @@ class DestkopImageBannerState extends ConsumerState<DesktopImageBanner> {
   @override
   void dispose() {
     _timer?.cancel();
+    _controller.dispose();
     super.dispose();
   }
 
