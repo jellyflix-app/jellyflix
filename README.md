@@ -45,7 +45,12 @@ Note: There is a native .dmg file available, but there are login issues after no
 
 [![](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://github.com/jellyflix-app/jellyflix/releases/latest/download/jellyflix-linux.zip)
 
-The Linux version needs additional dependencies, see [below](#linux).
+You also need to install the following dependencies to run Jellyflix:
+```bash
+sudo apt install libjsoncpp-dev libsecret-1-0 libmpv-dev mpv
+``` 
+
+If Jellyflix can't launch because it can't find libmpv, but you did install it. You can [follow the workaround below](#linux-1).
 
 ### Web
 
@@ -79,13 +84,17 @@ flutter run
 
 If you want to build Jellyflix for Linux you need some additional dependencies:
 
-```
-sudo apt install build-essential cmake clang libgtk-3-dev libjsoncpp-dev libmpv-dev libsecret-1-dev mpv
+```bash
+# Flutter needs the following dependencies, if not already installed
+sudo apt install clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
+
+# Jellyflix needs the following additonal dependencies
+sudo apt install libjsoncpp-dev libmpv-dev libsecret-1-dev mpv
 ```
 
 If your distro only provides libmpv, this workaround is necessary:
 
-```
+```bash
 sudo ln -s /usr/lib/x86_64-linux-gnu/libmpv.so.2 /usr/lib/x86_64-linux-gnu/libmpv.so.1
 ```
 
@@ -100,7 +109,3 @@ Jellyflix doesn't collect data and doesn't send data to third parties.
 Jellyflix is licensed under [GPLv3](LICENSE).
 
 The Jellyflix logo is licensed under [CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) and is a remix of the original [Jellyfin icon](https://github.com/jellyfin/jellyfin-ux/blob/master/branding/SVG/icon-transparent.svg) by the [Jellyfin Project](https://jellyfin.org/) which is licensed under [CC-BY-SA 4.0](https://github.com/jellyfin/jellyfin-ux/blob/master/LICENSE)
-
-```
-
-```
