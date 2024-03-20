@@ -83,6 +83,12 @@ If you want to build Jellyflix for Linux you need some additional dependencies:
 sudo apt install build-essential cmake clang libgtk-3-dev libjsoncpp-dev libmpv-dev libsecret-1-dev mpv
 ```
 
+If your distro only provides libmpv, this workaround is necessary:
+
+```
+sudo ln -s /usr/lib/x86_64-linux-gnu/libmpv.so.2 /usr/lib/x86_64-linux-gnu/libmpv.so.1
+```
+
 #### We would welcome the contribution of build instructions for Fedora. Unfortunately, as of now, there are no developers using Fedora-like systems.
 
 ## Privacy
@@ -94,3 +100,7 @@ Jellyflix doesn't collect data and doesn't send data to third parties.
 Jellyflix is licensed under [GPLv3](LICENSE).
 
 The Jellyflix logo is licensed under [CC-BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/) and is a remix of the original [Jellyfin icon](https://github.com/jellyfin/jellyfin-ux/blob/master/branding/SVG/icon-transparent.svg) by the [Jellyfin Project](https://jellyfin.org/) which is licensed under [CC-BY-SA 4.0](https://github.com/jellyfin/jellyfin-ux/blob/master/LICENSE)
+
+```
+
+```
