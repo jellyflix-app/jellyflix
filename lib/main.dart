@@ -23,10 +23,7 @@ void main() async {
             true // option: set to false to disable working with http links (default: false)
         );
   }
-  await Hive.initFlutter();
-  Hive.registerAdapter(UserAdapter());
-  await DatabaseService('auth', SecureStorageService()).openBox();
-  await DatabaseService('settings', SecureStorageService()).openBox();
+  await DatabaseService.initialize();
 
   // Necessary initialization for package:media_kit.
   MediaKit.ensureInitialized();

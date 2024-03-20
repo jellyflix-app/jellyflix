@@ -1,6 +1,7 @@
 import 'dart:convert';
 
-import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:jellyflix/models/user.dart';
 import 'package:jellyflix/services/secure_storage_service.dart';
 
 class DatabaseService {
@@ -20,6 +21,13 @@ class DatabaseService {
 
   DatabaseService._internal(this.boxName, this.secureStorage);
 
+  static Future<void> initialize() async {
+    await Hive.initFlutter();
+    Hive.registerAdapter(UserAdapter());
+    await DatabaseService('auth', SecureStorageService()).openBox();
+    await DatabaseService('settings', SecureStorageService()).openBox();
+  }
+
   Future<void> openBox() async {
     String? key = await secureStorage.read('encryptionKey');
     if (key == null) {
@@ -28,14 +36,12 @@ class DatabaseService {
       await secureStorage.write(
           'encryptionKey', base64Url.encode(encryptionKeyUint8List));
       // verify key was created
-      final newKey = await secureStorage.read('encryptionKey');
+      key = await secureStorage.read('encryptionKey');
       // fallback
-      if (newKey == null) {
-        key = const String.fromEnvironment('ENCRYPTION_KEY',
-            defaultValue: '7HJ6Y_RzPoOxrPyBFVHJJlrr8gsRL2N09o7ee10f8fk=');
-      }
+      key ??= const String.fromEnvironment('ENCRYPTION_KEY',
+          defaultValue: '7HJ6Y_RzPoOxrPyBFVHJJlrr8gsRL2N09o7ee10f8fk=');
     }
-    final encryptionKeyUint8List = base64Url.decode(key!);
+    final encryptionKeyUint8List = base64Url.decode(key);
     _box ??= await Hive.openBox(boxName!,
         encryptionCipher: HiveAesCipher(encryptionKeyUint8List));
   }
