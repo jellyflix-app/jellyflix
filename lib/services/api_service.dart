@@ -276,16 +276,19 @@ class ApiService {
     }
   }
 
-  Future<List<BaseItemDto>> getGenres() async {
+  Future<List<BaseItemDto>> getGenres(
+      {List<BaseItemKind>? includeItemTypes}) async {
     var response = await _jellyfinApi!.getGenresApi().getGenres(
           userId: _user!.id!,
           headers: headers,
-          includeItemTypes: [
-            BaseItemKind.movie,
-            BaseItemKind.series,
-            BaseItemKind.episode,
-            BaseItemKind.boxSet
-          ].toBuiltList(),
+          includeItemTypes: (includeItemTypes ??
+                  [
+                    BaseItemKind.movie,
+                    BaseItemKind.series,
+                    BaseItemKind.episode,
+                    BaseItemKind.boxSet
+                  ])
+              .toBuiltList(),
         );
     return response.data!.items!.toList();
   }

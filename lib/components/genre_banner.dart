@@ -21,7 +21,11 @@ class GenreBanner extends HookConsumerWidget {
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 10.0),
         child: FutureBuilder(
-          future: ref.read(apiProvider).getGenres(),
+          future: ref.read(apiProvider).getGenres(includeItemTypes: [
+            BaseItemKind.movie,
+            BaseItemKind.series,
+            BaseItemKind.boxSet
+          ]),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return const SizedBox.shrink();
