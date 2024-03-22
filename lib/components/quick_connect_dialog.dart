@@ -16,7 +16,7 @@ class QuickConnectDialog extends HookConsumerWidget {
     final errorText = useState<String?>(null);
 
     return Dialog(
-      backgroundColor: Theme.of(context).colorScheme.background,
+      backgroundColor: Theme.of(context).colorScheme.surface,
       child: Padding(
         padding: const EdgeInsets.all(25.0),
         child: Column(
