@@ -439,6 +439,7 @@ class ApiService {
     // get locale
     Locale locale = Localizations.localeOf(navigatorKey.currentContext!);
     String countryCode = locale.countryCode ?? locale.languageCode;
+    countryCode = countryCode.toUpperCase();
     Response responseMovie;
     // get top 10000 from url
     try {
