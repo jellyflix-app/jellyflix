@@ -121,7 +121,7 @@ class DetailScreen extends HookConsumerWidget {
                                       end: Alignment.bottomCenter,
                                       colors: [
                                         const Color.fromARGB(100, 0, 0, 0),
-                                        Theme.of(context).colorScheme.background
+                                        Theme.of(context).colorScheme.surface
                                       ],
                                     ),
                                   ),

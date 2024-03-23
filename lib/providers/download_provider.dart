@@ -1,4 +1,3 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:jellyflix/providers/connectivity_provider.dart';
