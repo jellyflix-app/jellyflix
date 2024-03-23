@@ -5,16 +5,18 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jellyflix/components/player_settings_dialog.dart';
-import 'package:jellyflix/providers/api_provider.dart';
-import 'package:jellyflix/providers/playback_helper_provider.dart';
-import 'package:jellyflix/services/playback_helper_service.dart';
+import 'package:intl/intl.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:openapi/openapi.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
+import 'package:jellyflix/components/player_settings_dialog.dart';
+import 'package:jellyflix/providers/api_provider.dart';
+import 'package:jellyflix/providers/playback_helper_provider.dart';
+import 'package:jellyflix/services/playback_helper_service.dart';
 
 class PlayerScreen extends StatefulHookConsumerWidget {
   const PlayerScreen(
@@ -215,29 +217,36 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
             // Use [Video] widget to display video output.
             child: MaterialVideoControlsTheme(
               normal: MaterialVideoControlsThemeData(
-                topButtonBar: getTopButtonBarThemeData(context),
-                bottomButtonBar: getBottomButtonBarThemeData(
-                    playbackHelper,
-                    subtitleEnabled,
-                    subtitleTrack,
-                    audioTrack,
-                    maxStreamingBitrate,
-                    context),
-                seekBarPositionColor: Theme.of(context).colorScheme.onPrimary,
-                seekBarThumbColor: Theme.of(context).colorScheme.primary,
-              ),
+                  topButtonBar: getTopButtonBarThemeData(context),
+                  bottomButtonBar: getBottomButtonBarThemeData(
+                      playbackHelper,
+                      subtitleEnabled,
+                      subtitleTrack,
+                      audioTrack,
+                      maxStreamingBitrate,
+                      context),
+                  seekBarPositionColor: Theme.of(context).colorScheme.onPrimary,
+                  seekBarThumbColor: Theme.of(context).colorScheme.primary,
+                  seekBarThumbSize: 15,
+                  seekBarHeight: 4,
+                  seekBarMargin:
+                      const EdgeInsets.only(bottom: 15, left: 10, right: 10)),
               fullscreen: MaterialVideoControlsThemeData(
-                topButtonBar: getTopButtonBarThemeData(context),
-                bottomButtonBar: getBottomButtonBarThemeData(
-                    playbackHelper,
-                    subtitleEnabled,
-                    subtitleTrack,
-                    audioTrack,
-                    maxStreamingBitrate,
-                    context),
-                seekBarPositionColor: Theme.of(context).colorScheme.onPrimary,
-                seekBarThumbColor: Theme.of(context).colorScheme.primary,
-              ),
+                  topButtonBar: getTopButtonBarThemeData(context),
+                  bottomButtonBar: getBottomButtonBarThemeData(
+                      playbackHelper,
+                      subtitleEnabled,
+                      subtitleTrack,
+                      audioTrack,
+                      maxStreamingBitrate,
+                      context),
+                  bottomButtonBarMargin: const EdgeInsets.only(bottom: 25),
+                  seekBarPositionColor: Theme.of(context).colorScheme.onPrimary,
+                  seekBarThumbColor: Theme.of(context).colorScheme.primary,
+                  seekBarThumbSize: 15,
+                  seekBarHeight: 4,
+                  seekBarMargin:
+                      const EdgeInsets.only(bottom: 15, left: 10, right: 10)),
               child: MaterialDesktopVideoControlsTheme(
                   normal: MaterialDesktopVideoControlsThemeData(
                     topButtonBar: getTopButtonBarThemeData(context),
@@ -476,6 +485,18 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
           }
         },
       ),
+      const Spacer(),
+      StreamBuilder(
+        stream: player.stream.position,
+        builder: (context, snapshot) {
+          return Text(AppLocalizations.of(context)!.ends(DateFormat("HH:mm")
+              .format(DateTime.now()
+                  .add(Duration(
+                      minutes: player.state.duration.inMinutes -
+                          player.state.position.inMinutes))
+                  .toLocal())));
+        },
+      )
     ];
   }
 }
