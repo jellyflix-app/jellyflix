@@ -68,6 +68,12 @@ class _ItemCarouselState extends ConsumerState<ItemCarousel> {
   }
 
   @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     switch (widget.posterType) {
       case PosterType.horizontal:

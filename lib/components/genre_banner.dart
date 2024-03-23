@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/item_carousel_row.dart';
@@ -15,12 +16,16 @@ class GenreBanner extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final pageController = PageController(viewportFraction: 0.95);
+    final pageController = usePageController(viewportFraction: 0.95);
 
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 10.0),
         child: FutureBuilder(
-          future: ref.read(apiProvider).getGenres(),
+          future: ref.read(apiProvider).getGenres(includeItemTypes: [
+            BaseItemKind.movie,
+            BaseItemKind.series,
+            BaseItemKind.boxSet
+          ]),
           builder: (context, snapshot) {
             if (!snapshot.hasData) {
               return const SizedBox.shrink();

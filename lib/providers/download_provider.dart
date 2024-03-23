@@ -13,3 +13,7 @@ final getDownloadsProvider = Provider.autoDispose<Future<List<String>>>(
 final cancelAndDeleteDownloadProvider = Provider(
   (ref) => DownloadService.cancelAndDeleteAllDownloads(),
 );
+
+final downloadProgressProvider = StreamProvider.autoDispose
+    .family<int?, String>((ref, itemId) =>
+        ref.read(downloadProvider(itemId)).downloadProgress(1));

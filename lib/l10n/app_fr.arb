@@ -158,5 +158,14 @@
     "restartAppDescription": "Pour appliquer les modifications, l'application doit être redémarrée",
     "ok": "OK",
     "selectProfile": "Sélectionner un profil",
+    "ends": "Se termine à",
+    "@ends": {
+        "placeholders": {
+          "date": {
+            "type": "String",
+            "example": "21:30"
+          }
+        }
+      },
     "appName": "Jellyflix"
 }

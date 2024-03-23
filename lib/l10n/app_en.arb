@@ -158,5 +158,15 @@
     "restartAppDescription": "Please restart the app for the changes to take effect.",
     "ok": "OK",
     "selectProfile": "Select Profile",
+    "ends": "Ends at {date}",
+    "@ends": {
+        "placeholders": {
+          "date": {
+            "type": "String",
+            "example": "21:30"
+          }
+        }
+      },
     "appName": "Jellyflix"
+    
 }
