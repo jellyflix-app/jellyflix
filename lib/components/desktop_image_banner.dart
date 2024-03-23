@@ -103,7 +103,7 @@ class DestkopImageBannerState extends ConsumerState<DesktopImageBanner> {
                         end: Alignment.centerLeft,
                         colors: [
                           const Color.fromARGB(30, 0, 0, 0),
-                          Theme.of(context).colorScheme.background
+                          Theme.of(context).colorScheme.surface
                         ],
                       ),
                     ),
