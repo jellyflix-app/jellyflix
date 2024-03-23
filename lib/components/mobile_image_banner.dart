@@ -84,7 +84,7 @@ class MobileImageBannerState extends ConsumerState<MobileImageBanner> {
                       end: Alignment.bottomCenter,
                       colors: [
                         const Color.fromARGB(30, 0, 0, 0),
-                        Theme.of(context).colorScheme.background
+                        Theme.of(context).colorScheme.surface
                       ],
                     ),
                   ),

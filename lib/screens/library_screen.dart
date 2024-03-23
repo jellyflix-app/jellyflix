@@ -75,8 +75,12 @@ class LibraryScreen extends HookConsumerWidget {
                   Expanded(
                     child: TextButton(
                       onPressed: () async {
-                        final listData =
-                            await ref.read(apiProvider).getGenres();
+                        final listData = await ref.read(apiProvider).getGenres(
+                            includeItemTypes: [
+                              BaseItemKind.movie,
+                              BaseItemKind.series,
+                              BaseItemKind.boxSet
+                            ]);
                         if (!context.mounted) return;
                         genreFilter.value = await openGenreDialog(
                           context,
@@ -161,13 +165,17 @@ class LibraryScreen extends HookConsumerWidget {
             Expanded(
               child: FutureBuilder(
                 future: ref.read(apiProvider).getFilterItems(
-                      genreIds: genreFilter.value,
-                      startIndex: page * 100,
-                      limit: 100,
-                      sortOrder: [sortOrder.value],
-                      sortBy: [sortType.value.toString().split(".").last],
-                      filters: filterType.value,
-                    ),
+                    genreIds: genreFilter.value,
+                    startIndex: page * 100,
+                    limit: 100,
+                    sortOrder: [sortOrder.value],
+                    sortBy: [sortType.value.toString().split(".").last],
+                    filters: filterType.value,
+                    includeItemTypes: [
+                      BaseItemKind.movie,
+                      BaseItemKind.series,
+                      BaseItemKind.boxSet
+                    ]),
                 builder: (context, AsyncSnapshot<List<BaseItemDto>> snapshot) {
                   List<BaseItemDto> itemsList =
                       List.filled(20, SkeletonItem.baseItemDto);

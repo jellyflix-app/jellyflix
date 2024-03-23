@@ -276,16 +276,19 @@ class ApiService {
     }
   }
 
-  Future<List<BaseItemDto>> getGenres() async {
+  Future<List<BaseItemDto>> getGenres(
+      {List<BaseItemKind>? includeItemTypes}) async {
     var response = await _jellyfinApi!.getGenresApi().getGenres(
           userId: _user!.id!,
           headers: headers,
-          includeItemTypes: [
-            BaseItemKind.movie,
-            BaseItemKind.series,
-            BaseItemKind.episode,
-            BaseItemKind.boxSet
-          ].toBuiltList(),
+          includeItemTypes: (includeItemTypes ??
+                  [
+                    BaseItemKind.movie,
+                    BaseItemKind.series,
+                    BaseItemKind.episode,
+                    BaseItemKind.boxSet
+                  ])
+              .toBuiltList(),
         );
     return response.data!.items!.toList();
   }
@@ -436,6 +439,7 @@ class ApiService {
     // get locale
     Locale locale = Localizations.localeOf(navigatorKey.currentContext!);
     String countryCode = locale.countryCode ?? locale.languageCode;
+    countryCode = countryCode.toUpperCase();
     Response responseMovie;
     // get top 10000 from url
     try {

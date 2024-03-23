@@ -157,5 +157,14 @@
   "restartAppDescription": "Bitte starte die App neu, um die Änderungen zu übernehmen",
   "ok": "OK",
   "selectProfile": "Profil auswählen",
+  "ends": "Endet um {date}",
+    "@ends": {
+        "placeholders": {
+          "date": {
+            "type": "String",
+            "example": "21:30"
+          }
+        }
+      },
   "appName": "Jellyflix"
 }
