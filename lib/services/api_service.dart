@@ -735,14 +735,17 @@ class ApiService {
   }
 
   Future<List<BaseItemDto>> getHeaderRecommendation() async {
-    var response = await similarItemsByLastWatched();
-    var response2 = await getFilterItems(
-        sortBy: ["DateCreated"],
-        sortOrder: [SortOrder.descending],
-        includeItemTypes: [BaseItemKind.series, BaseItemKind.movie],
-        limit: 5);
-
-    return response + response2;
+    return await getFilterItems(
+            sortBy: ["DateCreated"],
+            sortOrder: [SortOrder.descending],
+            includeItemTypes: [BaseItemKind.movie],
+            limit: 3) +
+        await getFilterItems(
+            // TODO: When 10.9 drops, update this to "DateLastContentAdded"
+            sortBy: ["DateCreated"],
+            sortOrder: [SortOrder.descending],
+            includeItemTypes: [BaseItemKind.series],
+            limit: 4);
   }
 
   Future<void> markAsPlayed(
