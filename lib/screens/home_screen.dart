@@ -1,10 +1,7 @@
 import 'package:go_router/go_router.dart';
-import 'package:jellyflix/components/future_item_carousel.dart';
-import 'package:jellyflix/components/genre_banner.dart';
 import 'package:jellyflix/components/paginated_item_carousel.dart';
 import 'package:jellyflix/components/image_banner.dart';
 import 'package:jellyflix/components/playback_progress_overlay.dart';
-import 'package:jellyflix/models/poster_type.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/models/skeleton_item.dart';
 import 'package:jellyflix/providers/api_provider.dart';
