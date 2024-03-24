@@ -4,7 +4,6 @@ import 'package:jellyflix/components/genre_banner.dart';
 import 'package:jellyflix/components/paginated_item_carousel.dart';
 import 'package:jellyflix/components/image_banner.dart';
 import 'package:jellyflix/components/playback_progress_overlay.dart';
-import 'package:jellyflix/components/recommendation_carousels.dart';
 import 'package:jellyflix/models/poster_type.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/models/skeleton_item.dart';
@@ -84,59 +83,6 @@ class HomeScreen extends HookConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: PaginatedItemCarousel(
-                pageSize: 20,
-                future: (startIndex, limit) => ref
-                    .read(apiProvider)
-                    .getFilterItems(
-                        sortBy: ["DateCreated"],
-                        sortOrder: [SortOrder.descending],
-                        includeItemTypes: [BaseItemKind.movie],
-                        startIndex: startIndex,
-                        limit: limit),
-                onTap: (index, id) {
-                  context.push(Uri(path: ScreenPaths.detail, queryParameters: {
-                    "id": id,
-                  }).toString());
-                },
-                title: AppLocalizations.of(context)!.recentlyAddedMovies,
-                imageMapping: (e) => e.id!,
-                blurHashMapping: (e) =>
-                    e.imageBlurHashes?.primary?.values.first,
-                titleMapping: (e) => e.name!,
-                subtitleMapping: (e) => e.productionYear.toString(),
-                posterType: PosterType.vertical,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: PaginatedItemCarousel(
-                pageSize: 20,
-                future: (startIndex, limit) => ref
-                    .read(apiProvider)
-                    .getFilterItems(
-                        sortBy: ["DateCreated"],
-                        sortOrder: [SortOrder.descending],
-                        includeItemTypes: [BaseItemKind.series],
-                        startIndex: startIndex,
-                        limit: limit),
-                onTap: (index, id) {
-                  context.push(Uri(path: ScreenPaths.detail, queryParameters: {
-                    "id": id,
-                  }).toString());
-                },
-                title: AppLocalizations.of(context)!.recentlyAddedShows,
-                imageMapping: (e) => e.id!,
-                blurHashMapping: (e) =>
-                    e.imageBlurHashes?.primary?.values.first,
-                titleMapping: (e) => e.name!,
-                subtitleMapping: (e) => e.productionYear.toString(),
-                posterType: PosterType.vertical,
-              ),
-            ),
-            const GenreBanner(),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: PaginatedItemCarousel(
                 titleMapping: (e) => e.name!,
                 subtitleMapping: (e) => e.productionYear.toString(),
                 imageMapping: (e) => e.id!,
@@ -150,40 +96,6 @@ class HomeScreen extends HookConsumerWidget {
                     "id": id,
                   }).toString());
                 },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: FutureItemCarousel(
-                onTap: (index, id) {
-                  context.push(Uri(path: ScreenPaths.detail, queryParameters: {
-                    "id": id,
-                  }).toString());
-                },
-                titleMapping: (e) => e.name!,
-                imageMapping: (e) => e.id!,
-                blurHashMapping: (e) =>
-                    e.imageBlurHashes?.primary?.values.first,
-                future: ref.read(apiProvider).getTopTenPopular(),
-                subtitleMapping: (e) => e.productionYear.toString(),
-                title: AppLocalizations.of(context)!.top10inYourLibrary,
-                overlay: (index, element) => Positioned(
-                    child: Padding(
-                  padding: const EdgeInsets.all(5.0),
-                  child: Container(
-                      height: 25,
-                      width: 60,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10.0),
-                        color: Theme.of(context)
-                            .buttonTheme
-                            .colorScheme!
-                            .onPrimary,
-                      ),
-                      child: Center(
-                          child: Text(
-                              AppLocalizations.of(context)!.top10(index + 1)))),
-                )),
               ),
             ),
             Padding(
@@ -252,57 +164,6 @@ class HomeScreen extends HookConsumerWidget {
                 },
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: PaginatedItemCarousel(
-                title: AppLocalizations.of(context)!.moviesMaybeMissed,
-                titleMapping: (e) => e.name!,
-                subtitleMapping: (e) => e.productionYear.toString(),
-                imageMapping: (e) => e.id!,
-                blurHashMapping: (e) =>
-                    e.imageBlurHashes?.primary?.values.first,
-                future: (startIndex, limit) => ref
-                    .read(apiProvider)
-                    .getFilterItems(
-                        sortBy: ["Random"],
-                        sortOrder: [SortOrder.descending],
-                        includeItemTypes: [BaseItemKind.movie],
-                        filters: [ItemFilter.isUnplayed],
-                        startIndex: startIndex,
-                        limit: limit),
-                onTap: (index, id) {
-                  context.push(Uri(path: ScreenPaths.detail, queryParameters: {
-                    "id": id,
-                  }).toString());
-                },
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: PaginatedItemCarousel(
-                title: AppLocalizations.of(context)!.showsMaybeMissed,
-                titleMapping: (e) => e.name!,
-                subtitleMapping: (e) => e.productionYear.toString(),
-                imageMapping: (e) => e.id!,
-                blurHashMapping: (e) =>
-                    e.imageBlurHashes?.primary?.values.first,
-                future: (startIndex, limit) => ref
-                    .read(apiProvider)
-                    .getFilterItems(
-                        sortBy: ["Random"],
-                        sortOrder: [SortOrder.descending],
-                        includeItemTypes: [BaseItemKind.series],
-                        filters: [ItemFilter.isUnplayed],
-                        startIndex: startIndex,
-                        limit: limit),
-                onTap: (index, id) {
-                  context.push(Uri(path: ScreenPaths.detail, queryParameters: {
-                    "id": id,
-                  }).toString());
-                },
-              ),
-            ),
-            const RecommendationCarousels(),
             const SizedBox(
               height: 20,
             ),
