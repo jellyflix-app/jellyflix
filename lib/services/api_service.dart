@@ -45,7 +45,7 @@ class ApiService {
         dio: Dio(BaseOptions(
       baseUrl: baseUrl,
       receiveTimeout: const Duration(seconds: 30),
-      sendTimeout: const Duration(seconds: 5),
+      sendTimeout: const Duration(seconds: 10),
     )));
     var response = await _jellyfinApi!.getUserApi().authenticateUserByName(
         authenticateUserByName: AuthenticateUserByName((b) => b
@@ -302,8 +302,10 @@ class ApiService {
         true) {
       url =
           "${_user!.serverAdress}/Videos/$itemId/stream?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}&SubtitleStreamIndex=${subtitleStreamIndex ?? response.data!.mediaSources!.first.defaultSubtitleStreamIndex ?? -1}";
-    } else
-    if (response.data!.mediaSources!.toList().first.supportsDirectStream ==
+    } else if (response.data!.mediaSources!
+            .toList()
+            .first
+            .supportsDirectStream ==
         true) {
       url =
           "${_user!.serverAdress}/Videos/$itemId/stream.${response.data!.mediaSources!.first.container}?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}&SubtitleStreamIndex=${subtitleStreamIndex ?? response.data!.mediaSources!.first.defaultSubtitleStreamIndex ?? -1}&Static=true";
