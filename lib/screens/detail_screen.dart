@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jellyflix/components/jellyfin_image.dart';
 import 'package:jellyflix/components/rounded_download_button.dart';
 import 'package:openapi/openapi.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -106,7 +107,7 @@ class DetailScreen extends HookConsumerWidget {
                           children: [
                             Stack(
                               children: [
-                                ref.read(apiProvider).getImage(
+                                JellyfinImage(
                                     borderRadius: BorderRadius.zero,
                                     id: data.type == BaseItemKind.episode
                                         ? data.seriesId!
@@ -153,7 +154,7 @@ class DetailScreen extends HookConsumerWidget {
                                             borderRadius:
                                                 BorderRadius.circular(10.0),
                                           ),
-                                          child: ref.read(apiProvider).getImage(
+                                          child: JellyfinImage(
                                               id: itemId,
                                               type: ImageType.primary,
                                               blurHash: data.imageBlurHashes

@@ -5,6 +5,7 @@ import 'package:filter_list/filter_list.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/components/jellyfin_image.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/models/skeleton_item.dart';
 import 'package:jellyflix/models/sort_type.dart';
@@ -233,17 +234,16 @@ class LibraryScreen extends HookConsumerWidget {
                                                 ),
                                               ],
                                             ),
-                                            child:
-                                                ref.read(apiProvider).getImage(
-                                                      id: itemsList[index].id!,
-                                                      type: ImageType.primary,
-                                                      blurHash: itemsList[index]
-                                                          .imageBlurHashes
-                                                          ?.primary
-                                                          ?.values
-                                                          .first,
-                                                      cacheHeight: 300,
-                                                    ),
+                                            child: JellyfinImage(
+                                              id: itemsList[index].id!,
+                                              type: ImageType.primary,
+                                              blurHash: itemsList[index]
+                                                  .imageBlurHashes
+                                                  ?.primary
+                                                  ?.values
+                                                  .first,
+                                              cacheHeight: 300,
+                                            ),
                                           ),
                                         ),
                                         Positioned.fill(

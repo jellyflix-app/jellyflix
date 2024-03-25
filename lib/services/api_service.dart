@@ -1,17 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_blurhash/flutter_blurhash.dart';
-import 'package:jellyflix/components/profile_placeholder_image.dart';
 import 'package:jellyflix/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:jellyflix/navigation/app_router.dart';
 import 'package:jellyflix/services/device_info_service.dart';
 import 'package:openapi/openapi.dart';
 import 'package:built_collection/built_collection.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 class ApiService {
   final DeviceInfoService _deviceInfoService = DeviceInfoService();
@@ -31,9 +27,7 @@ class ApiService {
 
   User? get currentUser => _user;
 
-  bool? disableImageCaching;
-
-  ApiService(this.disableImageCaching);
+  ApiService();
 
   Future buildHeader() async {
     var model = await _deviceInfoService.getDeviceModel();
@@ -82,86 +76,6 @@ class ApiService {
 
   String getImageUrl(String id, ImageType type) {
     return "${_user!.serverAdress}/Items/$id/Images/${type.name}";
-  }
-
-  getImage({
-    required String id,
-    required ImageType type,
-    String? blurHash,
-    BorderRadius? borderRadius,
-    int? cacheHeight,
-  }) {
-    String url = getImageUrl(id, type);
-    if (disableImageCaching == true) {
-      return ClipRRect(
-        borderRadius: borderRadius ?? BorderRadius.circular(10.0),
-        // BlurHash has an issue the generates bad state in some cases
-        // https://github.com/fluttercommunity/flutter_blurhash/issues/40
-        child: BlurHash(
-          hash: blurHash ?? "L5H2EC=PM+yV0g-mq.wG9GofR*of",
-          imageFit: BoxFit.cover,
-          image: url,
-          errorBuilder: (context, error, stackTrace) {
-            return Image.memory(kTransparentImage, fit: BoxFit.cover);
-          },
-        ),
-      );
-    }
-
-    return CachedNetworkImage(
-      width: double.infinity,
-      imageUrl: url,
-      httpHeaders: headers,
-      fit: BoxFit.cover,
-      memCacheHeight: cacheHeight,
-      maxHeightDiskCache: cacheHeight,
-      imageBuilder: (context, imageProvider) => Container(
-        decoration: BoxDecoration(
-          borderRadius: borderRadius ?? BorderRadius.circular(10.0),
-          image: DecorationImage(
-            image: imageProvider,
-            fit: BoxFit.cover,
-          ),
-        ),
-      ),
-      placeholder: blurHash == null
-          ? null
-          : (context, url) {
-              return ClipRRect(
-                borderRadius: borderRadius ?? BorderRadius.circular(10.0),
-                child: BlurHash(
-                  hash: blurHash,
-                  imageFit: BoxFit.cover,
-                ),
-              );
-            },
-      errorWidget: (context, url, error) {
-        return const SizedBox();
-      },
-      errorListener: (value) {
-        //! Errors can't be caught right now
-        //! There is a pr to fix this: https://github.com/Baseflow/flutter_cached_network_image/pull/777
-      },
-    );
-  }
-
-  CachedNetworkImage getProfileImage({User? user}) {
-    user ??= _user!;
-    return CachedNetworkImage(
-      width: double.infinity,
-      fit: BoxFit.cover,
-      imageUrl: "${user.serverAdress}/Users/${user.id}/Images/Profile",
-      placeholder: (context, url) {
-        return const ProfilePlaceholderImage();
-      },
-      errorWidget: (context, url, error) {
-        return const ProfilePlaceholderImage();
-      },
-      errorListener: (value) {
-        //! Errors can't be caught right now
-        //! There is a pr to fix this
-      },
-    );
   }
 
   Future<List<BaseItemDto>> getContinueWatching({String? parentId}) async {

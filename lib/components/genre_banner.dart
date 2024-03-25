@@ -4,6 +4,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/item_carousel_row.dart';
+import 'package:jellyflix/components/jellyfin_image.dart';
 import 'package:jellyflix/models/gradients.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
@@ -78,7 +79,7 @@ class GenreBanner extends HookConsumerWidget {
                                         imageType = ImageType.primary;
                                       }
 
-                                      return ref.read(apiProvider).getImage(
+                                      return JellyfinImage(
                                           id: itemData.data![0].id!,
                                           type: imageType,
                                           blurHash: itemData

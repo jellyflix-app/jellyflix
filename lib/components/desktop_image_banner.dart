@@ -4,8 +4,8 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/components/jellyfin_image.dart';
 import 'package:jellyflix/models/screen_paths.dart';
-import 'package:jellyflix/providers/api_provider.dart';
 import 'package:openapi/openapi.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -76,20 +76,19 @@ class DestkopImageBannerState extends ConsumerState<DesktopImageBanner> {
                   child: SizedBox(
                     width: (MediaQuery.of(context).size.width * 0.6)
                         .roundToDouble(),
-                    child: ref.read(apiProvider).getImage(
-                          borderRadius: BorderRadius.zero,
-                          id: widget.items[index].id!,
-                          type:
-                              widget.items[index].backdropImageTags!.isNotEmpty
-                                  ? ImageType.backdrop
-                                  : ImageType.primary,
-                          blurHash:
-                              widget.items[index].backdropImageTags!.isNotEmpty
-                                  ? widget.items[index].imageBlurHashes
-                                      ?.backdrop?.values.first
-                                  : widget.items[index].imageBlurHashes?.primary
-                                      ?.values.first,
-                        ),
+                    child: JellyfinImage(
+                      borderRadius: BorderRadius.zero,
+                      id: widget.items[index].id!,
+                      type: widget.items[index].backdropImageTags!.isNotEmpty
+                          ? ImageType.backdrop
+                          : ImageType.primary,
+                      blurHash:
+                          widget.items[index].backdropImageTags!.isNotEmpty
+                              ? widget.items[index].imageBlurHashes?.backdrop
+                                  ?.values.first
+                              : widget.items[index].imageBlurHashes?.primary
+                                  ?.values.first,
+                    ),
                   ),
                 ),
                 Align(

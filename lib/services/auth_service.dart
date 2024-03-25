@@ -7,7 +7,7 @@ import 'package:jellyflix/services/database_service.dart';
 
 class AuthService {
   final ApiService _apiService;
-  //final SecureStorageService _secureStorageService;
+
   final DatabaseService _databaseService;
 
   final StreamController<bool> _authStateStream = StreamController();

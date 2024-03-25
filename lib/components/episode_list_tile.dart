@@ -5,13 +5,14 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/download_settings_dialog.dart';
 import 'package:jellyflix/components/item_list_tile.dart';
+import 'package:jellyflix/components/jellyfin_image.dart';
 import 'package:jellyflix/components/playback_progress_overlay.dart';
 import 'package:jellyflix/models/bitrates.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:jellyflix/providers/connectivity_provider.dart';
+import 'package:jellyflix/providers/database_provider.dart';
 import 'package:jellyflix/providers/download_provider.dart';
-import 'package:jellyflix/providers/secure_storage_provider.dart';
 import 'package:openapi/openapi.dart';
 import 'package:universal_io/io.dart';
 
@@ -47,7 +48,7 @@ class EpisodeListTile extends HookConsumerWidget {
       subtitle: Text(episode.runTimeTicks == null
           ? AppLocalizations.of(context)!.na
           : "${(episode.runTimeTicks! / 10000000 / 60).round()} min"),
-      leading: ref.read(apiProvider).getImage(
+      leading: JellyfinImage(
           id: episode.id!,
           type: ImageType.primary,
           blurHash: episode.imageBlurHashes?.primary?[episode.id!]),
@@ -108,9 +109,9 @@ class EpisodeListTile extends HookConsumerWidget {
                         .length;
 
                     String? downloadBitrateString = await ref
-                        .read(secureStorageProvider)
-                        .read("downloadBitrate");
-                    int downloadBitrate = BitRates().defaultBitrate();
+                        .read(databaseProvider("settings"))
+                        .get("downloadBitrate");
+                    int downloadBitrate = BitRates.defaultBitrate();
                     if (downloadBitrateString != null) {
                       downloadBitrate = int.parse(downloadBitrateString);
                     }

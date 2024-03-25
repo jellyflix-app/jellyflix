@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/profile_card.dart';
+import 'package:jellyflix/components/profile_image.dart';
 import 'package:jellyflix/models/screen_paths.dart';
-import 'package:jellyflix/providers/api_provider.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
 import 'package:jellyflix/screens/login_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -53,8 +53,8 @@ class ProfileSelectionScreen extends HookConsumerWidget {
                               width: 100,
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(100),
-                                child: ref.read(apiProvider).getProfileImage(
-                                    user: snapshot.data![index]),
+                                child:
+                                    ProfileImage(user: snapshot.data![index]),
                               ),
                             ),
                             onTap: () {

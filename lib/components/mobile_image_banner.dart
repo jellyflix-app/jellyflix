@@ -4,8 +4,8 @@ import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/components/jellyfin_image.dart';
 import 'package:jellyflix/models/screen_paths.dart';
-import 'package:jellyflix/providers/api_provider.dart';
 import 'package:openapi/openapi.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -71,7 +71,7 @@ class MobileImageBannerState extends ConsumerState<MobileImageBanner> {
               // check if backdrop exists else use primary image
 
               return Stack(children: [
-                ref.read(apiProvider).getImage(
+                JellyfinImage(
                     borderRadius: BorderRadius.zero,
                     id: widget.items[index].id!,
                     type: widget.items[index].backdropImageTags!.isNotEmpty

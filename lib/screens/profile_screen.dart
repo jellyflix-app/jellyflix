@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/components/profile_image.dart';
 import 'package:jellyflix/components/quick_connect_dialog.dart';
 import 'package:jellyflix/components/set_download_bitrate_dialog.dart';
 import 'package:jellyflix/models/bitrates.dart';
@@ -11,23 +12,18 @@ import 'package:jellyflix/providers/auth_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:jellyflix/providers/database_provider.dart';
 import 'package:jellyflix/providers/download_provider.dart';
-import 'package:jellyflix/providers/secure_storage_provider.dart';
 
 class ProfileScreen extends HookConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final downloadBitrate = useState(8000000);
+    final downloadBitrate = useState(
+        ref.read(databaseProvider("settings")).get("downloadBitrate") ??
+            BitRates.defaultBitrate());
     final disableImageCaching = useState(
         ref.read(databaseProvider("settings")).get("disableImageCaching") ??
             false);
-
-    ref.read(secureStorageProvider).read("downloadBitrate").then((value) {
-      if (value != null) {
-        downloadBitrate.value = int.parse(value);
-      }
-    });
 
     return Scaffold(
       body: SafeArea(
@@ -60,8 +56,7 @@ class ProfileScreen extends HookConsumerWidget {
                                   radius: 40,
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(100),
-                                    child:
-                                        ref.read(apiProvider).getProfileImage(),
+                                    child: const ProfileImage(),
                                   ),
                                 ),
                                 const SizedBox(width: 20),
@@ -170,8 +165,8 @@ class ProfileScreen extends HookConsumerWidget {
                             leading: const Icon(Icons.video_file_outlined),
                             title: Text(AppLocalizations.of(context)!
                                 .setLocalDownloadBitrate),
-                            trailing:
-                                Text(BitRates().map[downloadBitrate.value]!),
+                            trailing: Text(
+                                BitRates().map[downloadBitrate.value] ?? ""),
                             onTap: () async {
                               // show dialog
                               downloadBitrate.value = await showDialog(
@@ -180,9 +175,8 @@ class ProfileScreen extends HookConsumerWidget {
                                     return SetDownloadBitrateDialog(
                                         downloadBitrate: downloadBitrate.value);
                                   });
-                              await ref.read(secureStorageProvider).write(
-                                  "downloadBitrate",
-                                  downloadBitrate.value.toString());
+                              await ref.read(databaseProvider("settings")).put(
+                                  "downloadBitrate", downloadBitrate.value);
                             },
                           ),
                           ListTile(
