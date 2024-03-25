@@ -62,7 +62,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
         player.stream.tracks.listen((event) {
           List<AudioTrack> audioTracks = event.audio;
           List<SubtitleTrack> subtitleTracks = event.subtitle;
-          if (audioTracks.length > 2 &&
+          if (audioTracks.length > 3 &&
               playbackInfo.mediaSources!.first.transcodingUrl == null) {
             var index = playbackHelper.getDefaultAudioIndex();
             if (index == 0) {
@@ -409,6 +409,13 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
               ),
             );
           } else {
+            var subtitleEntries = [
+              DropdownMenuEntry(
+                  value: -1, label: AppLocalizations.of(context)!.none)
+            ];
+            subtitleEntries.addAll(playbackHelper.getSubtitleList().map((e) =>
+                DropdownMenuEntry(
+                    value: e.index!, label: e.displayTitle ?? "Unknown")));
             showDialog(
               context: context,
               builder: (context) => PlayerSettingsDialog<int?, int?>(
@@ -420,15 +427,9 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
                 audioEntries: playbackHelper
                     .getAudioList()
                     .map((e) => DropdownMenuEntry(
-                        value: e.index, label: e.language ?? "Unknown"))
+                        value: e.index, label: e.displayTitle ?? "Unknown"))
                     .toList(),
-                subtitleEntries: playbackHelper
-                    .getSubtitleList()
-                    .map((e) => DropdownMenuEntry(
-                        value: e.index,
-                        label:
-                            e.language ?? AppLocalizations.of(context)!.none))
-                    .toList(),
+                subtitleEntries: subtitleEntries,
                 onSubtitleSelected: (value) async {
                   if (subtitleTrack.value != value) {
                     subtitleTrack.value = value ?? -1;
