@@ -47,7 +47,7 @@ dependencies:
   flutter_downloader: ^1.11.6
   dio: ^5.4.0
   device_info_plus: ^9.1.1
-  package_info_plus: ^5.0.1
+  package_info_plus: ^6.0.0
   flutter_localizations:
     sdk: flutter
   intl: any
@@ -57,6 +57,7 @@ dependencies:
   transparent_image: ^2.0.1
   hive: ^2.2.3
   hive_flutter: ^1.1.0
+  wakelock_plus: ^1.2.1
 
 dependency_overrides: 
   media_kit: 

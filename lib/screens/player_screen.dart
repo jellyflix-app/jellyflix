@@ -12,7 +12,7 @@ import 'package:openapi/openapi.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
+import 'package:wakelock_plus/wakelock_plus.dart';
 import 'package:jellyflix/components/player_settings_dialog.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:jellyflix/providers/playback_helper_provider.dart';
@@ -47,7 +47,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
   @override
   void initState() {
     headers = ref.read(apiProvider).headers;
-
+    WakelockPlus.enable();
     streamUrl = widget.streamUrlAndPlaybackInfo.$1;
     playbackInfo = widget.streamUrlAndPlaybackInfo.$2;
 
@@ -130,6 +130,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
   void dispose() {
     _timer?.cancel();
     player.dispose();
+    WakelockPlus.disable();
     super.dispose();
   }
 
