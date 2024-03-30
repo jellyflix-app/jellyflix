@@ -8,6 +8,7 @@ import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 class OfflinePlayerScreen extends StatefulHookConsumerWidget {
   const OfflinePlayerScreen(
@@ -32,6 +33,7 @@ class _PlayerSreenState extends ConsumerState<OfflinePlayerScreen> {
 
   @override
   void initState() {
+    WakelockPlus.enable();
     requestPermissions().then(
       (value) {
         player.open(Media(widget.streamPath,
@@ -71,6 +73,7 @@ class _PlayerSreenState extends ConsumerState<OfflinePlayerScreen> {
   void dispose() {
     _timer?.cancel();
     player.dispose();
+    WakelockPlus.disable();
     super.dispose();
   }
 
