@@ -5,6 +5,7 @@ import 'package:jellyflix/components/desktop_image_banner.dart';
 import 'package:jellyflix/components/mobile_image_banner.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
+import 'dart:io';
 
 import 'package:openapi/openapi.dart';
 
@@ -22,18 +23,17 @@ class ImageBanner extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return LayoutBuilder(builder: (context, constraints) {
-      if (constraints.maxWidth > 600) {
-        var desktopImageBanner = DesktopImageBanner(
-          items: items,
-          height: 400,
-          scrollDuration: scrollDuration,
-          onPressedPlay: onPressedPlay(ref, context),
-        );
-        return desktopImageBanner;
-      } else {
+      if (Platform.isAndroid || Platform.isIOS) {
         return MobileImageBanner(
           items: items,
           height: height,
+          scrollDuration: scrollDuration,
+          onPressedPlay: onPressedPlay(ref, context),
+        );
+      } else {
+        return DesktopImageBanner(
+          items: items,
+          height: 400,
           scrollDuration: scrollDuration,
           onPressedPlay: onPressedPlay(ref, context),
         );

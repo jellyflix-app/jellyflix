@@ -1,9 +1,9 @@
-import 'dart:async';
-
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
+import 'package:async/async.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/components/global_state.dart';
 import 'package:jellyflix/components/jellyfin_image.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:openapi/openapi.dart';
@@ -29,14 +29,14 @@ class DesktopImageBanner extends StatefulHookConsumerWidget {
 class DestkopImageBannerState extends ConsumerState<DesktopImageBanner> {
   final PageController _controller = PageController();
   int _currentPage = 0;
-  Timer? _timer;
+  RestartableTimer? _timer;
   bool _hovered = false;
 
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(widget.scrollDuration, (timer) {
-      if (!_hovered) {
+    _timer = RestartableTimer(widget.scrollDuration, () {
+      if (!_hovered && !ref.read(globalState.mediaPlaybackIsLoading)) {
         if (_currentPage < widget.items.length - 1) {
           _currentPage++;
         } else {
@@ -45,6 +45,7 @@ class DestkopImageBannerState extends ConsumerState<DesktopImageBanner> {
         _controller.animateToPage(_currentPage,
             duration: const Duration(milliseconds: 350), curve: Curves.easeIn);
       }
+      _timer?.reset();
     });
   }
 
@@ -59,16 +60,16 @@ class DestkopImageBannerState extends ConsumerState<DesktopImageBanner> {
   Widget build(BuildContext context) {
     return MouseRegion(
       onEnter: (_) {
+        _timer?.reset();
         setState(() {
           _hovered = true;
         });
       },
       onHover: (_) {
-        setState(() {
-          _hovered = true;
-        });
+        _timer?.reset();
       },
       onExit: (_) {
+        _timer?.reset();
         setState(() {
           _hovered = false;
         });
@@ -88,7 +89,7 @@ class DestkopImageBannerState extends ConsumerState<DesktopImageBanner> {
               },
               itemBuilder: (context, index) {
                 // check if backdrop exists else use primary image
-
+                final isLoading = ref.watch(globalState.mediaPlaybackIsLoading);
                 return Stack(children: [
                   Align(
                     alignment: Alignment.centerRight,
@@ -170,13 +171,30 @@ class DestkopImageBannerState extends ConsumerState<DesktopImageBanner> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               ElevatedButton.icon(
-                                onPressed: () {
-                                  BaseItemDto item = widget.items[index];
-                                  widget.onPressedPlay(item);
-                                },
-                                label: Text(AppLocalizations.of(context)!.play),
-                                icon: const Icon(Icons.play_arrow_rounded),
-                              ),
+                                  onPressed: () {
+                                    ref
+                                        .read(globalState
+                                            .mediaPlaybackIsLoading.notifier)
+                                        .update((state) => true);
+                                    BaseItemDto item = widget.items[index];
+                                    widget.onPressedPlay(item);
+                                  },
+                                  label:
+                                      Text(AppLocalizations.of(context)!.play),
+                                  icon: Padding(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                                    child: isLoading
+                                        ? const SizedBox(
+                                            width: 10,
+                                            height: 10,
+                                            child: CircularProgressIndicator(),
+                                          )
+                                        : const SizedBox(
+                                            width: 10,
+                                            child:
+                                                Icon(Icons.play_arrow_rounded)),
+                                  )),
                               const SizedBox(
                                 width: 10,
                               ),

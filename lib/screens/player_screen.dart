@@ -17,6 +17,7 @@ import 'package:jellyflix/components/player_settings_dialog.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:jellyflix/providers/playback_helper_provider.dart';
 import 'package:jellyflix/services/playback_helper_service.dart';
+import 'package:jellyflix/components/global_state.dart';
 
 class PlayerScreen extends StatefulHookConsumerWidget {
   const PlayerScreen(
@@ -83,6 +84,9 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
         });
 
         ref.read(apiProvider).reportStartPlayback(widget.startTimeTicks);
+        ref
+            .read(globalState.mediaPlaybackIsLoading.notifier)
+            .update((state) => false);
 
         if (player.platform is NativePlayer) {
           (player.platform as dynamic).setProperty(
