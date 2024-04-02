@@ -9,14 +9,6 @@ import 'package:async/async.dart';
 
 import 'package:openapi/openapi.dart';
 
-/*
-
-The approach is going to be like this:
-Create the restartable timer in this layer
-create an outer "InteractionArea", passing the timer
-create a 
-*/
-
 class InteractionArea extends StatelessWidget {
   final void Function()? timerResetCallback;
   final Function(bool)? setHoveredCallback;
