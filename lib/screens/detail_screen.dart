@@ -11,7 +11,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:flutter/material.dart';
 
-import 'package:jellyflix/components/global_state.dart';
 import 'package:jellyflix/components/description_text.dart';
 import 'package:jellyflix/components/episode_list.dart';
 import 'package:jellyflix/components/item_information_details.dart';
@@ -94,7 +93,6 @@ class DetailScreen extends HookConsumerWidget {
                   episodeStreamController.add(value);
                 });
               }
-              final isLoading = ref.watch(globalState.mediaPlaybackIsLoading);
               return Align(
                 alignment: Alignment.topCenter,
                 child: SingleChildScrollView(
@@ -368,10 +366,6 @@ class DetailScreen extends HookConsumerWidget {
                                     onPressed: () async {
                                       String itemId;
                                       int playbackStartTicks = 0;
-                                      ref
-                                          .read(globalState
-                                              .mediaPlaybackIsLoading.notifier)
-                                          .update((state) => true);
                                       if (data.type == BaseItemKind.series) {
                                         List<BaseItemDto> continueWatching =
                                             await ref
@@ -409,22 +403,12 @@ class DetailScreen extends HookConsumerWidget {
                                             playbackStartTicks, context);
                                       }
                                     },
-                                    icon: Padding(
-                                      padding: const EdgeInsets.fromLTRB(
-                                          0, 0, 10, 0),
-                                      child: isLoading
-                                          ? SizedBox(
-                                              width: 10,
-                                              height: 10,
-                                              child: CircularProgressIndicator(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onPrimary),
-                                            )
-                                          : const SizedBox(
-                                              width: 10,
-                                              child: Icon(
-                                                  Icons.play_arrow_rounded)),
+                                    icon: const Padding(
+                                      padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                                      child: SizedBox(
+                                          width: 10,
+                                          child:
+                                              Icon(Icons.play_arrow_rounded)),
                                     ),
                                     label: Padding(
                                       padding: const EdgeInsets.symmetric(

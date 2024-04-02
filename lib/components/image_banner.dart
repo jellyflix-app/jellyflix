@@ -1,4 +1,3 @@
-import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -6,8 +5,6 @@ import 'package:jellyflix/components/image_banner_inner_landscape.dart';
 import 'package:jellyflix/components/image_banner_inner_portrait.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
-import 'package:jellyflix/components/global_state.dart';
-import 'dart:io';
 import 'package:async/async.dart';
 
 import 'package:openapi/openapi.dart';
@@ -78,12 +75,13 @@ class ImageBannerState extends ConsumerState<ImageBanner> {
   int _currentPage = 0;
   RestartableTimer? _timer;
   bool hovered = false;
+  bool playButtonPressed = false;
 
   @override
   void initState() {
     super.initState();
     _timer = RestartableTimer(widget.scrollInterval, () {
-      if (!ref.read(globalState.mediaPlaybackIsLoading) && !hovered) {
+      if (!playButtonPressed && !hovered) {
         if (_currentPage < widget.items.length - 1) {
           _currentPage++;
         } else {
@@ -117,6 +115,7 @@ class ImageBannerState extends ConsumerState<ImageBanner> {
               ? ImageBannerInnerPortrait(
                   items: widget.items,
                   height: widget.height,
+                  playButtonPressed: playButtonPressed,
                   onPressedPlay: onPressedPlay(ref, context),
                   controller: _controller,
                   currentPage: _currentPage,
@@ -125,6 +124,7 @@ class ImageBannerState extends ConsumerState<ImageBanner> {
               : ImageBannerInnerLandscape(
                   items: widget.items,
                   height: widget.height,
+                  playButtonPressed: playButtonPressed,
                   onPressedPlay: onPressedPlay(ref, context),
                   controller: _controller,
                   currentPage: _currentPage,
@@ -135,9 +135,9 @@ class ImageBannerState extends ConsumerState<ImageBanner> {
 
   onPressedPlay(WidgetRef ref, BuildContext context) {
     return (item) async {
-      ref
-          .read(globalState.mediaPlaybackIsLoading.notifier)
-          .update((state) => true);
+      setState(() {
+        playButtonPressed = true;
+      });
       var itemId = item.id;
       var playbackStartTicks = item.userData?.playbackPositionTicks ?? 0;
       if (item.type == BaseItemKind.series) {
@@ -162,16 +162,24 @@ class ImageBannerState extends ConsumerState<ImageBanner> {
       if (itemId == null) {
         return;
       }
-      var playbackInfo = await ref
+      ref
           .read(apiProvider)
-          .getStreamUrlAndPlaybackInfo(itemId: itemId);
-      if (context.mounted) {
-        context.push(
+          .getStreamUrlAndPlaybackInfo(itemId: itemId)
+          .then((playbackInfo) {
+        if (context.mounted) {
+          context.push(
             Uri(path: ScreenPaths.player, queryParameters: {
               "startTimeTicks": playbackStartTicks.toString()
             }).toString(),
-            extra: playbackInfo);
-      }
+            extra: playbackInfo,
+          );
+          Future.delayed(const Duration(seconds: 1), () {
+            setState(() {
+              playButtonPressed = false;
+            });
+          });
+        }
+      });
     };
   }
 }

@@ -6,7 +6,6 @@ import 'package:jellyflix/components/jellyfin_image.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:openapi/openapi.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:jellyflix/components/global_state.dart';
 
 class ImageBannerInnerPortrait extends HookConsumerWidget {
   final List<BaseItemDto> items;
@@ -15,6 +14,7 @@ class ImageBannerInnerPortrait extends HookConsumerWidget {
   final PageController controller;
   final Function(int) setCurrentPageCallback;
   final int currentPage;
+  final bool playButtonPressed;
 
   const ImageBannerInnerPortrait({
     super.key,
@@ -24,6 +24,7 @@ class ImageBannerInnerPortrait extends HookConsumerWidget {
     required this.controller,
     required this.setCurrentPageCallback,
     required this.currentPage,
+    required this.playButtonPressed,
   });
 
   @override
@@ -40,7 +41,6 @@ class ImageBannerInnerPortrait extends HookConsumerWidget {
               setCurrentPageCallback(value);
             },
             itemBuilder: (context, index) {
-              final isLoading = ref.watch(globalState.mediaPlaybackIsLoading);
               // check if backdrop exists else use primary image
               return Stack(children: [
                 JellyfinImage(
@@ -100,7 +100,7 @@ class ImageBannerInnerPortrait extends HookConsumerWidget {
                                 icon: Padding(
                                   padding:
                                       const EdgeInsets.fromLTRB(0, 0, 10, 0),
-                                  child: isLoading
+                                  child: playButtonPressed
                                       ? const SizedBox(
                                           width: 10,
                                           height: 10,
