@@ -3,11 +3,11 @@
 
     "continueWatching": "Continuer à regarder",
     "recentlyAddedMovies": "Films récemment ajoutés",
-    "recentlyAddedShows": "Émissions récemment ajoutées",
-    "yourWatchlist": "Votre liste de surveillance",
+    "recentlyAddedShows": "Séries TV récemment ajoutées",
+    "yourWatchlist": "Votre liste lecture",
     "top10inYourLibrary": "Top 10 dans votre bibliothèque",
-    "similarToWatchHistory": "Similaire à votre historique de visionnage",
-    "becauseYouWatched": "Parce que tu as regardé {title}",
+    "similarToWatchHistory": "Similaire à votre historique de visionnement",
+    "becauseYouWatched": "Parce que vous avez regardé {title}",
     "@becausYouWatched": {
         "placeholders": {
           "title": {
@@ -16,7 +16,7 @@
           }
         }
       },
-    "becauseYouLiked": "Parce que tu aime {title}",
+    "becauseYouLiked": "Parce que vous avez aimé {title}",
     "@becauseYouLiked": {
         "placeholders": {
           "title": {
@@ -34,7 +34,7 @@
           }
         }
       },
-    "starring": "Avec {actor}",
+    "starring": "Mettant en vedette {actor}",
     "@starring": {
         "placeholders": {
           "actor": {
@@ -43,10 +43,10 @@
           }
         }
       },
-    "recommendedForYou": "Recommandé pour toi",
-    "play": "Jouer",
+    "recommendedForYou": "Recommandé pour vous",
+    "play": "Lire",
     "moreInfo": "Plus d'info",
-    "search": "Chercher",
+    "search": "Rechercher",
     "startTypingSearch": "Commencez à taper pour rechercher",
     "genre": "Genre",
     "all": "Tout",
@@ -59,40 +59,40 @@
     "name": "Nom",
     "premiereDate": "Date de première",
     "random": "Aléatoire",
-    "unplayed": "Non joué",
-    "played": "Joué",
+    "unplayed": "Non regardé",
+    "played": "Déjà joué",
     "favorites": "Favoris",
     "liked": "Aimé",
     "changeProfile": "Changer de profil",
     "logout": "Se déconnecter",
-    "about": "D'accueil",
+    "about": "À propos",
     "scanLibrary": "Analyser la bibliothèque",
     "scanStarted": "Analyse en cours",
     "quickConnect": "Connexion rapide",
-    "quickConnectDescription": "Entrez le code sur ton l'apperail",
-    "quickConnectError401": "Accède-t-on au bon serveur ?",
+    "quickConnectDescription": "Entrez le code affiché sur votre appareil",
+    "quickConnectError401": "Accèdez-vous au bon serveur ?",
     "quickConnectError404": "Code invalide",
     "quickConnectErrorUnknown": "Quelque chose n'a pas fonctionné",
     "connect": "Connecter",
     "code": "Code",
-    "writers": "Écrivains",
-    "directors": "Directeurs",
+    "writers": "Auteurs",
+    "directors": "Réalisateurs",
     "genres": "Genres",
     "cast": "Acteurs",
     "episodes": "Épisodes",
     "season": "Saison",
     "na": "N/A",
-    "addedToWatchlist": "Ajouté à ton liste de visionnage",
-    "removedFromWatchlist": "Retiré de ton liste de visionnage",
-    "noItemsFound": "Aucun élément",
+    "addedToWatchlist": "Ajouté à votre liste de lecture",
+    "removedFromWatchlist": "Retiré de votre liste de lecture",
+    "noItemsFound": "Aucun élément trouvé",
     "noResultsFound": "Aucun résultat",
     "movies": "Films",
-    "series": "Séries",
+    "series": "Séries TV",
     "collections": "Collections",
     "addProfile": "Ajouter un profil",
-    "appSubtitle": "Another Jellyfin client",
+    "appSubtitle": "Un autre client Jellyfin",
     "serverAddress": "Adresse du serveur",
-    "login": "Connecter",
+    "login": "Se connecter",
     "username": "Nom d'utilisateur",
     "password": "Mot de passe",
     "webDemoNote": "Il s'agit d'une version de démonstration de Jellyflix. Pour l'utiliser, vous pouvez utiliser les identifiants suivants:\nAdresse du serveur: https://demo.jellyfin.org/stable\nNom d'utilisateur : demo.\nIl n'y a pas de mot de passe.",
