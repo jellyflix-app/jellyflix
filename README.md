@@ -33,10 +33,11 @@ Beta-Builds are available on Testflight. Join Testflight [here](https://testflig
 Google Play and F-Droid coming soon
 
 ### macOS
+[![](https://img.shields.io/badge/macOS-000000?style=for-the-badge&logo=apple&logoColor=white)](https://github.com/jellyflix-app/jellyflix/releases/latest/download/jellyflix.dmg)
+
+There is a native macOS app available. You can download it from the link above. Or you can download the iOS version from the App Store and run it on your M series Mac.
 
 [![](https://img.shields.io/badge/App_Store-0D96F6?style=for-the-badge&logo=app-store&logoColor=white)](https://apps.apple.com/de/app/jellyflix/id6476043683)
-
-Note: There is a native .dmg file available, but there are login issues after notarization. As a workaround, you can use the iOS app on macOS. The iOS version looks and works the same as the macOS app.
 
 ### Windows
 
@@ -57,7 +58,7 @@ If Jellyflix can't launch because it can't find libmpv, but you did install it. 
 
 [![](https://img.shields.io/badge/Web-000000?style=for-the-badge&logo=web&logoColor=white)](https://jellyflix.kiejon.com)
 
-The web version is only intended for demo usage and doesn't support all the features.
+The web version is only intended for demo usage and doesn't support all the features. E.g. playback is not supported.
 
 ## Contribute
 
