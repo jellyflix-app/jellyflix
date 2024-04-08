@@ -167,6 +167,9 @@
           }
         }
       },
+    "disableWatchlist": "Disable Watchlist",
+    "deletePlaylistNotice": "To prevent data loss, please delete the playlist from the server, if it's no longer needed.",
+    "info": "Info",
     "appName": "Jellyflix"
     
 }

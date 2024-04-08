@@ -5,6 +5,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jellyflix/components/jellyfin_image.dart';
 import 'package:jellyflix/components/rounded_download_button.dart';
+import 'package:jellyflix/providers/database_provider.dart';
 import 'package:openapi/openapi.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -424,49 +425,53 @@ class DetailScreen extends HookConsumerWidget {
                                           .onPrimary,
                                     ),
                                   ),
-                            const SizedBox(width: 8.0),
-                            Container(
-                              height: 40,
-                              width: 40,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(100.0),
-                                color: Colors.white.withOpacity(0.1),
-                              ),
-                              child: ElevatedButton(
-                                onPressed: () async {
-                                  await ref.read(apiProvider).updateWatchlist(
-                                      itemId, !onWatchlist.value);
-                                  onWatchlist.value = !onWatchlist.value;
+                            if (ref
+                                    .read(databaseProvider("settings"))
+                                    .get("disableWatchlist") !=
+                                true) ...[
+                              const SizedBox(width: 8.0),
+                              Container(
+                                height: 40,
+                                width: 40,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(100.0),
+                                  color: Colors.white.withOpacity(0.1),
+                                ),
+                                child: ElevatedButton(
+                                  onPressed: () async {
+                                    await ref.read(apiProvider).updateWatchlist(
+                                        itemId, !onWatchlist.value);
+                                    onWatchlist.value = !onWatchlist.value;
 
-                                  if (context.mounted) {
-                                    // show snackbar
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(SnackBar(
-                                      content: Text(onWatchlist.value
-                                          ? AppLocalizations.of(context)!
-                                              .addedToWatchlist
-                                          : AppLocalizations.of(context)!
-                                              .removedFromWatchlist),
-                                      duration: const Duration(seconds: 1),
-                                    ));
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                    minimumSize: Size.zero,
-                                    padding: EdgeInsets.zero,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    )),
-                                child: Icon(
-                                  onWatchlist.value
-                                      ? Icons.done_outlined
-                                      : Icons.add,
+                                    if (context.mounted) {
+                                      // show snackbar
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(SnackBar(
+                                        content: Text(onWatchlist.value
+                                            ? AppLocalizations.of(context)!
+                                                .addedToWatchlist
+                                            : AppLocalizations.of(context)!
+                                                .removedFromWatchlist),
+                                        duration: const Duration(seconds: 1),
+                                      ));
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                      minimumSize: Size.zero,
+                                      padding: EdgeInsets.zero,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(30),
+                                      )),
+                                  child: Icon(
+                                    onWatchlist.value
+                                        ? Icons.done_outlined
+                                        : Icons.add,
+                                  ),
                                 ),
                               ),
-                            ),
-                            if (data.type != BaseItemKind.series)
+                            ],
+                            if (data.type != BaseItemKind.series) ...[
                               const SizedBox(width: 8.0),
-                            if (data.type != BaseItemKind.series)
                               Container(
                                 height: 40,
                                 width: 40,
@@ -477,6 +482,7 @@ class DetailScreen extends HookConsumerWidget {
                                 child: RoundedDownloadButton(
                                     itemId: itemId, data: data),
                               ),
+                            ],
                             const SizedBox(width: 8.0),
                             ClipRRect(
                               borderRadius: BorderRadius.circular(100.0),
