@@ -93,7 +93,6 @@ class DetailScreen extends HookConsumerWidget {
                   episodeStreamController.add(value);
                 });
               }
-
               return Align(
                 alignment: Alignment.topCenter,
                 child: SingleChildScrollView(
@@ -367,7 +366,6 @@ class DetailScreen extends HookConsumerWidget {
                                     onPressed: () async {
                                       String itemId;
                                       int playbackStartTicks = 0;
-
                                       if (data.type == BaseItemKind.series) {
                                         List<BaseItemDto> continueWatching =
                                             await ref
@@ -405,7 +403,13 @@ class DetailScreen extends HookConsumerWidget {
                                             playbackStartTicks, context);
                                       }
                                     },
-                                    icon: const Icon(Icons.play_arrow),
+                                    icon: const Padding(
+                                      padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
+                                      child: SizedBox(
+                                          width: 10,
+                                          child:
+                                              Icon(Icons.play_arrow_rounded)),
+                                    ),
                                     label: Padding(
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 8.0),
