@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:jellyflix/components/jfx_layout.dart';
 
-class ItemCarouselRow extends StatelessWidget {
-  const ItemCarouselRow({
+class ItemCarouselLabel extends StatelessWidget {
+  final String? title;
+  final ScrollController scrollController;
+  final double offsetWidth;
+
+  const ItemCarouselLabel({
     super.key,
     this.title,
     required this.scrollController,
     required this.offsetWidth,
   });
-
-  final String? title;
-  final ScrollController scrollController;
-  final double offsetWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +23,7 @@ class ItemCarouselRow extends StatelessWidget {
             : Expanded(
                 child: Text(
                   title!,
-                  style: Theme.of(context).textTheme.headlineSmall,
+                  style: JfxTextTheme.scalingTheme(context).headlineSmall,
                   overflow: TextOverflow.ellipsis,
                 ),
               ),

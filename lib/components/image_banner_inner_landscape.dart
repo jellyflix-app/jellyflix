@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/jellyfin_image.dart';
+import 'package:jellyflix/components/jfx_layout.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:openapi/openapi.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -93,18 +94,21 @@ class ImageBannerInnerLandscape extends HookConsumerWidget {
                             children: [
                               Text(
                                 items[index].name!,
-                                style:
-                                    Theme.of(context).textTheme.headlineSmall,
+                                style: JfxTextTheme.scalingTheme(context)
+                                    .headlineSmall,
                                 maxLines: 2,
                               ),
                               Text(items[index].productionYear.toString(),
-                                  style:
-                                      Theme.of(context).textTheme.titleMedium),
+                                  style: JfxTextTheme.scalingTheme(context)
+                                      .titleMedium),
                               const SizedBox(
                                 height: 10,
                               ),
                               Text(items[index].overview ?? "",
-                                  maxLines: 3, overflow: TextOverflow.ellipsis),
+                                  style: JfxTextTheme.scalingTheme(context)
+                                      .bodyLarge,
+                                  maxLines: 3,
+                                  overflow: TextOverflow.ellipsis),
                               const SizedBox(
                                 height: 20,
                               ),
@@ -119,7 +123,14 @@ class ImageBannerInnerLandscape extends HookConsumerWidget {
                                   BaseItemDto item = items[index];
                                   onPressedPlay(item);
                                 },
-                                label: Text(AppLocalizations.of(context)!.play),
+                                label: Text(
+                                    style: JfxTextTheme.scalingTheme(context)
+                                        .bodyLarge!
+                                        .copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary),
+                                    AppLocalizations.of(context)!.play),
                                 icon: Padding(
                                   padding:
                                       const EdgeInsets.fromLTRB(0, 0, 10, 0),
@@ -146,6 +157,12 @@ class ImageBannerInnerLandscape extends HookConsumerWidget {
                                       }).toString());
                                 },
                                 child: Text(
+                                    style: JfxTextTheme.scalingTheme(context)
+                                        .bodyLarge!
+                                        .copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary),
                                     AppLocalizations.of(context)!.moreInfo)),
                           ],
                         ),

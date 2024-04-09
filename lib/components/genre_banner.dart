@@ -3,8 +3,9 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jellyflix/components/item_carousel_row.dart';
+import 'package:jellyflix/components/item_carousel_label.dart';
 import 'package:jellyflix/components/jellyfin_image.dart';
+import 'package:jellyflix/components/jfx_layout.dart';
 import 'package:jellyflix/models/gradients.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
@@ -36,7 +37,7 @@ class GenreBanner extends HookConsumerWidget {
                 Padding(
                     padding: const EdgeInsets.symmetric(
                         vertical: 10, horizontal: 10),
-                    child: ItemCarouselRow(
+                    child: ItemCarouselLabel(
                         title: AppLocalizations.of(context)!.genres,
                         scrollController: pageController,
                         offsetWidth: MediaQuery.of(context).size.width * 0.9)),
@@ -109,9 +110,8 @@ class GenreBanner extends HookConsumerWidget {
                               ),
                               Center(
                                 child: Text(snapshot.data![index].name!,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineMedium!
+                                    style: JfxTextTheme.scalingTheme(context)
+                                        .headlineSmall!
                                         .copyWith(
                                           fontWeight: FontWeight.bold,
                                         )),

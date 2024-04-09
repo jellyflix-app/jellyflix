@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/components/jfx_layout.dart';
 
 class DescriptionText extends StatefulWidget {
   final String text;
@@ -34,17 +35,19 @@ class DescriptionTextState extends State<DescriptionText> {
 
   @override
   Widget build(BuildContext context) {
+    TextTheme textTheme = JfxTextTheme.scalingTheme(context);
     return secondHalf.isEmpty
-        ? Text(firstHalf)
+        ? Text(style: textTheme.bodyLarge, firstHalf)
         : Column(
             children: <Widget>[
               showMore
                   ? Text(
+                      style: textTheme.bodyLarge,
                       widget.text,
                       maxLines: 4,
                       overflow: TextOverflow.ellipsis,
                     )
-                  : Text(widget.text),
+                  : Text(style: textTheme.bodyLarge, widget.text),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
@@ -58,7 +61,7 @@ class DescriptionTextState extends State<DescriptionText> {
                       showMore
                           ? AppLocalizations.of(context)!.showMore
                           : AppLocalizations.of(context)!.showLess,
-                      style: TextStyle(
+                      style: textTheme.bodyLarge!.copyWith(
                           color: Theme.of(context).colorScheme.primary),
                     ),
                   ),

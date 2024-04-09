@@ -4,6 +4,8 @@ import 'dart:ui';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jellyflix/components/jellyfin_image.dart';
+import 'package:jellyflix/components/jfx_layout.dart';
+import 'package:jellyflix/components/jfx_tile.dart';
 import 'package:jellyflix/components/rounded_download_button.dart';
 import 'package:openapi/openapi.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -56,6 +58,8 @@ class DetailScreen extends HookConsumerWidget {
           value.where((element) => element.id == itemId).isNotEmpty;
     });
 
+    final layout = JfxLayout.scalingLayout(context);
+    final featuredPosterHeight = layout.tileHeight * 1.25;
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: appBarColorTransaparent.value
@@ -101,7 +105,8 @@ class DetailScreen extends HookConsumerWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(
-                        height: 250 + MediaQuery.of(context).padding.top,
+                        height: featuredPosterHeight +
+                            MediaQuery.of(context).padding.top,
                         child: Stack(
                           children: [
                             Stack(
@@ -136,34 +141,18 @@ class DetailScreen extends HookConsumerWidget {
                                   children: [
                                     SizedBox(
                                       height:
-                                          MediaQuery.of(context).padding.top +
-                                              17,
+                                          MediaQuery.of(context).padding.top,
                                     ),
-                                    Padding(
-                                      padding: const EdgeInsets.only(
-                                          top: 8.0, left: 8.0, right: 8.0),
-                                      child: Material(
-                                        borderRadius:
-                                            BorderRadius.circular(10.0),
-                                        elevation: 10.0,
-                                        child: Container(
-                                          width: 150.0,
-                                          height: 3 / 2 * 150.0,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(10.0),
-                                          ),
-                                          child: JellyfinImage(
-                                              id: itemId,
-                                              type: ImageType.primary,
-                                              blurHash: data.imageBlurHashes
-                                                  ?.primary?[itemId]),
-                                        ),
-                                      ),
+                                    JfxTile(
+                                      id: itemId,
+                                      blurHash: data
+                                          .imageBlurHashes?.primary?[itemId],
+                                      tileWidth: featuredPosterHeight * 3 / 4,
+                                      tileHeight: featuredPosterHeight,
+                                      onTap: () => {},
                                     ),
                                   ],
                                 ),
-                                const SizedBox(width: 8.0),
                                 Expanded(
                                   child: Column(
                                     crossAxisAlignment:
@@ -342,17 +331,16 @@ class DetailScreen extends HookConsumerWidget {
                                                   ),
                                                   const SizedBox(width: 8.0),
                                                   Text(
-                                                    AppLocalizations.of(
-                                                            context)!
-                                                        .play,
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.w500,
-                                                      color: Theme.of(context)
-                                                          .colorScheme
-                                                          .onPrimary,
-                                                    ),
-                                                  ),
+                                                      style: layout
+                                                          .text.bodyLarge!
+                                                          .copyWith(
+                                                        color: Theme.of(context)
+                                                            .colorScheme
+                                                            .onPrimary,
+                                                      ),
+                                                      AppLocalizations.of(
+                                                              context)!
+                                                          .play),
                                                   const SizedBox(width: 5.0),
                                                 ],
                                               ),
@@ -414,6 +402,12 @@ class DetailScreen extends HookConsumerWidget {
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 8.0),
                                       child: Text(
+                                          style:
+                                              layout.text.bodyLarge!.copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary,
+                                          ),
                                           AppLocalizations.of(context)!.play),
                                     ),
                                     style: ElevatedButton.styleFrom(
