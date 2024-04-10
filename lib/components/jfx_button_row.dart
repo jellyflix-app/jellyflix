@@ -9,7 +9,7 @@ import 'package:openapi/openapi.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class CustomButtonRow extends StatelessWidget {
+class JfxButtonRow extends StatelessWidget {
   final BuildContext context;
   final WidgetRef ref;
   final BaseItemDto data;
@@ -21,7 +21,7 @@ class CustomButtonRow extends StatelessWidget {
   final StreamController<List<BaseItemDto>> streamController;
   final Function goToPlayerScreen;
 
-  const CustomButtonRow(
+  const JfxButtonRow(
       {Key? key,
       required this.context,
       required this.ref,

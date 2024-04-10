@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:jellyflix/components/jfx_text_theme.dart';
 import 'package:universal_platform/universal_platform.dart';
-import 'package:jellyflix/components/jfx_layout.dart';
 
 class ItemCarouselLabel extends StatelessWidget {
   final String? title;

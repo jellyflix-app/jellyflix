@@ -4,7 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/episode_list_tile.dart';
-import 'package:jellyflix/components/jfx_layout.dart';
+import 'package:jellyflix/components/jfx_text_theme.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:openapi/openapi.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -26,7 +26,6 @@ class EpisodeList extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final seasonSelection = useState(0);
-    final layout = JfxLayout.scalingLayout(context);
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -76,13 +75,14 @@ class EpisodeList extends HookConsumerWidget {
                                   seasonSelection.value = index;
                                 },
                                 label: Text(
-                                    style: JfxTextTheme.scalingTheme(context)
-                                        .bodyLarge!
-                                        .copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onPrimary),
-                                    seasons[index])),
+                                  seasons[index],
+                                  style: JfxTextTheme.scalingTheme(context)
+                                      .bodyLarge!
+                                      .copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary),
+                                )),
                           );
                         }),
                   ),

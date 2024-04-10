@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/jellyfin_image.dart';
-import 'package:jellyflix/components/jfx_layout.dart';
+import 'package:jellyflix/components/jfx_text_theme.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:openapi/openapi.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';

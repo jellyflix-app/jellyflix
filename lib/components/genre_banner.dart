@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/item_carousel_label.dart';
 import 'package:jellyflix/components/jellyfin_image.dart';
-import 'package:jellyflix/components/jfx_layout.dart';
+import 'package:jellyflix/components/jfx_text_theme.dart';
 import 'package:jellyflix/models/gradients.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';

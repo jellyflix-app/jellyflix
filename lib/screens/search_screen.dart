@@ -3,7 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/future_item_carousel.dart';
-import 'package:jellyflix/components/jfx_layout.dart';
+import 'package:jellyflix/components/jfx_text_theme.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:openapi/openapi.dart';

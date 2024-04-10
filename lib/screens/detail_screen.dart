@@ -270,7 +270,7 @@ class DetailScreen extends HookConsumerWidget {
                       Padding(
                         padding: const EdgeInsets.only(
                             left: 10.0, right: 10, top: 25.0),
-                        child: CustomButtonRow(
+                        child: JfxButtonRow(
                           context: context,
                           ref: ref,
                           data: data,

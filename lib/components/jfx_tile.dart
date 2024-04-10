@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:jellyflix/components/jfx_layout.dart';
 import 'package:openapi/openapi.dart';
 import 'package:jellyflix/components/jellyfin_image.dart';
 
@@ -25,18 +24,58 @@ class JfxTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final JfxLayout layout = JfxLayout.scalingLayout(context);
-    // Adjust percentage as needed
-
     return LongPressDraggable(
       data: id, // Pass whatever data you need
-      feedback: Material(
+      feedback: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: tileWidth,
+            height: tileHeight,
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10.0),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.5),
+                          spreadRadius: 2,
+                          blurRadius: 5,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
+                    ),
+                    child: JellyfinImage(
+                      id: id,
+                      type: ImageType.primary,
+                      blurHash: blurHash,
+                    ),
+                  ),
+                ),
+                Positioned.fill(
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(10.0),
+                      onTap: onTap,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          )
+        ],
+      ),
+      child: SizedBox(
+        width: tileWidth,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             SizedBox(
               width: tileWidth,
-              height: tileHeight,
+              height: tileHeight, // Set height in relation to width,
               child: Stack(
                 children: [
                   Positioned.fill(
@@ -70,55 +109,8 @@ class JfxTile extends StatelessWidget {
                   ),
                 ],
               ),
-            )
+            ),
           ],
-        ),
-      ),
-      child: Material(
-        child: SizedBox(
-          width: tileWidth,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: tileWidth,
-                height: tileHeight, // Set height in relation to width,
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10.0),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.5),
-                              spreadRadius: 2,
-                              blurRadius: 5,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        child: JellyfinImage(
-                          id: id,
-                          type: ImageType.primary,
-                          blurHash: blurHash,
-                        ),
-                      ),
-                    ),
-                    Positioned.fill(
-                      child: Material(
-                        color: Colors.transparent,
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(10.0),
-                          onTap: onTap,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
