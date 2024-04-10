@@ -73,43 +73,73 @@ class _ItemCarouselState extends ConsumerState<ItemCarousel> {
 
   @override
   Widget build(BuildContext context) {
-    var layout = JfxLayout.scalingLayout(context);
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          child: ItemCarouselLabel(
+    final layout = JfxLayout.scalingLayout(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ItemCarouselLabel(
               title: widget.title,
               scrollController: scrollController,
               offsetWidth: (450)),
-        ),
-        const SizedBox(height: 5.0),
-        SizedBox(
-          height: layout.tileHeight,
-          child: ListView.builder(
-            controller: scrollController,
-            shrinkWrap: true,
-            scrollDirection: Axis.horizontal,
-            itemCount: widget.titleList.length,
-            itemBuilder: (context, index) {
-              return JfxTile(
-                  id: widget.imageList[index],
-                  tileHeight: layout.tileHeight,
-                  tileWidth: layout.tileWidth,
-                  blurHash: widget.blurHashList == null
-                      ? null
-                      : widget.blurHashList![index],
-                  onTap: () {
-                    if (widget.onTap != null) {
-                      widget.onTap!(index);
-                    }
-                  });
-            },
+          const SizedBox(height: 5.0),
+          SizedBox(
+            height: layout.tileHeight + 40, // height of text
+            child: ListView.builder(
+              controller: scrollController,
+              shrinkWrap: true,
+              scrollDirection: Axis.horizontal,
+              itemCount: widget.titleList.length,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding: EdgeInsets.only(
+                      right: widget.titleList.length == index
+                          ? 0
+                          : layout.tileRightPadding),
+                  child: SizedBox(
+                    width: layout.tileWidth,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        JfxTile(
+                            id: widget.imageList[index],
+                            tileHeight: layout.tileHeight,
+                            tileWidth: layout.tileWidth,
+                            blurHash: widget.blurHashList == null
+                                ? null
+                                : widget.blurHashList![index],
+                            onTap: () {
+                              if (widget.onTap != null) {
+                                widget.onTap!(index);
+                              }
+                            }),
+                        const SizedBox(height: 5.0),
+                        Flexible(
+                          child: Text(
+                            widget.titleList[index],
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
+                        if (widget.subtitleList.isNotEmpty)
+                          Text(
+                            widget.subtitleList[index],
+                            style: const TextStyle(fontSize: 10),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          )
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

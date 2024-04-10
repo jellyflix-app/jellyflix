@@ -306,32 +306,29 @@ class CustomButtonRow extends StatelessWidget {
       );
     }
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 15.0),
-      child: Row(
-        children: [
-          data.mediaSources != null && data.mediaSources!.length > 1
-              ? buildAdditionalVersionsButton(
-                  context, data, layout, playButtonHovered)
-              : buildPlayButton(context, ref, data, layout),
-          const SizedBox(width: 8.0),
-          buildFavoriteButton(context, ref, itemId, layout, onWatchlist),
-          if (data.type != BaseItemKind.series) const SizedBox(width: 8.0),
-          if (data.type != BaseItemKind.series)
-            Container(
-              height: 40,
-              width: 40,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(100.0),
-                color: Colors.white.withOpacity(0.1),
-              ),
-              child: RoundedDownloadButton(itemId: itemId, data: data),
+    return Row(
+      children: [
+        data.mediaSources != null && data.mediaSources!.length > 1
+            ? buildAdditionalVersionsButton(
+                context, data, layout, playButtonHovered)
+            : buildPlayButton(context, ref, data, layout),
+        const SizedBox(width: 8.0),
+        buildFavoriteButton(context, ref, itemId, layout, onWatchlist),
+        if (data.type != BaseItemKind.series) const SizedBox(width: 8.0),
+        if (data.type != BaseItemKind.series)
+          Container(
+            height: 40,
+            width: 40,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(100.0),
+              color: Colors.white.withOpacity(0.1),
             ),
-          const SizedBox(width: 8.0),
-          buildMoreButton(context, ref, data, itemId, layout, markedAsPlayed,
-              streamController),
-        ],
-      ),
+            child: RoundedDownloadButton(itemId: itemId, data: data),
+          ),
+        const SizedBox(width: 8.0),
+        buildMoreButton(context, ref, data, itemId, layout, markedAsPlayed,
+            streamController),
+      ],
     );
   }
 }

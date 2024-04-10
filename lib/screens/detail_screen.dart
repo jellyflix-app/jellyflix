@@ -138,22 +138,27 @@ class DetailScreen extends HookConsumerWidget {
                             Row(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                      height:
-                                          MediaQuery.of(context).padding.top,
-                                    ),
-                                    JfxTile(
-                                      id: itemId,
-                                      blurHash: data
-                                          .imageBlurHashes?.primary?[itemId],
-                                      tileWidth: featuredPosterWidth,
-                                      tileHeight: featuredPosterHeight,
-                                      onTap: () => {},
-                                    ),
-                                  ],
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 10.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(
+                                        height:
+                                            MediaQuery.of(context).padding.top,
+                                      ),
+                                      JfxTile(
+                                        id: itemId,
+                                        blurHash: data
+                                            .imageBlurHashes?.primary?[itemId],
+                                        tileWidth: featuredPosterWidth,
+                                        tileHeight: featuredPosterHeight,
+                                        onTap: () => {},
+                                      ),
+                                    ],
+                                  ),
                                 ),
                                 Expanded(
                                   child: Column(
@@ -263,8 +268,8 @@ class DetailScreen extends HookConsumerWidget {
                       ),
 
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 10.0, vertical: 15.0),
+                        padding: const EdgeInsets.only(
+                            left: 10.0, right: 10, top: 25.0),
                         child: CustomButtonRow(
                           context: context,
                           ref: ref,
