@@ -86,7 +86,8 @@ class _ItemCarouselState extends ConsumerState<ItemCarousel> {
               offsetWidth: (450)),
           const SizedBox(height: 5.0),
           SizedBox(
-            height: layout.tileHeight + 40, // height of text
+            height: layout.tileHeight +
+                (layout.text.bodyMedium!.fontSize! * 3), // height of text
             child: ListView.builder(
               controller: scrollController,
               shrinkWrap: true,
@@ -118,19 +119,16 @@ class _ItemCarouselState extends ConsumerState<ItemCarousel> {
                             }),
                         const SizedBox(height: 5.0),
                         Flexible(
-                          child: Text(
-                            widget.titleList[index],
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
+                          child: Text(widget.titleList[index],
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: layout.text.bodyMedium),
                         ),
                         if (widget.subtitleList.isNotEmpty)
-                          Text(
-                            widget.subtitleList[index],
-                            style: const TextStyle(fontSize: 10),
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          )
+                          Text(widget.subtitleList[index],
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                              style: layout.text.bodyMedium)
                       ],
                     ),
                   ),
