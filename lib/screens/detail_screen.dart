@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:jellyflix/components/jellyfin_image.dart';
 import 'package:jellyflix/components/jfx_layout.dart';
 import 'package:jellyflix/components/jfx_tile.dart';
-import 'package:jellyflix/components/rounded_download_button.dart';
+import 'package:jellyflix/components/jfx_button_row.dart';
 import 'package:openapi/openapi.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -29,8 +29,8 @@ class DetailScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final onWatchlist = useState(false);
-    final ValueNotifier<bool?> markedAsPlayed = useState(null);
+    final ValueNotifier<bool> onWatchlist = useState(false);
+    final ValueNotifier<bool> markedAsPlayed = useState(false);
     final StreamController<List<BaseItemDto>> episodeStreamController =
         useStreamController();
     final playButtonHovered = useState(false);
@@ -59,7 +59,9 @@ class DetailScreen extends HookConsumerWidget {
     });
 
     final layout = JfxLayout.scalingLayout(context);
-    final featuredPosterHeight = layout.tileHeight * 1.25;
+    final featuredPosterHeight = layout.tileHeight * 1.3;
+    final featuredPosterWidth = layout.tileWidth * 1.3;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: appBarColorTransaparent.value
@@ -147,7 +149,7 @@ class DetailScreen extends HookConsumerWidget {
                                       id: itemId,
                                       blurHash: data
                                           .imageBlurHashes?.primary?[itemId],
-                                      tileWidth: featuredPosterHeight * 3 / 4,
+                                      tileWidth: featuredPosterWidth,
                                       tileHeight: featuredPosterHeight,
                                       onTap: () => {},
                                     ),
@@ -162,8 +164,8 @@ class DetailScreen extends HookConsumerWidget {
                                     children: [
                                       Text(
                                         data.name ?? "",
-                                        style: const TextStyle(
-                                          fontSize: 20.0,
+                                        style:
+                                            layout.text.headlineSmall!.copyWith(
                                           fontWeight: FontWeight.bold,
                                         ),
                                       ),
@@ -176,9 +178,7 @@ class DetailScreen extends HookConsumerWidget {
                                                     .na
                                                 : data.premiereDate!.year
                                                     .toString(),
-                                            style: const TextStyle(
-                                              fontSize: 12.0,
-                                            ),
+                                            style: layout.text.bodyLarge,
                                           ),
                                           const SizedBox(width: 16.0),
                                           Container(
@@ -197,9 +197,7 @@ class DetailScreen extends HookConsumerWidget {
                                                     AppLocalizations.of(
                                                             context)!
                                                         .na,
-                                                style: const TextStyle(
-                                                  fontSize: 10.0,
-                                                ),
+                                                style: layout.text.bodySmall,
                                               ),
                                             ),
                                           ),
@@ -228,9 +226,8 @@ class DetailScreen extends HookConsumerWidget {
                                                               .communityRating!
                                                               .roundToDouble()
                                                               .toString(),
-                                                      style: const TextStyle(
-                                                        fontSize: 12.0,
-                                                      ),
+                                                      style:
+                                                          layout.text.bodySmall,
                                                     ),
                                                   ],
                                                 ),
@@ -249,9 +246,8 @@ class DetailScreen extends HookConsumerWidget {
                                                       data.criticRating!
                                                           .round()
                                                           .toString(),
-                                                      style: const TextStyle(
-                                                        fontSize: 12.0,
-                                                      ),
+                                                      style:
+                                                          layout.text.bodySmall,
                                                     ),
                                                   ],
                                                 ),
@@ -265,313 +261,21 @@ class DetailScreen extends HookConsumerWidget {
                           ],
                         ),
                       ),
+
                       Padding(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10.0, vertical: 15.0),
-                        child: Row(
-                          children: [
-                            data.mediaSources != null &&
-                                    data.mediaSources!.length > 1
-                                ? ClipRRect(
-                                    borderRadius: BorderRadius.circular(100.0),
-                                    child: Material(
-                                      child: PopupMenuButton(
-                                        itemBuilder: (BuildContext context) {
-                                          List<PopupMenuEntry> popUpItems = [];
-                                          for (var element
-                                              in data.mediaSources!) {
-                                            popUpItems.add(PopupMenuItem(
-                                              value: element.id,
-                                              child: Text(element.name!),
-                                            ));
-                                          }
-                                          return popUpItems;
-                                        },
-                                        tooltip: "",
-                                        onSelected: (value) async {
-                                          await goToPlayerScreen(
-                                              ref,
-                                              value,
-                                              data.userData!
-                                                  .playbackPositionTicks!,
-                                              context);
-                                        },
-                                        child: MouseRegion(
-                                          onEnter: (event) {
-                                            playButtonHovered.value = true;
-                                          },
-                                          onExit: (event) {
-                                            playButtonHovered.value = false;
-                                          },
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(100.0),
-                                              color: playButtonHovered.value
-                                                  ? Theme.of(context)
-                                                      .colorScheme
-                                                      .primary
-                                                      .withOpacity(0.9)
-                                                  : Theme.of(context)
-                                                      .colorScheme
-                                                      .primary,
-                                            ),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      horizontal: 15.0,
-                                                      vertical: 5.0),
-                                              child: Row(
-                                                children: [
-                                                  Icon(
-                                                    Icons.play_arrow,
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .onPrimary,
-                                                  ),
-                                                  const SizedBox(width: 8.0),
-                                                  Text(
-                                                      style: layout
-                                                          .text.bodyLarge!
-                                                          .copyWith(
-                                                        color: Theme.of(context)
-                                                            .colorScheme
-                                                            .onPrimary,
-                                                      ),
-                                                      AppLocalizations.of(
-                                                              context)!
-                                                          .play),
-                                                  const SizedBox(width: 5.0),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                : ElevatedButton.icon(
-                                    onPressed: () async {
-                                      String itemId;
-                                      int playbackStartTicks = 0;
-                                      if (data.type == BaseItemKind.series) {
-                                        List<BaseItemDto> continueWatching =
-                                            await ref
-                                                .read(apiProvider)
-                                                .getContinueWatching(
-                                                    parentId: data.id!);
-                                        if (continueWatching.isNotEmpty) {
-                                          itemId = continueWatching.first.id!;
-                                          playbackStartTicks = continueWatching
-                                              .first
-                                              .userData!
-                                              .playbackPositionTicks!;
-                                        } else {
-                                          List<BaseItemDto> result = await ref
-                                              .read(apiProvider)
-                                              .getNextUpEpisode(
-                                                  seriesId: data.id!);
-                                          if (result.isNotEmpty) {
-                                            itemId = result.first.id!;
-                                          } else {
-                                            List<BaseItemDto> episodes =
-                                                await ref
-                                                    .read(apiProvider)
-                                                    .getEpisodes(data.id!);
-                                            itemId = episodes.first.id!;
-                                          }
-                                        }
-                                      } else {
-                                        itemId = data.mediaSources!.first.id!;
-                                        playbackStartTicks = data
-                                            .userData!.playbackPositionTicks!;
-                                      }
-                                      if (context.mounted) {
-                                        await goToPlayerScreen(ref, itemId,
-                                            playbackStartTicks, context);
-                                      }
-                                    },
-                                    icon: const Padding(
-                                      padding: EdgeInsets.fromLTRB(0, 0, 10, 0),
-                                      child: SizedBox(
-                                          width: 10,
-                                          child:
-                                              Icon(Icons.play_arrow_rounded)),
-                                    ),
-                                    label: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 8.0),
-                                      child: Text(
-                                          style:
-                                              layout.text.bodyLarge!.copyWith(
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onPrimary,
-                                          ),
-                                          AppLocalizations.of(context)!.play),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor:
-                                          Theme.of(context).colorScheme.primary,
-                                      foregroundColor: Theme.of(context)
-                                          .colorScheme
-                                          .onPrimary,
-                                    ),
-                                  ),
-                            const SizedBox(width: 8.0),
-                            Container(
-                              height: 40,
-                              width: 40,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(100.0),
-                                color: Colors.white.withOpacity(0.1),
-                              ),
-                              child: ElevatedButton(
-                                onPressed: () async {
-                                  await ref.read(apiProvider).updateWatchlist(
-                                      itemId, !onWatchlist.value);
-                                  onWatchlist.value = !onWatchlist.value;
-
-                                  if (context.mounted) {
-                                    // show snackbar
-                                    ScaffoldMessenger.of(context)
-                                        .showSnackBar(SnackBar(
-                                      content: Text(onWatchlist.value
-                                          ? AppLocalizations.of(context)!
-                                              .addedToWatchlist
-                                          : AppLocalizations.of(context)!
-                                              .removedFromWatchlist),
-                                      duration: const Duration(seconds: 1),
-                                    ));
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                    minimumSize: Size.zero,
-                                    padding: EdgeInsets.zero,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(30),
-                                    )),
-                                child: Icon(
-                                  onWatchlist.value
-                                      ? Icons.done_outlined
-                                      : Icons.add,
-                                ),
-                              ),
-                            ),
-                            if (data.type != BaseItemKind.series)
-                              const SizedBox(width: 8.0),
-                            if (data.type != BaseItemKind.series)
-                              Container(
-                                height: 40,
-                                width: 40,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(100.0),
-                                  color: Colors.white.withOpacity(0.1),
-                                ),
-                                child: RoundedDownloadButton(
-                                    itemId: itemId, data: data),
-                              ),
-                            const SizedBox(width: 8.0),
-                            ClipRRect(
-                              borderRadius: BorderRadius.circular(100.0),
-                              child: Material(
-                                child: PopupMenuButton<String>(
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(15.0)),
-                                  itemBuilder: (BuildContext context) =>
-                                      <PopupMenuEntry<String>>[
-                                    if (data.remoteTrailers == null)
-                                      PopupMenuItem<String>(
-                                        value: 'watch_trailer',
-                                        child: ListTile(
-                                          leading:
-                                              const Icon(Icons.movie_outlined),
-                                          iconColor: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
-                                          title: Text(
-                                              AppLocalizations.of(context)!
-                                                  .watchTrailer),
-                                        ),
-                                      ),
-                                    PopupMenuItem<String>(
-                                      value: 'mark_as_played',
-                                      child: !(markedAsPlayed.value ??
-                                              data.userData!.played!)
-                                          ? ListTile(
-                                              leading: const Icon(Icons.check),
-                                              iconColor: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary,
-                                              title: Text(
-                                                AppLocalizations.of(context)!
-                                                    .markAsPlayed,
-                                              ),
-                                            )
-                                          : ListTile(
-                                              leading: const Icon(Icons.close),
-                                              iconColor: Theme.of(context)
-                                                  .colorScheme
-                                                  .tertiary,
-                                              title: Text(
-                                                AppLocalizations.of(context)!
-                                                    .markAsUnplayed,
-                                              ),
-                                            ),
-                                    ),
-                                  ],
-                                  onSelected: (String value) async {
-                                    if (value == 'watch_trailer') {
-                                      // open external youtube link
-                                      if (!await launchUrl(
-                                            Uri.parse(data
-                                                .remoteTrailers!.first.url!),
-                                          ) &&
-                                          context.mounted) {
-                                        ScaffoldMessenger.of(context)
-                                            .showSnackBar(SnackBar(
-                                          content: Text(
-                                              AppLocalizations.of(context)!
-                                                  .couldNotOpenTrailer),
-                                          duration: const Duration(seconds: 1),
-                                        ));
-                                      }
-                                    } else if (value == 'mark_as_played') {
-                                      await ref.read(apiProvider).markAsPlayed(
-                                          itemId: itemId,
-                                          played: !(markedAsPlayed.value ??
-                                              data.userData!.played!));
-                                      markedAsPlayed.value =
-                                          !(markedAsPlayed.value ??
-                                              data.userData!
-                                                  .played!); // toggle value
-                                      episodeStreamController.add(await ref
-                                          .read(apiProvider)
-                                          .getEpisodes(itemId));
-                                    }
-                                  },
-                                  child: Container(
-                                    height: 40,
-                                    width: 40,
-                                    decoration: BoxDecoration(
-                                      borderRadius:
-                                          BorderRadius.circular(100.0),
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary
-                                          .withOpacity(0.05),
-                                    ),
-                                    child: Icon(
-                                      Icons.more_horiz_rounded,
-                                      color:
-                                          Theme.of(context).colorScheme.primary,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                        child: CustomButtonRow(
+                          context: context,
+                          ref: ref,
+                          data: data,
+                          itemId: itemId,
+                          addtlVersionsHovered: playButtonHovered,
+                          playButtonHovered: playButtonHovered,
+                          onWatchlist: onWatchlist,
+                          markedAsPlayed: markedAsPlayed,
+                          streamController: episodeStreamController,
+                          goToPlayerScreen: goToPlayerScreen,
                         ),
                       ),
 
@@ -638,7 +342,7 @@ class DetailScreen extends HookConsumerWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 10.0, vertical: 10),
                         child: Text(AppLocalizations.of(context)!.details,
-                            style: Theme.of(context).textTheme.headlineSmall),
+                            style: layout.text.headlineSmall),
                       ),
                       Padding(
                         padding: const EdgeInsets.all(10.0),
@@ -649,7 +353,7 @@ class DetailScreen extends HookConsumerWidget {
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10.0),
                           child: SizedBox(
-                            height: 20,
+                            height: layout.text.bodyLarge!.height! * 20,
                             child: ListView.builder(
                               scrollDirection: Axis.horizontal,
                               itemCount: data.externalUrls!.length,
@@ -663,7 +367,7 @@ class DetailScreen extends HookConsumerWidget {
                                     padding: const EdgeInsets.only(right: 5.0),
                                     child: Text(
                                       data.externalUrls![index].name!,
-                                      style: const TextStyle(
+                                      style: layout.text.bodyLarge!.copyWith(
                                           decoration: TextDecoration.underline),
                                     ),
                                   ),

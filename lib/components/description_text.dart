@@ -17,7 +17,7 @@ class DescriptionTextState extends State<DescriptionText> {
   late String firstHalf;
   late String secondHalf;
 
-  bool showMore = true;
+  bool showMoreState = false;
 
   @override
   void initState() {
@@ -34,40 +34,63 @@ class DescriptionTextState extends State<DescriptionText> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
-    TextTheme textTheme = JfxTextTheme.scalingTheme(context);
-    return secondHalf.isEmpty
-        ? Text(style: textTheme.bodyLarge, firstHalf)
-        : Column(
-            children: <Widget>[
-              showMore
-                  ? Text(
-                      style: textTheme.bodyLarge,
-                      widget.text,
-                      maxLines: 4,
-                      overflow: TextOverflow.ellipsis,
-                    )
-                  : Text(style: textTheme.bodyLarge, widget.text),
+    JfxLayout layout = JfxLayout.scalingLayout(context);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final textSpan = TextSpan(
+          text: widget.text,
+          style: layout.text.bodyLarge,
+        );
+
+        final textPainter = TextPainter(
+          text: textSpan,
+          maxLines: 4, // Set your max lines here
+          textDirection: TextDirection.ltr,
+        );
+
+        textPainter.layout(maxWidth: constraints.maxWidth);
+
+        final exceeded = textPainter.didExceedMaxLines;
+
+        return Column(
+          children: <Widget>[
+            Text(
+              widget.text,
+              style: layout.text.bodyLarge,
+              maxLines: showMoreState ? null : 4,
+              overflow: exceeded
+                  ? showMoreState
+                      ? TextOverflow.visible
+                      : TextOverflow.ellipsis
+                  : null,
+            ),
+            if (exceeded)
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   InkWell(
                     onTap: () {
                       setState(() {
-                        showMore = !showMore;
+                        showMoreState = !showMoreState;
                       });
                     },
                     child: Text(
-                      showMore
-                          ? AppLocalizations.of(context)!.showMore
-                          : AppLocalizations.of(context)!.showLess,
-                      style: textTheme.bodyLarge!.copyWith(
-                          color: Theme.of(context).colorScheme.primary),
+                      showMoreState
+                          ? AppLocalizations.of(context)!.showLess
+                          : AppLocalizations.of(context)!.showMore,
+                      style: layout.text.bodyLarge!.copyWith(
+                        color: layout.color.primary,
+                      ),
                     ),
                   ),
                 ],
               ),
-            ],
-          );
+          ],
+        );
+      },
+    );
   }
 }
