@@ -138,11 +138,14 @@ jobs:
       - name: Build Android App Bundle
         run: flutter build appbundle --release --dart-define=ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}
 
+      - name: Rename APK
+        run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/jellyflix.apk
+
       - name: Upload apk
         uses: actions/upload-artifact@v2
         with:
           name: jellyflix-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/jellyflix.apk
 
       - name: Upload app bundle
         uses: actions/upload-artifact@v2

@@ -24,6 +24,9 @@ class ProfileScreen extends HookConsumerWidget {
     final disableImageCaching = useState(
         ref.read(databaseProvider("settings")).get("disableImageCaching") ??
             false);
+    final disableWatchlist = useState(
+        ref.read(databaseProvider("settings")).get("disableWatchlist") ??
+            false);
 
     return Scaffold(
       body: SafeArea(
@@ -201,42 +204,86 @@ class ProfileScreen extends HookConsumerWidget {
                             .primary
                             .withOpacity(0.1),
                       ),
-                      child: ListTile(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15)),
-                        leading: const Icon(Icons.image_outlined),
-                        title: Text(
-                            AppLocalizations.of(context)!.disableImageCaching),
-                        trailing: Switch(
-                          value: disableImageCaching.value,
-                          onChanged: (value) {
-                            disableImageCaching.value = value;
-                            ref
-                                .read(databaseProvider("settings"))
-                                .put("disableImageCaching", value);
+                      child: Column(
+                        children: [
+                          ListTile(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15)),
+                            leading: const Icon(Icons.image_outlined),
+                            title: Text(AppLocalizations.of(context)!
+                                .disableImageCaching),
+                            trailing: Switch(
+                              value: disableImageCaching.value,
+                              onChanged: (value) {
+                                disableImageCaching.value = value;
+                                ref
+                                    .read(databaseProvider("settings"))
+                                    .put("disableImageCaching", value);
 
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return AlertDialog(
-                                  title: Text(
-                                      AppLocalizations.of(context)!.restartApp),
-                                  content: Text(AppLocalizations.of(context)!
-                                      .restartAppDescription),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(context);
-                                      },
-                                      child: Text(
-                                          AppLocalizations.of(context)!.ok),
-                                    ),
-                                  ],
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: Text(AppLocalizations.of(context)!
+                                          .restartApp),
+                                      content: Text(
+                                          AppLocalizations.of(context)!
+                                              .restartAppDescription),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text(
+                                              AppLocalizations.of(context)!.ok),
+                                        ),
+                                      ],
+                                    );
+                                  },
                                 );
                               },
-                            );
-                          },
-                        ),
+                            ),
+                          ),
+                          ListTile(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15)),
+                            leading: const Icon(Icons.remove_red_eye_outlined),
+                            title: Text(
+                                AppLocalizations.of(context)!.disableWatchlist),
+                            trailing: Switch(
+                              value: disableWatchlist.value,
+                              onChanged: (value) {
+                                disableWatchlist.value = value;
+                                ref
+                                    .read(databaseProvider("settings"))
+                                    .put("disableWatchlist", value);
+
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: Text(
+                                        AppLocalizations.of(context)!.info,
+                                      ),
+                                      content: Text(
+                                          AppLocalizations.of(context)!
+                                              .deletePlaylistNotice),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                          child: Text(
+                                              AppLocalizations.of(context)!.ok),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 20),

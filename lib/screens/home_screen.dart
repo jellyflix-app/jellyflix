@@ -11,6 +11,7 @@ import 'package:jellyflix/models/skeleton_item.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/providers/database_provider.dart';
 import 'package:openapi/openapi.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -134,24 +135,29 @@ class HomeScreen extends HookConsumerWidget {
               ),
             ),
             const GenreBanner(),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: PaginatedItemCarousel(
-                titleMapping: (e) => e.name!,
-                subtitleMapping: (e) => e.productionYear.toString(),
-                imageMapping: (e) => e.id!,
-                blurHashMapping: (e) =>
-                    e.imageBlurHashes?.primary?.values.first,
-                future: (startIndex, limit) =>
-                    ref.read(apiProvider).getWatchlist(),
-                title: AppLocalizations.of(context)!.yourWatchlist,
-                onTap: (index, id) {
-                  context.push(Uri(path: ScreenPaths.detail, queryParameters: {
-                    "id": id,
-                  }).toString());
-                },
+            if (ref
+                    .read(databaseProvider("settings"))
+                    .get("disableWatchlist") !=
+                true)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: PaginatedItemCarousel(
+                  titleMapping: (e) => e.name!,
+                  subtitleMapping: (e) => e.productionYear.toString(),
+                  imageMapping: (e) => e.id!,
+                  blurHashMapping: (e) =>
+                      e.imageBlurHashes?.primary?.values.first,
+                  future: (startIndex, limit) =>
+                      ref.read(apiProvider).getWatchlist(),
+                  title: AppLocalizations.of(context)!.yourWatchlist,
+                  onTap: (index, id) {
+                    context
+                        .push(Uri(path: ScreenPaths.detail, queryParameters: {
+                      "id": id,
+                    }).toString());
+                  },
+                ),
               ),
-            ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: FutureItemCarousel(
