@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/components/jfx_layout.dart';
 import 'package:jellyflix/components/navigation_drawer_tile.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -17,6 +18,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = useState(0);
+    final JfxLayout layout = JfxLayout.scalingLayout(context);
 
     // switch index if offline
     ref.read(connectivityProvider).checkConnectivityOnce().then(
@@ -131,16 +133,20 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                   destinations: [
                     NavigationRailDestination(
                         icon: const Icon(Icons.home_rounded),
-                        label: Text(AppLocalizations.of(context)!.home)),
+                        label: Text(AppLocalizations.of(context)!.home,
+                            style: layout.text.bodyLarge)),
                     NavigationRailDestination(
                         icon: const Icon(Icons.search_rounded),
-                        label: Text(AppLocalizations.of(context)!.search)),
+                        label: Text(AppLocalizations.of(context)!.search,
+                            style: layout.text.bodyLarge)),
                     NavigationRailDestination(
                         icon: const Icon(Icons.file_download_outlined),
-                        label: Text(AppLocalizations.of(context)!.downloads)),
+                        label: Text(AppLocalizations.of(context)!.downloads,
+                            style: layout.text.bodyLarge)),
                     NavigationRailDestination(
                         icon: const Icon(Icons.video_library_outlined),
-                        label: Text(AppLocalizations.of(context)!.library)),
+                        label: Text(AppLocalizations.of(context)!.library,
+                            style: layout.text.bodyLarge)),
                   ],
                 ),
               ),
