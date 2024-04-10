@@ -1,4 +1,4 @@
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 
 class PlaybackHelperService {
   final PlaybackInfoResponse item;

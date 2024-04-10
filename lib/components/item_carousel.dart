@@ -4,7 +4,7 @@ import 'package:jellyflix/models/poster_type.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 
 class ItemCarousel extends StatefulHookConsumerWidget {
   final String? title;

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:jellyflix/components/desktop_image_banner.dart';
 import 'package:jellyflix/components/mobile_image_banner.dart';
 
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 
 class ImageBanner extends StatelessWidget {
   final List<BaseItemDto> items;

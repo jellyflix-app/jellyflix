@@ -12,8 +12,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  openapi:
-    git: https://github.com/jellyflix-app/jellyfin-api-dart.git
+  tentacle:
+    git: https://github.com/TentacleOrg/Tentacle.git
   media_kit: 
     git:
       url: https://github.com/jellyflix-app/media-kit.git

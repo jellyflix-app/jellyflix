@@ -7,7 +7,7 @@ import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/models/skeleton_item.dart';
 import 'package:jellyflix/models/sort_type.dart';
 import 'package:jellyflix/providers/api_provider.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 

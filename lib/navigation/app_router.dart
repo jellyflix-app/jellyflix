@@ -12,7 +12,7 @@ import 'package:jellyflix/screens/login_wrapper_screen.dart';
 import 'package:jellyflix/screens/profile_screen.dart';
 import 'package:jellyflix/screens/search_screen.dart';
 import 'package:jellyflix/screens/player_screen.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final shellNavigatorKey = GlobalKey<NavigatorState>();
