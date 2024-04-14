@@ -58,7 +58,8 @@ class DownloadService {
       );
     }
     connectivityService.connectionStatusStream.listen((isConnected) {
-      if (isConnected) {
+      // TODO check edge cases
+      if (isConnected && _api.currentUser?.serverAdress != null) {
         _dio = Dio(
           BaseOptions(
             headers: _api.headers,

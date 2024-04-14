@@ -11,12 +11,12 @@ class ProfileImage extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    User currentUser = user ?? ref.read(authProvider).currentProfile!;
+    User? currentUser = user ?? ref.read(authProvider).currentProfile;
     return CachedNetworkImage(
       width: double.infinity,
       fit: BoxFit.cover,
       imageUrl:
-          "${currentUser.serverAdress}/Users/${currentUser.id}/Images/Profile",
+          "${currentUser?.serverAdress}/Users/${currentUser?.id}/Images/Profile",
       placeholder: (context, url) {
         return const ProfilePlaceholderImage();
       },

@@ -117,4 +117,15 @@ class AuthService {
 
     return profiles;
   }
+
+  Future<bool?> checkServerReachable({String? profileId}) async {
+    // get latest element from the stream
+    profileId ??= currentProfileid();
+    if (profileId == null) {
+      return null;
+    }
+    User? user = _databaseService.get(profileId);
+
+    return await _apiService.ping(user: user);
+  }
 }

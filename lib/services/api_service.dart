@@ -29,16 +29,16 @@ class ApiService {
 
   ApiService();
 
-  Future buildHeader() async {
+  Future<String> buildHeader() async {
     var model = await _deviceInfoService.getDeviceModel();
     var deviceId = await _deviceInfoService.getDeviceId();
     var version = await _deviceInfoService.getVersion();
-    headers["Authorization"] =
-        "MediaBrowser Client=\"Jellyflix\", Device=\"$model\", DeviceId=\"$deviceId\", Version=\"$version\"";
+    return "MediaBrowser Client=\"Jellyflix\", Device=\"$model\", DeviceId=\"$deviceId\", Version=\"$version\"";
   }
 
   Future<User> login(String baseUrl, String username, String pw) async {
     // TODO add error handling
+    String authHeader = await buildHeader();
     await buildHeader();
     _jellyfinApi = Openapi(
         dio: Dio(BaseOptions(
@@ -54,7 +54,8 @@ class ApiService {
         headers: headers);
 
     headers["Authorization"] =
-        "${headers["Authorization"]!}, Token=\"${response.data!.accessToken!}\"";
+        "$authHeader, Token=\"${response.data!.accessToken!}\"";
+
     headers["Origin"] = baseUrl;
     _user = User(
       id: response.data!.user!.id,
@@ -120,7 +121,7 @@ class ApiService {
     var response = await _jellyfinApi!
         .getUserViewsApi()
         .getUserViews(userId: _user!.id!, headers: headers);
-    //keep only video folders
+    // keep only video folders
     var folders = response.data!.items!.where((element) {
       return element.collectionType == "movies" ||
           element.collectionType == "tvshows";
@@ -671,6 +672,29 @@ class ApiService {
     } else {
       await _jellyfinApi!.getPlaystateApi().markUnplayedItem(
           userId: _user!.id!, itemId: itemId, headers: headers);
+    }
+  }
+
+  Future<bool> ping({User? user}) async {
+    user ?? _user;
+    // returns false if serverAdress is null or server is unreachable
+    if (user?.serverAdress == null) {
+      return false;
+    }
+
+    try {
+      var result = await Dio()
+          .get(
+            "${user!.serverAdress!}/System/Ping",
+          )
+          .timeout(const Duration(seconds: 2));
+      if (result.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      return false;
     }
   }
 }

@@ -31,6 +31,7 @@ class GenreBanner extends HookConsumerWidget {
             if (!snapshot.hasData) {
               return const SizedBox.shrink();
             }
+            snapshot.data!.shuffle();
             return Column(
               children: [
                 Padding(
@@ -68,7 +69,8 @@ class GenreBanner extends HookConsumerWidget {
                                             genreIds: [snapshot.data![index]],
                                             limit: 1),
                                     builder: (context, itemData) {
-                                      if (!itemData.hasData) {
+                                      if (!itemData.hasData ||
+                                          itemData.data!.isEmpty) {
                                         return const SizedBox.shrink();
                                       }
                                       var imageType = ImageType.backdrop;

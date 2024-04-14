@@ -68,18 +68,21 @@ class ProfileScreen extends HookConsumerWidget {
                                   children: [
                                     Text(
                                       ref
-                                          .read(authProvider)
-                                          .currentProfile!
-                                          .name!,
+                                              .read(authProvider)
+                                              .currentProfile
+                                              ?.name ??
+                                          AppLocalizations.of(context)!
+                                              .offlineNotice,
                                       style: Theme.of(context)
                                           .textTheme
                                           .headlineSmall,
                                     ),
                                     Text(
                                       ref
-                                          .read(authProvider)
-                                          .currentProfile!
-                                          .serverAdress!,
+                                              .read(authProvider)
+                                              .currentProfile
+                                              ?.serverAdress ??
+                                          AppLocalizations.of(context)!.na,
                                       style: Theme.of(context)
                                           .textTheme
                                           .bodyMedium,
@@ -99,7 +102,7 @@ class ProfileScreen extends HookConsumerWidget {
                               ref
                                   .read(authProvider)
                                   .updateCurrentProfileId(null);
-                              context.go(ScreenPaths.profileSelection);
+                              context.go(ScreenPaths.login);
                             },
                           ),
                         ],
