@@ -183,11 +183,13 @@ class DetailScreen extends HookConsumerWidget {
                                       Row(
                                         children: [
                                           Text(
-                                            data.premiereDate == null
+                                            (data.premiereDate == null ||
+                                                    data.premiereDate?.year ==
+                                                        null
                                                 ? AppLocalizations.of(context)!
                                                     .na
                                                 : data.premiereDate!.year
-                                                    .toString(),
+                                                    .toString()),
                                             style: const TextStyle(
                                               fontSize: 12.0,
                                             ),
