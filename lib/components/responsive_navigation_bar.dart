@@ -3,6 +3,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/navigation_drawer_tile.dart';
+import 'package:jellyflix/models/auth_state.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:jellyflix/providers/auth_provider.dart';

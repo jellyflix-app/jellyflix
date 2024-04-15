@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/models/auth_state.dart';
 import 'package:openapi/openapi.dart';
 
 import 'package:jellyflix/components/responsive_navigation_bar.dart';
