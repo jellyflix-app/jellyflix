@@ -75,7 +75,10 @@ class ImageBannerInnerPortrait extends HookConsumerWidget {
                           style: Theme.of(context).textTheme.headlineSmall,
                           maxLines: 2,
                         ),
-                        Text(items[index].productionYear.toString(),
+                        Text(
+                            items[index].productionYear.toString() == "null"
+                                ? ""
+                                : items[index].productionYear.toString(),
                             style: Theme.of(context).textTheme.titleMedium),
                         const SizedBox(
                           height: 10,
