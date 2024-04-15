@@ -1,0 +1,173 @@
+{
+    "@@locale": "he",
+    "continueWatching": "המשך צפייה",
+    "recentlyAddedMovies": "סרטים חדשים",
+    "recentlyAddedShows": "סדרות חדשות",
+    "yourWatchlist": "רשימת הצפייה שלך",
+    "top10inYourLibrary": "10 הגדולים",
+    "similarToWatchHistory": "דומה לרשימת הצפייה שלך",
+    "becauseYouWatched": "כי ראית את {title}",
+    "@becausYouWatched": {
+        "placeholders": {
+          "title": {
+            "type": "String",
+            "example": "Forrest Gump"
+          }
+        }
+      },
+    "becauseYouLiked": "כי אהבת את {title}",
+    "@becauseYouLiked": {
+        "placeholders": {
+          "title": {
+            "type": "String",
+            "example": "Forrest Gump"
+          }
+        }
+      },
+    "directedBy": "בבימוי {director}",
+    "@directedBy": {
+        "placeholders": {
+          "director": {
+            "type": "String",
+            "example": "Robert Zemeckis"
+          }
+        }
+      },
+    "starring": "בכיכוב {actor}",
+    "@starring": {
+        "placeholders": {
+          "actor": {
+            "type": "String",
+            "example": "Tom Hanks"
+          }
+        }
+      },
+    "recommendedForYou": "מומלץ עבורך",
+    "play": "נגן",
+    "moreInfo": "פרטים",
+    "search": "חיפוש",
+    "startTypingSearch": "יש להקליד בכדי לחפש",
+    "genre": "ג׳אנר",
+    "all": "הכל",
+    "filter": "סינון",
+    "none": "ללא",
+    "order": "סדר",
+    "ascending": "עולה",
+    "descending": "יורד",
+    "sort": "מיון",
+    "name": "שם",
+    "premiereDate": "תאריך בכורה",
+    "random": "אקראי",
+    "unplayed": "לא נצפה",
+    "played": "נצפה",
+    "favorites": "מועדפים",
+    "liked": "אהבתי",
+    "changeProfile": "החלפת פרופיל",
+    "logout": "התנתקות",
+    "about": "אודות",
+    "scanLibrary": "סריקת ספרייה",
+    "scanStarted": "סריקה החלה",
+    "quickConnect": "חיבור מהיר",
+    "quickConnectDescription": "יש להכניס את הקוד שמופיע על המכשיר",
+    "quickConnectError401": "זהו השרת הנכון?",
+    "quickConnectError404": "קוד שגוי",
+    "quickConnectErrorUnknown": "משהו השתבש",
+    "connect": "התחברות",
+    "code": "קוד",
+    "writers": "כותבים",
+    "directors": "במאים",
+    "genres": "ג׳אנרים",
+    "cast": "שחקנים",
+    "episodes": "פרקים",
+    "season": "עונות",
+    "na": "אין מידע",
+    "addedToWatchlist": "התווסף לרשימת צפייה",
+    "removedFromWatchlist": "הוסר מרשימת צפייה",
+    "noItemsFound": "לא נמצאו פריטים",
+    "noResultsFound": "אין תוצאות",
+    "movies": "סרטים",
+    "series": "סדרות",
+    "collections": "אוספים",
+    "addProfile": "הוספת פרופיל",
+    "appSubtitle": "Another Jellyfin client",
+    "serverAddress": "כתובת השרת",
+    "login": "כניסה",
+    "username": "שם משתמש",
+    "password": "סיסמה",
+    "webDemoNote": "זוהי גרסת הדגמה של Jellyflix. בכדי להשתמש, יש להזין את הפרטים הבאים: \n\nכתובת השרת: https://demo.jellyfin.org/stable \nשם משתמש: demo \nוסיסמה ריקה \n\n.",
+    "quality": "איכות",
+    "audio": "אודיו",
+    "subtitles": "כתוביות",
+    "settings": "הגדרות",
+    "home": "בית",
+    "library": "ספרייה",
+    "profile": "פרופיל",
+    "markAsPlayed": "סימון כנצפה",
+    "markAsUnplayed": "סימון כחדש",
+    "couldNotOpenTrailer": "אין אפשרות לפתוח טריילר",
+    "watchTrailer": "נגן קידמון",
+    "showsMaybeMissed": "סדרות שכדאי לראות",
+    "moviesMaybeMissed": "סרטים שכדאי לראות",
+    "highesRatedMovies": "הסרטים הכי מדורגים",
+    "highestRatedShows": "הסדרות הכי מדורגות",
+    "top10": "{count} הכי גדולים",
+    "@top10": {
+        "placeholders": {
+          "count": {
+            "type": "int",
+            "example": "10"
+          }
+        }
+      },
+    "similar": "דומה",
+    "downloads": "הורדות",
+    "download": "הורדה",
+    "noDownloads": "אין הורדות",
+    "resumeDownload": "המשך הורדת",
+    "deleteDownload": "מחיקת הורדה",
+    "removedDownload": "הורדה נמחקה",
+    "startedDownload": "הורדה החלה",
+    "cancelDownload": "ביטול הורדה",
+    "cancelAndRemoveAllDownloads": "ביטול וניקוי הורדות",
+    "downloaded": "מקומי",
+    "couldNotResumeDownload": "אין אפשרות להמשיך הורדה!",
+    "allDownloadsRemoved": "כל ההורדות הוסרו",
+    "cancel": "ביטול",
+    "save": "שמירה",
+    "setAudioAndSubtitleLanguage": "קביעת שפת שמע וכתוביות",
+    "setLocalDownloadBitrate": "קצב הורדה באותה רשת",
+    "maxDownloadBitrateText": "קביעת מקסימום עבור הורדות באותה רשת",
+    "downloadApproxFilesize": "שעת וידאו זה בערך {size}GB",
+    "@downloadApproxFilesize": {
+        "placeholders": {
+          "size": {
+            "type": "String",
+            "example": "1.5"
+          }
+        }
+      },
+    "resumedDownload": "הורדה ממשיכה",
+    "canceledDownload": "הורדה בוטלה",
+    "details": "פרטים",
+    "showMore": "הצג יותר",
+    "showLess": "הצג פחות",
+    "offlineNotice": "ללא אינטרנט",
+    "disableImageCaching": "ביטול קאש לתמונות",
+    "restartApp": "הפעלת האפליקציה מחדש",
+    "restartAppDescription": "להחלת השינויים יש להפעיל מחדש את האפליקציה.",
+    "ok": "אישור",
+    "selectProfile": "בחירת פרופיל",
+    "ends": "סיום בשעה {date}",
+    "@ends": {
+        "placeholders": {
+          "date": {
+            "type": "String",
+            "example": "21:30"
+          }
+        }
+      },
+    "disableWatchlist": "השבתת רשימת צפייה",
+    "deletePlaylistNotice": "בכדי למנוע איבוד מידע, יש למחוק את הרשימה מהשרת.",
+    "info": "מידע",
+    "appName": "Jellyflix"
+}
