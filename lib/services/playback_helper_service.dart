@@ -1,15 +1,9 @@
+import 'package:jellyflix/models/bitrates.dart';
 import 'package:tentacle/tentacle.dart';
 
 class PlaybackHelperService {
   final PlaybackInfoResponse item;
-
-  Map<int, String> bitrateMap = {
-    120000000: "2160p 120 Mb/s",
-    60000000: "1080p 60 Mb/s",
-    8000000: "720p 8 Mb/s",
-    4000000: "480p 4 Mb/s",
-    420000: "360p 420 Kb/s",
-  };
+  Map<int, String> bitrateMap = BitRates().map;
 
   PlaybackHelperService({required this.item});
 

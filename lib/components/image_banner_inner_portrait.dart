@@ -1,77 +1,52 @@
-import 'dart:async';
-
 import 'package:dots_indicator/dots_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/components/jellyfin_image.dart';
 import 'package:jellyflix/models/screen_paths.dart';
-import 'package:jellyflix/providers/api_provider.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-class MobileImageBanner extends StatefulHookConsumerWidget {
+class ImageBannerInnerPortrait extends HookConsumerWidget {
   final List<BaseItemDto> items;
-  final Duration scrollDuration;
   final double? height;
+  final Function(BaseItemDto) onPressedPlay;
+  final PageController controller;
+  final Function(int) setCurrentPageCallback;
+  final int currentPage;
+  final bool playButtonPressed;
 
-  const MobileImageBanner(
-      {super.key,
-      required this.items,
-      this.height = 600,
-      this.scrollDuration = const Duration(seconds: 5)});
-
-  @override
-  MobileImageBannerState createState() => MobileImageBannerState();
-}
-
-class MobileImageBannerState extends ConsumerState<MobileImageBanner> {
-  final PageController _controller = PageController();
-  int _currentPage = 0;
-  Timer? _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    _timer = Timer.periodic(widget.scrollDuration, (timer) {
-      if (_currentPage < widget.items.length - 1) {
-        _currentPage++;
-      } else {
-        _currentPage = 0;
-      }
-      _controller.animateToPage(_currentPage,
-          duration: const Duration(milliseconds: 350), curve: Curves.easeIn);
-    });
-  }
+  const ImageBannerInnerPortrait({
+    super.key,
+    required this.items,
+    required this.onPressedPlay,
+    this.height = 600,
+    required this.controller,
+    required this.setCurrentPageCallback,
+    required this.currentPage,
+    required this.playButtonPressed,
+  });
 
   @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Stack(
       alignment: AlignmentDirectional.bottomCenter,
       children: [
         SizedBox(
-          height: widget.height,
+          height: height,
           child: PageView.builder(
-            controller: _controller,
-            itemCount: widget.items.length,
+            controller: controller,
+            itemCount: items.length,
             onPageChanged: (value) {
-              setState(() {
-                _currentPage = value;
-              });
+              setCurrentPageCallback(value);
             },
             itemBuilder: (context, index) {
               // check if backdrop exists else use primary image
-
               return Stack(children: [
-                ref.read(apiProvider).getImage(
+                JellyfinImage(
                     borderRadius: BorderRadius.zero,
-                    id: widget.items[index].id!,
-                    type: widget.items[index].backdropImageTags!.isNotEmpty
+                    id: items[index].id!,
+                    type: items[index].backdropImageTags!.isNotEmpty
                         ? ImageType.backdrop
                         : ImageType.primary),
                 Container(
@@ -81,7 +56,7 @@ class MobileImageBannerState extends ConsumerState<MobileImageBanner> {
                       end: Alignment.bottomCenter,
                       colors: [
                         const Color.fromARGB(30, 0, 0, 0),
-                        Theme.of(context).colorScheme.background
+                        Theme.of(context).colorScheme.surface
                       ],
                     ),
                   ),
@@ -96,42 +71,46 @@ class MobileImageBannerState extends ConsumerState<MobileImageBanner> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          widget.items[index].name!,
+                          items[index].name!,
                           style: Theme.of(context).textTheme.headlineSmall,
                           maxLines: 2,
                         ),
-                        Text(widget.items[index].productionYear.toString(),
+                        Text(items[index].productionYear.toString(),
                             style: Theme.of(context).textTheme.titleMedium),
                         const SizedBox(
                           height: 10,
+                        ),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width * 0.7,
+                          child: Text(items[index].overview ?? "",
+                              maxLines: 2, overflow: TextOverflow.ellipsis),
+                        ),
+                        const SizedBox(
+                          height: 20,
                         ),
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             ElevatedButton.icon(
-                              onPressed: () async {
-                                var playbackInfo = await ref
-                                    .read(apiProvider)
-                                    .getStreamUrlAndPlaybackInfo(
-                                        itemId: widget.items[index]
-                                            .mediaSources!.first.id!);
-                                if (context.mounted) {
-                                  context.push(
-                                      Uri(
-                                          path: ScreenPaths.player,
-                                          queryParameters: {
-                                            "startTimeTicks": widget
-                                                .items[index]
-                                                .userData
-                                                ?.playbackPositionTicks
-                                                ?.toString()
-                                          }).toString(),
-                                      extra: playbackInfo);
-                                }
-                              },
-                              label: Text(AppLocalizations.of(context)!.play),
-                              icon: const Icon(Icons.play_arrow_rounded),
-                            ),
+                                onPressed: () {
+                                  BaseItemDto item = items[index];
+                                  onPressedPlay(item);
+                                },
+                                label: Text(AppLocalizations.of(context)!.play),
+                                icon: Padding(
+                                  padding:
+                                      const EdgeInsets.fromLTRB(0, 0, 10, 0),
+                                  child: playButtonPressed
+                                      ? const SizedBox(
+                                          width: 10,
+                                          height: 10,
+                                          child: CircularProgressIndicator(),
+                                        )
+                                      : const SizedBox(
+                                          width: 10,
+                                          child:
+                                              Icon(Icons.play_arrow_rounded)),
+                                )),
                             const SizedBox(
                               width: 10,
                             ),
@@ -140,7 +119,7 @@ class MobileImageBannerState extends ConsumerState<MobileImageBanner> {
                                   context.push(Uri(
                                       path: ScreenPaths.detail,
                                       queryParameters: {
-                                        "id": widget.items[index].id!,
+                                        "id": items[index].id!,
                                       }).toString());
                                 },
                                 child: Text(
@@ -158,8 +137,8 @@ class MobileImageBannerState extends ConsumerState<MobileImageBanner> {
         Padding(
           padding: const EdgeInsets.all(10.0),
           child: DotsIndicator(
-            dotsCount: widget.items.length,
-            position: _currentPage,
+            dotsCount: items.length,
+            position: currentPage,
             decorator: DotsDecorator(
               activeColor: Theme.of(context).buttonTheme.colorScheme!.primary,
               activeShape: RoundedRectangleBorder(
@@ -170,7 +149,7 @@ class MobileImageBannerState extends ConsumerState<MobileImageBanner> {
                   borderRadius: BorderRadius.circular(5.0)),
             ),
             onTap: (position) {
-              _controller.animateToPage(position,
+              controller.animateToPage(position,
                   duration: const Duration(milliseconds: 350),
                   curve: Curves.easeIn);
             },

@@ -54,75 +54,77 @@ class PlayerSettingsDialog<T1, T2> extends StatelessWidget {
                 ),
                 child: Padding(
                   padding: const EdgeInsets.all(15.0),
-                  child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: 250,
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(AppLocalizations.of(context)!.settings,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .headlineSmall),
-                              IconButton(
-                                icon: const Icon(Icons.close),
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                              )
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Material(
-                          child: DropdownMenu(
-                              width: 250,
-                              requestFocusOnTap: false,
-                              label:
-                                  Text(AppLocalizations.of(context)!.quality),
-                              leadingIcon: const Icon(Icons.videocam_outlined),
-                              initialSelection: maxStreamingBitrate,
-                              dropdownMenuEntries: playbackHelper
-                                  .getBitrateMap()
-                                  .entries
-                                  .toList()
-                                  .map((e) {
-                                return DropdownMenuEntry(
-                                    value: e.key, label: e.value);
-                              }).toList(),
-                              onSelected: onBitrateSelected),
-                        ),
-                        const SizedBox(height: 10),
-                        Material(
-                          child: DropdownMenu<T1>(
+                  child: SingleChildScrollView(
+                    child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
                             width: 250,
-                            requestFocusOnTap: false,
-                            label: Text(AppLocalizations.of(context)!.audio),
-                            leadingIcon: const Icon(Icons.volume_up_rounded),
-                            initialSelection: audioTrack,
-                            dropdownMenuEntries: audioEntries,
-                            onSelected: onAudioSelected,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(AppLocalizations.of(context)!.settings,
+                                    style:
+                                        Theme.of(context).textTheme.titleSmall),
+                                IconButton(
+                                  icon: const Icon(Icons.close),
+                                  onPressed: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                )
+                              ],
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 10),
-                        if (!playbackHelper.subtitleListIsEmpty())
+                          const SizedBox(height: 20),
                           Material(
-                            child: DropdownMenu<T2>(
+                            child: DropdownMenu(
                                 width: 250,
-                                label: Text(
-                                    AppLocalizations.of(context)!.subtitles),
                                 requestFocusOnTap: false,
+                                label:
+                                    Text(AppLocalizations.of(context)!.quality),
                                 leadingIcon:
                                     const Icon(Icons.videocam_outlined),
-                                initialSelection: subtitleTrack,
-                                dropdownMenuEntries: subtitleEntries,
-                                onSelected: onSubtitleSelected),
+                                initialSelection: maxStreamingBitrate,
+                                dropdownMenuEntries: playbackHelper
+                                    .getBitrateMap()
+                                    .entries
+                                    .toList()
+                                    .map((e) {
+                                  return DropdownMenuEntry(
+                                      value: e.key, label: e.value);
+                                }).toList(),
+                                onSelected: onBitrateSelected),
                           ),
-                      ]),
+                          const SizedBox(height: 10),
+                          Material(
+                            child: DropdownMenu<T1>(
+                              width: 250,
+                              requestFocusOnTap: false,
+                              label: Text(AppLocalizations.of(context)!.audio),
+                              leadingIcon: const Icon(Icons.volume_up_rounded),
+                              initialSelection: audioTrack,
+                              dropdownMenuEntries: audioEntries,
+                              onSelected: onAudioSelected,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          if (!playbackHelper.subtitleListIsEmpty())
+                            Material(
+                              child: DropdownMenu<T2>(
+                                  width: 250,
+                                  label: Text(
+                                      AppLocalizations.of(context)!.subtitles),
+                                  requestFocusOnTap: false,
+                                  leadingIcon:
+                                      const Icon(Icons.videocam_outlined),
+                                  initialSelection: subtitleTrack,
+                                  dropdownMenuEntries: subtitleEntries,
+                                  onSelected: onSubtitleSelected),
+                            ),
+                        ]),
+                  ),
                 ),
               ),
             )));

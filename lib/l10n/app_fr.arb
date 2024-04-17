@@ -1,111 +1,173 @@
 {
-    "@@locale": "fr",
-
-    "continueWatching": "Continuer à regarder",
-    "recentlyAddedMovies": "Films récemment ajoutés",
-    "recentlyAddedShows": "Émissions récemment ajoutées",
-    "yourWatchlist": "Votre liste de surveillance",
-    "top10inYourLibrary": "Top 10 dans votre bibliothèque",
-    "similarToWatchHistory": "Similaire à votre historique de visionnage",
-    "becauseYouWatched": "Parce que tu as regardé {title}",
-    "@becausYouWatched": {
-        "placeholders": {
-          "title": {
-            "type": "String",
-            "example": "Forrest Gump"
-          }
-        }
-      },
-    "becauseYouLiked": "Parce que tu aime {title}",
-    "@becauseYouLiked": {
-        "placeholders": {
-          "title": {
-            "type": "String",
-            "example": "Forrest Gump"
-          }
-        }
-      },
-    "directedBy": "Réalisé par {director}",
-    "@directedBy": {
-        "placeholders": {
-          "director": {
-            "type": "String",
-            "example": "Robert Zemeckis"
-          }
-        }
-      },
-    "starring": "Avec {actor}",
-    "@starring": {
-        "placeholders": {
-          "actor": {
-            "type": "String",
-            "example": "Tom Hanks"
-          }
-        }
-      },
-    "recommendedForYou": "Recommandé pour toi",
-    "play": "Jouer",
-    "moreInfo": "Plus d'info",
-    "search": "Chercher",
-    "startTypingSearch": "Commencez à taper pour rechercher",
-    "genre": "Genre",
-    "all": "Tout",
-    "filter": "Filtre",
-    "none": "Aucun",
-    "order": "Ordre",
-    "ascending": "Ascendant",
-    "descending": "Descendant",
-    "sort": "Trier",
-    "name": "Nom",
-    "premiereDate": "Date de première",
-    "random": "Aléatoire",
-    "unplayed": "Non joué",
-    "played": "Joué",
-    "favorites": "Favoris",
-    "liked": "Aimé",
-    "changeProfile": "Changer de profil",
-    "logout": "Se déconnecter",
-    "about": "D'accueil",
-    "scanLibrary": "Analyser la bibliothèque",
-    "scanStarted": "Analyse en cours",
-    "quickConnect": "Connexion rapide",
-    "quickConnectDescription": "Entrez le code sur ton l'apperail",
-    "quickConnectError401": "Accède-t-on au bon serveur ?",
-    "quickConnectError404": "Code invalide",
-    "quickConnectErrorUnknown": "Quelque chose n'a pas fonctionné",
-    "connect": "Connecter",
-    "code": "Code",
-    "writers": "Écrivains",
-    "directors": "Directeurs",
-    "genres": "Genres",
-    "cast": "Acteurs",
-    "episodes": "Épisodes",
-    "season": "Saison",
-    "na": "N/A",
-    "addedToWatchlist": "Ajouté à ton liste de visionnage",
-    "removedFromWatchlist": "Retiré de ton liste de visionnage",
-    "noItemsFound": "Aucun élément",
-    "noResultsFound": "Aucun résultat",
-    "movies": "Films",
-    "series": "Séries",
-    "collections": "Collections",
-    "addProfile": "Ajouter un profil",
-    "appSubtitle": "Another Jellyfin client",
-    "serverAddress": "Adresse du serveur",
-    "login": "Connecter",
-    "username": "Nom d'utilisateur",
-    "password": "Mot de passe",
-    "webDemoNote": "Il s'agit d'une version de démonstration de Jellyflix. Pour l'utiliser, vous pouvez utiliser les identifiants suivants:\nAdresse du serveur: https://demo.jellyfin.org/stable\nNom d'utilisateur : demo.\nIl n'y a pas de mot de passe.",
-    "quality": "Qualité",
-    "audio": "Audio",
-    "subtitles": "Sous-titres",
-    "settings": "Paramètres",
-    "home": "Accueil",
-    "library": "Bibliothèque",
-    "profile": "Profil",
-    "markAsPlayed": "Marquer comme joué",
-    "markAsUnplayed": "Marquer comme non joué",
-    "couldNotOpenTrailer": "Impossible d'ouvrir la bande-annonce",
-    "watchTrailer": "Regarder la bande-annonce",
-    "appName": "Jellyflix"
+  "@@locale": "fr",
+  "continueWatching": "Continuer à regarder",
+  "recentlyAddedMovies": "Films récemment ajoutés",
+  "recentlyAddedShows": "Séries TV récemment ajoutées",
+  "yourWatchlist": "Votre liste lecture",
+  "top10inYourLibrary": "Top 10 dans votre bibliothèque",
+  "similarToWatchHistory": "Similaire à votre historique de visionnement",
+  "becauseYouWatched": "Parce que vous avez regardé {title}",
+  "@becausYouWatched": {
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Forrest Gump"
+      }
+    }
+  },
+  "becauseYouLiked": "Parce que vous avez aimé {title}",
+  "@becauseYouLiked": {
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Forrest Gump"
+      }
+    }
+  },
+  "directedBy": "Réalisé par {director}",
+  "@directedBy": {
+    "placeholders": {
+      "director": {
+        "type": "String",
+        "example": "Robert Zemeckis"
+      }
+    }
+  },
+  "starring": "Mettant en vedette {actor}",
+  "@starring": {
+    "placeholders": {
+      "actor": {
+        "type": "String",
+        "example": "Tom Hanks"
+      }
+    }
+  },
+  "recommendedForYou": "Recommandé pour vous",
+  "play": "Lire",
+  "moreInfo": "Plus d'info",
+  "search": "Rechercher",
+  "startTypingSearch": "Commencez à taper pour rechercher",
+  "genre": "Genre",
+  "all": "Tout",
+  "filter": "Filtre",
+  "none": "Aucun",
+  "order": "Ordre",
+  "ascending": "Ascendant",
+  "descending": "Descendant",
+  "sort": "Trier",
+  "name": "Nom",
+  "premiereDate": "Date de première",
+  "random": "Aléatoire",
+  "unplayed": "Non regardé",
+  "played": "Déjà joué",
+  "favorites": "Favoris",
+  "liked": "Aimé",
+  "changeProfile": "Changer de profil",
+  "logout": "Se déconnecter",
+  "about": "À propos",
+  "scanLibrary": "Analyser la bibliothèque",
+  "scanStarted": "Analyse en cours",
+  "quickConnect": "Connexion rapide",
+  "quickConnectDescription": "Entrez le code affiché sur votre appareil",
+  "quickConnectError401": "Accèdez-vous au bon serveur ?",
+  "quickConnectError404": "Code invalide",
+  "quickConnectErrorUnknown": "Quelque chose n'a pas fonctionné",
+  "connect": "Connecter",
+  "code": "Code",
+  "writers": "Auteurs",
+  "directors": "Réalisateurs",
+  "genres": "Genres",
+  "cast": "Acteurs",
+  "episodes": "Épisodes",
+  "season": "Saison",
+  "na": "N/A",
+  "addedToWatchlist": "Ajouté à votre liste de lecture",
+  "removedFromWatchlist": "Retiré de votre liste de lecture",
+  "noItemsFound": "Aucun élément trouvé",
+  "noResultsFound": "Aucun résultat",
+  "movies": "Films",
+  "series": "Séries TV",
+  "collections": "Collections",
+  "addProfile": "Ajouter un profil",
+  "appSubtitle": "Un autre client Jellyfin",
+  "serverAddress": "Adresse du serveur",
+  "login": "Se connecter",
+  "username": "Nom d'utilisateur",
+  "password": "Mot de passe",
+  "webDemoNote": "Il s'agit d'une version de démonstration de Jellyflix. Pour l'utiliser, vous pouvez utiliser les identifiants suivants:\nAdresse du serveur: https://demo.jellyfin.org/stable\nNom d'utilisateur : demo.\nIl n'y a pas de mot de passe.",
+  "quality": "Qualité",
+  "audio": "Audio",
+  "subtitles": "Sous-titres",
+  "settings": "Paramètres",
+  "home": "Accueil",
+  "library": "Bibliothèque",
+  "profile": "Profil",
+  "markAsPlayed": "Marquer comme joué",
+  "markAsUnplayed": "Marquer comme non joué",
+  "couldNotOpenTrailer": "Impossible d'ouvrir la bande-annonce",
+  "watchTrailer": "Regarder la bande-annonce",
+  "showsMaybeMissed": "Séries que vous avez peut-être manqués",
+  "moviesMaybeMissed": "Films que vous avez peut-être manqués",
+  "highesRatedMovies": "Films les mieux notés",
+  "highestRatedShows": "Séries les mieux notées",
+  "top10": "Top {count}",
+  "@top10": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "10"
+      }
+    }
+  },
+  "similar": "Similaire",
+  "downloads": "Téléchargements",
+  "download": "Télécharger",
+  "noDownloads": "Aucun téléchargement trouvé",
+  "resumeDownload": "Reprendre le téléchargement",
+  "deleteDownload": "Supprimer le téléchargement",
+  "removedDownload": "Téléchargement supprimé",
+  "startedDownload": "Téléchargement commencé",
+  "cancelDownload": "Annuler le téléchargement",
+  "cancelAndRemoveAllDownloads": "Annuler et supprimer tous les téléchargements",
+  "downloaded": "téléchargé",
+  "couldNotResumeDownload": "Impossible de reprendre le téléchargement",
+  "allDownloadsRemoved": "Tous les téléchargements ont été supprimés",
+  "cancel": "Annuler",
+  "save": "Sauvegarder",
+  "setAudioAndSubtitleLanguage": "Définir la langue de l'audio et des sous-titres",
+  "setLocalDownloadBitrate": "Débit binaire de téléchargement",
+  "maxDownloadBitrateText": "Définir le débit binaire maximal de téléchargement local",
+  "downloadApproxFilesize": "1h de lecture équivaut à environ {size}Go",
+  "@downloadApproxFilesize": {
+    "placeholders": {
+      "size": {
+        "type": "String",
+        "example": "1.5"
+      }
+    }
+  },
+  "resumedDownload": "Téléchargement repris",
+  "canceledDownload": "Téléchargement annulé",
+  "details": "Détails",
+  "showMore": "Afficher plus",
+  "showLess": "Afficher moins",
+  "offlineNotice": "Vous êtes hors ligne",
+  "disableImageCaching": "Désactiver le cache d'images",
+  "restartApp": "Redémarrer l'application",
+  "restartAppDescription": "Pour appliquer les modifications, l'application doit être redémarrée",
+  "ok": "OK",
+  "selectProfile": "Sélectionner un profil",
+  "ends": "Se termine à",
+  "@ends": {
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "21:30"
+      }
+    }
+  },
+  "disableWatchlist": "Désactiver la liste de lecture",
+  "deletePlaylistNotice": "Pour éviter toute perte de données, veuillez supprimer la liste de lecture du serveur.",
+  "info": "Info",
+  "appName": "Jellyflix"
 }

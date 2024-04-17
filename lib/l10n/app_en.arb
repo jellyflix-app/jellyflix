@@ -107,5 +107,69 @@
     "markAsUnplayed": "Mark as unplayed",
     "couldNotOpenTrailer": "Could not open trailer",
     "watchTrailer": "Watch Trailer",
+    "showsMaybeMissed": "Shows you may have missed",
+    "moviesMaybeMissed": "Movies you may have missed",
+    "highesRatedMovies": "Highest Rated Movies",
+    "highestRatedShows": "Highest Rated Shows",
+    "top10": "Top {count}",
+    "@top10": {
+        "placeholders": {
+          "count": {
+            "type": "int",
+            "example": "10"
+          }
+        }
+      },
+    "similar": "Similar",
+    "downloads": "Downloads",
+    "download": "Download",
+    "noDownloads": "No downloads found",
+    "resumeDownload": "Resume Download",
+    "deleteDownload": "Delete Download",
+    "removedDownload": "Removed Download",
+    "startedDownload": "Started Download",
+    "cancelDownload": "Cancel Download",
+    "cancelAndRemoveAllDownloads": "Cancel and remove all downloads",
+    "downloaded": "downloaded",
+    "couldNotResumeDownload": "Couldn't resume download!",
+    "allDownloadsRemoved": "All downloads removed",
+    "cancel": "Cancel",
+    "save": "Save",
+    "setAudioAndSubtitleLanguage": "Set audio and subtitle language",
+    "setLocalDownloadBitrate": "Set local download bitrate",
+    "maxDownloadBitrateText": "Set the maximum bitrate for local downloads.",
+    "downloadApproxFilesize": "1h of playback equals approx. {size}GB",
+    "@downloadApproxFilesize": {
+        "placeholders": {
+          "size": {
+            "type": "String",
+            "example": "1.5"
+          }
+        }
+      },
+    "resumedDownload": "Resumed download",
+    "canceledDownload": "Canceled download",
+    "details": "Details",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "offlineNotice": "You're offline",
+    "disableImageCaching": "Disable image caching",
+    "restartApp": "Restart app",
+    "restartAppDescription": "Please restart the app for the changes to take effect.",
+    "ok": "OK",
+    "selectProfile": "Select Profile",
+    "ends": "Ends at {date}",
+    "@ends": {
+        "placeholders": {
+          "date": {
+            "type": "String",
+            "example": "21:30"
+          }
+        }
+      },
+    "disableWatchlist": "Disable Watchlist",
+    "deletePlaylistNotice": "To prevent data loss, please delete the playlist from the server, if it's no longer needed.",
+    "info": "Info",
     "appName": "Jellyflix"
+    
 }

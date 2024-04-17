@@ -51,6 +51,12 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: any
+  async: ^2.11.0
+  universal_io: ^2.2.2
+  connectivity_plus: ^5.0.2
+  transparent_image: ^2.0.1
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
 
 dependency_overrides: 
   media_kit: 
@@ -88,6 +94,7 @@ dependency_overrides:
       url: https://github.com/jellyflix-app/media-kit.git
       ref: main
       path: ./libs/android/media_kit_libs_android_video
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -97,6 +104,8 @@ dev_dependencies:
   custom_lint: ^0.5.7
   riverpod_lint: ^2.3.7
   flutter_launcher_icons: "^0.13.1"
+  hive_generator: ^2.0.1
+
 
 flutter:
   uses-material-design: true
@@ -110,13 +119,13 @@ flutter_launcher_icons:
   min_sdk_android: 21 # android min sdk min:16, default 21
   web:
     generate: true
-    image_path: "assets/icon/icon.png"
+    image_path: "assets/icon/app_icon.png"
     background_color: "#000000"
     theme_color: "#673AB7"
   windows:
     generate: true
-    image_path: "assets/icon/icon.png"
-    icon_size: 48 # min:48, max:256, default: 48
+    image_path: "assets/icon/app_icon.png"
+    icon_size: 256 # min:48, max:256, default: 48
   macos:
     generate: true
     image_path: "assets/icon/macOS_icon.png"

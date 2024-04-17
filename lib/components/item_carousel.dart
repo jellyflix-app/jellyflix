@@ -1,7 +1,7 @@
 import 'package:flutter/scheduler.dart';
 import 'package:jellyflix/components/item_carousel_row.dart';
+import 'package:jellyflix/components/jellyfin_image.dart';
 import 'package:jellyflix/models/poster_type.dart';
-import 'package:jellyflix/providers/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:tentacle/tentacle.dart';
@@ -68,6 +68,12 @@ class _ItemCarouselState extends ConsumerState<ItemCarousel> {
   }
 
   @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     switch (widget.posterType) {
       case PosterType.horizontal:
@@ -131,7 +137,7 @@ class _ItemCarouselState extends ConsumerState<ItemCarousel> {
                                         ),
                                       ],
                                     ),
-                                    child: ref.read(apiProvider).getImage(
+                                    child: JellyfinImage(
                                         id: widget.imageList[index],
                                         type: ImageType.primary,
                                         blurHash: widget.blurHashList == null
@@ -169,7 +175,7 @@ class _ItemCarouselState extends ConsumerState<ItemCarousel> {
                             ? Text(
                                 widget.subtitleList[index],
                                 style: const TextStyle(fontSize: 10),
-                                overflow: TextOverflow.fade,
+                                overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                               )
                             : const SizedBox(),

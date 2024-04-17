@@ -50,14 +50,17 @@ class _FutureItemCarouselState extends ConsumerState<PaginatedItemCarousel> {
     final isLoading = useState(false);
     final isLastPage = useState(false);
 
-    if (data.isEmpty) {
-      isLoading.value = true;
+    if (data.isEmpty && !isLastPage.value) {
+      if (context.mounted) {
+        isLoading.value = true;
+      }
       widget.future(startIndex, widget.pageSize).then((value) {
         data.addAll(value);
         startIndex += widget.pageSize;
-        isLoading.value = false;
-
-        if (value.length < widget.pageSize) {
+        if (context.mounted) {
+          isLoading.value = false;
+        }
+        if (value.length < widget.pageSize && context.mounted) {
           isLastPage.value = true;
         }
       });

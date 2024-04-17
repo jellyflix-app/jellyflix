@@ -1,10 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_blurhash/flutter_blurhash.dart';
-import 'package:jellyflix/components/profile_placeholder_image.dart';
 import 'package:jellyflix/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:jellyflix/navigation/app_router.dart';
@@ -30,16 +27,18 @@ class ApiService {
 
   User? get currentUser => _user;
 
-  Future buildHeader() async {
+  ApiService();
+
+  Future<String> buildHeader() async {
     var model = await _deviceInfoService.getDeviceModel();
     var deviceId = await _deviceInfoService.getDeviceId();
     var version = await _deviceInfoService.getVersion();
-    headers["Authorization"] =
-        "MediaBrowser Client=\"Jellyflix\", Device=\"$model\", DeviceId=\"$deviceId\", Version=\"$version\"";
+    return "MediaBrowser Client=\"Jellyflix\", Device=\"$model\", DeviceId=\"$deviceId\", Version=\"$version\"";
   }
 
   Future<User> login(String baseUrl, String username, String pw) async {
     // TODO add error handling
+    String authHeader = await buildHeader();
     await buildHeader();
     _jellyfinApi = Tentacle(
         dio: Dio(BaseOptions(
@@ -47,6 +46,7 @@ class ApiService {
       receiveTimeout: const Duration(seconds: 30),
       sendTimeout: const Duration(seconds: 5),
     )));
+
     var response = await _jellyfinApi!.getUserApi().authenticateUserByName(
         authenticateUserByNameRequest: AuthenticateUserByNameRequest((b) => b
           ..username = username
@@ -54,12 +54,14 @@ class ApiService {
         headers: headers);
 
     headers["Authorization"] =
-        "${headers["Authorization"]!}, Token=\"${response.data!.accessToken!}\"";
+        "$authHeader, Token=\"${response.data!.accessToken!}\"";
+
     headers["Origin"] = baseUrl;
     _user = User(
       id: response.data!.user!.id,
       name: response.data!.user!.name,
       serverAdress: baseUrl,
+      token: response.data!.accessToken!,
     );
     return _user!;
   }
@@ -73,70 +75,8 @@ class ApiService {
     return response.data!;
   }
 
-  CachedNetworkImage getImage({
-    required String id,
-    required ImageType type,
-    String? blurHash,
-    BorderRadius? borderRadius,
-    int? cacheHeight,
-  }) {
-    String url = "${_user!.serverAdress}/Items/$id/Images/${type.name}";
-
-    return CachedNetworkImage(
-      //cacheManager: CustomCacheManager.instance,
-      width: double.infinity,
-      imageUrl: url,
-      httpHeaders: headers,
-      fit: BoxFit.cover,
-      memCacheHeight: cacheHeight,
-      maxHeightDiskCache: cacheHeight,
-      imageBuilder: (context, imageProvider) => Container(
-        decoration: BoxDecoration(
-          borderRadius: borderRadius ?? BorderRadius.circular(10.0),
-          image: DecorationImage(
-            image: imageProvider,
-            fit: BoxFit.cover,
-          ),
-        ),
-      ),
-      placeholder: blurHash == null
-          ? null
-          : (context, url) {
-              return ClipRRect(
-                borderRadius: borderRadius ?? BorderRadius.circular(10.0),
-                child: BlurHash(
-                  hash: blurHash,
-                  imageFit: BoxFit.cover,
-                ),
-              );
-            },
-      errorWidget: (context, url, error) {
-        return const SizedBox();
-      },
-      errorListener: (value) {
-        //! Errors can't be caught right now
-        //! There is a pr to fix this: https://github.com/Baseflow/flutter_cached_network_image/pull/777
-      },
-    );
-  }
-
-  CachedNetworkImage getProfileImage({User? user}) {
-    user ??= _user!;
-    return CachedNetworkImage(
-      width: double.infinity,
-      fit: BoxFit.cover,
-      imageUrl: "${user.serverAdress}/Users/${user.id}/Images/Profile",
-      placeholder: (context, url) {
-        return const ProfilePlaceholderImage();
-      },
-      errorWidget: (context, url, error) {
-        return const ProfilePlaceholderImage();
-      },
-      errorListener: (value) {
-        //! Errors can't be caught right now
-        //! There is a pr to fix this
-      },
-    );
+  String getImageUrl(String id, ImageType type) {
+    return "${_user!.serverAdress}/Items/$id/Images/${type.name}";
   }
 
   Future<List<BaseItemDto>> getContinueWatching({String? parentId}) async {
@@ -181,7 +121,7 @@ class ApiService {
     var response = await _jellyfinApi!
         .getUserViewsApi()
         .getUserViews(userId: _user!.id!, headers: headers);
-    //keep only video folders
+    // keep only video folders
     var folders = response.data!.items!.where((element) {
       return element.collectionType == "movies" ||
           element.collectionType == "tvshows";
@@ -191,9 +131,11 @@ class ApiService {
   }
 
   Future<List<BaseItemDto>> getEpisodes(String id) async {
-    var response = await _jellyfinApi!
-        .getTvShowsApi()
-        .getEpisodes(userId: _user!.id!, seriesId: id, headers: headers);
+    var response = await _jellyfinApi!.getTvShowsApi().getEpisodes(
+        userId: _user!.id!,
+        seriesId: id,
+        headers: headers,
+        fields: [ItemFields.mediaSources].toBuiltList());
     return response.data!.items!.toList();
   }
 
@@ -206,49 +148,62 @@ class ApiService {
       int? startIndex,
       List<BaseItemKind>? includeItemTypes,
       List<SortOrder>? sortOrder,
-      List<ItemFilter>? filters}) async {
+      List<ItemFilter>? filters,
+      double? minCommunityRating}) async {
     var ids = genreIds == null
         ? null
         : BuiltList<String>.from(genreIds.map((e) => e.id!));
-    var response = await _jellyfinApi!.getItemsApi().getItems(
-          userId: _user!.id!,
-          headers: headers,
-          genreIds: ids,
-          searchTerm: searchTerm,
-          recursive: true,
-          isPlayed: isPlayed,
-          filters: filters?.toBuiltList(),
-          sortBy: sortBy?.toBuiltList(),
-          sortOrder: sortOrder == null ? null : BuiltList<SortOrder>(sortOrder),
-          limit: limit,
-          startIndex: startIndex,
-          enableTotalRecordCount: false,
-          includeItemTypes: BuiltList<BaseItemKind>(
-            includeItemTypes ??
-                [
-                  BaseItemKind.movie,
-                  BaseItemKind.series,
-                  BaseItemKind.episode,
-                  BaseItemKind.boxSet
-                ],
-          ),
-          fields: BuiltList<ItemFields>(
-              [ItemFields.overview, ItemFields.providerIds]),
-        );
+    try {
+      var response = await _jellyfinApi!.getItemsApi().getItems(
+            userId: _user!.id!,
+            headers: headers,
+            genreIds: ids,
+            searchTerm: searchTerm,
+            recursive: true,
+            isPlayed: isPlayed,
+            filters: filters?.toBuiltList(),
+            sortBy: sortBy?.toBuiltList(),
+            sortOrder:
+                sortOrder == null ? null : BuiltList<SortOrder>(sortOrder),
+            limit: limit,
+            startIndex: startIndex,
+            enableTotalRecordCount: false,
+            minCommunityRating: minCommunityRating,
+            includeItemTypes: BuiltList<BaseItemKind>(
+              includeItemTypes ??
+                  [
+                    BaseItemKind.movie,
+                    BaseItemKind.series,
+                    BaseItemKind.episode,
+                    BaseItemKind.boxSet
+                  ],
+            ),
+            fields: BuiltList<ItemFields>([
+              ItemFields.overview,
+              ItemFields.providerIds,
+              ItemFields.mediaSources
+            ]),
+          );
 
-    return response.data!.items!.toList();
+      return response.data!.items!.toList();
+    } catch (e) {
+      return [];
+    }
   }
 
-  Future<List<BaseItemDto>> getGenres() async {
+  Future<List<BaseItemDto>> getGenres(
+      {List<BaseItemKind>? includeItemTypes}) async {
     var response = await _jellyfinApi!.getGenresApi().getGenres(
           userId: _user!.id!,
           headers: headers,
-          includeItemTypes: [
-            BaseItemKind.movie,
-            BaseItemKind.series,
-            BaseItemKind.episode,
-            BaseItemKind.boxSet
-          ].toBuiltList(),
+          includeItemTypes: (includeItemTypes ??
+                  [
+                    BaseItemKind.movie,
+                    BaseItemKind.series,
+                    BaseItemKind.episode,
+                    BaseItemKind.boxSet
+                  ])
+              .toBuiltList(),
         );
     return response.data!.items!.toList();
   }
@@ -265,12 +220,13 @@ class ApiService {
   /// maxStreamingBitrate is the default bitrate set in the settings if null
   /// audioStreamIndex is the default audioStreamIndex set by jellyfin if null
   /// subtitleStreamIndex is the default subtitleStreamIndex set by jellyfin if null
-  Future<(String, PlaybackInfoResponse)> getStreamUrlAndPlaybackInfo(
-      {required String itemId,
-      int? audioStreamIndex,
-      int? subtitleStreamIndex,
-      int? maxStreamingBitrate,
-      int? startTimeTicks}) async {
+  Future<(String, PlaybackInfoResponse)> getStreamUrlAndPlaybackInfo({
+    required String itemId,
+    int? audioStreamIndex,
+    int? subtitleStreamIndex,
+    int? maxStreamingBitrate,
+    int? startTimeTicks,
+  }) async {
     Response<PlaybackInfoResponse> response = await postPlaybackInfoRequest(
         itemId,
         maxStreamingBitrate,
@@ -280,14 +236,12 @@ class ApiService {
         false);
 
     String? url;
-    if (response.data!.mediaSources!.toList().first.supportsDirectPlay ==
-        true) {
-      url =
-          "${_user!.serverAdress}/Videos/$itemId/stream?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}&SubtitleStreamIndex=${subtitleStreamIndex ?? response.data!.mediaSources!.first.defaultSubtitleStreamIndex ?? -1}&Static=true";
-    } else if (response.data!.mediaSources!
-            .toList()
-            .first
-            .supportsDirectStream ==
+    // if (response.data!.mediaSources!.toList().first.supportsDirectPlay ==
+    //     true) {
+    //   url =
+    //       "${_user!.serverAdress}/Videos/$itemId/stream?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}&SubtitleStreamIndex=${subtitleStreamIndex ?? response.data!.mediaSources!.first.defaultSubtitleStreamIndex ?? -1}&Static=true";
+    // } else
+    if (response.data!.mediaSources!.toList().first.supportsDirectStream ==
         true) {
       url =
           "${_user!.serverAdress}/Videos/$itemId/stream.${response.data!.mediaSources!.first.container}?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}&SubtitleStreamIndex=${subtitleStreamIndex ?? response.data!.mediaSources!.first.defaultSubtitleStreamIndex ?? -1}&Static=true";
@@ -400,6 +354,7 @@ class ApiService {
     // get locale
     Locale locale = Localizations.localeOf(navigatorKey.currentContext!);
     String countryCode = locale.countryCode ?? locale.languageCode;
+    countryCode = countryCode.toUpperCase();
     Response responseMovie;
     // get top 10000 from url
     try {
@@ -513,14 +468,15 @@ class ApiService {
               playbackInfo!.mediaSources!.first.defaultSubtitleStreamIndex));
   }
 
-  reportStopPlayback(int positionTicks) async {
+  reportStopPlayback(int positionTicks,
+      {String? itemId, String? playSessionId}) async {
     await _jellyfinApi!.getPlaystateApi().reportPlaybackStopped(
         headers: headers,
         reportPlaybackStoppedRequest: ReportPlaybackStoppedRequest((b) => b
-          ..itemId = playbackInfo!.mediaSources!.first.id!
-          ..mediaSourceId = playbackInfo!.mediaSources!.first.id!
+          ..itemId = itemId ?? playbackInfo?.mediaSources?.first.id
+          ..mediaSourceId = itemId ?? playbackInfo?.mediaSources?.first.id
           ..positionTicks = positionTicks
-          ..playSessionId = playbackInfo!.playSessionId));
+          ..playSessionId = playSessionId ?? playbackInfo?.playSessionId));
   }
 
   Future<List<BaseItemDto>> getNextUpEpisode({String? seriesId}) async {
@@ -551,11 +507,13 @@ class ApiService {
     return continueWatching + nextUp;
   }
 
-  Future<List<BaseItemDto>> similarItems(String itemId) async {
+  Future<List<BaseItemDto>> similarItems(String itemId, {int? limit}) async {
     var similarItems = await _jellyfinApi!.getLibraryApi().getSimilarItems(
           headers: headers,
           userId: _user!.id!,
           itemId: itemId,
+          limit: limit,
+          fields: [ItemFields.overview].toBuiltList(),
         );
 
     return similarItems.data!.items!.toList();
@@ -692,14 +650,17 @@ class ApiService {
   }
 
   Future<List<BaseItemDto>> getHeaderRecommendation() async {
-    var response = await similarItemsByLastWatched();
-    var response2 = await getFilterItems(
-        sortBy: ["DateCreated"],
-        sortOrder: [SortOrder.descending],
-        includeItemTypes: [BaseItemKind.series, BaseItemKind.movie],
-        limit: 5);
-
-    return response + response2;
+    return await getFilterItems(
+            sortBy: ["DateCreated"],
+            sortOrder: [SortOrder.descending],
+            includeItemTypes: [BaseItemKind.movie],
+            limit: 3) +
+        await getFilterItems(
+            // TODO: When 10.9 drops, update this to "DateLastContentAdded"
+            sortBy: ["DateCreated"],
+            sortOrder: [SortOrder.descending],
+            includeItemTypes: [BaseItemKind.series],
+            limit: 4);
   }
 
   Future<void> markAsPlayed(
@@ -711,6 +672,29 @@ class ApiService {
     } else {
       await _jellyfinApi!.getPlaystateApi().markUnplayedItem(
           userId: _user!.id!, itemId: itemId, headers: headers);
+    }
+  }
+
+  Future<bool> ping({User? user}) async {
+    user ?? _user;
+    // returns false if serverAdress is null or server is unreachable
+    if (user?.serverAdress == null) {
+      return false;
+    }
+
+    try {
+      var result = await Dio()
+          .get(
+            "${user!.serverAdress!}/System/Ping",
+          )
+          .timeout(const Duration(seconds: 2));
+      if (result.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      return false;
     }
   }
 }

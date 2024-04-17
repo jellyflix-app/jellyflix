@@ -19,11 +19,15 @@ class ItemCarouselRow extends StatelessWidget {
       children: [
         title == null
             ? const SizedBox()
-            : Text(
-                title!,
-                style: Theme.of(context).textTheme.headlineSmall,
+            : Expanded(
+                child: Text(
+                  title!,
+                  style: Theme.of(context).textTheme.headlineSmall,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-        const Spacer(),
+        if (!UniversalPlatform.isAndroid && !UniversalPlatform.isIOS)
+          const Spacer(),
         if (!UniversalPlatform.isAndroid && !UniversalPlatform.isIOS)
           IconButton(
             icon: const Icon(Icons.arrow_back_ios),

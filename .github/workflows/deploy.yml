@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - main
-      - development
+      - preview
     paths-ignore:
       - "README.md"
       - "LICENSE"
@@ -133,16 +133,19 @@ jobs:
           echo "keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}" >> android/key.properties
 
       - name: Build apk
-        run: flutter build apk --release
+        run: flutter build apk --release --dart-define=ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}
 
       - name: Build Android App Bundle
-        run: flutter build appbundle --release
+        run: flutter build appbundle --release --dart-define=ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}
+
+      - name: Rename APK
+        run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/jellyflix.apk
 
       - name: Upload apk
         uses: actions/upload-artifact@v2
         with:
           name: jellyflix-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/jellyflix.apk
 
       - name: Upload app bundle
         uses: actions/upload-artifact@v2
@@ -153,7 +156,7 @@ jobs:
   build_ios:
     needs: [version]
     name: Build iOS
-    runs-on: macos-latest
+    runs-on: macos-14
   
     steps:
     - name: Checkout the code
@@ -185,13 +188,6 @@ jobs:
       id: create-release-notes
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Setup Java
-      uses: actions/setup-java@v3
-      with:
-        distribution: 'zulu'
-        java-version: '12.x'
-        cache: gradle
 
     - name: Setup Flutter
       uses: subosito/flutter-action@v2
@@ -257,7 +253,7 @@ jobs:
   build_macos:
     name: Build macOS
     needs: [version]
-    runs-on: macos-latest
+    runs-on: macos-14
     steps:
       - name: Clone Repo
         uses: actions/checkout@v4
@@ -297,13 +293,6 @@ jobs:
       - name: Update version in YAML
         run: sed -i '' 's/00.00.00+0/${{ steps.version.outputs.content }}+${{ github.run_number }}/g' pubspec.yaml
 
-      - name: Setup Java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'zulu'
-          java-version: '12.x'
-          cache: gradle
-
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -321,7 +310,7 @@ jobs:
           sed -i "" "s/SENSITIVE_REPLACE_ME/$TEAM_ID/g" ./Runner.xcodeproj/project.pbxproj
 
       - name: Build macOS
-        run: flutter build macos
+        run: flutter build macos --dart-define=ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}
 
       - name: Sign app
         run: |
@@ -422,7 +411,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Linux
-        run: flutter build linux --release
+        run: flutter build linux --release --dart-define=ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}
 
       - name: Install zip
         uses: montudor/action-zip@v0.1.1
@@ -470,6 +459,14 @@ jobs:
           distribution: 'zulu'
           java-version: '12.x'
           cache: gradle
+      
+      # fixes #278 https://github.com/subosito/flutter-action/issues/278
+      - name: Export pub environment variable on Windows
+        run: |
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            echo "PUB_CACHE=$LOCALAPPDATA\\Pub\\Cache" >> $GITHUB_ENV
+          fi
+        shell: bash
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -481,7 +478,7 @@ jobs:
         run: flutter pub get
 
       - name: Build Windows
-        run: flutter build windows --release
+        run: flutter build windows --release --dart-define=ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}
 
       - name: Zip Windows
         run: Compress-Archive -Path ./build/windows/x64/runner/Release/* -Destination jellyflix-windows.zip
@@ -548,7 +545,7 @@ jobs:
           tag: ${{ steps.version.outputs.content }}
           commit: ${{ github.sha }}
           body: ${{ steps.create-release-notes.outputs.release-notes }}
-          prerelease: ${{ github.ref == 'refs/heads/development' }}
+          prerelease: ${{ github.ref == 'refs/heads/preview' }}
 
   release-play-store:
     name: Release app to play store
@@ -560,20 +557,23 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: jellyflix-appbundle
-      - name: Release app to internal testing track
-        if: ${{ github.ref == 'refs/heads/development' }}
+      - name: Release app to open testing track
+        if: ${{ github.ref == 'refs/heads/preview' }}
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
           packageName: ${{ secrets.ANDROID_PACKAGE_NAME }}
           releaseFiles: app-release.aab
-          track: internal
-      # - name: Release app to open testing track
-      #   if: ${{ github.ref == 'refs/heads/main' }}
-      #   uses: r0adkll/upload-google-play@v1
-      #   with:
-      #     serviceAccountJsonPlainText: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
-      #     packageName: ${{ secrets.ANDROID_PACKAGE_NAME }}
-      #     releaseFiles: app-release.aab
-      #     track: beta
-      #     status: draft
+          track: beta
+          status: draft
+          changesNotSentForReview: true
+      - name: Release app to production track
+        if: ${{ github.ref == 'refs/heads/main' }}
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
+          packageName: ${{ secrets.ANDROID_PACKAGE_NAME }}
+          releaseFiles: app-release.aab
+          track: production
+          status: draft
+          changesNotSentForReview: true

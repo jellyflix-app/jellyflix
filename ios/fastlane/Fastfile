@@ -47,6 +47,8 @@ platform :ios do
     )
 
     upload_to_testflight(
+      groups: "Github Test",
+      distribute_external: true,
       notify_external_testers: true,
       changelog: ENV['RELEASE_NOTES']
     )
