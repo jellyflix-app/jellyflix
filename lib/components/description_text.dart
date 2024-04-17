@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/components/jfx_layout.dart';
 
 class DescriptionText extends StatefulWidget {
   final String text;
@@ -16,7 +17,7 @@ class DescriptionTextState extends State<DescriptionText> {
   late String firstHalf;
   late String secondHalf;
 
-  bool showMore = true;
+  bool showMoreState = false;
 
   @override
   void initState() {
@@ -33,38 +34,63 @@ class DescriptionTextState extends State<DescriptionText> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
-    return secondHalf.isEmpty
-        ? Text(firstHalf)
-        : Column(
-            children: <Widget>[
-              showMore
-                  ? Text(
-                      widget.text,
-                      maxLines: 4,
-                      overflow: TextOverflow.ellipsis,
-                    )
-                  : Text(widget.text),
+    JfxLayout layout = JfxLayout.scalingLayout(context);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final textSpan = TextSpan(
+          text: widget.text,
+          style: layout.text.bodyLarge,
+        );
+
+        final textPainter = TextPainter(
+          text: textSpan,
+          maxLines: 4, // Set your max lines here
+          textDirection: TextDirection.ltr,
+        );
+
+        textPainter.layout(maxWidth: constraints.maxWidth);
+
+        final exceeded = textPainter.didExceedMaxLines;
+
+        return Column(
+          children: <Widget>[
+            Text(
+              widget.text,
+              style: layout.text.bodyLarge,
+              maxLines: showMoreState ? null : 4,
+              overflow: exceeded
+                  ? showMoreState
+                      ? TextOverflow.visible
+                      : TextOverflow.ellipsis
+                  : null,
+            ),
+            if (exceeded)
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   InkWell(
                     onTap: () {
                       setState(() {
-                        showMore = !showMore;
+                        showMoreState = !showMoreState;
                       });
                     },
                     child: Text(
-                      showMore
-                          ? AppLocalizations.of(context)!.showMore
-                          : AppLocalizations.of(context)!.showLess,
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary),
+                      showMoreState
+                          ? AppLocalizations.of(context)!.showLess
+                          : AppLocalizations.of(context)!.showMore,
+                      style: layout.text.bodyLarge!.copyWith(
+                        color: layout.color.primary,
+                      ),
                     ),
                   ),
                 ],
               ),
-            ],
-          );
+          ],
+        );
+      },
+    );
   }
 }

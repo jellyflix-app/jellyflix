@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/episode_list_tile.dart';
+import 'package:jellyflix/components/jfx_text_theme.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -25,7 +26,6 @@ class EpisodeList extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final seasonSelection = useState(0);
-
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -33,7 +33,7 @@ class EpisodeList extends HookConsumerWidget {
         Padding(
           padding: const EdgeInsets.symmetric(vertical: 5.0, horizontal: 10.0),
           child: Text(AppLocalizations.of(context)!.episodes,
-              style: Theme.of(context).textTheme.headlineSmall),
+              style: JfxTextTheme.scalingTheme(context).headlineSmall),
         ),
         StreamBuilder(
           stream: episodeStreamController.stream,
@@ -74,7 +74,15 @@ class EpisodeList extends HookConsumerWidget {
                                 onSelected: (selected) {
                                   seasonSelection.value = index;
                                 },
-                                label: Text(seasons[index])),
+                                label: Text(
+                                  seasons[index],
+                                  style: JfxTextTheme.scalingTheme(context)
+                                      .bodyLarge!
+                                      .copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onPrimary),
+                                )),
                           );
                         }),
                   ),
