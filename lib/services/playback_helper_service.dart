@@ -1,5 +1,5 @@
 import 'package:jellyflix/models/bitrates.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 
 class PlaybackHelperService {
   final PlaybackInfoResponse item;

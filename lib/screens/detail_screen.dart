@@ -3,23 +3,23 @@ import 'dart:ui';
 
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:jellyflix/components/item_carousel.dart';
+import 'package:jellyflix/models/screen_paths.dart';
+import 'package:jellyflix/models/skeleton_item.dart';
+import 'package:jellyflix/providers/api_provider.dart';
+import 'package:flutter/material.dart';
+import 'package:tentacle/tentacle.dart';
 import 'package:jellyflix/components/jellyfin_image.dart';
 import 'package:jellyflix/components/rounded_download_button.dart';
 import 'package:jellyflix/providers/database_provider.dart';
-import 'package:openapi/openapi.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:flutter/material.dart';
 
 import 'package:jellyflix/components/description_text.dart';
 import 'package:jellyflix/components/episode_list.dart';
 import 'package:jellyflix/components/item_information_details.dart';
-import 'package:jellyflix/models/screen_paths.dart';
-import 'package:jellyflix/models/skeleton_item.dart';
-import 'package:jellyflix/providers/api_provider.dart';
 import 'package:jellyflix/components/future_item_carousel.dart';
-import 'package:jellyflix/components/item_carousel.dart';
 
 class DetailScreen extends HookConsumerWidget {
   final String itemId;

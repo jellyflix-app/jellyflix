@@ -796,15 +796,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.0"
-  openapi:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "791fb189291815f0cbd525dffe127b087e359005"
-      url: "https://github.com/jellyflix-app/jellyfin-api-dart.git"
-    source: git
-    version: "1.0.0"
   package_config:
     dependency: transitive
     description:
@@ -1226,6 +1217,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.0+1"
+  tentacle:
+    dependency: "direct main"
+    description:
+      path: "."
+      ref: HEAD
+      resolved-ref: "905fc81508f1077cc29298b708b9884c4c13c39d"
+      url: "https://github.com/TentacleOrg/Tentacle.git"
+    source: git
+    version: "1.0.0"
   term_glyph:
     dependency: transitive
     description:

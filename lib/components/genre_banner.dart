@@ -8,7 +8,7 @@ import 'package:jellyflix/components/jellyfin_image.dart';
 import 'package:jellyflix/models/gradients.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 
 class GenreBanner extends HookConsumerWidget {
   const GenreBanner({

@@ -1,5 +1,5 @@
 import 'package:built_collection/built_collection.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 
 class SkeletonItem {
   static generateBlurHashes() {
