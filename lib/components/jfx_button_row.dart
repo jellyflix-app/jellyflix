@@ -5,7 +5,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/jfx_layout.dart';
 import 'package:jellyflix/components/rounded_download_button.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
