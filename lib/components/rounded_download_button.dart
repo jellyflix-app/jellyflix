@@ -7,7 +7,7 @@ import 'package:jellyflix/components/download_settings_dialog.dart';
 import 'package:jellyflix/models/bitrates.dart';
 import 'package:jellyflix/providers/database_provider.dart';
 import 'package:jellyflix/providers/download_provider.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:universal_io/io.dart';
 
