@@ -18,10 +18,13 @@ class JfxLayout {
     double scaleBaseline =
         viewportWidth > viewportHeight ? viewportWidth : viewportHeight;
 
-    double buttonHeight = scaleBaseline * 0.05;
-    double tileWidth = scaleBaseline * 0.11;
-    double tileHeight = tileWidth * 3 / 2;
-    double tileRightPadding = scaleBaseline * 0.012;
+    double buttonHeight = (scaleBaseline * 0.05).roundToDouble();
+    double tileWidth = (scaleBaseline * 0.11).roundToDouble();
+    if (tileWidth < 100) {
+      tileWidth = 100;
+    }
+    double tileHeight = (tileWidth * 3 / 2).roundToDouble();
+    double tileRightPadding = (scaleBaseline * 0.012).roundToDouble();
     TextTheme text = JfxTextTheme.scalingTheme(context);
     ColorScheme color = Theme.of(context).colorScheme;
 

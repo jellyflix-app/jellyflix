@@ -115,7 +115,6 @@ class ImageBannerState extends ConsumerState<ImageBanner> {
                       {setState(() => _currentPage = currentPage)})
               : ImageBannerInnerLandscape(
                   items: widget.items,
-                  height: widget.height,
                   playButtonPressed: playButtonPressed,
                   onPressedPlay: onPressedPlay(ref, context),
                   controller: _controller,

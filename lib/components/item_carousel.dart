@@ -87,7 +87,7 @@ class _ItemCarouselState extends ConsumerState<ItemCarousel> {
           const SizedBox(height: 5.0),
           SizedBox(
             height: layout.tileHeight +
-                (layout.text.bodyMedium!.fontSize! * 3), // height of text
+                (layout.text.bodyMedium!.fontSize! * 3.5), // height of text
             child: ListView.builder(
               controller: scrollController,
               shrinkWrap: true,

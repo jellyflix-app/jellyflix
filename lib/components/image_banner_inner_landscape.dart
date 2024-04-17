@@ -11,7 +11,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 class ImageBannerInnerLandscape extends HookConsumerWidget {
   final List<BaseItemDto> items;
   final Function(BaseItemDto) onPressedPlay;
-  final double? height;
   final PageController controller;
   final Function(int) setCurrentPageCallback;
   final int currentPage;
@@ -21,7 +20,6 @@ class ImageBannerInnerLandscape extends HookConsumerWidget {
       {super.key,
       required this.items,
       required this.onPressedPlay,
-      this.height = 600,
       required this.controller,
       required this.setCurrentPageCallback,
       required this.currentPage,
@@ -33,7 +31,9 @@ class ImageBannerInnerLandscape extends HookConsumerWidget {
       alignment: AlignmentDirectional.bottomCenter,
       children: [
         SizedBox(
-          height: height,
+          height: (MediaQuery.of(context).size.height * 0.45) > 300
+              ? (MediaQuery.of(context).size.height * 0.45).roundToDouble()
+              : 300,
           child: PageView.builder(
             controller: controller,
             itemCount: items.length,
@@ -95,7 +95,7 @@ class ImageBannerInnerLandscape extends HookConsumerWidget {
                               Text(
                                 items[index].name!,
                                 style: JfxTextTheme.scalingTheme(context)
-                                    .headlineMedium,
+                                    .headlineSmall,
                                 maxLines: 2,
                               ),
                               Text(items[index].productionYear.toString(),
