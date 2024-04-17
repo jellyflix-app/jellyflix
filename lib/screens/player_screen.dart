@@ -8,7 +8,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';

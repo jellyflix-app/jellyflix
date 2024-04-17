@@ -10,10 +10,10 @@ import 'package:jellyflix/components/playback_progress_overlay.dart';
 import 'package:jellyflix/models/bitrates.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
+import 'package:tentacle/tentacle.dart';
 import 'package:jellyflix/providers/connectivity_provider.dart';
 import 'package:jellyflix/providers/database_provider.dart';
 import 'package:jellyflix/providers/download_provider.dart';
-import 'package:openapi/openapi.dart';
 import 'package:universal_io/io.dart';
 
 class EpisodeListTile extends HookConsumerWidget {

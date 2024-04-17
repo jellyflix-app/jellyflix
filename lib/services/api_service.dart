@@ -6,12 +6,12 @@ import 'package:jellyflix/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:jellyflix/navigation/app_router.dart';
 import 'package:jellyflix/services/device_info_service.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 import 'package:built_collection/built_collection.dart';
 
 class ApiService {
   final DeviceInfoService _deviceInfoService = DeviceInfoService();
-  Openapi? _jellyfinApi;
+  Tentacle? _jellyfinApi;
   User? _user;
   Map<String, String> headers = {
     "Accept": "application/json",
@@ -40,7 +40,7 @@ class ApiService {
     // TODO add error handling
     String authHeader = await buildHeader();
     await buildHeader();
-    _jellyfinApi = Openapi(
+    _jellyfinApi = Tentacle(
         dio: Dio(BaseOptions(
       baseUrl: baseUrl,
       receiveTimeout: const Duration(seconds: 30),
@@ -48,7 +48,7 @@ class ApiService {
     )));
 
     var response = await _jellyfinApi!.getUserApi().authenticateUserByName(
-        authenticateUserByName: AuthenticateUserByName((b) => b
+        authenticateUserByNameRequest: AuthenticateUserByNameRequest((b) => b
           ..username = username
           ..pw = pw),
         headers: headers);
@@ -269,7 +269,7 @@ class ApiService {
       int? subtitleStreamIndex,
       int? startTimeTicks,
       bool forceTranscoding) async {
-    var deviceProfile = ClientCapabilitiesDeviceProfileBuilder();
+    var deviceProfile = ClientCapabilitiesDtoDeviceProfileBuilder();
     deviceProfile.directPlayProfiles = ListBuilder([
       DirectPlayProfile((b) => b..type = DlnaProfileType.video),
     ]);
@@ -314,7 +314,7 @@ class ApiService {
     var response = await _jellyfinApi!.getMediaInfoApi().getPostedPlaybackInfo(
           itemId: itemId,
           headers: headers,
-          playbackInfoDto: PlaybackInfoDto((b) => b
+          getPostedPlaybackInfoRequest: GetPostedPlaybackInfoRequest((b) => b
             ..userId = _user!.id!
             ..mediaSourceId = itemId
             ..autoOpenLiveStream = true
@@ -440,7 +440,7 @@ class ApiService {
   Future<void> reportStartPlayback(int positionTicks) async {
     await _jellyfinApi!.getPlaystateApi().reportPlaybackStart(
         headers: headers,
-        playbackStartInfo: PlaybackStartInfo((b) => b
+        reportPlaybackStartRequest: ReportPlaybackStartRequest((b) => b
           ..itemId = playbackInfo!.mediaSources!.first.id!
           ..mediaSourceId = playbackInfo!.mediaSources!.first.id!
           ..playbackStartTimeTicks =
@@ -457,7 +457,7 @@ class ApiService {
       {int? audioStreamIndex, int? subtitleStreamIndex}) async {
     await _jellyfinApi!.getPlaystateApi().reportPlaybackProgress(
         headers: headers,
-        playbackProgressInfo: PlaybackProgressInfo((b) => b
+        reportPlaybackProgressRequest: ReportPlaybackProgressRequest((b) => b
           ..itemId = playbackInfo!.mediaSources!.first.id!
           ..mediaSourceId = playbackInfo!.mediaSources!.first.id!
           ..positionTicks = positionTicks
@@ -472,7 +472,7 @@ class ApiService {
       {String? itemId, String? playSessionId}) async {
     await _jellyfinApi!.getPlaystateApi().reportPlaybackStopped(
         headers: headers,
-        playbackStopInfo: PlaybackStopInfo((b) => b
+        reportPlaybackStoppedRequest: ReportPlaybackStoppedRequest((b) => b
           ..itemId = itemId ?? playbackInfo?.mediaSources?.first.id
           ..mediaSourceId = itemId ?? playbackInfo?.mediaSources?.first.id
           ..positionTicks = positionTicks
@@ -576,7 +576,7 @@ class ApiService {
       // create watchlist playlist
       var playlistResult = await _jellyfinApi!.getPlaylistsApi().createPlaylist(
             headers: headers,
-            createPlaylistDto: CreatePlaylistDto(
+            createPlaylistRequest: CreatePlaylistRequest(
               (b) => b
                 ..name = "watchlist"
                 ..userId = _user!.id!,

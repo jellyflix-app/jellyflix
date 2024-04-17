@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/jellyfin_image.dart';
+import 'package:jellyflix/components/jfx_text_theme.dart';
 import 'package:jellyflix/models/screen_paths.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ImageBannerInnerPortrait extends HookConsumerWidget {
@@ -99,7 +100,14 @@ class ImageBannerInnerPortrait extends HookConsumerWidget {
                                   BaseItemDto item = items[index];
                                   onPressedPlay(item);
                                 },
-                                label: Text(AppLocalizations.of(context)!.play),
+                                label: Text(
+                                    style: JfxTextTheme.scalingTheme(context)
+                                        .bodyLarge!
+                                        .copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary),
+                                    AppLocalizations.of(context)!.play),
                                 icon: Padding(
                                   padding:
                                       const EdgeInsets.fromLTRB(0, 0, 10, 0),
@@ -126,6 +134,12 @@ class ImageBannerInnerPortrait extends HookConsumerWidget {
                                       }).toString());
                                 },
                                 child: Text(
+                                    style: JfxTextTheme.scalingTheme(context)
+                                        .bodyLarge!
+                                        .copyWith(
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary),
                                     AppLocalizations.of(context)!.moreInfo)),
                           ],
                         ),

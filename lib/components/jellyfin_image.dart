@@ -4,7 +4,7 @@ import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:jellyflix/providers/database_provider.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 class JellyfinImage extends HookConsumerWidget {

@@ -7,7 +7,7 @@ import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:async/async.dart';
 
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 
 class InteractionArea extends StatelessWidget {
   final void Function()? timerResetCallback;
@@ -115,7 +115,6 @@ class ImageBannerState extends ConsumerState<ImageBanner> {
                       {setState(() => _currentPage = currentPage)})
               : ImageBannerInnerLandscape(
                   items: widget.items,
-                  height: widget.height,
                   playButtonPressed: playButtonPressed,
                   onPressedPlay: onPressedPlay(ref, context),
                   controller: _controller,

@@ -3,7 +3,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/item_carousel.dart';
 import 'package:jellyflix/navigation/app_router.dart';
 import 'package:jellyflix/providers/api_provider.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class RecommendationCarousels extends HookConsumerWidget {

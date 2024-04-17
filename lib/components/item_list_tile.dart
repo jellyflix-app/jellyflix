@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 
 class ItemListTile<T1 extends BaseItemDto, T2> extends HookConsumerWidget {
   const ItemListTile({

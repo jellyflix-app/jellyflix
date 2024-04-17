@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:universal_io/io.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:async/async.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
