@@ -119,6 +119,15 @@
       }
     }
   },
+  "minutes": "{count} min",  
+    "@minutes": {
+        "placeholders": {
+            "count": {
+              "type": "int",
+              "example": "50"
+            }
+          }
+    },
   "similar": "Ähnlich",
   "downloads": "Downloads",
   "download": "Download",
