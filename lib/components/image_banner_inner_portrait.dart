@@ -77,7 +77,7 @@ class ImageBannerInnerPortrait extends HookConsumerWidget {
                           maxLines: 2,
                         ),
                         Text(
-                            items[index].productionYear.toString() == "null"
+                            items[index].productionYear == null
                                 ? ""
                                 : items[index].productionYear.toString(),
                             style: Theme.of(context).textTheme.titleMedium),
