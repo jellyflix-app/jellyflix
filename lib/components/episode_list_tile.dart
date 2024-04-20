@@ -47,7 +47,8 @@ class EpisodeListTile extends HookConsumerWidget {
       ),
       subtitle: Text(episode.runTimeTicks == null
           ? AppLocalizations.of(context)!.na
-          : "${(episode.runTimeTicks! / 10000000 / 60).round()} min"),
+          : AppLocalizations.of(context)!
+              .minutes((episode.runTimeTicks! / 10000000 / 60).round())),
       leading: JellyfinImage(
           id: episode.id!,
           type: ImageType.primary,

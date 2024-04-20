@@ -178,13 +178,13 @@ class DetailScreen extends HookConsumerWidget {
                                       Row(
                                         children: [
                                           Text(
-                                            data.premiereDate == null
-                                                ? AppLocalizations.of(context)!
-                                                    .na
-                                                : data.premiereDate!.year
-                                                    .toString(),
-                                            style: layout.text.bodyLarge,
-                                          ),
+                                              data.premiereDate?.year == null
+                                                  ? AppLocalizations.of(
+                                                          context)!
+                                                      .na
+                                                  : data.premiereDate!.year
+                                                      .toString(),
+                                              style: layout.text.bodyLarge),
                                           const SizedBox(width: 16.0),
                                           Container(
                                             decoration: BoxDecoration(

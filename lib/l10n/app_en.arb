@@ -120,6 +120,15 @@
           }
         }
       },
+    "minutes": "{count} min",  
+    "@minutes": {
+        "placeholders": {
+            "count": {
+              "type": "int",
+              "example": "50"
+            }
+          }
+    },
     "similar": "Similar",
     "downloads": "Downloads",
     "download": "Download",
