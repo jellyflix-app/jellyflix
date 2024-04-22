@@ -2,7 +2,7 @@ name: Deploy
 on:
   push:
     branches:
-      - main
+      - stable
       - preview
     paths-ignore:
       - "README.md"
@@ -184,7 +184,7 @@ jobs:
       run: sed -i '' 's/00.00.00+0/${{ steps.version.outputs.content }}+${{ github.run_number }}/g' pubspec.yaml
 
     - uses: johnyherangi/create-release-notes@main
-      if: ${{ github.ref == 'refs/heads/main' }}
+      if: ${{ github.ref == 'refs/heads/stable' }}
       id: create-release-notes
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -532,7 +532,7 @@ jobs:
           path: jellyflix-macos
     
       - uses: johnyherangi/create-release-notes@main
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: ${{ github.ref == 'refs/heads/stable' }}
         id: create-release-notes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -566,9 +566,8 @@ jobs:
           releaseFiles: app-release.aab
           track: beta
           status: draft
-          changesNotSentForReview: true
       - name: Release app to production track
-        if: ${{ github.ref == 'refs/heads/main' }}
+        if: ${{ github.ref == 'refs/heads/stable' }}
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_KEY }}
@@ -576,4 +575,3 @@ jobs:
           releaseFiles: app-release.aab
           track: production
           status: draft
-          changesNotSentForReview: true
