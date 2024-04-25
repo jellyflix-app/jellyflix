@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -148,7 +149,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
 
   Future requestPermissions() async {
     if (UniversalPlatform.isAndroid) {
-      if (UniversalPlatform.isAndroid) {
+      if ((await DeviceInfoPlugin().androidInfo).version.sdkInt >= 33) {
         // Video permissions.
         if (await Permission.videos.isDenied ||
             await Permission.videos.isPermanentlyDenied) {
