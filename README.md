@@ -28,7 +28,7 @@ Beta-Builds are available on Testflight. Join Testflight [here](https://testflig
 
 ### Android
 
-[![](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/jellyflix-app/jellyflix/releases/latest/download/jellyflix.apk)
+[![](https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://github.com/jellyflix-app/jellyflix/releases/latest/download/app-release.apk)
 
 Google Play and F-Droid coming soon
 
