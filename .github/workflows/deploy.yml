@@ -15,22 +15,28 @@ jobs:
     name: Create version number
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
       - name: Fetch all history for all tags and branches
         run: |
           git config remote.origin.url https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}
           git fetch --prune --depth=10000
+
       - name: Install GitVersion
-        uses: gittools/actions/gitversion/setup@v0.10.2
+        uses: gittools/actions/gitversion/setup@v1
         with:
           versionSpec: "5.x"
+        
       - name: Use GitVersion
         id: gitversion
-        uses: gittools/actions/gitversion/execute@v0.10.2
+        uses: gittools/actions/gitversion/execute@v1
+
       - name: Create version.txt with nuGetVersion
         run: echo ${{ steps.gitversion.outputs.nuGetVersion  }} > version.txt
+
       - name: Upload version.txt
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: gitversion
           path: version.txt
@@ -39,13 +45,18 @@ jobs:
     name: Create Web Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-java@v3
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
+      - name: Setup java
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: "12.x"
           cache: gradle
-      - uses: subosito/flutter-action@v2
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
           cache: true
@@ -57,7 +68,7 @@ jobs:
         run: flutter build web --release
     
       - name: Upload Web Build Files
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: web-release
           path: ./build/web
@@ -66,15 +77,14 @@ jobs:
     name: Deploy Web Build
     needs: build_web
     runs-on: ubuntu-latest
-
     steps:
     - name: Download Web Release
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v4
       with:
         name: web-release
 
     - name: Deploy to gh-pages
-      uses: peaceiris/actions-gh-pages@v3
+      uses: peaceiris/actions-gh-pages@v4
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: ./
@@ -86,24 +96,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Get version.txt
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: gitversion
+
       - name: Create new file without newline char from version.txt
         run: tr -d '\n' < version.txt > version1.txt
+
       - name: Read version
         id: version
         uses: juliangruber/read-file-action@v1
         with:
           path: version1.txt
+
       - name: Update version in YAML
         run: sed -i 's/00.00.00+0/${{ steps.version.outputs.content }}+${{ github.run_number }}/g' pubspec.yaml
 
       - name: Setup Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '12.x'
@@ -142,13 +155,13 @@ jobs:
         run: mv build/app/outputs/flutter-apk/app-release.apk build/app/outputs/flutter-apk/jellyflix.apk
 
       - name: Upload apk
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: jellyflix-apk
           path: build/app/outputs/flutter-apk/jellyflix.apk
 
       - name: Upload app bundle
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: jellyflix-appbundle
           path: build/app/outputs/bundle/release/app-release.aab
@@ -157,7 +170,6 @@ jobs:
     needs: [version]
     name: Build iOS
     runs-on: macos-14
-  
     steps:
     - name: Checkout the code
       uses: actions/checkout@v4
@@ -170,20 +182,24 @@ jobs:
         working-directory: 'ios'
 
     - name: Get version.txt
-      uses: actions/download-artifact@v2
+      uses: actions/download-artifact@v4
       with:
         name: gitversion
+
     - name: Create new file without newline char from version.txt
       run: tr -d '\n' < version.txt > version1.txt
+
     - name: Read version
       id: version
       uses: juliangruber/read-file-action@v1
       with:
         path: version1.txt
+
     - name: Update version in YAML
       run: sed -i '' 's/00.00.00+0/${{ steps.version.outputs.content }}+${{ github.run_number }}/g' pubspec.yaml
 
-    - uses: johnyherangi/create-release-notes@main
+    - name: Create release notes
+      uses: johnyherangi/create-release-notes@v1
       if: ${{ github.ref == 'refs/heads/stable' }}
       id: create-release-notes
       env:
@@ -280,16 +296,19 @@ jobs:
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
 
       - name: Get version.txt
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: gitversion
+
       - name: Create new file without newline char from version.txt
         run: tr -d '\n' < version.txt > version1.txt
+
       - name: Read version
         id: version
         uses: juliangruber/read-file-action@v1
         with:
           path: version1.txt
+
       - name: Update version in YAML
         run: sed -i '' 's/00.00.00+0/${{ steps.version.outputs.content }}+${{ github.run_number }}/g' pubspec.yaml
 
@@ -361,7 +380,7 @@ jobs:
           xcrun stapler validate build/macos/Build/Products/Release/jellyflix.dmg
       
       - name: Upload macOS
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: jellyflix-macos
           path: build/macos/Build/Products/Release/jellyflix.dmg
@@ -372,10 +391,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Get version.txt
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: gitversion
       - name: Create new file without newline char from version.txt
@@ -389,7 +408,7 @@ jobs:
         run: sed -i 's/00.00.00+0/${{ steps.version.outputs.content }}+${{ github.run_number }}/g' pubspec.yaml
 
       - name: Setup Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '12.x'
@@ -414,14 +433,14 @@ jobs:
         run: flutter build linux --release --dart-define=ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}
 
       - name: Install zip
-        uses: montudor/action-zip@v0.1.1
+        uses: montudor/action-zip@v1
       
       - name: Zip Linux
         run: zip -qq -r jellyflix-linux.zip .
         working-directory: build/linux/x64/release/bundle
 
       - name: Upload Linux
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: jellyflix-linux
           path: build/linux/x64/release/bundle/jellyflix-linux.zip
@@ -432,29 +451,32 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Clone Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       
       - name: Git:Enable long paths
         run: git config --system core.longpaths true
 
       - name: Get version.txt
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: gitversion
+
       - name: Create new file without newline char from version.txt
         run: (Get-Content version.txt) -join '' | Set-Content version1.txt
         shell: pwsh
+
       - name: Read version
         id: version
         uses: juliangruber/read-file-action@v1
         with:
           path: version1.txt
+
       - name: Update version in YAML
         run: (Get-Content pubspec.yaml) -replace '00.00.00+0', "${{ steps.version.outputs.content }}+${{ github.run_number }}" | Set-Content pubspec.yaml
         shell: pwsh
 
       - name: Setup Java
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '12.x'
@@ -484,7 +506,7 @@ jobs:
         run: Compress-Archive -Path ./build/windows/x64/runner/Release/* -Destination jellyflix-windows.zip
 
       - name: Upload Windows
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: jellyflix-windows
           path: jellyflix-windows.zip
@@ -495,14 +517,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Clone Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Get version.txt
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: gitversion
+
       - name: Create new file without newline char from version.txt
         run: tr -d '\n' < version.txt > version1.txt
+
       - name: Read version
         id: version
         uses: juliangruber/read-file-action@v1
@@ -510,32 +534,36 @@ jobs:
           path: version1.txt
 
       - name: Download Artifacts APK
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: jellyflix-apk
           path: jellyflix-apk
+
       - name: Download Artifacts Linux
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: jellyflix-linux
           path: jellyflix-linux
+
       - name: Download Artifacts Windows
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: jellyflix-windows
           path: jellyflix-windows
 
       - name: Download Artifacts Mac
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: jellyflix-macos
           path: jellyflix-macos
     
-      - uses: johnyherangi/create-release-notes@main
+      - name: Create release notes
+        uses: johnyherangi/create-release-notes@v1
         if: ${{ github.ref == 'refs/heads/stable' }}
         id: create-release-notes
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create Release
         id: create_release
         uses: ncipollo/release-action@v1
@@ -552,11 +580,14 @@ jobs:
     needs: [build_android]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - name: Check out Git repository
+        uses: actions/checkout@v4
+
       - name: Get appbundle from artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: jellyflix-appbundle
+
       - name: Release app to open testing track
         if: ${{ github.ref == 'refs/heads/preview' }}
         uses: r0adkll/upload-google-play@v1
@@ -566,6 +597,7 @@ jobs:
           releaseFiles: app-release.aab
           track: beta
           status: draft
+
       - name: Release app to production track
         if: ${{ github.ref == 'refs/heads/stable' }}
         uses: r0adkll/upload-google-play@v1
