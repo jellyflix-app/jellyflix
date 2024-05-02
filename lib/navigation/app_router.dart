@@ -177,11 +177,12 @@ class AppRouter {
       //   }
       //   return null;
       // }
-
       if (isConnected &&
           (_ref.read(authStateProvider.notifier).state == AuthState.loggedIn ||
               _ref.read(authStateProvider.notifier).state ==
-                  AuthState.loggedOut)) {
+                  AuthState.loggedOut ||
+              _ref.read(authStateProvider.notifier).state ==
+                  AuthState.unknown)) {
         if (isGoingToLogin &&
             _ref.read(authStateProvider.notifier).state == AuthState.loggedIn) {
           return ScreenPaths.home;

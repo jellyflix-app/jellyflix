@@ -122,8 +122,6 @@ class JfxButtonRow extends StatelessWidget {
       ValueNotifier<bool> hovered,
     ) {
       return SizedBox(
-        height: 40,
-        width: 40,
         child: Material(
           child: PopupMenuButton(
             itemBuilder: (BuildContext context) {

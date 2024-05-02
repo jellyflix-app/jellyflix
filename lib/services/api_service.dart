@@ -675,11 +675,11 @@ class ApiService {
     }
   }
 
-  Future<bool> ping({User? user}) async {
+  Future<bool?> ping({User? user}) async {
     user ?? _user;
     // returns false if serverAdress is null or server is unreachable
     if (user?.serverAdress == null) {
-      return false;
+      return null;
     }
 
     try {

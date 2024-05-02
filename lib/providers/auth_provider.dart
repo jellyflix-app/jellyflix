@@ -31,9 +31,14 @@ final updateServerReachableProvider =
       ref.read(authStateStreamControllerProvider).add(AuthState.loggedOut);
       ref.read(authStateProvider.notifier).state = AuthState.loggedOut;
     }
-  } else if (ref.read(authStateProvider.notifier).state != AuthState.offline) {
+  } else if (serverReachable == false &&
+      ref.read(authStateProvider.notifier).state != AuthState.offline) {
     ref.read(authStateStreamControllerProvider).add(AuthState.offline);
     ref.read(authStateProvider.notifier).state = AuthState.offline;
+  } else if (serverReachable == null &&
+      ref.read(authStateProvider.notifier).state != AuthState.unknown) {
+    ref.read(authStateStreamControllerProvider).add(AuthState.unknown);
+    ref.read(authStateProvider.notifier).state = AuthState.unknown;
   }
 });
 

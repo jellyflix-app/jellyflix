@@ -1,1 +1,1 @@
-enum AuthState { offline, loggedOut, loggedIn }
+enum AuthState { offline, loggedOut, loggedIn, unknown }
