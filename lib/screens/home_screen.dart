@@ -67,7 +67,17 @@ class HomeScreen extends HookConsumerWidget {
                     "id": id,
                   }).toString());
                 },
-                imageMapping: (e) => e.id!,
+                imageMapping: (BaseItemDto e) {
+                  if (e.type == BaseItemKind.episode &&
+                      ref
+                              .read(databaseProvider("settings"))
+                              .get("showPrimaryForEpisodes") !=
+                          true) {
+                    return e.seriesId!;
+                  } else {
+                    return e.id!;
+                  }
+                },
                 blurHashMapping: (e) =>
                     e.imageBlurHashes?.primary?.values.first,
                 titleMapping: (e) => e.name!,

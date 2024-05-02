@@ -178,5 +178,6 @@
   "disableWatchlist": "Watchlist deaktivieren",
   "deletePlaylistNotice": "Um Datenverlust zu vermeiden, bitte die Playlist auf dem Server manuell löschen",
   "info": "Info",
+  "showPrimaryForEpisodes": "Zeige das Episodenbild anstatt das Poster der Serie",
   "appName": "Jellyflix"
 }
