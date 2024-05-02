@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/profile_image.dart';
 import 'package:jellyflix/components/quick_connect_dialog.dart';
 import 'package:jellyflix/components/set_download_bitrate_dialog.dart';
+import 'package:jellyflix/components/switch_settings_tile.dart';
 import 'package:jellyflix/models/bitrates.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
@@ -26,6 +28,10 @@ class ProfileScreen extends HookConsumerWidget {
             false);
     final disableWatchlist = useState(
         ref.read(databaseProvider("settings")).get("disableWatchlist") ??
+            false);
+
+    final showPrimaryForEpisodes = useState(
+        ref.read(databaseProvider("settings")).get("showPrimaryForEpisodes") ??
             false);
 
     return Scaffold(
@@ -209,82 +215,84 @@ class ProfileScreen extends HookConsumerWidget {
                       ),
                       child: Column(
                         children: [
-                          ListTile(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15)),
+                          SwitchSettingsTile(
                             leading: const Icon(Icons.image_outlined),
                             title: Text(AppLocalizations.of(context)!
                                 .disableImageCaching),
-                            trailing: Switch(
-                              value: disableImageCaching.value,
-                              onChanged: (value) {
-                                disableImageCaching.value = value;
-                                ref
-                                    .read(databaseProvider("settings"))
-                                    .put("disableImageCaching", value);
+                            value: disableImageCaching.value,
+                            onChanged: (value) {
+                              disableImageCaching.value = value;
+                              ref
+                                  .read(databaseProvider("settings"))
+                                  .put("disableImageCaching", value);
 
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      title: Text(AppLocalizations.of(context)!
-                                          .restartApp),
-                                      content: Text(
-                                          AppLocalizations.of(context)!
-                                              .restartAppDescription),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: Text(
-                                              AppLocalizations.of(context)!.ok),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
-                            ),
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: Text(AppLocalizations.of(context)!
+                                        .restartApp),
+                                    content: Text(AppLocalizations.of(context)!
+                                        .restartAppDescription),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text(
+                                            AppLocalizations.of(context)!.ok),
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
                           ),
-                          ListTile(
-                            shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15)),
+                          SwitchSettingsTile(
                             leading: const Icon(Icons.remove_red_eye_outlined),
                             title: Text(
                                 AppLocalizations.of(context)!.disableWatchlist),
-                            trailing: Switch(
-                              value: disableWatchlist.value,
-                              onChanged: (value) {
-                                disableWatchlist.value = value;
-                                ref
-                                    .read(databaseProvider("settings"))
-                                    .put("disableWatchlist", value);
+                            value: disableWatchlist.value,
+                            onChanged: (value) {
+                              disableWatchlist.value = value;
+                              ref
+                                  .read(databaseProvider("settings"))
+                                  .put("disableWatchlist", value);
 
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      title: Text(
-                                        AppLocalizations.of(context)!.info,
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: Text(
+                                      AppLocalizations.of(context)!.info,
+                                    ),
+                                    content: Text(AppLocalizations.of(context)!
+                                        .deletePlaylistNotice),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: Text(
+                                            AppLocalizations.of(context)!.ok),
                                       ),
-                                      content: Text(
-                                          AppLocalizations.of(context)!
-                                              .deletePlaylistNotice),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: Text(
-                                              AppLocalizations.of(context)!.ok),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
-                            ),
+                                    ],
+                                  );
+                                },
+                              );
+                            },
+                          ),
+                          SwitchSettingsTile(
+                            leading: const Icon(Icons.amp_stories_rounded),
+                            title: Text(AppLocalizations.of(context)!
+                                .showPrimaryForEpisodes),
+                            value: showPrimaryForEpisodes.value,
+                            onChanged: (value) {
+                              showPrimaryForEpisodes.value = value;
+                              ref
+                                  .read(databaseProvider("settings"))
+                                  .put("showPrimaryForEpisodes", value);
+                            },
                           ),
                         ],
                       ),
