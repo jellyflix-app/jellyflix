@@ -8,7 +8,6 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/jellyfin_image.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/models/skeleton_item.dart';
-import 'package:jellyflix/models/sort_type.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -48,9 +47,9 @@ class LibraryScreen extends HookConsumerWidget {
                     element.toString().split(".").last.toLowerCase() ==
                     e.toLowerCase());
               }).toList());
-    final sortType = useState<SortType>(sortTypeParam == null
-        ? SortType.sortName
-        : SortType.values
+    final sortType = useState<ItemSortBy>(sortTypeParam == null
+        ? ItemSortBy.sortName
+        : ItemSortBy.values
             .where((element) =>
                 element.toString().split(".").last.toLowerCase() ==
                 sortTypeParam?.toLowerCase())
@@ -145,12 +144,12 @@ class LibraryScreen extends HookConsumerWidget {
                   Expanded(
                     child: TextButton(
                       onPressed: () {
-                        if (sortType.value == SortType.sortName) {
-                          sortType.value = SortType.premiereDate;
-                        } else if (sortType.value == SortType.premiereDate) {
-                          sortType.value = SortType.random;
-                        } else if (sortType.value == SortType.random) {
-                          sortType.value = SortType.sortName;
+                        if (sortType.value == ItemSortBy.sortName) {
+                          sortType.value = ItemSortBy.premiereDate;
+                        } else if (sortType.value == ItemSortBy.premiereDate) {
+                          sortType.value = ItemSortBy.random;
+                        } else if (sortType.value == ItemSortBy.random) {
+                          sortType.value = ItemSortBy.sortName;
                         }
                       },
                       child: Text(
@@ -170,7 +169,7 @@ class LibraryScreen extends HookConsumerWidget {
                     startIndex: page * 100,
                     limit: 100,
                     sortOrder: [sortOrder.value],
-                    sortBy: [sortType.value.toString().split(".").last],
+                    sortBy: [sortType.value],
                     filters: filterType.value,
                     includeItemTypes: [
                       BaseItemKind.movie,
@@ -534,14 +533,16 @@ class LibraryScreen extends HookConsumerWidget {
     return null;
   }
 
-  String localizeSortType(BuildContext context, SortType sortType) {
+  String localizeSortType(BuildContext context, ItemSortBy sortType) {
     switch (sortType) {
-      case SortType.sortName:
+      case ItemSortBy.sortName:
         return AppLocalizations.of(context)!.name;
-      case SortType.premiereDate:
+      case ItemSortBy.premiereDate:
         return AppLocalizations.of(context)!.premiereDate;
-      case SortType.random:
+      case ItemSortBy.random:
         return AppLocalizations.of(context)!.random;
+      default:
+        return sortType.toString().split(".").last;
     }
   }
 }

@@ -30,11 +30,11 @@ class ItemInformationDetails extends StatelessWidget {
             Expanded(
               child: Text(
                   item.people!
-                          .where((element) => element.type == 'Writer')
+                          .where((element) => element.type == PersonKind.writer)
                           .isEmpty
                       ? 'N/A'
                       : item.people!
-                          .where((element) => element.type == 'Writer')
+                          .where((element) => element.type == PersonKind.writer)
                           .map((e) => e.name!)
                           .join(", "),
                   style: layout.text.bodyLarge),
@@ -55,11 +55,13 @@ class ItemInformationDetails extends StatelessWidget {
             Expanded(
               child: Text(
                   item.people!
-                          .where((element) => element.type == 'Director')
+                          .where(
+                              (element) => element.type == PersonKind.director)
                           .isEmpty
                       ? AppLocalizations.of(context)!.na
                       : item.people!
-                          .where((element) => element.type == 'Director')
+                          .where(
+                              (element) => element.type == PersonKind.director)
                           .map((e) => e.name!)
                           .join(", "),
                   style: layout.text.bodyLarge),

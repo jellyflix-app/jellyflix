@@ -99,7 +99,7 @@ class HomeScreen extends HookConsumerWidget {
                 future: (startIndex, limit) => ref
                     .read(apiProvider)
                     .getFilterItems(
-                        sortBy: ["DateCreated"],
+                        sortBy: [ItemSortBy.dateCreated],
                         sortOrder: [SortOrder.descending],
                         includeItemTypes: [BaseItemKind.movie],
                         startIndex: startIndex,
@@ -125,7 +125,7 @@ class HomeScreen extends HookConsumerWidget {
                 future: (startIndex, limit) => ref
                     .read(apiProvider)
                     .getFilterItems(
-                        sortBy: ["DateCreated"],
+                        sortBy: [ItemSortBy.dateLastContentAdded],
                         sortOrder: [SortOrder.descending],
                         includeItemTypes: [BaseItemKind.series],
                         startIndex: startIndex,
@@ -231,7 +231,7 @@ class HomeScreen extends HookConsumerWidget {
                     e.imageBlurHashes?.primary?.values.first,
                 future: (startIndex, limit) =>
                     ref.read(apiProvider).getFilterItems(
-                        sortBy: ["Random"],
+                        sortBy: [ItemSortBy.random],
                         minCommunityRating: 7.5,
                         includeItemTypes: [BaseItemKind.movie],
                         //filters: [ItemFilter.isUnplayed],
@@ -256,7 +256,7 @@ class HomeScreen extends HookConsumerWidget {
                 future: (startIndex, limit) => ref
                     .read(apiProvider)
                     .getFilterItems(
-                        sortBy: ["Random"],
+                        sortBy: [ItemSortBy.random],
                         minCommunityRating: 7.5,
                         includeItemTypes: [BaseItemKind.series],
                         startIndex: startIndex,
@@ -280,7 +280,7 @@ class HomeScreen extends HookConsumerWidget {
                 future: (startIndex, limit) => ref
                     .read(apiProvider)
                     .getFilterItems(
-                        sortBy: ["Random"],
+                        sortBy: [ItemSortBy.random],
                         sortOrder: [SortOrder.descending],
                         includeItemTypes: [BaseItemKind.movie],
                         filters: [ItemFilter.isUnplayed],
@@ -305,7 +305,7 @@ class HomeScreen extends HookConsumerWidget {
                 future: (startIndex, limit) => ref
                     .read(apiProvider)
                     .getFilterItems(
-                        sortBy: ["Random"],
+                        sortBy: [ItemSortBy.random],
                         sortOrder: [SortOrder.descending],
                         includeItemTypes: [BaseItemKind.series],
                         filters: [ItemFilter.isUnplayed],

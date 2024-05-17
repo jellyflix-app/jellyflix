@@ -48,7 +48,7 @@ class ApiService {
     )));
 
     var response = await _jellyfinApi!.getUserApi().authenticateUserByName(
-        authenticateUserByNameRequest: AuthenticateUserByNameRequest((b) => b
+        authenticateUserByName: AuthenticateUserByName((b) => b
           ..username = username
           ..pw = pw),
         headers: headers);
@@ -85,7 +85,7 @@ class ApiService {
     return response.data!.items!.toList();
   }
 
-  Future<List<BaseItemDto>> getLatestItems(String collectionType,
+  Future<List<BaseItemDto>> getLatestItems(CollectionType collectionType,
       {int? limit}) async {
     List<BaseItemDto> items = [];
     var folders = await getMediaFolders();
@@ -123,8 +123,8 @@ class ApiService {
         .getUserViews(userId: _user!.id!, headers: headers);
     // keep only video folders
     var folders = response.data!.items!.where((element) {
-      return element.collectionType == "movies" ||
-          element.collectionType == "tvshows";
+      return element.collectionType == CollectionType.movies ||
+          element.collectionType == CollectionType.tvshows;
     }).toList();
     return folders;
     //return response.data!;
@@ -143,7 +143,7 @@ class ApiService {
       {List<BaseItemDto>? genreIds,
       String? searchTerm,
       bool? isPlayed,
-      List<String>? sortBy,
+      List<ItemSortBy>? sortBy,
       int? limit,
       int? startIndex,
       List<BaseItemKind>? includeItemTypes,
@@ -269,7 +269,7 @@ class ApiService {
       int? subtitleStreamIndex,
       int? startTimeTicks,
       bool forceTranscoding) async {
-    var deviceProfile = ClientCapabilitiesDtoDeviceProfileBuilder();
+    var deviceProfile = ClientCapabilitiesDeviceProfileBuilder();
     deviceProfile.directPlayProfiles = ListBuilder([
       DirectPlayProfile((b) => b..type = DlnaProfileType.video),
     ]);
@@ -280,7 +280,7 @@ class ApiService {
           ..type = DlnaProfileType.video
           ..audioCodec = "aac,ac3,eac3"
           ..videoCodec = "h264,hevc"
-          ..protocol = "hls",
+          ..protocol = MediaStreamProtocol.hls,
       )
     ]);
 
@@ -314,7 +314,7 @@ class ApiService {
     var response = await _jellyfinApi!.getMediaInfoApi().getPostedPlaybackInfo(
           itemId: itemId,
           headers: headers,
-          getPostedPlaybackInfoRequest: GetPostedPlaybackInfoRequest((b) => b
+          playbackInfoDto: PlaybackInfoDto((b) => b
             ..userId = _user!.id!
             ..mediaSourceId = itemId
             ..autoOpenLiveStream = true
@@ -335,10 +335,11 @@ class ApiService {
 
   Future<int> authorizeQuickConnect(String secret) async {
     try {
-      var response = await _jellyfinApi!.getQuickConnectApi().authorize(
-            code: secret,
-            headers: headers,
-          );
+      var response =
+          await _jellyfinApi!.getQuickConnectApi().authorizeQuickConnect(
+                code: secret,
+                headers: headers,
+              );
       if (response.data! == true) {
         return 200;
       } else {
@@ -440,7 +441,7 @@ class ApiService {
   Future<void> reportStartPlayback(int positionTicks) async {
     await _jellyfinApi!.getPlaystateApi().reportPlaybackStart(
         headers: headers,
-        reportPlaybackStartRequest: ReportPlaybackStartRequest((b) => b
+        playbackStartInfo: PlaybackStartInfo((b) => b
           ..itemId = playbackInfo!.mediaSources!.first.id!
           ..mediaSourceId = playbackInfo!.mediaSources!.first.id!
           ..playbackStartTimeTicks =
@@ -457,7 +458,7 @@ class ApiService {
       {int? audioStreamIndex, int? subtitleStreamIndex}) async {
     await _jellyfinApi!.getPlaystateApi().reportPlaybackProgress(
         headers: headers,
-        reportPlaybackProgressRequest: ReportPlaybackProgressRequest((b) => b
+        playbackProgressInfo: PlaybackProgressInfo((b) => b
           ..itemId = playbackInfo!.mediaSources!.first.id!
           ..mediaSourceId = playbackInfo!.mediaSources!.first.id!
           ..positionTicks = positionTicks
@@ -472,7 +473,7 @@ class ApiService {
       {String? itemId, String? playSessionId}) async {
     await _jellyfinApi!.getPlaystateApi().reportPlaybackStopped(
         headers: headers,
-        reportPlaybackStoppedRequest: ReportPlaybackStoppedRequest((b) => b
+        playbackStopInfo: PlaybackStopInfo((b) => b
           ..itemId = itemId ?? playbackInfo?.mediaSources?.first.id
           ..mediaSourceId = itemId ?? playbackInfo?.mediaSources?.first.id
           ..positionTicks = positionTicks
@@ -520,8 +521,8 @@ class ApiService {
   }
 
   Future<List<BaseItemDto>> similarItemsByLastWatched() async {
-    var recentlyPlayed =
-        await getFilterItems(isPlayed: true, sortBy: ["LastPlayed"], limit: 1);
+    var recentlyPlayed = await getFilterItems(
+        isPlayed: true, sortBy: [ItemSortBy.datePlayed], limit: 1);
     if (recentlyPlayed.isEmpty) {
       return [];
     }
@@ -547,7 +548,7 @@ class ApiService {
     // firstWhere views name == playlist
     Response<BaseItemDtoQueryResult>? playlist;
     for (var view in views.data!.items!) {
-      if (view.collectionType == "playlists") {
+      if (view.collectionType == CollectionType.playlists) {
         String? playlistsId = view.id;
         // abort if no playlists folder exists
         if (playlistsId == null) {
@@ -576,7 +577,7 @@ class ApiService {
       // create watchlist playlist
       var playlistResult = await _jellyfinApi!.getPlaylistsApi().createPlaylist(
             headers: headers,
-            createPlaylistRequest: CreatePlaylistRequest(
+            createPlaylistDto: CreatePlaylistDto(
               (b) => b
                 ..name = "watchlist"
                 ..userId = _user!.id!,
@@ -598,7 +599,7 @@ class ApiService {
   Future<void> updateWatchlist(String itemId, bool add) async {
     String watchlistId = await getWatchlistId();
     if (add) {
-      await _jellyfinApi!.getPlaylistsApi().addToPlaylist(
+      await _jellyfinApi!.getPlaylistsApi().addItemToPlaylist(
           headers: headers,
           userId: _user!.id!,
           playlistId: watchlistId,
@@ -610,7 +611,7 @@ class ApiService {
             return element.id! == itemId;
           }).playlistItemId ??
           "";
-      await _jellyfinApi!.getPlaylistsApi().removeFromPlaylist(
+      await _jellyfinApi!.getPlaylistsApi().removeItemFromPlaylist(
             headers: headers,
             playlistId: watchlistId,
             entryIds: [playlistItemId].toBuiltList(),
@@ -623,7 +624,7 @@ class ApiService {
     var folders = await getMediaFolders();
 
     var movieCollections = folders.where((element) {
-      return element.collectionType == "movies";
+      return element.collectionType == CollectionType.movies;
     }).toList();
     var movieCollectionIds = movieCollections.map((e) {
       return e.id!;
@@ -651,13 +652,12 @@ class ApiService {
 
   Future<List<BaseItemDto>> getHeaderRecommendation() async {
     return await getFilterItems(
-            sortBy: ["DateCreated"],
+            sortBy: [ItemSortBy.dateCreated],
             sortOrder: [SortOrder.descending],
             includeItemTypes: [BaseItemKind.movie],
             limit: 3) +
         await getFilterItems(
-            // TODO: When 10.9 drops, update this to "DateLastContentAdded"
-            sortBy: ["DateCreated"],
+            sortBy: [ItemSortBy.dateLastContentAdded],
             sortOrder: [SortOrder.descending],
             includeItemTypes: [BaseItemKind.series],
             limit: 4);
