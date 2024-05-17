@@ -27,7 +27,7 @@ class NavigationDrawerTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(15),
           child: InkWell(
             onTap: onTap,
-            overlayColor: MaterialStateProperty.all(
+            overlayColor: WidgetStateProperty.all(
                 Theme.of(context).colorScheme.primary.withOpacity(0.3)),
             customBorder: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),

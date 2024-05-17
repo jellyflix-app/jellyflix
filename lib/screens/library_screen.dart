@@ -420,8 +420,8 @@ class LibraryScreen extends HookConsumerWidget {
             choiceChipBuilder: (context, item, isSelected) => Padding(
               padding: const EdgeInsets.all(5.0),
               child: ChoiceChip(
-                  color: MaterialStateProperty.resolveWith((states) {
-                    if (states.contains(MaterialState.selected)) {
+                  color: WidgetStateProperty.resolveWith((states) {
+                    if (states.contains(WidgetState.selected)) {
                       return Theme.of(context).buttonTheme.colorScheme!.primary;
                     }
                     return Theme.of(context).focusColor;
@@ -487,8 +487,8 @@ class LibraryScreen extends HookConsumerWidget {
               choiceChipBuilder: (context, item, isSelected) => Padding(
                 padding: const EdgeInsets.all(5.0),
                 child: ChoiceChip(
-                    color: MaterialStateProperty.resolveWith((states) {
-                      if (states.contains(MaterialState.selected)) {
+                    color: WidgetStateProperty.resolveWith((states) {
+                      if (states.contains(WidgetState.selected)) {
                         return Theme.of(context)
                             .buttonTheme
                             .colorScheme!
