@@ -109,13 +109,10 @@ class EpisodeListTile extends HookConsumerWidget {
                             element.type == MediaStreamType.subtitle)
                         .length;
 
-                    String? downloadBitrateString = await ref
-                        .read(databaseProvider("settings"))
-                        .get("downloadBitrate");
-                    int downloadBitrate = BitRates.defaultBitrate();
-                    if (downloadBitrateString != null) {
-                      downloadBitrate = int.parse(downloadBitrateString);
-                    }
+                    int downloadBitrate = await ref
+                            .read(databaseProvider("settings"))
+                            .get("downloadBitrate") ??
+                        BitRates.defaultBitrate();
 
                     if (context.mounted &&
                         (audioCount != 1 || subtitleCount != 0)) {
