@@ -17,6 +17,8 @@ jobs:
     steps:
       - name: Check out Git repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Fetch all history for all tags and branches
         run: |
