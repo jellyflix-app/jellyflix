@@ -42,9 +42,13 @@ class NavigationDrawerTile extends StatelessWidget {
                   const SizedBox(
                     width: 15,
                   ),
-                  Text(
-                    label,
-                    style: Theme.of(context).textTheme.bodyLarge,
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
                   )
                 ],
               ),

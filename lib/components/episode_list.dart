@@ -79,9 +79,10 @@ class EpisodeList extends HookConsumerWidget {
                                   style: JfxTextTheme.scalingTheme(context)
                                       .bodyLarge!
                                       .copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onPrimary),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurface,
+                                      ),
                                 )),
                           );
                         }),
