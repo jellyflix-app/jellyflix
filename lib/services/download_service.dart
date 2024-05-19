@@ -58,7 +58,6 @@ class DownloadService {
       );
     }
     connectivityService.connectionStatusStream.listen((isConnected) {
-      // TODO check edge cases
       if (isConnected && _api.currentUser?.serverAdress != null) {
         _dio = Dio(
           BaseOptions(
@@ -410,7 +409,7 @@ class DownloadService {
               cancelToken: cancelToken);
         }
         mainM3U.data =
-            mainM3U.data.replaceAll(line, "file://$downloadPath/$fileName");
+            mainM3U.data.replaceFirst(line, "file://$downloadPath/$fileName");
         await File("$downloadPath/main.m3u8").writeAsString(mainM3U.data);
       }
     }

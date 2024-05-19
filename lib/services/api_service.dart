@@ -60,10 +60,33 @@ class ApiService {
     _user = User(
       id: response.data!.user!.id,
       name: response.data!.user!.name,
+      password: pw,
       serverAdress: baseUrl,
       token: response.data!.accessToken!,
     );
     return _user!;
+  }
+
+  Future<void> logout() async {
+    _user = null;
+    _jellyfinApi = null;
+  }
+
+  Future checkAuthentication() async {
+    if (_user == null) {
+      return false;
+    }
+    try {
+      var response = await _jellyfinApi!.getUserApi().getCurrentUser(
+            headers: headers,
+          );
+      if (response.data!.id == _user!.id) {
+        return true;
+      }
+    } catch (e) {
+      return false;
+    }
+    return false;
   }
 
   Future<BaseItemDto> getItemDetails(String id) async {

@@ -58,10 +58,11 @@ class ProfileSelectionScreen extends HookConsumerWidget {
                               ),
                             ),
                             onTap: () {
+                              ref.read(authProvider).logout();
                               ref.read(authProvider).updateCurrentProfileId(
                                   snapshot.data![index].id! +
                                       snapshot.data![index].serverAdress!);
-                              context.push(ScreenPaths.home);
+                              context.push(ScreenPaths.loading);
                             });
                       }),
                     ),

@@ -99,6 +99,12 @@ class AppRouter {
                 child: const DownloadScreen(),
               ),
             ),
+            GoRoute(
+                path: ScreenPaths.loading,
+                pageBuilder: (context, state) => buildPageWithDefaultTransition(
+                    context: context,
+                    state: state,
+                    child: const LoadingScreen())),
           ]),
       GoRoute(
         path: ScreenPaths.player,

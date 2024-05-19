@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:jellyflix/models/user.dart';
 import 'package:jellyflix/services/api_service.dart';
 import 'package:jellyflix/services/database_service.dart';
@@ -28,53 +27,52 @@ class AuthService {
     });
   }
 
-  Future<bool> checkAuthentication({String? profileId}) async {
-    profileId ??= currentProfileid();
-    if (profileId == null) {
-      _authStateStream.add(false);
-      return false;
-    }
-    User? user = _databaseService.get(profileId);
-    try {
-      if (user != null &&
-          user.name != null &&
-          user.password != null &&
-          user.serverAdress != null) {
-        await _apiService.login(user.serverAdress!, user.name!, user.password!);
+  Future<bool> checkAuthentication() async {
+    bool authenticated = await _apiService.checkAuthentication();
+    if (authenticated) {
+      _authStateStream.add(true);
+      return true;
+    } else {
+      String? profileId = currentProfileid();
+      if (profileId == null) {
+        _authStateStream.add(false);
+        return false;
+      }
+      User? user = _databaseService.get(profileId);
+      try {
+        await login(user!);
         _authStateStream.add(true);
         return true;
+      } catch (_) {
+        _authStateStream.add(false);
+        return false;
       }
-      _authStateStream.add(false);
-      return false;
-    } catch (e) {
-      debugPrint(e.toString());
-      _authStateStream.add(false);
-      return false;
     }
   }
 
-  Future login(String serverAdress, String username, String password) async {
-    if (!serverAdress.startsWith("http://") &&
-        !serverAdress.startsWith("https://")) {
-      serverAdress = "http://$serverAdress";
+  Future<User> login(User user) async {
+    if (!user.serverAdress!.startsWith("http://") &&
+        !user.serverAdress!.startsWith("https://")) {
+      user.serverAdress = "http://${user.serverAdress}";
     }
-    User? user;
     try {
-      user = await _apiService.login(serverAdress, username, password);
+      user = await _apiService.login(
+          user.serverAdress!, user.name!, user.password!);
     } catch (e) {
-      if (serverAdress.split(":").last != "8096" &&
-          serverAdress.split(":").length == 2) {
-        serverAdress = "$serverAdress:8096";
-        user = await _apiService.login(serverAdress, username, password);
+      if (user.serverAdress!.split(":").last != "8096" &&
+          user.serverAdress!.split(":").length == 2) {
+        user.serverAdress = "${user.serverAdress}:8096";
+        user = await _apiService.login(
+            user.serverAdress!, user.name!, user.password!);
       } else {
         rethrow;
       }
     }
-    user.password = password;
     _databaseService.put(user.id! + user.serverAdress!, user);
     _databaseService.put("currentProfileId", user.id! + user.serverAdress!);
 
     _authStateStream.add(true);
+    return user;
   }
 
   void updateCurrentProfileId(String? profileId) async {
@@ -84,11 +82,16 @@ class AuthService {
     _databaseService.put("currentProfileId", profileId);
   }
 
-  Future logout({String? profileId}) async {
+  Future<void> logout() async {
+    await _apiService.logout();
+    _authStateStream.add(false);
+  }
+
+  Future<void> logoutAndDeleteProfile({String? profileId}) async {
+    await logout();
     profileId ??= currentProfileid();
     _databaseService.delete(profileId!);
     _databaseService.delete("currentProfileId");
-    _authStateStream.add(false);
   }
 
   Future switchProfile(String profileId) async {

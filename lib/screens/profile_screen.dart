@@ -331,7 +331,7 @@ class ProfileScreen extends HookConsumerWidget {
                             color: Theme.of(context).colorScheme.error),
                         title: Text(AppLocalizations.of(context)!.logout),
                         onTap: () async {
-                          await ref.read(authProvider).logout();
+                          await ref.read(authProvider).logoutAndDeleteProfile();
 
                           if (context.mounted) {
                             context.go(ScreenPaths.login);
