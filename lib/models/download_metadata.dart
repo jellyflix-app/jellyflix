@@ -1,5 +1,5 @@
 import 'package:built_collection/built_collection.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 
 class DownloadMetadata extends BaseItemDto {
   @override
@@ -156,7 +156,7 @@ class DownloadMetadata extends BaseItemDto {
   int? get childCount => null;
 
   @override
-  String? get collectionType => null;
+  CollectionType? get collectionType => null;
 
   @override
   double? get communityRating => null;
@@ -213,7 +213,7 @@ class DownloadMetadata extends BaseItemDto {
   BuiltList<ExternalUrl>? get externalUrls => null;
 
   @override
-  String? get extraType => null;
+  ExtraType? get extraType => null;
 
   @override
   double? get focalLength => null;
@@ -312,7 +312,7 @@ class DownloadMetadata extends BaseItemDto {
   BuiltList<MediaStream>? get mediaStreams => null;
 
   @override
-  String? get mediaType => null;
+  MediaType? get mediaType => null;
 
   @override
   int? get movieCount => null;
@@ -465,9 +465,6 @@ class DownloadMetadata extends BaseItemDto {
   BuiltList<NameGuidPair>? get studios => null;
 
   @override
-  bool? get supportsSync => null;
-
-  @override
   BuiltList<String>? get taglines => null;
 
   @override
@@ -490,4 +487,13 @@ class DownloadMetadata extends BaseItemDto {
 
   @override
   int? get width => null;
+
+  @override
+  bool? get hasLyrics => null;
+
+  @override
+  double? get normalizationGain => null;
+
+  @override
+  BuiltMap<String, BuiltMap<String, TrickplayInfo>>? get trickplay => null;
 }

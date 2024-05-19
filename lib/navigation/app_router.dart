@@ -1,8 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:universal_io/io.dart';
-import 'package:openapi/openapi.dart';
+import 'package:jellyflix/models/auth_state.dart';
 
 import 'package:jellyflix/components/responsive_navigation_bar.dart';
 import 'package:jellyflix/models/screen_paths.dart';
@@ -18,6 +17,7 @@ import 'package:jellyflix/screens/offline_player_screen.dart';
 import 'package:jellyflix/screens/profile_screen.dart';
 import 'package:jellyflix/screens/search_screen.dart';
 import 'package:jellyflix/screens/player_screen.dart';
+import 'package:tentacle/tentacle.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -99,6 +99,12 @@ class AppRouter {
                 child: const DownloadScreen(),
               ),
             ),
+            GoRoute(
+                path: ScreenPaths.loading,
+                pageBuilder: (context, state) => buildPageWithDefaultTransition(
+                    context: context,
+                    state: state,
+                    child: const LoadingScreen())),
           ]),
       GoRoute(
         path: ScreenPaths.player,
@@ -142,31 +148,67 @@ class AppRouter {
           state.matchedLocation == ScreenPaths.offlinePlayer;
       final isGoingToDownloads = state.matchedLocation == ScreenPaths.downloads;
       final isGoingToLogin = state.matchedLocation == ScreenPaths.login;
+      final isGoingToProfile = state.matchedLocation == ScreenPaths.profile;
       final isConnected =
           await _ref.read(connectivityProvider).checkConnectivityOnce();
-      bool serverIsReachable = true;
-      bool loggedIn = false;
-      try {
-        loggedIn = await _ref.watch(authProvider).checkAuthentication();
-      } on SocketException catch (_) {
-        serverIsReachable = false;
-      }
 
-      if (isConnected && serverIsReachable) {
-        if (isGoingToLogin && loggedIn) {
+      // start connection check
+      _ref.read(updateServerReachableProvider);
+
+      // bool? serverIsReachable;
+      // bool loggedIn = false;
+
+      // if (isConnected) {
+      //   serverIsReachable =
+      //       await _ref.read(authProvider).checkServerReachable();
+      // }
+
+      // if (serverIsReachable == true) {
+      //   loggedIn = await _ref.watch(authProvider).checkAuthentication();
+      // }
+
+      // if (isConnected && serverIsReachable != false) {
+      //   if (isGoingToLogin && loggedIn) {
+      //     return ScreenPaths.home;
+      //   } else if (!isGoingToLogin && !loggedIn) {
+      //     return ScreenPaths.login;
+      //   }
+      //   return null;
+      // } else {
+      //   if (!isGoingToDownloads &&
+      //       !isGoingToOfflinePlayer &&
+      //       !isGoingToProfile &&
+      //       !isGoingToLogin) {
+      //     return ScreenPaths.downloads;
+      //   }
+      //   return null;
+      // }
+      if (isConnected &&
+          (_ref.read(authStateProvider.notifier).state == AuthState.loggedIn ||
+              _ref.read(authStateProvider.notifier).state ==
+                  AuthState.loggedOut ||
+              _ref.read(authStateProvider.notifier).state ==
+                  AuthState.unknown)) {
+        if (isGoingToLogin &&
+            _ref.read(authStateProvider.notifier).state == AuthState.loggedIn) {
           return ScreenPaths.home;
-        } else if (!isGoingToLogin && !loggedIn) {
+        } else if (!isGoingToLogin &&
+            _ref.read(authStateProvider.notifier).state ==
+                AuthState.loggedOut) {
           return ScreenPaths.login;
         }
         return null;
       } else {
-        if (!isGoingToDownloads && !isGoingToOfflinePlayer) {
+        if (!isGoingToDownloads &&
+            !isGoingToOfflinePlayer &&
+            !isGoingToProfile &&
+            !isGoingToLogin) {
           return ScreenPaths.downloads;
         }
         return null;
       }
     },
-    //refreshListenable: GoRouterRefreshStream(_ref),
+    refreshListenable: GoRouterRefreshStream(_ref),
     navigatorKey: navigatorKey,
   );
 
@@ -188,11 +230,8 @@ class AppRouter {
 
 class GoRouterRefreshStream extends ChangeNotifier {
   final Ref _ref;
-  late final Stream<bool> authState;
   GoRouterRefreshStream(this._ref) {
-    notifyListeners();
-    authState = _ref.read(authProvider).authStateChange;
-    authState.listen((event) {
+    _ref.watch(authStateStreamControllerProvider).stream.listen((event) {
       notifyListeners();
     });
   }

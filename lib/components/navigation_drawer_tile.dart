@@ -27,7 +27,7 @@ class NavigationDrawerTile extends StatelessWidget {
           borderRadius: BorderRadius.circular(15),
           child: InkWell(
             onTap: onTap,
-            overlayColor: MaterialStateProperty.all(
+            overlayColor: WidgetStateProperty.all(
                 Theme.of(context).colorScheme.primary.withOpacity(0.3)),
             customBorder: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),
@@ -42,9 +42,13 @@ class NavigationDrawerTile extends StatelessWidget {
                   const SizedBox(
                     width: 15,
                   ),
-                  Text(
-                    label,
-                    style: Theme.of(context).textTheme.bodyLarge,
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
                   )
                 ],
               ),

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -8,7 +9,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -62,7 +63,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
         player.stream.tracks.listen((event) {
           List<AudioTrack> audioTracks = event.audio;
           List<SubtitleTrack> subtitleTracks = event.subtitle;
-          if (audioTracks.length > 2 &&
+          if (audioTracks.length > 3 &&
               playbackInfo.mediaSources!.first.transcodingUrl == null) {
             var index = playbackHelper.getDefaultAudioIndex();
             if (index == 0) {
@@ -148,7 +149,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
 
   Future requestPermissions() async {
     if (UniversalPlatform.isAndroid) {
-      if (UniversalPlatform.isAndroid) {
+      if ((await DeviceInfoPlugin().androidInfo).version.sdkInt >= 33) {
         // Video permissions.
         if (await Permission.videos.isDenied ||
             await Permission.videos.isPermanentlyDenied) {
@@ -409,6 +410,13 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
               ),
             );
           } else {
+            var subtitleEntries = [
+              DropdownMenuEntry(
+                  value: -1, label: AppLocalizations.of(context)!.none)
+            ];
+            subtitleEntries.addAll(playbackHelper.getSubtitleList().map((e) =>
+                DropdownMenuEntry(
+                    value: e.index!, label: e.displayTitle ?? "Unknown")));
             showDialog(
               context: context,
               builder: (context) => PlayerSettingsDialog<int?, int?>(
@@ -420,15 +428,9 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
                 audioEntries: playbackHelper
                     .getAudioList()
                     .map((e) => DropdownMenuEntry(
-                        value: e.index, label: e.language ?? "Unknown"))
+                        value: e.index, label: e.displayTitle ?? "Unknown"))
                     .toList(),
-                subtitleEntries: playbackHelper
-                    .getSubtitleList()
-                    .map((e) => DropdownMenuEntry(
-                        value: e.index,
-                        label:
-                            e.language ?? AppLocalizations.of(context)!.none))
-                    .toList(),
+                subtitleEntries: subtitleEntries,
                 onSubtitleSelected: (value) async {
                   if (subtitleTrack.value != value) {
                     subtitleTrack.value = value ?? -1;

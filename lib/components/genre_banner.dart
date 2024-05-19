@@ -3,11 +3,13 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jellyflix/components/item_carousel_row.dart';
+import 'package:jellyflix/components/item_carousel_label.dart';
+import 'package:jellyflix/components/jellyfin_image.dart';
+import 'package:jellyflix/components/jfx_text_theme.dart';
 import 'package:jellyflix/models/gradients.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 
 class GenreBanner extends HookConsumerWidget {
   const GenreBanner({
@@ -30,12 +32,13 @@ class GenreBanner extends HookConsumerWidget {
             if (!snapshot.hasData) {
               return const SizedBox.shrink();
             }
+            snapshot.data!.shuffle();
             return Column(
               children: [
                 Padding(
                     padding: const EdgeInsets.symmetric(
                         vertical: 10, horizontal: 10),
-                    child: ItemCarouselRow(
+                    child: ItemCarouselLabel(
                         title: AppLocalizations.of(context)!.genres,
                         scrollController: pageController,
                         offsetWidth: MediaQuery.of(context).size.width * 0.9)),
@@ -67,7 +70,8 @@ class GenreBanner extends HookConsumerWidget {
                                             genreIds: [snapshot.data![index]],
                                             limit: 1),
                                     builder: (context, itemData) {
-                                      if (!itemData.hasData) {
+                                      if (!itemData.hasData ||
+                                          itemData.data!.isEmpty) {
                                         return const SizedBox.shrink();
                                       }
                                       var imageType = ImageType.backdrop;
@@ -78,7 +82,7 @@ class GenreBanner extends HookConsumerWidget {
                                         imageType = ImageType.primary;
                                       }
 
-                                      return ref.read(apiProvider).getImage(
+                                      return JellyfinImage(
                                           id: itemData.data![0].id!,
                                           type: imageType,
                                           blurHash: itemData
@@ -108,9 +112,8 @@ class GenreBanner extends HookConsumerWidget {
                               ),
                               Center(
                                 child: Text(snapshot.data![index].name!,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .headlineMedium!
+                                    style: JfxTextTheme.scalingTheme(context)
+                                        .headlineSmall!
                                         .copyWith(
                                           fontWeight: FontWeight.bold,
                                         )),

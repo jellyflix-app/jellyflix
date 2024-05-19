@@ -11,7 +11,7 @@ class BitRates {
     420000: "420 Kb/s",
   };
 
-  int defaultBitrate() {
+  static int defaultBitrate() {
     return 8000000;
   }
 }

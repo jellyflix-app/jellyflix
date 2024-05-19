@@ -120,6 +120,15 @@
           }
         }
       },
+    "minutes": "{count} min",  
+    "@minutes": {
+        "placeholders": {
+            "count": {
+              "type": "int",
+              "example": "50"
+            }
+          }
+    },
     "similar": "Similar",
     "downloads": "Downloads",
     "download": "Download",
@@ -167,6 +176,10 @@
           }
         }
       },
+    "disableWatchlist": "Disable Watchlist",
+    "deletePlaylistNotice": "To prevent data loss, please delete the playlist from the server, if it's no longer needed.",
+    "info": "Info",
+    "showPrimaryForEpisodes": "Show primary image instead of series poster in Continue Watching",
     "appName": "Jellyflix"
     
 }

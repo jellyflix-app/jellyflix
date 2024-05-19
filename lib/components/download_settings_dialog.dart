@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class DownloadSettingsDialog extends StatelessWidget {
@@ -41,8 +41,10 @@ class DownloadSettingsDialog extends StatelessWidget {
           const SizedBox(height: 20),
           if (audioList.length > 1)
             DropdownMenu<int>(
+              expandedInsets: EdgeInsets.zero,
               enableSearch: false,
               enableFilter: false,
+              requestFocusOnTap: false,
               leadingIcon: const Icon(Icons.audiotrack),
               initialSelection: audioList.first.index!,
               label: Text(AppLocalizations.of(context)!.audio),
@@ -50,6 +52,11 @@ class DownloadSettingsDialog extends StatelessWidget {
                   .map(
                     (e) => DropdownMenuEntry(
                       value: e.index!,
+                      labelWidget: Text(
+                        e.displayTitle ?? AppLocalizations.of(context)!.none,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                       label:
                           e.displayTitle ?? AppLocalizations.of(context)!.none,
                     ),
@@ -63,8 +70,10 @@ class DownloadSettingsDialog extends StatelessWidget {
           const SizedBox(height: 20),
           if (subtitleList.isNotEmpty)
             DropdownMenu<int>(
+              expandedInsets: EdgeInsets.zero,
               enableSearch: false,
               enableFilter: false,
+              requestFocusOnTap: false,
               leadingIcon: const Icon(Icons.subtitles_outlined),
               initialSelection: subtitleList.first.index!,
               label: Text(AppLocalizations.of(context)!.subtitles),
@@ -72,6 +81,11 @@ class DownloadSettingsDialog extends StatelessWidget {
                   .map(
                     (e) => DropdownMenuEntry(
                       value: e.index!,
+                      labelWidget: Text(
+                        e.displayTitle ?? AppLocalizations.of(context)!.none,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                       label:
                           e.displayTitle ?? AppLocalizations.of(context)!.none,
                     ),

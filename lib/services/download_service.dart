@@ -5,7 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:universal_io/io.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:async/async.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -58,7 +58,7 @@ class DownloadService {
       );
     }
     connectivityService.connectionStatusStream.listen((isConnected) {
-      if (isConnected) {
+      if (isConnected && _api.currentUser?.serverAdress != null) {
         _dio = Dio(
           BaseOptions(
             headers: _api.headers,
@@ -409,7 +409,7 @@ class DownloadService {
               cancelToken: cancelToken);
         }
         mainM3U.data =
-            mainM3U.data.replaceAll(line, "file://$downloadPath/$fileName");
+            mainM3U.data.replaceFirst(line, "file://$downloadPath/$fileName");
         await File("$downloadPath/main.m3u8").writeAsString(mainM3U.data);
       }
     }

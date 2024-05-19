@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/components/jfx_layout.dart';
 import 'package:jellyflix/components/navigation_drawer_tile.dart';
+import 'package:jellyflix/models/auth_state.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-import 'package:jellyflix/providers/connectivity_provider.dart';
-import 'package:jellyflix/services/connectivity_service.dart';
+import 'package:jellyflix/providers/auth_provider.dart';
 
 class ResponsiveNavigationBar extends HookConsumerWidget {
   final Widget body;
@@ -16,16 +17,12 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final selectedIndex = useState(0);
+    final selectedIndex = useState(
+        ref.read(authStateProvider.notifier).state == AuthState.offline
+            ? 2
+            : 0);
+    final JfxLayout layout = JfxLayout.scalingLayout(context);
 
-    // switch index if offline
-    ref.read(connectivityProvider).checkConnectivityOnce().then(
-      (online) {
-        if (!online) {
-          selectedIndex.value = 2;
-        }
-      },
-    );
     return Scaffold(
       body: Row(
         mainAxisSize: MainAxisSize.max,
@@ -61,8 +58,8 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                   onDestinationSelected: (int index) async {
                     switch (index) {
                       case 0:
-                        bool online = await showOfflineSnackbar(
-                            context, ref.read(connectivityProvider));
+                        bool online = await showOfflineSnackbar(context,
+                            ref.read(authStateProvider.notifier).state);
                         if (online) {
                           selectedIndex.value = 0;
                         }
@@ -70,8 +67,8 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                         context.go(ScreenPaths.home);
                         break;
                       case 1:
-                        bool online = await showOfflineSnackbar(
-                            context, ref.read(connectivityProvider));
+                        bool online = await showOfflineSnackbar(context,
+                            ref.read(authStateProvider.notifier).state);
                         if (online) {
                           selectedIndex.value = 1;
                         }
@@ -79,17 +76,14 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                         context.go(ScreenPaths.search);
                         break;
                       case 2:
-                        bool online = await showOfflineSnackbar(
-                            context, ref.read(connectivityProvider));
-                        if (online) {
-                          selectedIndex.value = 2;
-                        }
+                        selectedIndex.value = 2;
+
                         if (!context.mounted) return;
                         context.go(ScreenPaths.downloads);
                         break;
                       case 3:
-                        bool online = await showOfflineSnackbar(
-                            context, ref.read(connectivityProvider));
+                        bool online = await showOfflineSnackbar(context,
+                            ref.read(authStateProvider.notifier).state);
                         if (online) {
                           selectedIndex.value = 3;
                         }
@@ -114,11 +108,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                         ),
                         child: IconButton(
                             onPressed: () async {
-                              bool online = await showOfflineSnackbar(
-                                  context, ref.read(connectivityProvider));
-                              if (online) {
-                                selectedIndex.value = 4;
-                              }
+                              selectedIndex.value = 4;
                               if (!context.mounted) return;
                               context.go(ScreenPaths.profile);
                             },
@@ -131,16 +121,20 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                   destinations: [
                     NavigationRailDestination(
                         icon: const Icon(Icons.home_rounded),
-                        label: Text(AppLocalizations.of(context)!.home)),
+                        label: Text(AppLocalizations.of(context)!.home,
+                            style: layout.text.bodyLarge)),
                     NavigationRailDestination(
                         icon: const Icon(Icons.search_rounded),
-                        label: Text(AppLocalizations.of(context)!.search)),
+                        label: Text(AppLocalizations.of(context)!.search,
+                            style: layout.text.bodyLarge)),
                     NavigationRailDestination(
                         icon: const Icon(Icons.file_download_outlined),
-                        label: Text(AppLocalizations.of(context)!.downloads)),
+                        label: Text(AppLocalizations.of(context)!.downloads,
+                            style: layout.text.bodyLarge)),
                     NavigationRailDestination(
                         icon: const Icon(Icons.video_library_outlined),
-                        label: Text(AppLocalizations.of(context)!.library)),
+                        label: Text(AppLocalizations.of(context)!.library,
+                            style: layout.text.bodyLarge)),
                   ],
                 ),
               ),
@@ -174,8 +168,8 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       label: AppLocalizations.of(context)!.home,
                       selected: selectedIndex.value == 0,
                       onTap: () async {
-                        bool online = await showOfflineSnackbar(
-                            context, ref.read(connectivityProvider));
+                        bool online = await showOfflineSnackbar(context,
+                            ref.read(authStateProvider.notifier).state);
                         if (online) {
                           selectedIndex.value = 0;
                         }
@@ -188,8 +182,8 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       label: AppLocalizations.of(context)!.search,
                       selected: selectedIndex.value == 1,
                       onTap: () async {
-                        bool online = await showOfflineSnackbar(
-                            context, ref.read(connectivityProvider));
+                        bool online = await showOfflineSnackbar(context,
+                            ref.read(authStateProvider.notifier).state);
                         if (online) {
                           selectedIndex.value = 1;
                         }
@@ -202,11 +196,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       label: AppLocalizations.of(context)!.downloads,
                       selected: selectedIndex.value == 2,
                       onTap: () async {
-                        bool online = await showOfflineSnackbar(
-                            context, ref.read(connectivityProvider));
-                        if (online) {
-                          selectedIndex.value = 2;
-                        }
+                        selectedIndex.value = 2;
                         if (!context.mounted) return;
                         context.go(ScreenPaths.downloads);
                       },
@@ -216,8 +206,8 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       label: AppLocalizations.of(context)!.library,
                       selected: selectedIndex.value == 3,
                       onTap: () async {
-                        bool online = await showOfflineSnackbar(
-                            context, ref.read(connectivityProvider));
+                        bool online = await showOfflineSnackbar(context,
+                            ref.read(authStateProvider.notifier).state);
                         if (online) {
                           selectedIndex.value = 3;
                         }
@@ -233,11 +223,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       label: AppLocalizations.of(context)!.profile,
                       selected: selectedIndex.value == 4,
                       onTap: () async {
-                        bool online = await showOfflineSnackbar(
-                            context, ref.read(connectivityProvider));
-                        if (online) {
-                          selectedIndex.value = 4;
-                        }
+                        selectedIndex.value = 4;
                         if (!context.mounted) return;
                         context.go(ScreenPaths.profile);
                       },
@@ -266,7 +252,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                 switch (index) {
                   case 0:
                     bool online = await showOfflineSnackbar(
-                        context, ref.read(connectivityProvider));
+                        context, ref.read(authStateProvider.notifier).state);
                     if (online) {
                       selectedIndex.value = 0;
                     }
@@ -275,7 +261,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                     break;
                   case 1:
                     bool online = await showOfflineSnackbar(
-                        context, ref.read(connectivityProvider));
+                        context, ref.read(authStateProvider.notifier).state);
                     if (online) {
                       selectedIndex.value = 1;
                     }
@@ -288,7 +274,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                     break;
                   case 3:
                     bool online = await showOfflineSnackbar(
-                        context, ref.read(connectivityProvider));
+                        context, ref.read(authStateProvider.notifier).state);
                     if (online) {
                       selectedIndex.value = 3;
                     }
@@ -296,11 +282,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                     context.go(ScreenPaths.library);
                     break;
                   case 4:
-                    bool online = await showOfflineSnackbar(
-                        context, ref.read(connectivityProvider));
-                    if (online) {
-                      selectedIndex.value = 4;
-                    }
+                    selectedIndex.value = 4;
                     if (!context.mounted) return;
                     context.go(ScreenPaths.profile);
                     break;
@@ -329,8 +311,8 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
   }
 
   Future<bool> showOfflineSnackbar(
-      BuildContext context, ConnectivityService connectivityService) async {
-    if (!await connectivityService.checkConnectivityOnce()) {
+      BuildContext context, AuthState authState) async {
+    if (authState == AuthState.offline) {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

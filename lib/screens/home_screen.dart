@@ -11,7 +11,8 @@ import 'package:jellyflix/models/skeleton_item.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
+import 'package:jellyflix/providers/database_provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -66,7 +67,17 @@ class HomeScreen extends HookConsumerWidget {
                     "id": id,
                   }).toString());
                 },
-                imageMapping: (e) => e.id!,
+                imageMapping: (BaseItemDto e) {
+                  if (e.type == BaseItemKind.episode &&
+                      ref
+                              .read(databaseProvider("settings"))
+                              .get("showPrimaryForEpisodes") !=
+                          true) {
+                    return e.seriesId!;
+                  } else {
+                    return e.id!;
+                  }
+                },
                 blurHashMapping: (e) =>
                     e.imageBlurHashes?.primary?.values.first,
                 titleMapping: (e) => e.name!,
@@ -88,7 +99,7 @@ class HomeScreen extends HookConsumerWidget {
                 future: (startIndex, limit) => ref
                     .read(apiProvider)
                     .getFilterItems(
-                        sortBy: ["DateCreated"],
+                        sortBy: [ItemSortBy.dateCreated],
                         sortOrder: [SortOrder.descending],
                         includeItemTypes: [BaseItemKind.movie],
                         startIndex: startIndex,
@@ -114,7 +125,7 @@ class HomeScreen extends HookConsumerWidget {
                 future: (startIndex, limit) => ref
                     .read(apiProvider)
                     .getFilterItems(
-                        sortBy: ["DateCreated"],
+                        sortBy: [ItemSortBy.dateLastContentAdded],
                         sortOrder: [SortOrder.descending],
                         includeItemTypes: [BaseItemKind.series],
                         startIndex: startIndex,
@@ -134,24 +145,29 @@ class HomeScreen extends HookConsumerWidget {
               ),
             ),
             const GenreBanner(),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: PaginatedItemCarousel(
-                titleMapping: (e) => e.name!,
-                subtitleMapping: (e) => e.productionYear.toString(),
-                imageMapping: (e) => e.id!,
-                blurHashMapping: (e) =>
-                    e.imageBlurHashes?.primary?.values.first,
-                future: (startIndex, limit) =>
-                    ref.read(apiProvider).getWatchlist(),
-                title: AppLocalizations.of(context)!.yourWatchlist,
-                onTap: (index, id) {
-                  context.push(Uri(path: ScreenPaths.detail, queryParameters: {
-                    "id": id,
-                  }).toString());
-                },
+            if (ref
+                    .read(databaseProvider("settings"))
+                    .get("disableWatchlist") !=
+                true)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10.0),
+                child: PaginatedItemCarousel(
+                  titleMapping: (e) => e.name!,
+                  subtitleMapping: (e) => e.productionYear.toString(),
+                  imageMapping: (e) => e.id!,
+                  blurHashMapping: (e) =>
+                      e.imageBlurHashes?.primary?.values.first,
+                  future: (startIndex, limit) =>
+                      ref.read(apiProvider).getWatchlist(),
+                  title: AppLocalizations.of(context)!.yourWatchlist,
+                  onTap: (index, id) {
+                    context
+                        .push(Uri(path: ScreenPaths.detail, queryParameters: {
+                      "id": id,
+                    }).toString());
+                  },
+                ),
               ),
-            ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: FutureItemCarousel(
@@ -215,7 +231,7 @@ class HomeScreen extends HookConsumerWidget {
                     e.imageBlurHashes?.primary?.values.first,
                 future: (startIndex, limit) =>
                     ref.read(apiProvider).getFilterItems(
-                        sortBy: ["Random"],
+                        sortBy: [ItemSortBy.random],
                         minCommunityRating: 7.5,
                         includeItemTypes: [BaseItemKind.movie],
                         //filters: [ItemFilter.isUnplayed],
@@ -240,7 +256,7 @@ class HomeScreen extends HookConsumerWidget {
                 future: (startIndex, limit) => ref
                     .read(apiProvider)
                     .getFilterItems(
-                        sortBy: ["Random"],
+                        sortBy: [ItemSortBy.random],
                         minCommunityRating: 7.5,
                         includeItemTypes: [BaseItemKind.series],
                         startIndex: startIndex,
@@ -264,7 +280,7 @@ class HomeScreen extends HookConsumerWidget {
                 future: (startIndex, limit) => ref
                     .read(apiProvider)
                     .getFilterItems(
-                        sortBy: ["Random"],
+                        sortBy: [ItemSortBy.random],
                         sortOrder: [SortOrder.descending],
                         includeItemTypes: [BaseItemKind.movie],
                         filters: [ItemFilter.isUnplayed],
@@ -289,7 +305,7 @@ class HomeScreen extends HookConsumerWidget {
                 future: (startIndex, limit) => ref
                     .read(apiProvider)
                     .getFilterItems(
-                        sortBy: ["Random"],
+                        sortBy: [ItemSortBy.random],
                         sortOrder: [SortOrder.descending],
                         includeItemTypes: [BaseItemKind.series],
                         filters: [ItemFilter.isUnplayed],

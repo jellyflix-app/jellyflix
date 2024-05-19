@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jellyflix/models/screen_paths.dart';
+import 'package:jellyflix/models/user.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
@@ -72,8 +73,11 @@ class LoginScreen extends HookConsumerWidget {
                     child: FilledButton(
                       onPressed: () async {
                         try {
-                          await ref.read(authProvider).login(
-                              serverAddress.text, userName.text, password.text);
+                          User user = User(
+                              name: userName.text,
+                              password: password.text,
+                              serverAdress: serverAddress.text);
+                          await ref.read(authProvider).login(user);
                           if (context.mounted) {
                             context.go(ScreenPaths.home);
                           }

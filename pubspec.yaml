@@ -12,8 +12,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  openapi:
-    git: https://github.com/jellyflix-app/jellyfin-api-dart.git
+  tentacle:
+    git: https://github.com/TentacleOrg/Tentacle.git
   media_kit: 
     git:
       url: https://github.com/jellyflix-app/media-kit.git
@@ -37,7 +37,8 @@ dependencies:
   riverpod_annotation: ^2.3.3
   flutter_secure_storage: ^9.0.0
   permission_handler: ^11.1.0
-  filter_list: ^1.0.2
+  filter_list:
+    git: https://github.com/TheAlphamerc/filterlist.git
   built_collection: ^5.1.1
   dots_indicator: ^3.0.0
   go_router: ^13.0.0

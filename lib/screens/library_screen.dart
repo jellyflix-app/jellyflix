@@ -5,11 +5,11 @@ import 'package:filter_list/filter_list.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/components/jellyfin_image.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/models/skeleton_item.dart';
-import 'package:jellyflix/models/sort_type.dart';
 import 'package:jellyflix/providers/api_provider.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -47,9 +47,9 @@ class LibraryScreen extends HookConsumerWidget {
                     element.toString().split(".").last.toLowerCase() ==
                     e.toLowerCase());
               }).toList());
-    final sortType = useState<SortType>(sortTypeParam == null
-        ? SortType.sortName
-        : SortType.values
+    final sortType = useState<ItemSortBy>(sortTypeParam == null
+        ? ItemSortBy.sortName
+        : ItemSortBy.values
             .where((element) =>
                 element.toString().split(".").last.toLowerCase() ==
                 sortTypeParam?.toLowerCase())
@@ -144,12 +144,12 @@ class LibraryScreen extends HookConsumerWidget {
                   Expanded(
                     child: TextButton(
                       onPressed: () {
-                        if (sortType.value == SortType.sortName) {
-                          sortType.value = SortType.premiereDate;
-                        } else if (sortType.value == SortType.premiereDate) {
-                          sortType.value = SortType.random;
-                        } else if (sortType.value == SortType.random) {
-                          sortType.value = SortType.sortName;
+                        if (sortType.value == ItemSortBy.sortName) {
+                          sortType.value = ItemSortBy.premiereDate;
+                        } else if (sortType.value == ItemSortBy.premiereDate) {
+                          sortType.value = ItemSortBy.random;
+                        } else if (sortType.value == ItemSortBy.random) {
+                          sortType.value = ItemSortBy.sortName;
                         }
                       },
                       child: Text(
@@ -169,7 +169,7 @@ class LibraryScreen extends HookConsumerWidget {
                     startIndex: page * 100,
                     limit: 100,
                     sortOrder: [sortOrder.value],
-                    sortBy: [sortType.value.toString().split(".").last],
+                    sortBy: [sortType.value],
                     filters: filterType.value,
                     includeItemTypes: [
                       BaseItemKind.movie,
@@ -233,17 +233,16 @@ class LibraryScreen extends HookConsumerWidget {
                                                 ),
                                               ],
                                             ),
-                                            child:
-                                                ref.read(apiProvider).getImage(
-                                                      id: itemsList[index].id!,
-                                                      type: ImageType.primary,
-                                                      blurHash: itemsList[index]
-                                                          .imageBlurHashes
-                                                          ?.primary
-                                                          ?.values
-                                                          .first,
-                                                      cacheHeight: 300,
-                                                    ),
+                                            child: JellyfinImage(
+                                              id: itemsList[index].id!,
+                                              type: ImageType.primary,
+                                              blurHash: itemsList[index]
+                                                  .imageBlurHashes
+                                                  ?.primary
+                                                  ?.values
+                                                  .first,
+                                              cacheHeight: 300,
+                                            ),
                                           ),
                                         ),
                                         Positioned.fill(
@@ -421,8 +420,8 @@ class LibraryScreen extends HookConsumerWidget {
             choiceChipBuilder: (context, item, isSelected) => Padding(
               padding: const EdgeInsets.all(5.0),
               child: ChoiceChip(
-                  color: MaterialStateProperty.resolveWith((states) {
-                    if (states.contains(MaterialState.selected)) {
+                  color: WidgetStateProperty.resolveWith((states) {
+                    if (states.contains(WidgetState.selected)) {
                       return Theme.of(context).buttonTheme.colorScheme!.primary;
                     }
                     return Theme.of(context).focusColor;
@@ -488,8 +487,8 @@ class LibraryScreen extends HookConsumerWidget {
               choiceChipBuilder: (context, item, isSelected) => Padding(
                 padding: const EdgeInsets.all(5.0),
                 child: ChoiceChip(
-                    color: MaterialStateProperty.resolveWith((states) {
-                      if (states.contains(MaterialState.selected)) {
+                    color: WidgetStateProperty.resolveWith((states) {
+                      if (states.contains(WidgetState.selected)) {
                         return Theme.of(context)
                             .buttonTheme
                             .colorScheme!
@@ -534,14 +533,16 @@ class LibraryScreen extends HookConsumerWidget {
     return null;
   }
 
-  String localizeSortType(BuildContext context, SortType sortType) {
+  String localizeSortType(BuildContext context, ItemSortBy sortType) {
     switch (sortType) {
-      case SortType.sortName:
+      case ItemSortBy.sortName:
         return AppLocalizations.of(context)!.name;
-      case SortType.premiereDate:
+      case ItemSortBy.premiereDate:
         return AppLocalizations.of(context)!.premiereDate;
-      case SortType.random:
+      case ItemSortBy.random:
         return AppLocalizations.of(context)!.random;
+      default:
+        return sortType.toString().split(".").last;
     }
   }
 }

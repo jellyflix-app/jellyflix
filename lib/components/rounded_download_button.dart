@@ -5,9 +5,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/download_icon.dart';
 import 'package:jellyflix/components/download_settings_dialog.dart';
 import 'package:jellyflix/models/bitrates.dart';
+import 'package:jellyflix/providers/database_provider.dart';
 import 'package:jellyflix/providers/download_provider.dart';
-import 'package:jellyflix/providers/secure_storage_provider.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:universal_io/io.dart';
 
@@ -51,12 +51,10 @@ class RoundedDownloadButton extends HookConsumerWidget {
                 .where((element) => element.type == MediaStreamType.subtitle)
                 .length;
 
-            String? downloadBitrateString =
-                await ref.read(secureStorageProvider).read("downloadBitrate");
-            int downloadBitrate = BitRates().defaultBitrate();
-            if (downloadBitrateString != null) {
-              downloadBitrate = int.parse(downloadBitrateString);
-            }
+            int downloadBitrate = await ref
+                    .read(databaseProvider("settings"))
+                    .get("downloadBitrate") ??
+                BitRates.defaultBitrate();
 
             if (context.mounted && (audioCount != 1 || subtitleCount != 0)) {
               (int?, int?) selectedSettings = await showDialog(

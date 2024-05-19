@@ -119,6 +119,15 @@
       }
     }
   },
+  "minutes": "{count} min",  
+    "@minutes": {
+        "placeholders": {
+            "count": {
+              "type": "int",
+              "example": "50"
+            }
+          }
+    },
   "similar": "Ähnlich",
   "downloads": "Downloads",
   "download": "Download",
@@ -138,14 +147,14 @@
   "setLocalDownloadBitrate": "Lokale Download Bitrate einstellen",
   "maxDownloadBitrateText": "Maxmiale Bitrate für Downloads einstellen",
   "downloadApproxFilesize": "1h Wiedergabezeit entspricht ca. {size}GB",
-    "@downloadApproxFilesize": {
-        "placeholders": {
-          "size": {
-            "type": "String",
-            "example": "1.5"
-          }
-        }
-      },
+  "@downloadApproxFilesize": {
+    "placeholders": {
+      "size": {
+        "type": "String",
+        "example": "1.5"
+      }
+    }
+  },
   "resumedDownload": "Download fortgesetzt",
   "canceledDownload": "Download abgebrochen",
   "details": "Details",
@@ -158,13 +167,17 @@
   "ok": "OK",
   "selectProfile": "Profil auswählen",
   "ends": "Endet um {date}",
-    "@ends": {
-        "placeholders": {
-          "date": {
-            "type": "String",
-            "example": "21:30"
-          }
-        }
-      },
+  "@ends": {
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "21:30"
+      }
+    }
+  },
+  "disableWatchlist": "Watchlist deaktivieren",
+  "deletePlaylistNotice": "Um Datenverlust zu vermeiden, bitte die Playlist auf dem Server manuell löschen",
+  "info": "Info",
+  "showPrimaryForEpisodes": "Zeige das Episodenbild anstatt das Poster der Serie",
   "appName": "Jellyflix"
 }

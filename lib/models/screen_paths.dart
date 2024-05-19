@@ -9,4 +9,5 @@ class ScreenPaths {
   static const String profileSelection = '/profileSelection';
   static const String downloads = '/downloads';
   static const String offlinePlayer = '/offlinePlayer';
+  static const String loading = '/loading';
 }

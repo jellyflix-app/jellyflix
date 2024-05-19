@@ -1,21 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter_blurhash/flutter_blurhash.dart';
-import 'package:jellyflix/components/profile_placeholder_image.dart';
 import 'package:jellyflix/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:jellyflix/navigation/app_router.dart';
 import 'package:jellyflix/services/device_info_service.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 import 'package:built_collection/built_collection.dart';
-import 'package:transparent_image/transparent_image.dart';
 
 class ApiService {
   final DeviceInfoService _deviceInfoService = DeviceInfoService();
-  Openapi? _jellyfinApi;
+  Tentacle? _jellyfinApi;
   User? _user;
   Map<String, String> headers = {
     "Accept": "application/json",
@@ -31,22 +27,20 @@ class ApiService {
 
   User? get currentUser => _user;
 
-  bool? disableImageCaching;
+  ApiService();
 
-  ApiService(this.disableImageCaching);
-
-  Future buildHeader() async {
+  Future<String> buildHeader() async {
     var model = await _deviceInfoService.getDeviceModel();
     var deviceId = await _deviceInfoService.getDeviceId();
     var version = await _deviceInfoService.getVersion();
-    headers["Authorization"] =
-        "MediaBrowser Client=\"Jellyflix\", Device=\"$model\", DeviceId=\"$deviceId\", Version=\"$version\"";
+    return "MediaBrowser Client=\"Jellyflix\", Device=\"$model\", DeviceId=\"$deviceId\", Version=\"$version\"";
   }
 
   Future<User> login(String baseUrl, String username, String pw) async {
     // TODO add error handling
+    String authHeader = await buildHeader();
     await buildHeader();
-    _jellyfinApi = Openapi(
+    _jellyfinApi = Tentacle(
         dio: Dio(BaseOptions(
       baseUrl: baseUrl,
       receiveTimeout: const Duration(seconds: 30),
@@ -60,15 +54,39 @@ class ApiService {
         headers: headers);
 
     headers["Authorization"] =
-        "${headers["Authorization"]!}, Token=\"${response.data!.accessToken!}\"";
+        "$authHeader, Token=\"${response.data!.accessToken!}\"";
+
     headers["Origin"] = baseUrl;
     _user = User(
       id: response.data!.user!.id,
       name: response.data!.user!.name,
+      password: pw,
       serverAdress: baseUrl,
       token: response.data!.accessToken!,
     );
     return _user!;
+  }
+
+  Future<void> logout() async {
+    _user = null;
+    _jellyfinApi = null;
+  }
+
+  Future checkAuthentication() async {
+    if (_user == null) {
+      return false;
+    }
+    try {
+      var response = await _jellyfinApi!.getUserApi().getCurrentUser(
+            headers: headers,
+          );
+      if (response.data!.id == _user!.id) {
+        return true;
+      }
+    } catch (e) {
+      return false;
+    }
+    return false;
   }
 
   Future<BaseItemDto> getItemDetails(String id) async {
@@ -84,93 +102,13 @@ class ApiService {
     return "${_user!.serverAdress}/Items/$id/Images/${type.name}";
   }
 
-  getImage({
-    required String id,
-    required ImageType type,
-    String? blurHash,
-    BorderRadius? borderRadius,
-    int? cacheHeight,
-  }) {
-    String url = getImageUrl(id, type);
-    if (disableImageCaching == true) {
-      return ClipRRect(
-        borderRadius: borderRadius ?? BorderRadius.circular(10.0),
-        // BlurHash has an issue the generates bad state in some cases
-        // https://github.com/fluttercommunity/flutter_blurhash/issues/40
-        child: BlurHash(
-          hash: blurHash ?? "L5H2EC=PM+yV0g-mq.wG9GofR*of",
-          imageFit: BoxFit.cover,
-          image: url,
-          errorBuilder: (context, error, stackTrace) {
-            return Image.memory(kTransparentImage, fit: BoxFit.cover);
-          },
-        ),
-      );
-    }
-
-    return CachedNetworkImage(
-      width: double.infinity,
-      imageUrl: url,
-      httpHeaders: headers,
-      fit: BoxFit.cover,
-      memCacheHeight: cacheHeight,
-      maxHeightDiskCache: cacheHeight,
-      imageBuilder: (context, imageProvider) => Container(
-        decoration: BoxDecoration(
-          borderRadius: borderRadius ?? BorderRadius.circular(10.0),
-          image: DecorationImage(
-            image: imageProvider,
-            fit: BoxFit.cover,
-          ),
-        ),
-      ),
-      placeholder: blurHash == null
-          ? null
-          : (context, url) {
-              return ClipRRect(
-                borderRadius: borderRadius ?? BorderRadius.circular(10.0),
-                child: BlurHash(
-                  hash: blurHash,
-                  imageFit: BoxFit.cover,
-                ),
-              );
-            },
-      errorWidget: (context, url, error) {
-        return const SizedBox();
-      },
-      errorListener: (value) {
-        //! Errors can't be caught right now
-        //! There is a pr to fix this: https://github.com/Baseflow/flutter_cached_network_image/pull/777
-      },
-    );
-  }
-
-  CachedNetworkImage getProfileImage({User? user}) {
-    user ??= _user!;
-    return CachedNetworkImage(
-      width: double.infinity,
-      fit: BoxFit.cover,
-      imageUrl: "${user.serverAdress}/Users/${user.id}/Images/Profile",
-      placeholder: (context, url) {
-        return const ProfilePlaceholderImage();
-      },
-      errorWidget: (context, url, error) {
-        return const ProfilePlaceholderImage();
-      },
-      errorListener: (value) {
-        //! Errors can't be caught right now
-        //! There is a pr to fix this
-      },
-    );
-  }
-
   Future<List<BaseItemDto>> getContinueWatching({String? parentId}) async {
     var response = await _jellyfinApi!.getItemsApi().getResumeItems(
         userId: _user!.id!, parentId: parentId, headers: headers);
     return response.data!.items!.toList();
   }
 
-  Future<List<BaseItemDto>> getLatestItems(String collectionType,
+  Future<List<BaseItemDto>> getLatestItems(CollectionType collectionType,
       {int? limit}) async {
     List<BaseItemDto> items = [];
     var folders = await getMediaFolders();
@@ -206,10 +144,10 @@ class ApiService {
     var response = await _jellyfinApi!
         .getUserViewsApi()
         .getUserViews(userId: _user!.id!, headers: headers);
-    //keep only video folders
+    // keep only video folders
     var folders = response.data!.items!.where((element) {
-      return element.collectionType == "movies" ||
-          element.collectionType == "tvshows";
+      return element.collectionType == CollectionType.movies ||
+          element.collectionType == CollectionType.tvshows;
     }).toList();
     return folders;
     //return response.data!;
@@ -228,7 +166,7 @@ class ApiService {
       {List<BaseItemDto>? genreIds,
       String? searchTerm,
       bool? isPlayed,
-      List<String>? sortBy,
+      List<ItemSortBy>? sortBy,
       int? limit,
       int? startIndex,
       List<BaseItemKind>? includeItemTypes,
@@ -365,7 +303,7 @@ class ApiService {
           ..type = DlnaProfileType.video
           ..audioCodec = "aac,ac3,eac3"
           ..videoCodec = "h264,hevc"
-          ..protocol = "hls",
+          ..protocol = MediaStreamProtocol.hls,
       )
     ]);
 
@@ -420,10 +358,11 @@ class ApiService {
 
   Future<int> authorizeQuickConnect(String secret) async {
     try {
-      var response = await _jellyfinApi!.getQuickConnectApi().authorize(
-            code: secret,
-            headers: headers,
-          );
+      var response =
+          await _jellyfinApi!.getQuickConnectApi().authorizeQuickConnect(
+                code: secret,
+                headers: headers,
+              );
       if (response.data! == true) {
         return 200;
       } else {
@@ -439,6 +378,7 @@ class ApiService {
     // get locale
     Locale locale = Localizations.localeOf(navigatorKey.currentContext!);
     String countryCode = locale.countryCode ?? locale.languageCode;
+    countryCode = countryCode.toUpperCase();
     Response responseMovie;
     // get top 10000 from url
     try {
@@ -604,8 +544,8 @@ class ApiService {
   }
 
   Future<List<BaseItemDto>> similarItemsByLastWatched() async {
-    var recentlyPlayed =
-        await getFilterItems(isPlayed: true, sortBy: ["LastPlayed"], limit: 1);
+    var recentlyPlayed = await getFilterItems(
+        isPlayed: true, sortBy: [ItemSortBy.datePlayed], limit: 1);
     if (recentlyPlayed.isEmpty) {
       return [];
     }
@@ -631,7 +571,7 @@ class ApiService {
     // firstWhere views name == playlist
     Response<BaseItemDtoQueryResult>? playlist;
     for (var view in views.data!.items!) {
-      if (view.collectionType == "playlists") {
+      if (view.collectionType == CollectionType.playlists) {
         String? playlistsId = view.id;
         // abort if no playlists folder exists
         if (playlistsId == null) {
@@ -682,7 +622,7 @@ class ApiService {
   Future<void> updateWatchlist(String itemId, bool add) async {
     String watchlistId = await getWatchlistId();
     if (add) {
-      await _jellyfinApi!.getPlaylistsApi().addToPlaylist(
+      await _jellyfinApi!.getPlaylistsApi().addItemToPlaylist(
           headers: headers,
           userId: _user!.id!,
           playlistId: watchlistId,
@@ -694,7 +634,7 @@ class ApiService {
             return element.id! == itemId;
           }).playlistItemId ??
           "";
-      await _jellyfinApi!.getPlaylistsApi().removeFromPlaylist(
+      await _jellyfinApi!.getPlaylistsApi().removeItemFromPlaylist(
             headers: headers,
             playlistId: watchlistId,
             entryIds: [playlistItemId].toBuiltList(),
@@ -707,7 +647,7 @@ class ApiService {
     var folders = await getMediaFolders();
 
     var movieCollections = folders.where((element) {
-      return element.collectionType == "movies";
+      return element.collectionType == CollectionType.movies;
     }).toList();
     var movieCollectionIds = movieCollections.map((e) {
       return e.id!;
@@ -734,14 +674,16 @@ class ApiService {
   }
 
   Future<List<BaseItemDto>> getHeaderRecommendation() async {
-    var response = await similarItemsByLastWatched();
-    var response2 = await getFilterItems(
-        sortBy: ["DateCreated"],
-        sortOrder: [SortOrder.descending],
-        includeItemTypes: [BaseItemKind.series, BaseItemKind.movie],
-        limit: 5);
-
-    return response + response2;
+    return await getFilterItems(
+            sortBy: [ItemSortBy.dateCreated],
+            sortOrder: [SortOrder.descending],
+            includeItemTypes: [BaseItemKind.movie],
+            limit: 3) +
+        await getFilterItems(
+            sortBy: [ItemSortBy.dateLastContentAdded],
+            sortOrder: [SortOrder.descending],
+            includeItemTypes: [BaseItemKind.series],
+            limit: 4);
   }
 
   Future<void> markAsPlayed(
@@ -753,6 +695,29 @@ class ApiService {
     } else {
       await _jellyfinApi!.getPlaystateApi().markUnplayedItem(
           userId: _user!.id!, itemId: itemId, headers: headers);
+    }
+  }
+
+  Future<bool?> ping({User? user}) async {
+    user ?? _user;
+    // returns false if serverAdress is null or server is unreachable
+    if (user?.serverAdress == null) {
+      return null;
+    }
+
+    try {
+      var result = await Dio()
+          .get(
+            "${user!.serverAdress!}/System/Ping",
+          )
+          .timeout(const Duration(seconds: 2));
+      if (result.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      return false;
     }
   }
 }

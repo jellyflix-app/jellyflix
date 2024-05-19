@@ -9,7 +9,7 @@ import 'package:jellyflix/components/item_list_tile.dart';
 import 'package:jellyflix/models/download_metadata.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/download_provider.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 import 'package:universal_io/io.dart';
 
 class DownloadItemTile extends HookConsumerWidget {
