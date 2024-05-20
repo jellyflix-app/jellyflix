@@ -180,14 +180,19 @@ class ProfileScreen extends HookConsumerWidget {
                                 BitRates().map[downloadBitrate.value] ?? ""),
                             onTap: () async {
                               // show dialog
-                              downloadBitrate.value = await showDialog(
+                              var result = await showDialog(
                                   context: context,
                                   builder: (context) {
                                     return SetDownloadBitrateDialog(
                                         downloadBitrate: downloadBitrate.value);
                                   });
-                              await ref.read(databaseProvider("settings")).put(
-                                  "downloadBitrate", downloadBitrate.value);
+                              if (result != null) {
+                                downloadBitrate.value = result;
+                                await ref
+                                    .read(databaseProvider("settings"))
+                                    .put("downloadBitrate",
+                                        downloadBitrate.value);
+                              }
                             },
                           ),
                           ListTile(
