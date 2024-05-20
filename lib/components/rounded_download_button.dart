@@ -8,8 +8,6 @@ import 'package:jellyflix/models/bitrates.dart';
 import 'package:jellyflix/providers/database_provider.dart';
 import 'package:jellyflix/providers/download_provider.dart';
 import 'package:tentacle/tentacle.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:universal_io/io.dart';
 
 class RoundedDownloadButton extends HookConsumerWidget {
   const RoundedDownloadButton({
@@ -40,10 +38,6 @@ class RoundedDownloadButton extends HookConsumerWidget {
               ));
             }
           } else if (isDownloaded.value == null) {
-            if ((Platform.isAndroid || Platform.isIOS) &&
-                !(await Permission.storage.request()).isGranted) {
-              return;
-            }
             int audioCount = data.mediaSources![0].mediaStreams!
                 .where((element) => element.type == MediaStreamType.audio)
                 .length;

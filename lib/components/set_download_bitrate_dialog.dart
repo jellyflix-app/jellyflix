@@ -52,7 +52,7 @@ class SetDownloadBitrateDialog extends HookConsumerWidget {
       actions: [
         TextButton(
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pop(context, null);
           },
           child: Text(AppLocalizations.of(context)!.cancel),
         ),
