@@ -1,0 +1,185 @@
+{
+    "@@locale": "en",
+
+    "continueWatching": "Seguir viendo",
+    "recentlyAddedMovies": "Películas añadidas recientemente",
+    "recentlyAddedShows": "Series añadidas recientemente",
+    "yourWatchlist": "Tu lista de seguimiento",
+    "top10inYourLibrary": "El Top 10 en tu biblioteca",
+    "similarToWatchHistory": "Similar a lo que ya has visto",
+    "becauseYouWatched": "Porque viste {title}",
+    "@becausYouWatched": {
+        "placeholders": {
+          "title": {
+            "type": "String",
+            "example": "Forrest Gump"
+          }
+        }
+      },
+    "becauseYouLiked": "Porque te gustó {title}",
+    "@becauseYouLiked": {
+        "placeholders": {
+          "title": {
+            "type": "String",
+            "example": "Forrest Gump"
+          }
+        }
+      },
+    "directedBy": "Dirigido por {director}",
+    "@directedBy": {
+        "placeholders": {
+          "director": {
+            "type": "String",
+            "example": "Robert Zemeckis"
+          }
+        }
+      },
+    "starring": "Aparece {actor}",
+    "@starring": {
+        "placeholders": {
+          "actor": {
+            "type": "String",
+            "example": "Tom Hanks"
+          }
+        }
+      },
+    "recommendedForYou": "Recomendado para ti",
+    "play": "Reproducir",
+    "moreInfo": "Más información",
+    "search": "Buscar",
+    "startTypingSearch": "Empieza a escribir para buscar",
+    "genre": "Género",
+    "all": "Todo",
+    "filter": "Filtrar",
+    "none": "Ninguno",
+    "order": "Ordenar",
+    "ascending": "Ascendente",
+    "descending": "Descendente",
+    "sort": "Clasificar",
+    "name": "Nombre",
+    "premiereDate": "Fecha de estreno",
+    "random": "Aleatorio",
+    "unplayed": "No reproducido",
+    "played": "Reproducido",
+    "favorites": "Favoritos",
+    "liked": "Te ha gustado",
+    "changeProfile": "Cambiar perfil",
+    "logout": "Cerrar sesión",
+    "about": "Acerca de",
+    "scanLibrary": "Escanear bibliotecas",
+    "scanStarted": "Escaneado empezado",
+    "quickConnect": "Conexión rápida",
+    "quickConnectDescription": "Introduce el código mostrado en tu dispositivo",
+    "quickConnectError401": "¿Estás intentando acceder al servidor correcto?",
+    "quickConnectError404": "Código inválido",
+    "quickConnectErrorUnknown": "Algo fue mal",
+    "connect": "Conectar",
+    "code": "Código",
+    "writers": "Guionistas",
+    "directors": "Directores",
+    "genres": "Géneros",
+    "cast": "Elenco",
+    "episodes": "Episodios",
+    "season": "Temporada",
+    "na": "N/A",
+    "addedToWatchlist": "Añadido a la lista de seguimiento",
+    "removedFromWatchlist": "Eliminado de la lista de seguimiento",
+    "noItemsFound": "No se han encontrado elementos",
+    "noResultsFound": "No se han encontrado resultados",
+    "movies": "Películas",
+    "series": "Series",
+    "collections": "Colecciones",
+    "addProfile": "Añadir perfil",
+    "appSubtitle": "Otro cliente de Jellyfin",
+    "serverAddress": "Dirección del servidor",
+    "login": "Iniciar sesión",
+    "username": "Usuario",
+    "password": "Contraseña",
+    "webDemoNote": "Esta es una versión demo de Jellyflix. Para usarla, puedes emplear las siguientes credenciales: \n\nDirección del servidor: https://demo.jellyfin.org/stable \nUsuario: demo \ny contraseña vacía \n\n",
+    "quality": "Calidad",
+    "audio": "Audio",
+    "subtitles": "Subtítulos",
+    "settings": "Ajustes",
+    "home": "Inicio",
+    "library": "Biblioteca",
+    "profile": "Perfil",
+    "markAsPlayed": "Marcar como visto",
+    "markAsUnplayed": "Marcar como no visto",
+    "couldNotOpenTrailer": "No se pudo abrir el tráiler",
+    "watchTrailer": "Ver tráiler",
+    "showsMaybeMissed": "Series que te has podido perder",
+    "moviesMaybeMissed": "Películas que te has podido perder",
+    "highesRatedMovies": "Películas mejor valoradas",
+    "highestRatedShows": "Series mejor valoradas",
+    "top10": "Top {count}",
+    "@top10": {
+        "placeholders": {
+          "count": {
+            "type": "int",
+            "example": "10"
+          }
+        }
+      },
+    "minutes": "{count} min",  
+    "@minutes": {
+        "placeholders": {
+            "count": {
+              "type": "int",
+              "example": "50"
+            }
+          }
+    },
+    "similar": "Similar",
+    "downloads": "Descargas",
+    "download": "Descargar",
+    "noDownloads": "No se encontraron descargas",
+    "resumeDownload": "Continuar con la descarga",
+    "deleteDownload": "Eliminar descarga",
+    "removedDownload": "Descarga eliminada",
+    "startedDownload": "Comenzar descarga",
+    "cancelDownload": "Cancelar descarga",
+    "cancelAndRemoveAllDownloads": "Cancelar y eliminar todas las descargas",
+    "downloaded": "descargado",
+    "couldNotResumeDownload": "No se pudo continuar con la descarga",
+    "allDownloadsRemoved": "Se eliminaron todas las descargas",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "setAudioAndSubtitleLanguage": "Elegir idioma del audio y de los subtítulos",
+    "setLocalDownloadBitrate": "Elegir ancho de banda para la descarga local",
+    "maxDownloadBitrateText": "Máximo ancho de banda para las descargas locales.",
+    "downloadApproxFilesize": "1h de reproducción equivale aproximadamente a {size}GB",
+    "@downloadApproxFilesize": {
+        "placeholders": {
+          "size": {
+            "type": "String",
+            "example": "1.5"
+          }
+        }
+      },
+    "resumedDownload": "Descarga continuada",
+    "canceledDownload": "Descarga cancelada",
+    "details": "Detalles",
+    "showMore": "Mostrar más",
+    "showLess": "Mostrar menos",
+    "offlineNotice": "Estás desconectado",
+    "disableImageCaching": "Desactivar la caché de imágenes",
+    "restartApp": "Reiniciar aplicación",
+    "restartAppDescription": "Por favor, reinicia la aplicación para aplicar los cambios.",
+    "ok": "Ok",
+    "selectProfile": "Seleccionar perfil",
+    "ends": "Termina a las {date}",
+    "@ends": {
+        "placeholders": {
+          "date": {
+            "type": "String",
+            "example": "21:30"
+          }
+        }
+      },
+    "disableWatchlist": "Desactivar lista de seguimiento",
+    "deletePlaylistNotice": "Para evitar la pérdida de datos, desactiva la lista desde el servidor, si ya no la necesitas.",
+    "info": "Información",
+    "showPrimaryForEpisodes": "Mostrar la imagen principal del capítulo en lugar del póster de la serie en Seguir viendo",
+    "appName": "Jellyflix"
+    
+}
