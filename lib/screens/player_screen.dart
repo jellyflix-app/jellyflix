@@ -91,18 +91,15 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
             'yes',
           );
         }
-
-        _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
-          await ref.read(apiProvider).reportPlaybackProgress(
-              player.state.position.inMilliseconds * 10000,
-              audioStreamIndex: player.state.track.audio.id == "auto"
-                  ? playbackHelper.getDefaultAudioIndex()
-                  : int.parse(player.state.track.audio.id),
-              subtitleStreamIndex: player.state.track.subtitle.id == "auto"
-                  ? playbackHelper.getDefaultSubtitleIndex()
-                  : playbackHelper.getAudioList().length +
-                      int.parse(player.state.track.subtitle.id));
-        });
+        // TODO report from mapping function
+        // _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+        //   await ref.read(apiProvider).reportPlaybackProgress(
+        //       player.state.position.inMilliseconds * 10000,
+        //       audioStreamIndex: player.state.track.audio.id == "auto"
+        //           ? playbackHelper.getDefaultAudioIndex()
+        //           : int.parse(player.state.track.audio.id),
+        //       subtitleStreamIndex: subtitleTrack
+        //});
 
         player.stream.error.listen((error) => throw Exception(error));
         player.stream.completed.listen((completed) async {
@@ -314,7 +311,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
             if (subtitleEnabled.value) {
               if (subtitleTrack.value == -1) {
                 subtitleTrack.value =
-                    playbackHelper.getSubtitleList().first.index!;
+                    playbackHelper.getSubtitleList().keys.first.index!;
               }
               trackNumber = subtitleTrack.value;
             } else {
@@ -348,57 +345,121 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
           var subtitles = player.state.tracks.subtitle;
           var audio = player.state.tracks.audio;
           if (playbackInfo.mediaSources!.first.transcodingUrl == null) {
-            audio = audio.sublist(2);
-            subtitles = subtitles.sublist(1);
+            // audio = audio.sublist(2);
+            // subtitles = subtitles.sublist(2);
 
             var subtitleList = playbackHelper.getSubtitleList();
             var audioList = playbackHelper.getAudioList();
             var audioTrackCount = audioList.length;
 
-            var currentSubtitleIndex =
+            var currentSubtitleList =
                 subtitleTrack.value != -1 && subtitleEnabled.value
                     ? subtitleTrack.value - audioTrackCount
                     : 0;
 
+            var bla = audioList
+                .firstWhere((element) => element.index! == audioTrack.value);
+
+            var blub = subtitleList.entries
+                .firstWhere(
+                    (element) => element.key.index! == subtitleTrack.value)
+                .key;
+
+            var bla1 = audioList
+                .map((e) => DropdownMenuEntry(
+                    value: e,
+                    label: e.index == 0
+                        ? AppLocalizations.of(context)!.none
+                        : e.displayTitle ?? "Unknown"))
+                .toList();
+
+            var bla2 = subtitleList.entries
+                .map((e) => DropdownMenuEntry(
+                    value: e.key,
+                    label: e.key.index == -1
+                        ? AppLocalizations.of(context)!.none
+                        : "${e.key.index}. ${e.key.displayTitle ?? "Unknown"}"))
+                .toList();
+
             showDialog(
               context: context,
               builder: (context) =>
-                  PlayerSettingsDialog<AudioTrack, SubtitleTrack>(
+                  PlayerSettingsDialog<MediaStream, MediaStream>(
                 playbackHelper: playbackHelper,
-                audioTrack: audio[audioTrack.value - 1],
-                subtitleTrack: subtitles[currentSubtitleIndex],
+                audioTrack: audioList.firstWhere(
+                    (element) => element.index! == audioTrack.value),
+                subtitleTrack: subtitleList.entries
+                    .firstWhere(
+                        (element) => element.key.index! == subtitleTrack.value)
+                    .key,
                 isSubtitleEnabled: subtitleEnabled.value,
                 maxStreamingBitrate: maxStreamingBitrate.value,
-                audioEntries: audio
+                audioEntries: audioList
                     .map((e) => DropdownMenuEntry(
                         value: e,
-                        label: audioList[audio.indexOf(e)].displayTitle!))
-                    .toList(),
-                subtitleEntries: subtitles
-                    .map((e) => DropdownMenuEntry(
-                        value: e,
-                        label: subtitles.indexOf(e) == 0
+                        label: e.index == 0
                             ? AppLocalizations.of(context)!.none
-                            : "${e.id}. ${subtitleList[subtitles.indexOf(e) - 1].displayTitle!}"))
+                            : e.displayTitle ?? "Unknown"))
+                    .toList(),
+                subtitleEntries: subtitleList.entries
+                    .map((e) => DropdownMenuEntry(
+                        value: e.key,
+                        label: e.key.index == -1
+                            ? AppLocalizations.of(context)!.none
+                            : "${e.key.index}. ${e.key.displayTitle ?? "Unknown"}"))
                     .toList(),
                 onAudioSelected: (value) async {
-                  if (audio[audioTrack.value - 1] != value && value != null) {
-                    audioTrack.value = int.parse(value.id);
-                    player.setAudioTrack(value);
-                  }
+                  print(value);
+                  // if (audio[audioTrack.value - 1] != value && value != null) {
+                  //   audioTrack.value = int.parse(value.id);
+                  //   player.setAudioTrack(value);
+                  // }
                 },
-                onSubtitleSelected: (value) async {
-                  //if (subtitles[currentSubtitleIndex].id != value?.id &&
-                  //    value != null) {
-                  if (value!.id == "no") {
+                onSubtitleSelected: (selectedMediaStream) async {
+                  //Map subtitles = playbackHelper.getSubtitleList();
+                  print(selectedMediaStream);
+                  if (selectedMediaStream == null) {
+                    return;
+                  }
+
+                  int selectedStreamId = selectedMediaStream.index!;
+                  if (selectedStreamId == -1) {
                     subtitleEnabled.value = false;
-                    subtitleTrack.value = -1;
                   } else {
                     subtitleEnabled.value = true;
-                    subtitleTrack.value = int.parse(value.id) + audioTrackCount;
+                    subtitleTrack.value = selectedMediaStream.index!;
+                    int? subtitleTrackIndex = subtitleList.entries
+                        .firstWhere((element) =>
+                            element.key.index == selectedMediaStream.index!)
+                        .value;
+                    if (subtitleTrackIndex == null) {
+                      print(ref.read(apiProvider).currentUser!.serverAdress! +
+                          selectedMediaStream.deliveryUrl!);
+
+                      SubtitleTrack externalSubtitle = await ref
+                          .read(apiProvider)
+                          .getExternalSubtitle(
+                              deliveryUrl: selectedMediaStream.deliveryUrl!);
+
+                      await player.setSubtitleTrack(externalSubtitle);
+                    } else {
+                      await player
+                          .setSubtitleTrack(subtitles[subtitleTrackIndex]);
+                    }
                   }
-                  player.setSubtitleTrack(value);
-                  //}
+
+                  // if (subtitles[currentSubtitleIndex].id != value?.id &&
+                  //     value != null) {
+                  //   if (value!.id == "no") {
+                  //     subtitleEnabled.value = false;
+                  //     subtitleTrack.value = -1;
+                  //   } else {
+                  //     subtitleEnabled.value = true;
+                  //     subtitleTrack.value =
+                  //         int.parse(value.id) + audioTrackCount;
+                  //   }
+                  //   player.setSubtitleTrack(value);
+                  // }
                 },
                 onBitrateSelected: (value) async {
                   if (maxStreamingBitrate.value != value) {
@@ -414,8 +475,8 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
               DropdownMenuEntry(
                   value: -1, label: AppLocalizations.of(context)!.none)
             ];
-            subtitleEntries.addAll(playbackHelper.getSubtitleList().map((e) =>
-                DropdownMenuEntry(
+            subtitleEntries.addAll(playbackHelper.getSubtitleList().keys.map(
+                (e) => DropdownMenuEntry(
                     value: e.index!, label: e.displayTitle ?? "Unknown")));
             showDialog(
               context: context,

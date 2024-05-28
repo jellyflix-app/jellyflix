@@ -6,6 +6,7 @@ import 'package:jellyflix/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:jellyflix/navigation/app_router.dart';
 import 'package:jellyflix/services/device_info_service.dart';
+import 'package:media_kit/media_kit.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:built_collection/built_collection.dart';
 
@@ -313,26 +314,50 @@ class ApiService {
         ..format = "vtt"
         ..method = SubtitleDeliveryMethod.embed),
       SubtitleProfile((b) => b
+        ..format = "vtt"
+        ..method = SubtitleDeliveryMethod.external_),
+      SubtitleProfile((b) => b
         ..format = "ssa"
         ..method = SubtitleDeliveryMethod.embed),
+      SubtitleProfile((b) => b
+        ..format = "ssa"
+        ..method = SubtitleDeliveryMethod.external_),
       SubtitleProfile((b) => b
         ..format = "ass"
         ..method = SubtitleDeliveryMethod.embed),
       SubtitleProfile((b) => b
+        ..format = "ass"
+        ..method = SubtitleDeliveryMethod.external_),
+      SubtitleProfile((b) => b
         ..format = "srt"
         ..method = SubtitleDeliveryMethod.embed),
+      SubtitleProfile((b) => b
+        ..format = "srt"
+        ..method = SubtitleDeliveryMethod.external_),
       SubtitleProfile((b) => b
         ..format = "pgs"
         ..method = SubtitleDeliveryMethod.embed),
       SubtitleProfile((b) => b
+        ..format = "pgs"
+        ..method = SubtitleDeliveryMethod.external_),
+      SubtitleProfile((b) => b
         ..format = "pgssub"
         ..method = SubtitleDeliveryMethod.embed),
+      SubtitleProfile((b) => b
+        ..format = "pgssub"
+        ..method = SubtitleDeliveryMethod.external_),
       SubtitleProfile((b) => b
         ..format = "dvdsub"
         ..method = SubtitleDeliveryMethod.embed),
       SubtitleProfile((b) => b
+        ..format = "dvdsub"
+        ..method = SubtitleDeliveryMethod.external_),
+      SubtitleProfile((b) => b
         ..format = "dvbsub"
         ..method = SubtitleDeliveryMethod.embed),
+      SubtitleProfile((b) => b
+        ..format = "dvbsub"
+        ..method = SubtitleDeliveryMethod.external_),
     ]);
     var response = await _jellyfinApi!.getMediaInfoApi().getPostedPlaybackInfo(
           itemId: itemId,
@@ -718,6 +743,28 @@ class ApiService {
       }
     } catch (e) {
       return false;
+    }
+  }
+
+  Future<SubtitleTrack> getExternalSubtitle(
+      {required String deliveryUrl}) async {
+    if (deliveryUrl.split("?")[0].endsWith(".vtt")) {
+      var response = await Dio().get(_user!.serverAdress! + deliveryUrl);
+      final lines = response.data!.split('\n');
+      final result = <String>[];
+      for (var line in lines) {
+        // Skip lines that contain 'Region:' or 'region:'
+        if (!line.startsWith('Region:') && !line.contains('region:')) {
+          result.add(line);
+        } else if (line.contains('region:')) {
+          // Remove 'region:' parameter within timestamp lines
+          final modifiedLine = line.replaceAll(RegExp(r'region:[^\s]+'), '');
+          result.add(modifiedLine.trim());
+        }
+      }
+      return SubtitleTrack.data(result.join("\n"));
+    } else {
+      return SubtitleTrack.uri(_user!.serverAdress! + deliveryUrl);
     }
   }
 }
