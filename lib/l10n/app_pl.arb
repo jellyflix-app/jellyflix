@@ -1,0 +1,185 @@
+{
+    "@@locale": "pl",
+
+    "continueWatching": "Oglądaj dalej",
+    "recentlyAddedMovies": "Ostatnio dodane filmy",
+    "recentlyAddedShows": "Ostatnio dodane serriale",
+    "yourWatchlist": "Lista obserwowanych",
+    "top10inYourLibrary": "Top 10 w twojej bibliotece",
+    "similarToWatchHistory": "Podobne do twojej historii oglądanych",
+    "becauseYouWatched": "Ponieważ obejrzałeś {title}",
+    "@becausYouWatched": {
+        "placeholders": {
+          "title": {
+            "type": "String",
+            "example": "Forrest Gump"
+          }
+        }
+      },
+    "becauseYouLiked": "Ponieważ polubiłeś {title}",
+    "@becauseYouLiked": {
+        "placeholders": {
+          "title": {
+            "type": "String",
+            "example": "Forrest Gump"
+          }
+        }
+      },
+    "directedBy": "Reżyseria {director}",
+    "@directedBy": {
+        "placeholders": {
+          "director": {
+            "type": "String",
+            "example": "Robert Zemeckis"
+          }
+        }
+      },
+    "starring": "Obsada {actor}",
+    "@starring": {
+        "placeholders": {
+          "actor": {
+            "type": "String",
+            "example": "Tom Hanks"
+          }
+        }
+      },
+    "recommendedForYou": "Polecane dla ciebie",
+    "play": "Odtwarzaj",
+    "moreInfo": "Dodatkowe informacje",
+    "search": "Szukaj",
+    "startTypingSearch": "Wpisz żeby wyszukać",
+    "genre": "Gatunek",
+    "all": "Wszystko",
+    "filter": "Filtruj",
+    "none": "Brak",
+    "order": "Kolejność",
+    "ascending": "Rosnąco",
+    "descending": "Malejąco",
+    "sort": "Sortuj",
+    "name": "Nazwa",
+    "premiereDate": "Data premiery",
+    "random": "Losowo",
+    "unplayed": "Nie obejrzane",
+    "played": "Obejrzane",
+    "favorites": "Ulubione",
+    "liked": "Polubione",
+    "changeProfile": "Zmień profil",
+    "logout": "Wyloguj",
+    "about": "Info",
+    "scanLibrary": "Skanuj bibliotkę",
+    "scanStarted": "Skanuję",
+    "quickConnect": "Szybkie łączenie",
+    "quickConnectDescription": "Wprowadź kod wyświetlany na urządzeniu",
+    "quickConnectError401": "Czy uzyskujesz dostęp do właściwego serwera?",
+    "quickConnectError404": "Błędny kod",
+    "quickConnectErrorUnknown": "Coś poszło nie tak",
+    "connect": "Połącz",
+    "code": "Kod dostępu",
+    "writers": "Scenariusz",
+    "directors": "Reżyseria",
+    "genres": "Gatunek",
+    "cast": "Obsada",
+    "episodes": "Odcinki",
+    "season": "Sezon",
+    "na": "N/A",
+    "addedToWatchlist": "Dodaj do obejrzenia",
+    "removedFromWatchlist": "Usuń z listy do obejrzenia",
+    "noItemsFound": "Nic nie znaleziono",
+    "noResultsFound": "Nie znaleziono wyników",
+    "movies": "Filmy",
+    "series": "Seriale",
+    "collections": "Kolekcje",
+    "addProfile": "Dodaj profil",
+    "appSubtitle": "Kolejny klient Jellyfin",
+    "serverAddress": "Adres serwera",
+    "login": "Zaloguj",
+    "username": "Nazwa użytkownika",
+    "password": "Hasło",
+    "webDemoNote": "To jest wersja demonstracyjna Jellyflix. Aby z niej skorzystać, można użyć następujących danych: \n\nAdres serwera: https://demo.jellyfin.org/stable \nNazwa użytkownika: demo \n i bez hasła \n\n",
+    "quality": "Jakość",
+    "audio": "Dźwięk",
+    "subtitles": "Napisy",
+    "settings": "Ustawienia",
+    "home": "Strona główna",
+    "library": "Biblioteka",
+    "profile": "Profil",
+    "markAsPlayed": "Oznacz jako obejrzane",
+    "markAsUnplayed": "Oznacz jako nie obejrzane",
+    "couldNotOpenTrailer": "Nie można odtworzyć zwiastuna",
+    "watchTrailer": "Obejrzyj zwiastun",
+    "showsMaybeMissed": "Seriale które mogłeś przegapić",
+    "moviesMaybeMissed": "Filmy które mogłeś przegapić",
+    "highesRatedMovies": "Najwyzej oceniane filmy",
+    "highestRatedShows": "Najwyżej oceniane seriale",
+    "top10": "Top {count}",
+    "@top10": {
+        "placeholders": {
+          "count": {
+            "type": "int",
+            "example": "10"
+          }
+        }
+      },
+    "minutes": "{count} min",  
+    "@minutes": {
+        "placeholders": {
+            "count": {
+              "type": "int",
+              "example": "50"
+            }
+          }
+    },
+    "similar": "Podobne",
+    "downloads": "Pobranie",
+    "download": "Pobierz",
+    "noDownloads": "Nie znaleziono pliku do pobrania",
+    "resumeDownload": "Wznów pobieranie",
+    "deleteDownload": "Usuń pobieranie",
+    "removedDownload": "Usunięto pobieranie",
+    "startedDownload": "Rozpoczęto pobieranie",
+    "cancelDownload": "Anulowano pobieranie",
+    "cancelAndRemoveAllDownloads": "Anuluj i usuń wszystkie pobierania",
+    "downloaded": "Pobrane",
+    "couldNotResumeDownload": "Nie można wznowić pobierania!",
+    "allDownloadsRemoved": "Wszystkie pobrane pliki zostały usunięte",
+    "cancel": "Anuluj",
+    "save": "Zapisz",
+    "setAudioAndSubtitleLanguage": "Ustaw audio i język napisów",
+    "setLocalDownloadBitrate": "Ustaw bitrate pobierania lokalnego",
+    "maxDownloadBitrateText": "Ustaw maksymalną szybkość transmisji bitów dla pobierania lokalnego.",
+    "downloadApproxFilesize": "1 godzina odtwarzania odpowiada około {size}GB",
+    "@downloadApproxFilesize": {
+        "placeholders": {
+          "size": {
+            "type": "String",
+            "example": "1.5"
+          }
+        }
+      },
+    "resumedDownload": "Wznowienie pobierania",
+    "canceledDownload": "Anulowanie pobierania",
+    "details": "Szczegóły",
+    "showMore": "Pokaż więcej",
+    "showLess": "Pokaż mniej",
+    "offlineNotice": "Brak internetu",
+    "disableImageCaching": "Wyłącz buforowanie obrazów",
+    "restartApp": "Restart aplikacji",
+    "restartAppDescription": "Aby zmiany zaczęły obowiązywać, należy ponownie uruchomić aplikację.",
+    "ok": "OK",
+    "selectProfile": "Wybierz profil",
+    "ends": "Koniec o {date}",
+    "@ends": {
+        "placeholders": {
+          "date": {
+            "type": "String",
+            "example": "21:30"
+          }
+        }
+      },
+    "disableWatchlist": "Wyłącz listę do obejrzenia",
+    "deletePlaylistNotice": "Aby zapobiec utracie danych, usuń listę odtwarzania z serwera, jeśli nie jest już potrzebna.",
+    "info": "Informacje",
+    "showPrimaryForEpisodes": "Pokaż plakat główny zamiast plakatu sezonu w Kontynuuj oglądanie",
+    "appName": "Jellyflix"
+    
+}
