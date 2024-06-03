@@ -1,0 +1,185 @@
+{
+    "@@locale": "zh",
+
+    "continueWatching": "继续观看",
+    "recentlyAddedMovies": "最近添加的电影",
+    "recentlyAddedShows": "最近添加的剧集",
+    "yourWatchlist": "你的观看列表",
+    "top10inYourLibrary": "您库里的前十榜单",
+    "similarToWatchHistory": "与您最近看过的相似",
+    "becauseYouWatched": "因为您看过 {title}",
+    "@becausYouWatched": {
+        "placeholders": {
+          "title": {
+            "type": "String",
+            "example": "Forrest Gump"
+          }
+        }
+      },
+    "becauseYouLiked": "因为您喜欢 {title}",
+    "@becauseYouLiked": {
+        "placeholders": {
+          "title": {
+            "type": "String",
+            "example": "Forrest Gump"
+          }
+        }
+      },
+    "directedBy": "由 {director} 导演",
+    "@directedBy": {
+        "placeholders": {
+          "director": {
+            "type": "String",
+            "example": "Robert Zemeckis"
+          }
+        }
+      },
+    "starring": "由 {actor} 参演",
+    "@starring": {
+        "placeholders": {
+          "actor": {
+            "type": "String",
+            "example": "Tom Hanks"
+          }
+        }
+      },
+    "recommendedForYou": "为您推荐",
+    "play": "播放",
+    "moreInfo": "详情",
+    "search": "搜索",
+    "startTypingSearch": "开始输入以搜索",
+    "genre": "类型",
+    "all": "所有",
+    "filter": "过滤",
+    "none": "无",
+    "order": "顺序",
+    "ascending": "升序",
+    "descending": "降序",
+    "sort": "排序",
+    "name": "名称",
+    "premiereDate": "首映日期",
+    "random": "随机",
+    "unplayed": "没看过",
+    "played": "看过",
+    "favorites": "最爱的",
+    "liked": "喜欢的",
+    "changeProfile": "切换用户",
+    "logout": "登出",
+    "about": "关于",
+    "scanLibrary": "扫描库",
+    "scanStarted": "扫描已开始",
+    "quickConnect": "快速连接",
+    "quickConnectDescription": "输入你设备上显示的代码",
+    "quickConnectError401": "你访问的是正确的服务器吗？",
+    "quickConnectError404": "无效代码",
+    "quickConnectErrorUnknown": "发生了未知错误",
+    "connect": "连结",
+    "code": "代码",
+    "writers": "编剧",
+    "directors": "导演",
+    "genres": "类型",
+    "cast": "Cast",
+    "episodes": "剧集",
+    "season": "季",
+    "na": "N/A",
+    "addedToWatchlist": "添加到观看列表",
+    "removedFromWatchlist": "从观看列表中移除",
+    "noItemsFound": "未找到条目",
+    "noResultsFound": "未找到结果",
+    "movies": "电影",
+    "series": "连续剧",
+    "collections": "合集",
+    "addProfile": "添加用户",
+    "appSubtitle": "又一个 Jellyfin 客户端",
+    "serverAddress": "服务器地址",
+    "login": "登录",
+    "username": "用户名",
+    "password": "密码",
+    "webDemoNote": "这是一个 Jellyflix 的 demo 实例。要使用它，你可以使用下面的凭据: \n\n服务器地址: https://demo.jellyfin.org/stable \n用户名: demo \n以及空白密码 \n\n",
+    "quality": "质量",
+    "audio": "音频",
+    "subtitles": "字幕",
+    "settings": "设置",
+    "home": "主页",
+    "library": "库",
+    "profile": "用户",
+    "markAsPlayed": "标为看过",
+    "markAsUnplayed": "标为未看过",
+    "couldNotOpenTrailer": "无法打开预告片",
+    "watchTrailer": "查看预告片",
+    "showsMaybeMissed": "您可能错过的剧集",
+    "moviesMaybeMissed": "您可能错过的电影",
+    "highesRatedMovies": "高分电影",
+    "highestRatedShows": "高分剧集",
+    "top10": "前 {count}",
+    "@top10": {
+        "placeholders": {
+          "count": {
+            "type": "int",
+            "example": "10"
+          }
+        }
+      },
+    "minutes": "{count} 分钟",  
+    "@minutes": {
+        "placeholders": {
+            "count": {
+              "type": "int",
+              "example": "50"
+            }
+          }
+    },
+    "similar": "相似",
+    "downloads": "下载",
+    "download": "下载",
+    "noDownloads": "未发现下载项",
+    "resumeDownload": "继续下载",
+    "deleteDownload": "删除下载",
+    "removedDownload": "移除的下载",
+    "startedDownload": "已开始的下载",
+    "cancelDownload": "取消下载",
+    "cancelAndRemoveAllDownloads": "取消并移除所有下载",
+    "downloaded": "已下载",
+    "couldNotResumeDownload": "无法继续下载!",
+    "allDownloadsRemoved": "已移除所有下载",
+    "cancel": "取消",
+    "save": "保存",
+    "setAudioAndSubtitleLanguage": "设置音频与字幕语言",
+    "setLocalDownloadBitrate": "设置本地下载速率",
+    "maxDownloadBitrateText": "为本地下载设置最大比特率限制。",
+    "downloadApproxFilesize": "每播放一小时相当于大致 {size}GB",
+    "@downloadApproxFilesize": {
+        "placeholders": {
+          "size": {
+            "type": "String",
+            "example": "1.5"
+          }
+        }
+      },
+    "resumedDownload": "已恢复的下载",
+    "canceledDownload": "已取消的下载",
+    "details": "显示详情",
+    "showMore": "显示更多",
+    "showLess": "显示更少",
+    "offlineNotice": "您已离线",
+    "disableImageCaching": "禁用图像缓存",
+    "restartApp": "重启应用",
+    "restartAppDescription": "请重启应用以使此变更生效。",
+    "ok": "OK",
+    "selectProfile": "选择用户",
+    "ends": "结束于 {date}",
+    "@ends": {
+        "placeholders": {
+          "date": {
+            "type": "String",
+            "example": "21:30"
+          }
+        }
+      },
+    "disableWatchlist": "禁用观看列表",
+    "deletePlaylistNotice": "为避免数据损失，若不再需要的话，请从服务器删除播放列表。",
+    "info": "Info",
+    "showPrimaryForEpisodes": "在“继续观看”中显示剧集主要预览图而非海报",
+    "appName": "Jellyflix"
+    
+}
