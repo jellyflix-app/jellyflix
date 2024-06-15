@@ -236,7 +236,7 @@ class JfxButtonRow extends StatelessWidget {
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15.0)),
             itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-              if (data.remoteTrailers == null)
+              if (data.remoteTrailers.toList().isNotEmpty)
                 PopupMenuItem<String>(
                   value: 'watch_trailer',
                   child: ListTile(
