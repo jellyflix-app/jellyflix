@@ -41,13 +41,12 @@ class PlaybackHelperService {
     int index = 2;
     // map the subtitle streams to the index
     Map<MediaStream, int?> subtitleMap = {
-      // TODO add none option
       MediaStream(
         (b) {
           b.displayTitle = "None";
           b.index = -1;
         },
-      ): -1,
+      ): 1, // should this be 0 or 1 auto / none
     };
     for (var stream in subtitleStreams) {
       if (stream.isExternal!) {
@@ -60,12 +59,19 @@ class PlaybackHelperService {
     return subtitleMap;
   }
 
-  List<MediaStream> getAudioList() {
+  Map<MediaStream, int?> getAudioList() {
     var audioStreams = item.mediaSources![0].mediaStreams!
         .where((element) => element.type == MediaStreamType.audio)
         .toList();
+    int index = 2;
+    // map the audio streams to the index
+    Map<MediaStream, int?> audioMap = {};
+    for (var stream in audioStreams) {
+      audioMap.addAll({stream: index});
+      index++;
+    }
 
-    return audioStreams;
+    return audioMap;
   }
 
   bool subtitleListIsEmpty() {
