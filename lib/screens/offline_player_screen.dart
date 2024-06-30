@@ -5,10 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:universal_platform/universal_platform.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class OfflinePlayerScreen extends StatefulHookConsumerWidget {
   const OfflinePlayerScreen(
@@ -122,12 +124,24 @@ class _PlayerSreenState extends ConsumerState<OfflinePlayerScreen> {
                 bottomButtonBar: getBottomButtonBarThemeData(context),
                 seekBarPositionColor: Theme.of(context).colorScheme.onPrimary,
                 seekBarThumbColor: Theme.of(context).colorScheme.primary,
+                seekBarThumbSize: 15,
+                seekBarHeight: 4,
+                seekBarMargin:
+                    const EdgeInsets.only(bottom: 15, left: 10, right: 10),
+                bottomButtonBarMargin:
+                    const EdgeInsets.only(bottom: 15, left: 10, right: 10),
               ),
               fullscreen: MaterialVideoControlsThemeData(
                 topButtonBar: getTopButtonBarThemeData(context),
                 bottomButtonBar: getBottomButtonBarThemeData(context),
                 seekBarPositionColor: Theme.of(context).colorScheme.onPrimary,
                 seekBarThumbColor: Theme.of(context).colorScheme.primary,
+                seekBarThumbSize: 15,
+                seekBarHeight: 4,
+                seekBarMargin:
+                    const EdgeInsets.only(bottom: 15, left: 10, right: 10),
+                bottomButtonBarMargin:
+                    const EdgeInsets.only(bottom: 15, left: 10, right: 10),
               ),
               child: MaterialDesktopVideoControlsTheme(
                   normal: MaterialDesktopVideoControlsThemeData(
@@ -179,10 +193,6 @@ class _PlayerSreenState extends ConsumerState<OfflinePlayerScreen> {
       BackButton(
         onPressed: () async {
           await defaultExitNativeFullscreen();
-          // unawaited(ref
-          //     .read(apiProvider)
-          //     .reportStopPlayback(player.state.position.inMilliseconds * 10000)
-          //     .then((value) {}));
           if (key.currentState?.isFullscreen() ?? false) {
             await key.currentState?.exitFullscreen();
           }
@@ -191,6 +201,18 @@ class _PlayerSreenState extends ConsumerState<OfflinePlayerScreen> {
           }
         },
       ),
+      const Spacer(),
+      StreamBuilder(
+        stream: player.stream.position,
+        builder: (context, snapshot) {
+          return Text(AppLocalizations.of(context)!.ends(DateFormat("HH:mm")
+              .format(DateTime.now()
+                  .add(Duration(
+                      minutes: player.state.duration.inMinutes -
+                          player.state.position.inMinutes))
+                  .toLocal())));
+        },
+      )
     ];
   }
 }
