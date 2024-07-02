@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jellyflix/components/navigation_drawer_tile.dart';
+import 'package:jellyflix/components/jfx_nav_bar/jfx_nav_bar_left_full_tile.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/models/auth_state.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
@@ -46,7 +46,7 @@ class JfxNavBarLeftFull extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            NavigationDrawerTile(
+            JfxNavBarLeftFullTile(
               icon: Icons.home_rounded,
               label: appLocalizations.home,
               selected: selectedIndex.value == 0,
@@ -60,7 +60,7 @@ class JfxNavBarLeftFull extends StatelessWidget {
                 context.go(ScreenPaths.home);
               },
             ),
-            NavigationDrawerTile(
+            JfxNavBarLeftFullTile(
               icon: Icons.search_rounded,
               label: appLocalizations.search,
               selected: selectedIndex.value == 1,
@@ -74,7 +74,7 @@ class JfxNavBarLeftFull extends StatelessWidget {
                 context.go(ScreenPaths.search);
               },
             ),
-            NavigationDrawerTile(
+            JfxNavBarLeftFullTile(
               icon: Icons.file_download_outlined,
               label: appLocalizations.downloads,
               selected: selectedIndex.value == 2,
@@ -84,7 +84,7 @@ class JfxNavBarLeftFull extends StatelessWidget {
                 context.go(ScreenPaths.downloads);
               },
             ),
-            NavigationDrawerTile(
+            JfxNavBarLeftFullTile(
               icon: Icons.video_library_outlined,
               label: AppLocalizations.of(context)!.library,
               selected: selectedIndex.value == 3,
@@ -101,7 +101,7 @@ class JfxNavBarLeftFull extends StatelessWidget {
             const Expanded(
               child: SizedBox(),
             ),
-            NavigationDrawerTile(
+            JfxNavBarLeftFullTile(
               icon: Icons.person_rounded,
               label: appLocalizations.profile,
               selected: selectedIndex.value == 4,
