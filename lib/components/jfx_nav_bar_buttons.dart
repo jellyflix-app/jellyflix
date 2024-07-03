@@ -231,11 +231,13 @@ class JfxNavBarPopupMenuButtonLargeState
                       });
                     },
                     onOpened: () {
+                      widget.onOpened();
                       setState(() {
                         menuOpen = true;
                       });
                     },
                     onCanceled: () {
+                      widget.onCanceled();
                       setState(() {
                         menuOpen = false;
                       });
@@ -329,11 +331,13 @@ class JfxNavBarPopupMenuButtonSmallState
                       });
                     },
                     onOpened: () {
+                      widget.onOpened();
                       setState(() {
                         menuOpen = true;
                       });
                     },
                     onCanceled: () {
+                      widget.onSelected();
                       setState(() {
                         menuOpen = false;
                       });

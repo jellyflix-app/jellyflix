@@ -84,7 +84,6 @@ class JfxNavBarLeft extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var storedIndex = 1;
     return Container(
       decoration: BoxDecoration(
         // add elevation
@@ -164,13 +163,8 @@ class JfxNavBarLeft extends StatelessWidget {
               icon: Icons.video_library_outlined,
               label: 'More',
               selected: selectedIndex.value == 9,
-              onOpened: () async {
-                storedIndex = selectedIndex.value;
-                selectedIndex.value = 9;
-              },
-              onCanceled: () async {
-                selectedIndex.value = storedIndex;
-              },
+              onOpened: () {},
+              onCanceled: () {},
               onSelected: () async {
                 bool online = await showOfflineSnackbar(
                     context, ref.read(authStateProvider.notifier).state);
