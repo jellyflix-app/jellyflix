@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/models/auth_state.dart';
-import 'package:jellyflix/components/jfx_nav_bar/jfx_nav_bar.dart';
+import 'package:jellyflix/components/jfx_nav_bar.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
 import 'package:jellyflix/providers/connectivity_provider.dart';
