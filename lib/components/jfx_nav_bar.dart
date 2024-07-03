@@ -107,7 +107,7 @@ class JfxNavBarLeft extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            JfxNavBarTile(
+            JfxNavBarButtonSmall(
               icon: Icons.home_rounded,
               label: appLocalizations.home,
               selected: selectedIndex.value == 0,
@@ -121,7 +121,7 @@ class JfxNavBarLeft extends StatelessWidget {
                 context.go(ScreenPaths.home);
               },
             ),
-            JfxNavBarTile(
+            JfxNavBarButtonSmall(
               icon: Icons.search_rounded,
               label: appLocalizations.search,
               selected: selectedIndex.value == 1,
@@ -135,7 +135,7 @@ class JfxNavBarLeft extends StatelessWidget {
                 context.go(ScreenPaths.search);
               },
             ),
-            JfxNavBarTile(
+            JfxNavBarButtonSmall(
               icon: Icons.file_download_outlined,
               label: appLocalizations.downloads,
               selected: selectedIndex.value == 2,
@@ -145,7 +145,7 @@ class JfxNavBarLeft extends StatelessWidget {
                 context.go(ScreenPaths.downloads);
               },
             ),
-            JfxNavBarTile(
+            JfxNavBarButtonSmall(
               icon: Icons.video_library_outlined,
               label: AppLocalizations.of(context)!.library,
               selected: selectedIndex.value == 3,
