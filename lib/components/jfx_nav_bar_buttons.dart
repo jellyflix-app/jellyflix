@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class JfxNavBarTile extends StatelessWidget {
+class JfxNavBarButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final GestureTapCallback onTap;
   final bool selected;
-  const JfxNavBarTile({
+  const JfxNavBarButton({
     required this.onTap,
     required this.icon,
     required this.label,
@@ -19,18 +19,18 @@ class JfxNavBarTile extends StatelessWidget {
       return JfxNavBarButtonSmall(
           icon: icon, label: label, selected: selected, onTap: onTap);
     } else {
-      return JfxNavBarTileLarge(
+      return JfxNavBarButtonLarge(
           icon: icon, label: label, selected: selected, onTap: onTap);
     }
   }
 }
 
-class JfxNavBarTileLarge extends StatelessWidget {
+class JfxNavBarButtonLarge extends StatelessWidget {
   final IconData icon;
   final String label;
   final GestureTapCallback onTap;
   final bool selected;
-  const JfxNavBarTileLarge({
+  const JfxNavBarButtonLarge({
     required this.onTap,
     required this.icon,
     required this.label,
@@ -129,16 +129,16 @@ class JfxNavBarButtonSmall extends StatelessWidget {
   }
 }
 
-class JfxNavBarPopupMenuButton extends StatelessWidget {
+class JfxNavBarMenuButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final List<PopupMenuEntry<String>> items;
   final bool selected;
   final VoidCallback onOpened;
   final VoidCallback onCanceled;
-  final VoidCallback onSelected;
+  final Future Function(String)? onSelected;
 
-  const JfxNavBarPopupMenuButton(
+  const JfxNavBarMenuButton(
       {required this.icon,
       required this.label,
       required this.items,
@@ -151,7 +151,7 @@ class JfxNavBarPopupMenuButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (MediaQuery.of(context).size.width < 1100) {
-      return JfxNavBarPopupMenuButtonSmall(
+      return JfxNavBarMenuButtonSmall(
           icon: icon,
           label: label,
           items: items,
@@ -160,7 +160,7 @@ class JfxNavBarPopupMenuButton extends StatelessWidget {
           onCanceled: onCanceled,
           onSelected: onSelected);
     } else {
-      return JfxNavBarPopupMenuButtonLarge(
+      return JfxNavBarMenuButtonLarge(
           icon: icon,
           label: label,
           items: items,
@@ -172,139 +172,187 @@ class JfxNavBarPopupMenuButton extends StatelessWidget {
   }
 }
 
-class JfxNavBarPopupMenuButtonLarge extends StatefulWidget {
+class JfxNavBarMenuButtonLarge extends StatefulWidget {
+  final List<PopupMenuEntry<String>> items;
   final IconData icon;
   final String label;
-  final List<PopupMenuEntry<String>> items;
+  final Future Function(String)? onSelected;
+  final VoidCallback? onCanceled;
+  final VoidCallback? onOpened;
   final bool selected;
-  final VoidCallback onOpened;
-  final VoidCallback onCanceled;
-  final VoidCallback onSelected;
 
-  const JfxNavBarPopupMenuButtonLarge({
-    required this.icon,
-    required this.label,
+  const JfxNavBarMenuButtonLarge({
     required this.items,
+    required this.onSelected,
     required this.onOpened,
     required this.onCanceled,
-    required this.onSelected,
-    this.selected = false,
+    required this.icon,
+    required this.label,
     super.key,
+    this.selected = false,
   });
 
   @override
-  JfxNavBarPopupMenuButtonLargeState createState() =>
-      JfxNavBarPopupMenuButtonLargeState();
+  JfxNavBarMenuButtonLargeState createState() =>
+      JfxNavBarMenuButtonLargeState();
 }
 
-class JfxNavBarPopupMenuButtonLargeState
-    extends State<JfxNavBarPopupMenuButtonLarge> {
+class JfxNavBarMenuButtonLargeState extends State<JfxNavBarMenuButtonLarge> {
   bool menuOpen = false;
+
+  void showButtonMenu() {
+    const offset = Offset(200, 0);
+    final RenderBox button = context.findRenderObject()! as RenderBox;
+    final RenderBox overlay =
+        Navigator.of(context).overlay!.context.findRenderObject()! as RenderBox;
+    final RelativeRect position = RelativeRect.fromRect(
+      Rect.fromPoints(
+        button.localToGlobal(offset, ancestor: overlay),
+        button.localToGlobal(button.size.bottomRight(Offset.zero) + offset,
+            ancestor: overlay),
+      ),
+      Offset.zero & overlay.size,
+    );
+
+    if (widget.items.isNotEmpty) {
+      widget.onOpened?.call();
+      setState(() {
+        menuOpen = true;
+      });
+      showMenu<String?>(
+              context: context, items: widget.items, position: position)
+          .then<void>((String? newValue) {
+        setState(() {
+          menuOpen = false;
+        });
+        if (!mounted) {
+          return null;
+        }
+        if (newValue == null) {
+          widget.onCanceled?.call();
+          return null;
+        }
+        widget.onSelected?.call(newValue);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-        width: 200,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(15),
-            child: Material(
-              color: widget.selected || menuOpen
-                  ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
-                  : Colors.white.withOpacity(0.05),
-              child: InkWell(
-                onTap: () {},
-                overlayColor: WidgetStateProperty.all(
-                    Theme.of(context).colorScheme.primary.withOpacity(0.3)),
-                customBorder: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: TooltipVisibility(
-                  visible: false,
-                  child: PopupMenuButton<String>(
-                    onSelected: (value) {
-                      widget.onSelected();
-                      setState(() {
-                        menuOpen = false;
-                      });
-                    },
-                    onOpened: () {
-                      widget.onOpened();
-                      setState(() {
-                        menuOpen = true;
-                      });
-                    },
-                    onCanceled: () {
-                      widget.onCanceled();
-                      setState(() {
-                        menuOpen = false;
-                      });
-                    },
-                    itemBuilder: (BuildContext context) => widget.items,
-                    offset: const Offset(200, 0),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 15.0, vertical: 10.0),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.max,
-                        children: [
-                          Icon(widget.icon),
-                          const SizedBox(width: 15),
-                          Expanded(
-                            child: Text(
-                              widget.label,
-                              style: Theme.of(context).textTheme.bodyLarge,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                          ),
-                          const Icon(Icons.arrow_drop_down),
-                        ],
-                      ),
-                    ),
+      width: 200,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+        child: Material(
+          color: widget.selected
+              ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
+              : Colors.white.withOpacity(0.05),
+          borderRadius: BorderRadius.circular(15),
+          child: InkWell(
+            onTap: showButtonMenu,
+            overlayColor: WidgetStateProperty.all(
+                Theme.of(context).colorScheme.primary.withOpacity(0.3)),
+            customBorder: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: Padding(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 15.0, vertical: 10.0),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Icon(widget.icon),
+                  const SizedBox(
+                    width: 15,
                   ),
-                ),
+                  Expanded(
+                    child: Text(
+                      widget.label,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  )
+                ],
               ),
             ),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
 
-class JfxNavBarPopupMenuButtonSmall extends StatefulWidget {
+class JfxNavBarMenuButtonSmall extends StatefulWidget {
+  final List<PopupMenuEntry<String>> items;
   final IconData icon;
   final String label;
-  final List<PopupMenuEntry<String>> items;
+  final Future Function(String)? onSelected;
+  final VoidCallback? onCanceled;
+  final VoidCallback? onOpened;
   final bool selected;
-  final VoidCallback onOpened;
-  final VoidCallback onCanceled;
-  final VoidCallback onSelected;
 
-  const JfxNavBarPopupMenuButtonSmall({
-    required this.icon,
-    required this.label,
+  const JfxNavBarMenuButtonSmall({
     required this.items,
+    required this.onSelected,
     required this.onOpened,
     required this.onCanceled,
-    required this.onSelected,
-    this.selected = false,
+    required this.icon,
+    required this.label,
     super.key,
+    this.selected = false,
   });
 
   @override
-  JfxNavBarPopupMenuButtonSmallState createState() =>
-      JfxNavBarPopupMenuButtonSmallState();
+  JfxNavBarMenuButtonSmallState createState() =>
+      JfxNavBarMenuButtonSmallState();
 }
 
-class JfxNavBarPopupMenuButtonSmallState
-    extends State<JfxNavBarPopupMenuButtonSmall> {
+class JfxNavBarMenuButtonSmallState extends State<JfxNavBarMenuButtonSmall> {
   bool menuOpen = false;
+
+  void showButtonMenu() {
+    const offset = Offset(72, 0);
+    final RenderBox button = context.findRenderObject()! as RenderBox;
+    final RenderBox overlay =
+        Navigator.of(context).overlay!.context.findRenderObject()! as RenderBox;
+    final RelativeRect position = RelativeRect.fromRect(
+      Rect.fromPoints(
+        button.localToGlobal(offset, ancestor: overlay),
+        button.localToGlobal(button.size.bottomRight(Offset.zero) + offset,
+            ancestor: overlay),
+      ),
+      Offset.zero & overlay.size,
+    );
+
+    if (widget.items.isNotEmpty) {
+      widget.onOpened?.call();
+      setState(() {
+        menuOpen = true;
+      });
+      showMenu<String?>(
+              context: context, items: widget.items, position: position)
+          .then<void>((String? newValue) {
+        setState(() {
+          menuOpen = false;
+        });
+        if (!mounted) {
+          return null;
+        }
+        if (newValue == null) {
+          widget.onCanceled?.call();
+          return null;
+        }
+        widget.onSelected?.call(newValue);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
         width: 72,
+        height: 72,
         child: Padding(
           padding: const EdgeInsets.all(10),
           child: ClipRRect(
@@ -313,43 +361,16 @@ class JfxNavBarPopupMenuButtonSmallState
               color: widget.selected || menuOpen
                   ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
                   : Colors.white.withOpacity(0.05),
-              child: InkWell(
-                onTap: () {},
-                overlayColor: WidgetStateProperty.all(
-                    Theme.of(context).colorScheme.primary.withOpacity(0.3)),
-                customBorder: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-                child: TooltipVisibility(
-                  visible: false,
-                  child: PopupMenuButton<String>(
-                    onSelected: (value) {
-                      widget.onSelected();
-                      setState(() {
-                        menuOpen = false;
-                      });
-                    },
-                    onOpened: () {
-                      widget.onOpened();
-                      setState(() {
-                        menuOpen = true;
-                      });
-                    },
-                    onCanceled: () {
-                      widget.onSelected();
-                      setState(() {
-                        menuOpen = false;
-                      });
-                    },
-                    itemBuilder: (BuildContext context) => widget.items,
-                    offset: const Offset(72, 0),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 15.0, vertical: 10.0),
-                      child: Icon(widget.icon),
-                    ),
-                  ),
-                ),
+              child: IconButton(
+                onPressed: showButtonMenu,
+                icon: Icon(widget.icon),
+                style: ButtonStyle(
+                    overlayColor: WidgetStateProperty.all(
+                        Theme.of(context).colorScheme.primary.withOpacity(0.3)),
+                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                        RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(15),
+                    ))),
               ),
             ),
           ),

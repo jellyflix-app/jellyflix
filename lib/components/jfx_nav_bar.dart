@@ -107,7 +107,7 @@ class JfxNavBarLeft extends StatelessWidget {
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            JfxNavBarButtonSmall(
+            JfxNavBarButton(
               icon: Icons.home_rounded,
               label: appLocalizations.home,
               selected: selectedIndex.value == 0,
@@ -121,7 +121,7 @@ class JfxNavBarLeft extends StatelessWidget {
                 context.go(ScreenPaths.home);
               },
             ),
-            JfxNavBarButtonSmall(
+            JfxNavBarButton(
               icon: Icons.search_rounded,
               label: appLocalizations.search,
               selected: selectedIndex.value == 1,
@@ -135,7 +135,7 @@ class JfxNavBarLeft extends StatelessWidget {
                 context.go(ScreenPaths.search);
               },
             ),
-            JfxNavBarButtonSmall(
+            JfxNavBarButton(
               icon: Icons.file_download_outlined,
               label: appLocalizations.downloads,
               selected: selectedIndex.value == 2,
@@ -145,7 +145,7 @@ class JfxNavBarLeft extends StatelessWidget {
                 context.go(ScreenPaths.downloads);
               },
             ),
-            JfxNavBarButtonSmall(
+            JfxNavBarButton(
               icon: Icons.video_library_outlined,
               label: AppLocalizations.of(context)!.library,
               selected: selectedIndex.value == 3,
@@ -159,13 +159,13 @@ class JfxNavBarLeft extends StatelessWidget {
                 context.go(ScreenPaths.library);
               },
             ),
-            JfxNavBarPopupMenuButton(
+            JfxNavBarMenuButton(
               icon: Icons.video_library_outlined,
               label: 'More',
               selected: selectedIndex.value == 9,
               onOpened: () {},
               onCanceled: () {},
-              onSelected: () async {
+              onSelected: (_) async {
                 bool online = await showOfflineSnackbar(
                     context, ref.read(authStateProvider.notifier).state);
                 if (online) {
@@ -190,7 +190,7 @@ class JfxNavBarLeft extends StatelessWidget {
             const Expanded(
               child: SizedBox(),
             ),
-            JfxNavBarTile(
+            JfxNavBarButton(
               icon: Icons.person_rounded,
               label: appLocalizations.profile,
               selected: selectedIndex.value == 4,
