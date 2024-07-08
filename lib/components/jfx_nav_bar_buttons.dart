@@ -244,7 +244,7 @@ class JfxNavBarMenuButtonLargeState extends State<JfxNavBarMenuButtonLarge> {
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
         child: Material(
-          color: widget.selected
+          color: widget.selected || menuOpen
               ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
               : Colors.white.withOpacity(0.05),
           borderRadius: BorderRadius.circular(15),
