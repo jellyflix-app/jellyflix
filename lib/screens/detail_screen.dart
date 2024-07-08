@@ -60,7 +60,6 @@ class DetailScreen extends HookConsumerWidget {
 
     final layout = JfxLayout.scalingLayout(context);
     final featuredPosterHeight = layout.tileHeight * 1.3;
-    final featuredPosterWidth = layout.tileWidth * 1.3;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -149,14 +148,14 @@ class DetailScreen extends HookConsumerWidget {
                                         height:
                                             MediaQuery.of(context).padding.top,
                                       ),
-                                      JfxTile(
-                                        id: itemId,
-                                        blurHash: data
-                                            .imageBlurHashes?.primary?[itemId],
-                                        tileWidth: featuredPosterWidth,
-                                        tileHeight: featuredPosterHeight,
-                                        onTap: () => {},
-                                      ),
+                                      SizedBox(
+                                          height: featuredPosterHeight,
+                                          child: JfxTile(
+                                            id: itemId,
+                                            blurHash: data.imageBlurHashes
+                                                ?.primary?[itemId],
+                                            onTap: () => {},
+                                          )),
                                     ],
                                   ),
                                 ),
