@@ -5,7 +5,6 @@ import 'package:filter_list/filter_list.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jellyflix/components/jellyfin_image.dart';
 import 'package:jellyflix/components/jfx_layout.dart';
 import 'package:jellyflix/components/jfx_tile.dart';
 import 'package:jellyflix/models/screen_paths.dart';
