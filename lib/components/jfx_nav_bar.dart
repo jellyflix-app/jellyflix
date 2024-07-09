@@ -21,6 +21,78 @@ class JfxNavBar extends HookConsumerWidget {
             ? 2
             : 0);
 
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    AppLocalizations appLocalizations = AppLocalizations.of(context)!;
+
+    List<Widget> navButtons = [
+      JfxNavBarButton(
+        icon: Icons.home_rounded,
+        label: appLocalizations.home,
+        selected: selectedIndex.value == 0,
+        onTap: () async {
+          bool online = await showOfflineSnackbar(
+              context, ref.read(authStateProvider.notifier).state);
+          if (online) {
+            selectedIndex.value = 0;
+          }
+          if (!context.mounted) return;
+          context.go(ScreenPaths.home);
+        },
+      ),
+      JfxNavBarButton(
+        icon: Icons.search_rounded,
+        label: appLocalizations.search,
+        selected: selectedIndex.value == 1,
+        onTap: () async {
+          bool online = await showOfflineSnackbar(
+              context, ref.read(authStateProvider.notifier).state);
+          if (online) {
+            selectedIndex.value = 1;
+          }
+          if (!context.mounted) return;
+          context.go(ScreenPaths.search);
+        },
+      ),
+      JfxNavBarButton(
+        icon: Icons.file_download_outlined,
+        label: appLocalizations.downloads,
+        selected: selectedIndex.value == 2,
+        onTap: () async {
+          selectedIndex.value = 2;
+          if (!context.mounted) return;
+          context.go(ScreenPaths.downloads);
+        },
+      ),
+      JfxNavBarButton(
+        icon: Icons.video_library_outlined,
+        label: AppLocalizations.of(context)!.library,
+        selected: selectedIndex.value == 3,
+        onTap: () async {
+          bool online = await showOfflineSnackbar(
+              context, ref.read(authStateProvider.notifier).state);
+          if (online) {
+            selectedIndex.value = 3;
+          }
+          if (!context.mounted) return;
+          context.go(ScreenPaths.library);
+        },
+      ),
+      const Expanded(
+        child: SizedBox(),
+      ),
+      JfxNavBarButton(
+        icon: Icons.person_rounded,
+        label: appLocalizations.profile,
+        selected: selectedIndex.value == 4,
+        onTap: () async {
+          selectedIndex.value = 4;
+          if (!context.mounted) return;
+          context.go(ScreenPaths.profile);
+        },
+      ),
+    ];
+
     return Scaffold(
       body: Row(
         mainAxisSize: MainAxisSize.max,
@@ -28,8 +100,9 @@ class JfxNavBar extends HookConsumerWidget {
           // Show the navigaiton rail if screen width >= 640
           if (MediaQuery.of(context).size.width >= 640)
             JfxNavBarLeft(
+                items: navButtons,
                 selectedIndex: selectedIndex,
-                appLocalizations: AppLocalizations.of(context)!,
+                appLocalizations: appLocalizations,
                 ref: ref,
                 showOfflineSnackbar: showOfflineSnackbar),
           // Main content
@@ -38,10 +111,11 @@ class JfxNavBar extends HookConsumerWidget {
           Expanded(child: body),
         ],
       ),
-      bottomNavigationBar: MediaQuery.of(context).size.width < 640
+      bottomNavigationBar: screenWidth < 640
           ? JfxNavBarBottom(
+              items: navButtons,
               selectedIndex: selectedIndex,
-              appLocalizations: AppLocalizations.of(context)!,
+              appLocalizations: appLocalizations,
               ref: ref,
               showOfflineSnackbar: showOfflineSnackbar,
             )
@@ -73,6 +147,7 @@ class JfxNavBarLeft extends StatelessWidget {
   final AppLocalizations appLocalizations;
   final WidgetRef ref;
   final Future<bool> Function(BuildContext, AuthState) showOfflineSnackbar;
+  final List<Widget> items;
 
   const JfxNavBarLeft({
     super.key,
@@ -80,6 +155,7 @@ class JfxNavBarLeft extends StatelessWidget {
     required this.appLocalizations,
     required this.ref,
     required this.showOfflineSnackbar,
+    required this.items,
   });
 
   @override
@@ -106,101 +182,7 @@ class JfxNavBarLeft extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            JfxNavBarButton(
-              icon: Icons.home_rounded,
-              label: appLocalizations.home,
-              selected: selectedIndex.value == 0,
-              onTap: () async {
-                bool online = await showOfflineSnackbar(
-                    context, ref.read(authStateProvider.notifier).state);
-                if (online) {
-                  selectedIndex.value = 0;
-                }
-                if (!context.mounted) return;
-                context.go(ScreenPaths.home);
-              },
-            ),
-            JfxNavBarButton(
-              icon: Icons.search_rounded,
-              label: appLocalizations.search,
-              selected: selectedIndex.value == 1,
-              onTap: () async {
-                bool online = await showOfflineSnackbar(
-                    context, ref.read(authStateProvider.notifier).state);
-                if (online) {
-                  selectedIndex.value = 1;
-                }
-                if (!context.mounted) return;
-                context.go(ScreenPaths.search);
-              },
-            ),
-            JfxNavBarButton(
-              icon: Icons.file_download_outlined,
-              label: appLocalizations.downloads,
-              selected: selectedIndex.value == 2,
-              onTap: () async {
-                selectedIndex.value = 2;
-                if (!context.mounted) return;
-                context.go(ScreenPaths.downloads);
-              },
-            ),
-            JfxNavBarButton(
-              icon: Icons.video_library_outlined,
-              label: AppLocalizations.of(context)!.library,
-              selected: selectedIndex.value == 3,
-              onTap: () async {
-                bool online = await showOfflineSnackbar(
-                    context, ref.read(authStateProvider.notifier).state);
-                if (online) {
-                  selectedIndex.value = 3;
-                }
-                if (!context.mounted) return;
-                context.go(ScreenPaths.library);
-              },
-            ),
-            JfxNavBarMenuButton(
-              icon: Icons.video_library_outlined,
-              label: 'More',
-              selected: selectedIndex.value == 9,
-              onOpened: () {},
-              onCanceled: () {},
-              onSelected: (_) async {
-                bool online = await showOfflineSnackbar(
-                    context, ref.read(authStateProvider.notifier).state);
-                if (online) {
-                  selectedIndex.value = 9;
-                }
-              },
-              items: const [
-                PopupMenuItem<String>(
-                  value: 'hello',
-                  child: Text('Hello'),
-                ),
-                PopupMenuItem<String>(
-                  value: 'about',
-                  child: Text('About'),
-                ),
-                PopupMenuItem<String>(
-                  value: 'contact',
-                  child: Text('Contact'),
-                ),
-              ],
-            ),
-            const Expanded(
-              child: SizedBox(),
-            ),
-            JfxNavBarButton(
-              icon: Icons.person_rounded,
-              label: appLocalizations.profile,
-              selected: selectedIndex.value == 4,
-              onTap: () async {
-                selectedIndex.value = 4;
-                if (!context.mounted) return;
-                context.go(ScreenPaths.profile);
-              },
-            ),
-          ],
+          children: items,
         ),
       ),
     );
@@ -212,6 +194,7 @@ class JfxNavBarBottom extends StatelessWidget {
   final AppLocalizations appLocalizations;
   final WidgetRef ref;
   final Future<bool> Function(BuildContext, AuthState) showOfflineSnackbar;
+  final List<Widget> items;
 
   const JfxNavBarBottom({
     super.key,
@@ -219,75 +202,16 @@ class JfxNavBarBottom extends StatelessWidget {
     required this.appLocalizations,
     required this.ref,
     required this.showOfflineSnackbar,
+    required this.items,
   });
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-        currentIndex: selectedIndex.value,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Colors.black26,
-        unselectedItemColor: Colors.grey,
-        selectedItemColor: Theme.of(context).colorScheme.primary,
-        showUnselectedLabels: false,
-        // called when one tab is selected
-        onTap: (int index) async {
-          switch (index) {
-            case 0:
-              bool online = await showOfflineSnackbar(
-                  context, ref.read(authStateProvider.notifier).state);
-              if (online) {
-                selectedIndex.value = 0;
-              }
-              if (!context.mounted) return;
-              context.go(ScreenPaths.home);
-              break;
-            case 1:
-              bool online = await showOfflineSnackbar(
-                  context, ref.read(authStateProvider.notifier).state);
-              if (online) {
-                selectedIndex.value = 1;
-              }
-              if (!context.mounted) return;
-              context.go(ScreenPaths.search);
-              break;
-            case 2:
-              selectedIndex.value = 2;
-              context.go(ScreenPaths.downloads);
-              break;
-            case 3:
-              bool online = await showOfflineSnackbar(
-                  context, ref.read(authStateProvider.notifier).state);
-              if (online) {
-                selectedIndex.value = 3;
-              }
-              if (!context.mounted) return;
-              context.go(ScreenPaths.library);
-              break;
-            case 4:
-              selectedIndex.value = 4;
-              if (!context.mounted) return;
-              context.go(ScreenPaths.profile);
-              break;
-          }
-        },
-        // bottom tab items
-        items: [
-          BottomNavigationBarItem(
-              icon: const Icon(Icons.home_rounded),
-              label: AppLocalizations.of(context)!.home),
-          BottomNavigationBarItem(
-              icon: const Icon(Icons.search_rounded),
-              label: AppLocalizations.of(context)!.search),
-          BottomNavigationBarItem(
-              icon: const Icon(Icons.file_download_outlined),
-              label: AppLocalizations.of(context)!.downloads),
-          BottomNavigationBarItem(
-              icon: const Icon(Icons.video_library_outlined),
-              label: AppLocalizations.of(context)!.library),
-          BottomNavigationBarItem(
-              icon: const Icon(Icons.person_rounded),
-              label: AppLocalizations.of(context)!.profile)
-        ]);
+    return BottomAppBar(
+        child: Row(
+      mainAxisSize: MainAxisSize.max,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: items,
+    ));
   }
 }
