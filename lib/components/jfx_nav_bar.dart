@@ -207,11 +207,31 @@ class JfxNavBarBottom extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BottomAppBar(
+    return Container(
+      decoration: BoxDecoration(
+        // add elevation
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 5,
+            spreadRadius: 5,
+          )
+        ],
+        // right corners are rounded
+        borderRadius: const BorderRadius.only(
+          topRight: Radius.circular(10),
+          bottomLeft: Radius.circular(10),
+        ),
+        color: Colors.black26,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20.0),
         child: Row(
-      mainAxisSize: MainAxisSize.max,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: items,
-    ));
+          mainAxisSize: MainAxisSize.max,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: items,
+        ),
+      ),
+    );
   }
 }

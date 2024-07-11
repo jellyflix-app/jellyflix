@@ -101,31 +101,28 @@ class JfxNavBarButtonSmall extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-        width: 72,
-        height: 72,
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(15),
-            child: Material(
-              color: selected
-                  ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
-                  : Colors.white.withOpacity(0.05),
-              child: IconButton(
-                onPressed: onTap,
-                icon: Icon(icon),
-                style: ButtonStyle(
-                    overlayColor: WidgetStateProperty.all(
-                        Theme.of(context).colorScheme.primary.withOpacity(0.3)),
-                    shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-                        RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ))),
-              ),
-            ),
+    return Padding(
+      padding: const EdgeInsets.all(10),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15),
+        child: Material(
+          color: selected
+              ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
+              : Colors.white.withOpacity(0.05),
+          child: IconButton(
+            onPressed: onTap,
+            icon: Icon(icon),
+            style: ButtonStyle(
+                overlayColor: WidgetStateProperty.all(
+                    Theme.of(context).colorScheme.primary.withOpacity(0.3)),
+                shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+                    RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ))),
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
 
