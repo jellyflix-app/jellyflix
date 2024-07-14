@@ -43,7 +43,7 @@ class JfxNavBarButtonLarge extends StatelessWidget {
     return SizedBox(
       width: 200,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
+        padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 10.0),
         child: Material(
           color: selected
               ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
