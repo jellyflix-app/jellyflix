@@ -98,7 +98,7 @@ class _ItemCarouselState extends ConsumerState<ItemCarousel> {
                   padding: EdgeInsets.only(
                       right: widget.titleList.length == index
                           ? 0
-                          : layout.tileRightPadding),
+                          : layout.tilePadding),
                   child: SizedBox(
                     width: layout.tileWidth,
                     child: Column(
@@ -107,8 +107,6 @@ class _ItemCarouselState extends ConsumerState<ItemCarousel> {
                       children: [
                         JfxTile(
                             id: widget.imageList[index],
-                            tileHeight: layout.tileHeight,
-                            tileWidth: layout.tileWidth,
                             blurHash: widget.blurHashList == null
                                 ? null
                                 : widget.blurHashList![index],
