@@ -285,6 +285,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
                   seekBarThumbColor: Theme.of(context).colorScheme.primary,
                   seekBarThumbSize: 15,
                   seekBarHeight: 4,
+                  seekOnDoubleTap: true,
                   seekBarMargin:
                       const EdgeInsets.only(bottom: 15, left: 10, right: 10)),
               fullscreen: MaterialVideoControlsThemeData(
@@ -301,6 +302,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
                   seekBarThumbColor: Theme.of(context).colorScheme.primary,
                   seekBarThumbSize: 15,
                   seekBarHeight: 4,
+                  seekOnDoubleTap: true,
                   seekBarMargin:
                       const EdgeInsets.only(bottom: 15, left: 10, right: 10)),
               child: MaterialDesktopVideoControlsTheme(

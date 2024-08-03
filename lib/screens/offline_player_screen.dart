@@ -126,6 +126,7 @@ class _PlayerSreenState extends ConsumerState<OfflinePlayerScreen> {
                 seekBarThumbColor: Theme.of(context).colorScheme.primary,
                 seekBarThumbSize: 15,
                 seekBarHeight: 4,
+                seekOnDoubleTap: true,
                 seekBarMargin:
                     const EdgeInsets.only(bottom: 15, left: 10, right: 10),
                 bottomButtonBarMargin:
@@ -138,6 +139,7 @@ class _PlayerSreenState extends ConsumerState<OfflinePlayerScreen> {
                 seekBarThumbColor: Theme.of(context).colorScheme.primary,
                 seekBarThumbSize: 15,
                 seekBarHeight: 4,
+                seekOnDoubleTap: true,
                 seekBarMargin:
                     const EdgeInsets.only(bottom: 15, left: 10, right: 10),
                 bottomButtonBarMargin:
