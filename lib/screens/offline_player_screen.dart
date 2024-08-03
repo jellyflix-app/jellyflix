@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -182,7 +182,10 @@ class _PlayerSreenState extends ConsumerState<OfflinePlayerScreen> {
     return [
       const MaterialPlayOrPauseButton(),
       const MaterialDesktopVolumeButton(),
-      const MaterialPositionIndicator(),
+      const Directionality(
+        textDirection: TextDirection.ltr,
+        child: MaterialPositionIndicator(),
+      ),
       const Spacer(),
       const MaterialFullscreenButton(),
     ];
@@ -205,8 +208,8 @@ class _PlayerSreenState extends ConsumerState<OfflinePlayerScreen> {
       StreamBuilder(
         stream: player.stream.position,
         builder: (context, snapshot) {
-          return Text(AppLocalizations.of(context)!.ends(DateFormat("HH:mm")
-              .format(DateTime.now()
+          return Text(AppLocalizations.of(context)!.ends(
+              intl.DateFormat("HH:mm").format(DateTime.now()
                   .add(Duration(
                       minutes: player.state.duration.inMinutes -
                           player.state.position.inMinutes))

@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:tentacle/tentacle.dart';
@@ -360,7 +360,10 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
     return [
       const MaterialPlayOrPauseButton(),
       const MaterialDesktopVolumeButton(),
-      const MaterialPositionIndicator(),
+      const Directionality(
+        textDirection: TextDirection.ltr,
+        child: MaterialPositionIndicator(),
+      ),
       if (!playbackHelper.subtitleListIsEmpty())
         MaterialDesktopCustomButton(
           onPressed: () async {
@@ -568,8 +571,8 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
       StreamBuilder(
         stream: player.stream.position,
         builder: (context, snapshot) {
-          return Text(AppLocalizations.of(context)!.ends(DateFormat("HH:mm")
-              .format(DateTime.now()
+          return Text(AppLocalizations.of(context)!.ends(
+              intl.DateFormat("HH:mm").format(DateTime.now()
                   .add(Duration(
                       minutes: player.state.duration.inMinutes -
                           player.state.position.inMinutes))
