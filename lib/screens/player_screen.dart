@@ -273,36 +273,41 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
             // Use [Video] widget to display video output.
             child: MaterialVideoControlsTheme(
               normal: MaterialVideoControlsThemeData(
-                  topButtonBar: getTopButtonBarThemeData(context),
-                  bottomButtonBar: getBottomButtonBarThemeData(
-                      playbackHelper,
-                      subtitleEnabled,
-                      subtitleTrack,
-                      audioTrack,
-                      maxStreamingBitrate,
-                      context),
-                  seekBarPositionColor: Theme.of(context).colorScheme.onPrimary,
-                  seekBarThumbColor: Theme.of(context).colorScheme.primary,
-                  seekBarThumbSize: 15,
-                  seekBarHeight: 4,
-                  seekBarMargin:
-                      const EdgeInsets.only(bottom: 15, left: 10, right: 10)),
+                topButtonBar: getTopButtonBarThemeData(context),
+                bottomButtonBar: getBottomButtonBarThemeData(
+                    playbackHelper,
+                    subtitleEnabled,
+                    subtitleTrack,
+                    audioTrack,
+                    maxStreamingBitrate,
+                    context),
+                seekBarPositionColor: Theme.of(context).colorScheme.onPrimary,
+                seekBarThumbColor: Theme.of(context).colorScheme.primary,
+                seekBarThumbSize: 15,
+                seekBarHeight: 4,
+                seekBarMargin:
+                    const EdgeInsets.only(bottom: 25, left: 10, right: 10),
+                bottomButtonBarMargin:
+                    const EdgeInsets.only(bottom: 40, left: 10, right: 10),
+              ),
               fullscreen: MaterialVideoControlsThemeData(
-                  topButtonBar: getTopButtonBarThemeData(context),
-                  bottomButtonBar: getBottomButtonBarThemeData(
-                      playbackHelper,
-                      subtitleEnabled,
-                      subtitleTrack,
-                      audioTrack,
-                      maxStreamingBitrate,
-                      context),
-                  bottomButtonBarMargin: const EdgeInsets.only(bottom: 25),
-                  seekBarPositionColor: Theme.of(context).colorScheme.onPrimary,
-                  seekBarThumbColor: Theme.of(context).colorScheme.primary,
-                  seekBarThumbSize: 15,
-                  seekBarHeight: 4,
-                  seekBarMargin:
-                      const EdgeInsets.only(bottom: 15, left: 10, right: 10)),
+                topButtonBar: getTopButtonBarThemeData(context),
+                bottomButtonBar: getBottomButtonBarThemeData(
+                    playbackHelper,
+                    subtitleEnabled,
+                    subtitleTrack,
+                    audioTrack,
+                    maxStreamingBitrate,
+                    context),
+                bottomButtonBarMargin:
+                    const EdgeInsets.only(bottom: 40, left: 10, right: 10),
+                seekBarPositionColor: Theme.of(context).colorScheme.onPrimary,
+                seekBarThumbColor: Theme.of(context).colorScheme.primary,
+                seekBarThumbSize: 15,
+                seekBarHeight: 4,
+                seekBarMargin:
+                    const EdgeInsets.only(bottom: 25, left: 10, right: 10),
+              ),
               child: MaterialDesktopVideoControlsTheme(
                   normal: MaterialDesktopVideoControlsThemeData(
                     topButtonBar: getTopButtonBarThemeData(context),

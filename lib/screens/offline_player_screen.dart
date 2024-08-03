@@ -127,9 +127,9 @@ class _PlayerSreenState extends ConsumerState<OfflinePlayerScreen> {
                 seekBarThumbSize: 15,
                 seekBarHeight: 4,
                 seekBarMargin:
-                    const EdgeInsets.only(bottom: 15, left: 10, right: 10),
+                    const EdgeInsets.only(bottom: 25, left: 10, right: 10),
                 bottomButtonBarMargin:
-                    const EdgeInsets.only(bottom: 15, left: 10, right: 10),
+                    const EdgeInsets.only(bottom: 40, left: 10, right: 10),
               ),
               fullscreen: MaterialVideoControlsThemeData(
                 topButtonBar: getTopButtonBarThemeData(context),
@@ -139,9 +139,9 @@ class _PlayerSreenState extends ConsumerState<OfflinePlayerScreen> {
                 seekBarThumbSize: 15,
                 seekBarHeight: 4,
                 seekBarMargin:
-                    const EdgeInsets.only(bottom: 15, left: 10, right: 10),
+                    const EdgeInsets.only(bottom: 25, left: 10, right: 10),
                 bottomButtonBarMargin:
-                    const EdgeInsets.only(bottom: 15, left: 10, right: 10),
+                    const EdgeInsets.only(bottom: 40, left: 10, right: 10),
               ),
               child: MaterialDesktopVideoControlsTheme(
                   normal: MaterialDesktopVideoControlsThemeData(
