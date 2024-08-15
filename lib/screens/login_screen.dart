@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/models/user.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LoginScreen extends HookConsumerWidget {
   const LoginScreen({super.key});
@@ -38,6 +38,7 @@ class LoginScreen extends HookConsumerWidget {
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: TextField(
                     controller: serverAddress,
+                    textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
                         border: const OutlineInputBorder(),
                         labelText: AppLocalizations.of(context)!.serverAddress,
@@ -48,6 +49,7 @@ class LoginScreen extends HookConsumerWidget {
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: TextField(
                     controller: userName,
+                    textInputAction: TextInputAction.next,
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       labelText: AppLocalizations.of(context)!.username,
@@ -59,10 +61,20 @@ class LoginScreen extends HookConsumerWidget {
                   child: TextField(
                     obscureText: true,
                     controller: password,
+                    textInputAction: TextInputAction.done,
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       labelText: AppLocalizations.of(context)!.password,
                     ),
+                    onSubmitted: (_) async {
+                      await login(
+                        context,
+                        ref,
+                        userName: userName.text,
+                        password: password.text,
+                        serverAddress: serverAddress.text,
+                      );
+                    },
                   ),
                 ),
                 Padding(
@@ -72,19 +84,13 @@ class LoginScreen extends HookConsumerWidget {
                     width: 100,
                     child: FilledButton(
                       onPressed: () async {
-                        try {
-                          User user = User(
-                              name: userName.text,
-                              password: password.text,
-                              serverAdress: serverAddress.text);
-                          await ref.read(authProvider).login(user);
-                          if (context.mounted) {
-                            context.go(ScreenPaths.home);
-                          }
-                        } catch (e) {
-                          // TODO: show error message to user
-                          //print(e);
-                        }
+                        await login(
+                          context,
+                          ref,
+                          userName: userName.text,
+                          password: password.text,
+                          serverAddress: serverAddress.text,
+                        );
                       },
                       child: Text(AppLocalizations.of(context)!.login),
                     ),
@@ -99,5 +105,28 @@ class LoginScreen extends HookConsumerWidget {
         ),
       )),
     );
+  }
+
+  Future<void> login(
+    BuildContext context,
+    WidgetRef ref, {
+    required String userName,
+    required String password,
+    required String serverAddress,
+  }) async {
+    try {
+      User user = User(
+        name: userName,
+        password: password,
+        serverAdress: serverAddress,
+      );
+      await ref.read(authProvider).login(user);
+      if (context.mounted) {
+        context.go(ScreenPaths.home);
+      }
+    } catch (e) {
+      // TODO: show error message to user
+      //print(e);
+    }
   }
 }
