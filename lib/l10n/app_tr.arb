@@ -1,0 +1,185 @@
+{
+    "@@locale": "tr",
+
+    "continueWatching": "İzlemeye devam et",
+    "recentlyAddedMovies": "Son eklenen filmler",
+    "recentlyAddedShows": "Son eklenen diziler",
+    "yourWatchlist": "İzleme listem",
+    "top10inYourLibrary": "Top 10 in your Library",
+    "similarToWatchHistory": "İzlediklerize benzer",
+    "becauseYouWatched": "{title}'yi izlediğiniz için",
+    "@becausYouWatched": {
+        "placeholders": {
+          "title": {
+            "type": "String",
+            "example": "Forrest Gump"
+          }
+        }
+      },
+    "becauseYouLiked": "{title}'yi beğendiğiniz için",
+    "@becauseYouLiked": {
+        "placeholders": {
+          "title": {
+            "type": "String",
+            "example": "Forrest Gump"
+          }
+        }
+      },
+    "directedBy": "Yönetmen {director}",
+    "@directedBy": {
+        "placeholders": {
+          "director": {
+            "type": "String",
+            "example": "Robert Zemeckis"
+          }
+        }
+      },
+    "starring": "Başrolde {actor}",
+    "@starring": {
+        "placeholders": {
+          "actor": {
+            "type": "String",
+            "example": "Tom Hanks"
+          }
+        }
+      },
+    "recommendedForYou": "Sizin için tavsiye edilenler",
+    "play": "Oynat",
+    "moreInfo": "Detaylar",
+    "search": "Arama yap",
+    "startTypingSearch": "Ara yapmak için yazmaya başlayın",
+    "genre": "Tür",
+    "all": "Hepsi",
+    "filter": "Filtreler",
+    "none": "Yok",
+    "order": "Sıralama",
+    "ascending": "Yükselen",
+    "descending": "Azalan",
+    "sort": "Sırala",
+    "name": "Name",
+    "premiereDate": "Gala Tarihi",
+    "random": "Rastgele",
+    "unplayed": "İzlenmedi",
+    "played": "İzlendi",
+    "favorites": "Favoriler",
+    "liked": "Beğenildi",
+    "changeProfile": "Profili değiştir",
+    "logout": "Çıkış yap",
+    "about": "Hakkında",
+    "scanLibrary": "Kütüphaneyi tara",
+    "scanStarted": "Tarama başladı",
+    "quickConnect": "Hızlı bağlan",
+    "quickConnectDescription": "Cihazınızda gösterilen kodu girin",
+    "quickConnectError401": "Doğru sunucuya mı bağlanıyorsunuz?",
+    "quickConnectError404": "Geçersiz kod",
+    "quickConnectErrorUnknown": "Bir şeyler ters gitti",
+    "connect": "Bağlan",
+    "code": "Kod",
+    "writers": "Yazarlar",
+    "directors": "Yönetmenler",
+    "genres": "Türler",
+    "cast": "Ekip",
+    "episodes": "Bölümler",
+    "season": "Sezon",
+    "na": "N/A",
+    "addedToWatchlist": "İzleme listeme eklendi",
+    "removedFromWatchlist": "İzleme listemden silindi",
+    "noItemsFound": "Hiçbir eşleşme bulunamadı bulunamadı",
+    "noResultsFound": "Hiçbir sonuç bulunamadı",
+    "movies": "Filmler",
+    "series": "Diziler",
+    "collections": "Koleksiyonlar",
+    "addProfile": "Profil ekle",
+    "appSubtitle": "Başka bir Jellyfin istemcisi",
+    "serverAddress": "Sunucu adresi",
+    "login": "Giriş yap",
+    "username": "Kullanıcı adı",
+    "password": "Şifre",
+    "webDemoNote": "Bu Jellyflix'in bir demo sürümüdür. Kullanmak için aşağıdaki kimlik bilgilerini kullanabilirsiniz: \n\nSunucu Adresi: https://demo.jellyfin.org/stable \nKullanıcı Adı: demo \nboş şifre \n\n",
+    "quality": "Kalite",
+    "audio": "Ses",
+    "subtitles": "Alt yazı",
+    "settings": "Ayarlar",
+    "home": "Ana ekran",
+    "library": "Kütüphane",
+    "profile": "Hesabım",
+    "markAsPlayed": "İzlendi işaretle",
+    "markAsUnplayed": "İzlenmedi işaretle",
+    "couldNotOpenTrailer": "Fragman açılamadı",
+    "watchTrailer": "Fragmanı izle",
+    "showsMaybeMissed": "Kaçırmış olabileceğiniz diziler",
+    "moviesMaybeMissed": "Kaçırmış olabileceğiniz filmler",
+    "highesRatedMovies": "En Yüksek Puanlı Filmler",
+    "highestRatedShows": "En Yüksek Puanlı Programlar",
+    "top10": "En iyi {count}",
+    "@top10": {
+        "placeholders": {
+          "count": {
+            "type": "int",
+            "example": "10"
+          }
+        }
+      },
+    "minutes": "{count} dakika",  
+    "@minutes": {
+        "placeholders": {
+            "count": {
+              "type": "int",
+              "example": "50"
+            }
+          }
+    },
+    "similar": "Benzer",
+    "downloads": "İndirilenler",
+    "download": "İndir",
+    "noDownloads": "Herhangi bir indirme bulunamadı",
+    "resumeDownload": "İndirmeye devam et",
+    "deleteDownload": "İndirmeyi Sil",
+    "removedDownload": "İndirme kaldırıldı",
+    "startedDownload": "İndirme devam ettirildi",
+    "cancelDownload": "İndirmekten vazgeç",
+    "cancelAndRemoveAllDownloads": "Vazgeç ve hepsini kaldır",
+    "downloaded": "İndirildi",
+    "couldNotResumeDownload": "İndirmeye devam edilemiyor!",
+    "allDownloadsRemoved": "Bütün indirmeler kaldırıldı",
+    "cancel": "Vazgeç",
+    "save": "Kaydet",
+    "setAudioAndSubtitleLanguage": "Ses ve altyazı dilini ayarla",
+    "setLocalDownloadBitrate": "Ses ve altyazı dilini ayarla",
+    "maxDownloadBitrateText": "Yerel indirmeler için maksimum bit hızını ayarla.",
+    "downloadApproxFilesize": "1 saatlik oynatma yaklaşık {size}GB'a eşittir",
+    "@downloadApproxFilesize": {
+        "placeholders": {
+          "size": {
+            "type": "String",
+            "example": "1.5"
+          }
+        }
+      },
+    "resumedDownload": "İndirme devam ettirildi",
+    "canceledDownload": "İndirmeden vazgeçildi",
+    "details": "Detaylar",
+    "showMore": "Daha fazla",
+    "showLess": "Daha az göster",
+    "offlineNotice": "Çevrimdışısınız.",
+    "disableImageCaching": "Görsel önbelleğini kapat",
+    "restartApp": "Uygulamayı yeniden başlat",
+    "restartAppDescription": "Değişikliklerin etkili olması için lütfen uygulamayı yeniden başlatın.",
+    "ok": "Tamam",
+    "selectProfile": "Profil seçin",
+    "ends": "Bitiş saati {date}",
+    "@ends": {
+        "placeholders": {
+          "date": {
+            "type": "String",
+            "example": "21:30"
+          }
+        }
+      },
+    "disableWatchlist": "İzleme Listesini Devre Dışı Bırak",
+    "deletePlaylistNotice": "Veri kaybını önlemek için, artık gerekmiyorsa lütfen çalma listesini sunucudan silin.",
+    "info": "Bilgi",
+    "showPrimaryForEpisodes": "İzlemeye Devam Et'te dizi posteri yerine birincil görüntüyü göster",
+    "appName": "Jellyflix"
+    
+}
