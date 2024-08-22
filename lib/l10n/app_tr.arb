@@ -7,7 +7,7 @@
     "yourWatchlist": "İzleme listem",
     "top10inYourLibrary": "Top 10 in your Library",
     "similarToWatchHistory": "İzlediklerize benzer",
-    "becauseYouWatched": "{title}'yi izlediğiniz için",
+    "becauseYouWatched": "{title} adlı yapımı izlediğiniz için",
     "@becausYouWatched": {
         "placeholders": {
           "title": {
@@ -16,7 +16,7 @@
           }
         }
       },
-    "becauseYouLiked": "{title}'yi beğendiğiniz için",
+    "becauseYouLiked": "{title} adlı yapımı beğendiğiniz için",
     "@becauseYouLiked": {
         "placeholders": {
           "title": {
@@ -47,7 +47,7 @@
     "play": "Oynat",
     "moreInfo": "Detaylar",
     "search": "Arama yap",
-    "startTypingSearch": "Ara yapmak için yazmaya başlayın",
+    "startTypingSearch": "Arama yapmak için yazmaya başlayın",
     "genre": "Tür",
     "all": "Hepsi",
     "filter": "Filtreler",
@@ -57,7 +57,7 @@
     "descending": "Azalan",
     "sort": "Sırala",
     "name": "Name",
-    "premiereDate": "Gala Tarihi",
+    "premiereDate": "Çıkış Tarihi",
     "random": "Rastgele",
     "unplayed": "İzlenmedi",
     "played": "İzlendi",
@@ -90,7 +90,7 @@
     "series": "Diziler",
     "collections": "Koleksiyonlar",
     "addProfile": "Profil ekle",
-    "appSubtitle": "Başka bir Jellyfin istemcisi",
+    "appSubtitle": "Bir başka Jellyfin istemcisi",
     "serverAddress": "Sunucu adresi",
     "login": "Giriş yap",
     "username": "Kullanıcı adı",
