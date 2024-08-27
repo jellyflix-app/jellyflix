@@ -10,6 +10,7 @@ class AuthService {
   final DatabaseService _databaseService;
 
   final StreamController<bool> _authStateStream = StreamController();
+
   Stream<bool> get authStateChange => _authStateStream.stream;
 
   Future<bool> get isAuthenticated => _authStateStream.stream.last;
@@ -60,7 +61,8 @@ class AuthService {
           user.serverAdress!, user.name!, user.password!);
     } catch (e) {
       if (user.serverAdress!.split(":").last != "8096" &&
-          user.serverAdress!.split(":").length == 2) {
+          user.serverAdress!.split(":").length == 2 &&
+          user.serverAdress!.split(":").first == 'http') {
         user.serverAdress = "${user.serverAdress}:8096";
         user = await _apiService.login(
             user.serverAdress!, user.name!, user.password!);
