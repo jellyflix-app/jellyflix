@@ -42,7 +42,7 @@ class LoginScreen extends HookConsumerWidget {
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       labelText: AppLocalizations.of(context)!.serverAddress,
-                      hintText: 'host',
+                      hintText: 'http://',
                     ),
                   ),
                 ),
