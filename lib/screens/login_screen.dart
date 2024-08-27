@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/models/user.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class LoginScreen extends HookConsumerWidget {
   const LoginScreen({super.key});
@@ -16,6 +16,7 @@ class LoginScreen extends HookConsumerWidget {
     final userName = useTextEditingController();
     final password = useTextEditingController();
     final serverAddress = useTextEditingController();
+
     return Scaffold(
       appBar: AppBar(),
       body: Center(
@@ -39,9 +40,10 @@ class LoginScreen extends HookConsumerWidget {
                   child: TextField(
                     controller: serverAddress,
                     decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        labelText: AppLocalizations.of(context)!.serverAddress,
-                        hintText: 'http://'),
+                      border: const OutlineInputBorder(),
+                      labelText: AppLocalizations.of(context)!.serverAddress,
+                      hintText: 'host',
+                    ),
                   ),
                 ),
                 Padding(
@@ -73,17 +75,33 @@ class LoginScreen extends HookConsumerWidget {
                     child: FilledButton(
                       onPressed: () async {
                         try {
+                          if (userName.text.isEmpty ||
+                              password.text.isEmpty ||
+                              serverAddress.text.isEmpty) {
+                            await showInfoDialog(
+                              context,
+                              const Text('Missing information'),
+                            );
+                            return;
+                          }
+
                           User user = User(
-                              name: userName.text,
-                              password: password.text,
-                              serverAdress: serverAddress.text);
+                            name: userName.text,
+                            password: password.text,
+                            serverAdress: serverAddress.text,
+                          );
                           await ref.read(authProvider).login(user);
                           if (context.mounted) {
                             context.go(ScreenPaths.home);
                           }
                         } catch (e) {
-                          // TODO: show error message to user
-                          //print(e);
+                          if (!context.mounted) return;
+                          await showInfoDialog(
+                            context,
+                            const Text('Error connecting to server'),
+                            content: Text(e.toString()),
+                          );
+                          return;
                         }
                       },
                       child: Text(AppLocalizations.of(context)!.login),
@@ -98,6 +116,28 @@ class LoginScreen extends HookConsumerWidget {
           ),
         ),
       )),
+    );
+  }
+
+  Future<void> showInfoDialog(
+    BuildContext context,
+    Widget title, {
+    Widget? content,
+  }) async {
+    await showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: title,
+        content: content,
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text('Ok'),
+          )
+        ],
+      ),
     );
   }
 }
