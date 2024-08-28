@@ -1,6 +1,5 @@
 {
     "@@locale": "en",
-
     "continueWatching": "Continue Watching",
     "recentlyAddedMovies": "Recently Added Movies",
     "recentlyAddedShows": "Recently Added Shows",
@@ -95,6 +94,11 @@
     "login": "Login",
     "username": "Username",
     "password": "Password",
+    "emptyAddress": "Empty Server Address",
+    "emptyUsername": "Empty Username",
+    "emptyPassword": "Empty Password",
+    "emptyFields": "Please fill out the following fields",
+    "errorConnectingToServer": "Error connecting to server",
     "webDemoNote": "This is a demo version of Jellyflix. To use it, you can use the following credentials: \n\nServer Address: https://demo.jellyfin.org/stable \nUser Name: demo \nand empty password \n\n",
     "quality": "Quality",
     "audio": "Audio",
@@ -120,7 +124,7 @@
           }
         }
       },
-    "minutes": "{count} min",  
+    "minutes": "{count} min",
     "@minutes": {
         "placeholders": {
             "count": {
@@ -181,5 +185,5 @@
     "info": "Info",
     "showPrimaryForEpisodes": "Show primary image instead of series poster in Continue Watching",
     "appName": "Jellyflix"
-    
+
 }
