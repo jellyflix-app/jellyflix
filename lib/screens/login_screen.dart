@@ -39,6 +39,7 @@ class LoginScreen extends HookConsumerWidget {
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: TextField(
                     controller: serverAddress,
+                    autofillHints: const [AutofillHints.url],
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       labelText: AppLocalizations.of(context)!.serverAddress,
@@ -49,6 +50,7 @@ class LoginScreen extends HookConsumerWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 10.0),
                   child: TextField(
+                    autofillHints: const [AutofillHints.username],
                     controller: userName,
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
@@ -61,6 +63,7 @@ class LoginScreen extends HookConsumerWidget {
                   child: TextField(
                     obscureText: true,
                     controller: password,
+                    autofillHints: const [AutofillHints.password],
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       labelText: AppLocalizations.of(context)!.password,
