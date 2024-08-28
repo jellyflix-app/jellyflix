@@ -78,12 +78,23 @@ class LoginScreen extends HookConsumerWidget {
                     child: FilledButton(
                       onPressed: () async {
                         try {
-                          if (userName.text.isEmpty ||
-                              password.text.isEmpty ||
-                              serverAddress.text.isEmpty) {
+                          var missingFields = '';
+                          if (userName.text.isEmpty) {
+                            missingFields += 'Empty username\n\n';
+                          }
+                          if (password.text.isEmpty) {
+                            missingFields += 'Empty password\n\n';
+                          }
+                          if (serverAddress.text.isEmpty) {
+                            missingFields += 'Empty address\n\n';
+                          }
+
+                          if (missingFields.isNotEmpty) {
                             await showInfoDialog(
                               context,
-                              const Text('Missing information'),
+                              const Text(
+                                  'Please fill out the following fields'),
+                              content: Text(missingFields),
                             );
                             return;
                           }
