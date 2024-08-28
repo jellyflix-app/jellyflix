@@ -80,20 +80,24 @@ class LoginScreen extends HookConsumerWidget {
                         try {
                           var missingFields = '';
                           if (userName.text.isEmpty) {
-                            missingFields += 'Empty username\n\n';
+                            missingFields +=
+                                '${AppLocalizations.of(context)!.emptyUsername}\n\n';
                           }
                           if (password.text.isEmpty) {
-                            missingFields += 'Empty password\n\n';
+                            missingFields +=
+                                '${AppLocalizations.of(context)!.emptyPassword}\n\n';
                           }
                           if (serverAddress.text.isEmpty) {
-                            missingFields += 'Empty address\n\n';
+                            missingFields +=
+                                '${AppLocalizations.of(context)!.emptyAddress}\n\n';
                           }
 
                           if (missingFields.isNotEmpty) {
                             await showInfoDialog(
                               context,
-                              const Text(
-                                  'Please fill out the following fields'),
+                              Text(
+                                AppLocalizations.of(context)!.emptyFields,
+                              ),
                               content: Text(missingFields),
                             );
                             return;
@@ -112,7 +116,8 @@ class LoginScreen extends HookConsumerWidget {
                           if (!context.mounted) return;
                           await showInfoDialog(
                             context,
-                            const Text('Error connecting to server'),
+                            Text(AppLocalizations.of(context)!
+                                .errorConnectingToServer),
                             content: Text(e.toString()),
                           );
                           return;
