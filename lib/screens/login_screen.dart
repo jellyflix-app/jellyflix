@@ -26,114 +26,118 @@ class LoginScreen extends HookConsumerWidget {
           width: 400,
           child: Padding(
             padding: const EdgeInsets.all(20.0),
-            child: Column(
-              children: [
-                Text(AppLocalizations.of(context)!.appName,
-                    style: Theme.of(context).textTheme.displaySmall),
-                Text(
-                  AppLocalizations.of(context)!.appSubtitle,
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: TextField(
-                    controller: serverAddress,
-                    decoration: InputDecoration(
-                      border: const OutlineInputBorder(),
-                      labelText: AppLocalizations.of(context)!.serverAddress,
-                      hintText: 'http://',
+            child: AutofillGroup(
+              child: Column(
+                children: [
+                  Text(AppLocalizations.of(context)!.appName,
+                      style: Theme.of(context).textTheme.displaySmall),
+                  Text(
+                    AppLocalizations.of(context)!.appSubtitle,
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    child: TextField(
+                      controller: serverAddress,
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        labelText: AppLocalizations.of(context)!.serverAddress,
+                        hintText: 'http://',
+                      ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: TextField(
-                    controller: userName,
-                    decoration: InputDecoration(
-                      border: const OutlineInputBorder(),
-                      labelText: AppLocalizations.of(context)!.username,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    child: TextField(
+                      controller: userName,
+                      autofillHints: const [AutofillHints.username],
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        labelText: AppLocalizations.of(context)!.username,
+                      ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: TextField(
-                    obscureText: true,
-                    controller: password,
-                    decoration: InputDecoration(
-                      border: const OutlineInputBorder(),
-                      labelText: AppLocalizations.of(context)!.password,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    child: TextField(
+                      obscureText: true,
+                      autofillHints: const [AutofillHints.password],
+                      controller: password,
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(),
+                        labelText: AppLocalizations.of(context)!.password,
+                      ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  child: SizedBox(
-                    height: 45,
-                    width: 100,
-                    child: FilledButton(
-                      onPressed: () async {
-                        try {
-                          final missingFields = formatMissingFields(
-                            context,
-                            userName.text,
-                            password.text,
-                            serverAddress.text,
-                          );
-                          if (missingFields.isNotEmpty) {
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    child: SizedBox(
+                      height: 45,
+                      width: 100,
+                      child: FilledButton(
+                        onPressed: () async {
+                          try {
+                            final missingFields = formatMissingFields(
+                              context,
+                              userName.text,
+                              password.text,
+                              serverAddress.text,
+                            );
+                            if (missingFields.isNotEmpty) {
+                              await showInfoDialog(
+                                context,
+                                Text(
+                                  AppLocalizations.of(context)!.emptyFields,
+                                ),
+                                content: Text(missingFields),
+                              );
+                              return;
+                            }
+
+                            User user = User(
+                              name: userName.text,
+                              password: password.text,
+                              serverAdress: serverAddress.text,
+                            );
+                            await ref.read(authProvider).login(user);
+                            if (context.mounted) {
+                              context.go(ScreenPaths.home);
+                            }
+                          } on DioException catch (e) {
+                            if (!context.mounted) return;
                             await showInfoDialog(
                               context,
                               Text(
-                                AppLocalizations.of(context)!.emptyFields,
+                                AppLocalizations.of(context)!
+                                    .errorConnectingToServer,
                               ),
-                              content: Text(missingFields),
+                              content: e.response?.statusCode == null
+                                  ? Text(e.toString())
+                                  : Text(formatHttpErrorCode(e.response)),
+                            );
+                            return;
+                          } catch (e) {
+                            if (!context.mounted) return;
+                            await showInfoDialog(
+                              context,
+                              Text(AppLocalizations.of(context)!
+                                  .errorConnectingToServer),
+                              content: Text(e.toString()),
                             );
                             return;
                           }
-
-                          User user = User(
-                            name: userName.text,
-                            password: password.text,
-                            serverAdress: serverAddress.text,
-                          );
-                          await ref.read(authProvider).login(user);
-                          if (context.mounted) {
-                            context.go(ScreenPaths.home);
-                          }
-                        } on DioException catch (e) {
-                          if (!context.mounted) return;
-                          await showInfoDialog(
-                            context,
-                            Text(
-                              AppLocalizations.of(context)!
-                                  .errorConnectingToServer,
-                            ),
-                            content: e.response?.statusCode == null
-                                ? Text(e.toString())
-                                : Text(formatHttpErrorCode(e.response)),
-                          );
-                          return;
-                        } catch (e) {
-                          if (!context.mounted) return;
-                          await showInfoDialog(
-                            context,
-                            Text(AppLocalizations.of(context)!
-                                .errorConnectingToServer),
-                            content: Text(e.toString()),
-                          );
-                          return;
-                        }
-                      },
-                      child: Text(AppLocalizations.of(context)!.login),
+                        },
+                        child: Text(AppLocalizations.of(context)!.login),
+                      ),
                     ),
                   ),
-                ),
-                kIsWeb
-                    ? Text(AppLocalizations.of(context)!.webDemoNote)
-                    : const SizedBox(),
-              ],
+                  kIsWeb
+                      ? Text(AppLocalizations.of(context)!.webDemoNote)
+                      : const SizedBox(),
+                ],
+              ),
             ),
           ),
         ),
