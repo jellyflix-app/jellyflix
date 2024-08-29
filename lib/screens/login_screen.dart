@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -13,9 +14,9 @@ class LoginScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userName = useTextEditingController();
-    final password = useTextEditingController();
-    final serverAddress = useTextEditingController();
+    final userName = useTextEditingController(text: 'r334');
+    final password = useTextEditingController(text: 'lkashdfkljsdf');
+    final serverAddress = useTextEditingController(text: 'jelly.dumbapps.org');
 
     return Scaffold(
       appBar: AppBar(),
@@ -112,12 +113,27 @@ class LoginScreen extends HookConsumerWidget {
                           if (context.mounted) {
                             context.go(ScreenPaths.home);
                           }
+                        } on DioException catch (e) {
+                          if (!context.mounted) return;
+                          await showInfoDialog(
+                            context,
+                            Text(
+                              AppLocalizations.of(context)!
+                                  .errorConnectingToServer,
+                            ),
+                            content: e.response?.statusCode == null
+                                ? Text(e.toString())
+                                : Text(formatHttpErrorCode(e.response)),
+                          );
+                          return;
                         } catch (e) {
                           if (!context.mounted) return;
                           await showInfoDialog(
                             context,
-                            Text(AppLocalizations.of(context)!
-                                .errorConnectingToServer),
+                            Text(
+                              AppLocalizations.of(context)!
+                                  .errorConnectingToServer,
+                            ),
                             content: Text(e.toString()),
                           );
                           return;
@@ -158,5 +174,26 @@ class LoginScreen extends HookConsumerWidget {
         ],
       ),
     );
+  }
+
+  String formatHttpErrorCode(Response? resp) {
+    var message = '';
+    switch (resp!.statusCode) {
+      case 400:
+        message =
+            'Something went wrong while making the request, this is probably a issue within Jellyflix, please open a github issue';
+      case 401:
+        message = 'Your username or password may be incorrect';
+      case 403:
+        message =
+            'The Server has probably banned this IP, please contact your admin to resolve this issue';
+      default:
+        message = '';
+    }
+
+    return '$message\n\n'
+            'Http Code: ${resp.statusCode ?? 'Unknown'}\n\n'
+            'Http Response: ${resp.statusMessage ?? 'Unknown'}\n\n'
+        .trim();
   }
 }
