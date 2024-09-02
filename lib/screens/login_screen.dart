@@ -19,15 +19,17 @@ class LoginScreen extends HookConsumerWidget {
     final password = useTextEditingController();
     final serverAddress = useTextEditingController();
 
+    final loadingListenable = useValueNotifier<bool>(false);
+
     return Scaffold(
       appBar: AppBar(),
       body: CallbackShortcuts(
         bindings: <ShortcutActivator, VoidCallback>{
           const SingleActivator(LogicalKeyboardKey.enter): () async {
-            print('pressing enter');
             await login(
               context,
               ref,
+              loadingListenable,
               username: userName.text,
               serverAddress: serverAddress.text,
               password: password.text,
@@ -51,9 +53,7 @@ class LoginScreen extends HookConsumerWidget {
                         Text(
                           AppLocalizations.of(context)!.appSubtitle,
                         ),
-                        const SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10.0),
                           child: TextField(
@@ -95,16 +95,26 @@ class LoginScreen extends HookConsumerWidget {
                           child: SizedBox(
                             height: 45,
                             width: 100,
-                            child: FilledButton(
-                              onPressed: () async => await login(
-                                context,
-                                ref,
-                                username: userName.text,
-                                serverAddress: serverAddress.text,
-                                password: password.text,
-                              ),
-                              child: Text(AppLocalizations.of(context)!.login),
-                            ),
+                            child: ValueListenableBuilder(
+                                valueListenable: loadingListenable,
+                                builder: (context, isLoading, _) {
+                                  return isLoading
+                                      ? const Center(
+                                          child: CircularProgressIndicator())
+                                      : FilledButton(
+                                          onPressed: () async => await login(
+                                            context,
+                                            ref,
+                                            loadingListenable,
+                                            username: userName.text,
+                                            serverAddress: serverAddress.text,
+                                            password: password.text,
+                                          ),
+                                          child: Text(
+                                            AppLocalizations.of(context)!.login,
+                                          ),
+                                        );
+                                }),
                           ),
                         ),
                         kIsWeb
@@ -124,11 +134,13 @@ class LoginScreen extends HookConsumerWidget {
 
   Future<void> login(
     BuildContext context,
-    WidgetRef ref, {
+    WidgetRef ref,
+    ValueNotifier<bool> loadingListenable, {
     required String serverAddress,
     required String username,
     required String password,
   }) async {
+    loadingListenable.value = true;
     try {
       final missingFields = formatMissingFields(
         context,
@@ -137,6 +149,7 @@ class LoginScreen extends HookConsumerWidget {
         serverAddress,
       );
       if (missingFields.isNotEmpty) {
+        loadingListenable.value = false;
         await showInfoDialog(
           context,
           Text(
@@ -144,6 +157,7 @@ class LoginScreen extends HookConsumerWidget {
           ),
           content: Text(missingFields),
         );
+
         return;
       }
 
@@ -153,11 +167,13 @@ class LoginScreen extends HookConsumerWidget {
         serverAdress: serverAddress,
       );
       await ref.read(authProvider).login(user);
+      loadingListenable.value = false;
       if (context.mounted) {
         context.go(ScreenPaths.home);
       }
     } on DioException catch (e) {
       if (!context.mounted) return;
+      loadingListenable.value = false;
       await showInfoDialog(
         context,
         Text(
@@ -170,6 +186,7 @@ class LoginScreen extends HookConsumerWidget {
       return;
     } catch (e) {
       if (!context.mounted) return;
+      loadingListenable.value = false;
       await showInfoDialog(
         context,
         Text(AppLocalizations.of(context)!.errorConnectingToServer),
@@ -177,6 +194,7 @@ class LoginScreen extends HookConsumerWidget {
       );
       return;
     }
+    loadingListenable.value = false;
   }
 
   Future<void> showInfoDialog(
