@@ -145,7 +145,6 @@ class LoginScreen extends HookConsumerWidget {
       final missingFields = formatMissingFields(
         context,
         username,
-        password,
         serverAddress,
       );
       if (missingFields.isNotEmpty) {
@@ -229,14 +228,14 @@ class LoginScreen extends HookConsumerWidget {
     );
   }
 
-  String formatMissingFields(BuildContext context, String username,
-      String password, String serverAddress) {
+  String formatMissingFields(
+    BuildContext context,
+    String username,
+    String serverAddress,
+  ) {
     var missingFields = '';
     if (username.isEmpty) {
       missingFields += '${AppLocalizations.of(context)!.emptyUsername}\n\n';
-    }
-    if (password.isEmpty) {
-      missingFields += '${AppLocalizations.of(context)!.emptyPassword}\n\n';
     }
     if (serverAddress.isEmpty) {
       missingFields += '${AppLocalizations.of(context)!.emptyAddress}\n\n';
@@ -246,16 +245,17 @@ class LoginScreen extends HookConsumerWidget {
   }
 
   String formatHttpErrorCode(Response? resp) {
+    // todo PLACEHOLDER MESSAGES NOT FINAL
     var message = '';
     switch (resp!.statusCode) {
       case 400:
         message =
-            'Something went wrong while making the request, this is probably a issue within Jellyflix, please open a github issue';
+            'The server could not understand the request, if you are using proxies check the configuration, if the issue still persists let us know';
       case 401:
         message = 'Your username or password may be incorrect';
       case 403:
         message =
-            'The Server has probably banned this IP, please contact your admin to resolve this issue';
+            'The server is blocking request from this device, this probably means the device has been banned, please contact your admin to resolve this issue';
       default:
         message = '';
     }
