@@ -4,6 +4,10 @@ import 'package:jellyflix/models/user.dart';
 import 'package:jellyflix/services/api_service.dart';
 import 'package:jellyflix/services/database_service.dart';
 
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+
 class AuthService {
   final ApiService _apiService;
 
@@ -52,30 +56,35 @@ class AuthService {
   }
 
   Future<User> login(User user) async {
-    if (!user.serverAdress!.startsWith("http://") &&
-        !user.serverAdress!.startsWith("https://")) {
-      user.serverAdress = "http://${user.serverAdress}";
-    }
-    try {
-      user = await _apiService.login(
-          user.serverAdress!, user.name!, user.password!);
-    } catch (e) {
-      if (user.serverAdress!.split(":").last != "8096" &&
-          user.serverAdress!.split(":").length == 2 &&
-          user.serverAdress!.split(":").first == 'http') {
-        user.serverAdress = "${user.serverAdress}:8096";
-        user = await _apiService.login(
-            user.serverAdress!, user.name!, user.password!);
-      } else {
-        rethrow;
-      }
-    }
+    final url = await inferServerUrl(user.serverAdress!);
+    if (url == null) throw Exception('No valid server found on the given url');
+
+    user = await _apiService.login(
+      url,
+      user.name!,
+      user.password!,
+    );
+
     _databaseService.put(user.id! + user.serverAdress!, user);
     _databaseService.put("currentProfileId", user.id! + user.serverAdress!);
 
     _authStateStream.add(true);
     return user;
   }
+
+  /// infer the server URL based on the provided incomplete URL.
+  Future<String?> inferServerUrl(String url) async {
+    final candidates = generateUrlCandidates(url);
+    for (final url in candidates) {
+      if (await _isValidJellyfinServer(url)) {
+        return url;
+      }
+    }
+    return null;
+  }
+
+  Future<bool> _isValidJellyfinServer(String url) async =>
+      await _apiService.ping(user: User(serverAdress: url)) ?? false;
 
   void updateCurrentProfileId(String? profileId) async {
     if (profileId == null) {
@@ -133,4 +142,76 @@ class AuthService {
 
     return await _apiService.ping(user: user);
   }
+}
+
+
+/// Function to generate URL candidates based on the input URL.
+List<String> generateUrlCandidates(String input) {
+  if (input.endsWith('/')) {
+    input = input.substring(0, input.length - 1);
+  }
+
+  final result = parseUrl(input);
+  if (result == null) return [];
+
+  final (scheme, host, port, path) = result;
+
+  List<String> protoCandidates = [];
+  List<String> supportedProtos = ['https:', 'http:'];
+
+  if (scheme.isNotEmpty) {
+    protoCandidates.add('$scheme//$host');
+  } else {
+    // The user did not declare a protocol
+    for (String proto in supportedProtos) {
+      protoCandidates.add('$proto//$host');
+    }
+  }
+
+  List<String> finalCandidates = [];
+  if (port.isNotEmpty) {
+    for (String candidate in protoCandidates) {
+      finalCandidates.add('$candidate:$port$path');
+    }
+  } else {
+    // The port wasn't declared, so use default Jellyfin and protocol ports
+    for (final finalUrl in protoCandidates) {
+      // add url without port
+      finalCandidates.add('$finalUrl$path');
+      // Jellyfin defaults
+      if (finalUrl.startsWith('https')) {
+        finalCandidates.add('$finalUrl:8920$path');
+      } else if (finalUrl.startsWith('http')) {
+        finalCandidates.add('$finalUrl:8096$path');
+      }
+    }
+  }
+
+  return finalCandidates;
+}
+
+
+/// parse url and separate it into its components
+/// if you are wondering why we don't use Uri.tryParse() it cannot parse ipv4 or ipv6 addresses
+(String, String, String, String)? parseUrl(String input) {
+  if (!(input.startsWith('http://') || input.startsWith('https://'))) {
+    // fill in a empty protocol, so regex matches
+    input = 'none://$input';
+  }
+
+  final rgx = RegExp(r'^(.*:)//([A-Za-z0-9\-.]+)(:[0-9]+)?(.*)$');
+  final match = rgx.firstMatch(input);
+
+  if (match != null) {
+    var scheme = match.group(1) ?? ''; // add back the //
+    final body = match.group(2) ?? '';
+    final port = match.group(3)?.substring(1) ?? ''; // Remove leading colon
+    final path = match.group(4) ?? '';
+
+    if (scheme == 'none:') {
+      scheme = '';
+    }
+    return (scheme, body, port, path);
+  }
+  return null;
 }
