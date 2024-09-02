@@ -4,10 +4,6 @@ import 'package:jellyflix/models/user.dart';
 import 'package:jellyflix/services/api_service.dart';
 import 'package:jellyflix/services/database_service.dart';
 
-import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-
 class AuthService {
   final ApiService _apiService;
 
@@ -203,7 +199,7 @@ List<String> generateUrlCandidates(String input) {
   final match = rgx.firstMatch(input);
 
   if (match != null) {
-    var scheme = match.group(1) ?? ''; // add back the //
+    var scheme = match.group(1) ?? '';
     final body = match.group(2) ?? '';
     final port = match.group(3)?.substring(1) ?? ''; // Remove leading colon
     final path = match.group(4) ?? '';
