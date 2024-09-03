@@ -87,6 +87,7 @@ class AuthService {
     _authStateStream.add(false);
   }
 
+  /// [profileId] is a combination of userid and server url
   Future<void> logoutAndDeleteProfile({String? profileId}) async {
     await logout();
     profileId ??= currentProfileid();
