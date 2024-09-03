@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
 
 class ProfileCard extends ConsumerWidget {
