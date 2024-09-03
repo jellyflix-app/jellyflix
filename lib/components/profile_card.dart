@@ -1,29 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/models/screen_paths.dart';
+import 'package:jellyflix/providers/auth_provider.dart';
 
-class ProfileCard extends StatelessWidget {
+class ProfileCard extends ConsumerWidget {
   final String title;
   final String subtitle;
   final Widget image;
   final VoidCallback? onTap;
+  final bool showDelButton;
+  final String id;
+
   const ProfileCard({
     super.key,
     required this.title,
     required this.subtitle,
     required this.image,
+    this.showDelButton = false,
+    this.id = '',
     this.onTap,
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       width: 150,
-      height: 200,
+      height: 220,
       decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(10)),
+        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
+      ),
       child: InkWell(
-        customBorder:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        customBorder: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
         onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
@@ -42,6 +53,21 @@ class ProfileCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   maxLines: 2,
                 ),
+                if (showDelButton)
+                  IconButton(
+                    icon: const Icon(Icons.delete),
+                    tooltip: 'Delete profile',
+                    onPressed: id.isEmpty
+                        ? null
+                        : () async {
+                            await ref.read(authProvider).logoutAndDeleteProfile(
+                                profileId: '$id$subtitle');
+
+                            if (context.mounted) {
+                              ref.invalidate(allProfilesProvider);
+                            }
+                          },
+                  )
               ],
             ),
           ),
