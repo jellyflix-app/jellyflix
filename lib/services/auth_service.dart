@@ -52,8 +52,12 @@ class AuthService {
   }
 
   Future<User> login(User user) async {
-    final url = await inferServerUrl(user.serverAdress!);
-    if (url == null) throw Exception('No valid server found on the given url');
+    final (url, candidates) = await inferServerUrl(user.serverAdress!);
+    if (url == null) {
+      throw Exception('No valid server found on the given url\n'
+          '\nTried the following urls:\n'
+          '${candidates.join('\n-------------\n')}');
+    }
 
     user = await _apiService.login(
       url,
@@ -69,14 +73,14 @@ class AuthService {
   }
 
   /// infer the server URL based on the provided incomplete URL.
-  Future<String?> inferServerUrl(String url) async {
+  Future<(String?, List<String>)> inferServerUrl(String url) async {
     final candidates = generateUrlCandidates(url);
     for (final url in candidates) {
       if (await _isValidJellyfinServer(url)) {
-        return url;
+        return (url, <String>[]);
       }
     }
-    return null;
+    return (null, candidates);
   }
 
   Future<bool> _isValidJellyfinServer(String url) async =>
@@ -140,7 +144,6 @@ class AuthService {
   }
 }
 
-
 /// Function to generate URL candidates based on the input URL.
 List<String> generateUrlCandidates(String input) {
   if (input.endsWith('/')) {
@@ -185,7 +188,6 @@ List<String> generateUrlCandidates(String input) {
 
   return finalCandidates;
 }
-
 
 /// parse url and separate it into its components
 /// if you are wondering why we don't use Uri.tryParse() it cannot parse ipv4 or ipv6 addresses
