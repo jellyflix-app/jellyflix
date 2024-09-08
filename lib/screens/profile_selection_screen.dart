@@ -13,67 +13,76 @@ class ProfileSelectionScreen extends HookConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-        appBar:
-            AppBar(title: Text(AppLocalizations.of(context)!.selectProfile)),
-        body: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30.0),
-          child: FutureBuilder(
-            future: ref.read(authProvider).getAllProfiles(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 750),
-                    child: Wrap(
-                      spacing: 20,
-                      runSpacing: 20,
-                      alignment: WrapAlignment.start,
-                      children:
-                          List.generate(snapshot.data!.length + 1, (index) {
-                        if (index == snapshot.data!.length) {
-                          return ProfileCard(
-                            title: AppLocalizations.of(context)!.addProfile,
-                            subtitle: "",
-                            image: const Icon(
-                              Icons.add,
-                              size: 50,
-                            ),
-                            onTap: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => const LoginScreen()));
-                            },
-                          );
-                        }
+    final allProfiles = ref.watch(allProfilesProvider);
 
-                        return ProfileCard(
-                            title: snapshot.data![index].name!,
-                            subtitle: snapshot.data![index].serverAdress!,
-                            image: SizedBox(
-                              width: 100,
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(100),
-                                child:
-                                    ProfileImage(user: snapshot.data![index]),
-                              ),
-                            ),
-                            onTap: () {
-                              ref.read(authProvider).logout();
-                              ref.read(authProvider).updateCurrentProfileId(
-                                  snapshot.data![index].id! +
-                                      snapshot.data![index].serverAdress!);
-                              context.push(ScreenPaths.loading);
-                            });
-                      }),
+    return Scaffold(
+      appBar: AppBar(title: Text(AppLocalizations.of(context)!.selectProfile)),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 30.0),
+        child: allProfiles.when(
+          data: (data) => Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 750),
+              child: Wrap(
+                spacing: 20,
+                runSpacing: 20,
+                alignment: WrapAlignment.start,
+                children: List.generate(data.length + 1, (index) {
+                  if (index == data.length) {
+                    return ProfileCard(
+                      title: AppLocalizations.of(context)!.addProfile,
+                      subtitle: "",
+                      image: const Icon(
+                        Icons.add,
+                        size: 50,
+                      ),
+                      onTap: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => const LoginScreen()));
+                      },
+                    );
+                  }
+
+                  return ProfileCard(
+                    title: data[index].name!,
+                    subtitle: data[index].serverAdress!,
+                    id: data[index].id!,
+                    image: SizedBox(
+                      width: 100,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(100),
+                        child: ProfileImage(user: data[index]),
+                      ),
                     ),
-                  ),
-                );
-              }
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            },
+                    showDelButton: true,
+                    onTap: () {
+                      ref.read(authProvider).logout();
+                      ref.read(authProvider).updateCurrentProfileId(
+                          data[index].id! + data[index].serverAdress!);
+                      context.push(ScreenPaths.loading);
+                    },
+                  );
+                }),
+              ),
+            ),
           ),
-        ));
+          error: (error, stackTrace) => Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text(
+                'Error fetching profiles',
+                style: Theme.of(context).textTheme.bodyLarge,
+              ),
+              Text(error.toString()),
+              IconButton(
+                onPressed: () => ref.invalidate(allProfilesProvider),
+                icon: const Icon(Icons.refresh),
+              )
+            ],
+          ),
+          loading: () => const CircularProgressIndicator(),
+        ),
+      ),
+    );
   }
 }
