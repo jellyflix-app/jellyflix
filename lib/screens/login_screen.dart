@@ -280,10 +280,11 @@ class UrlFieldInput extends ConsumerWidget {
         final result = savedAddress.valueOrNull
             ?.where((element) => element.serverAdress!
                 .toLowerCase()
-                .contains(textEditingValue.text))
+                .contains(textEditingValue.text.toLowerCase()))
             .map((e) => e.serverAdress!);
         return result == null || result.isEmpty
             ? ['http://', 'https://']
+                .where((e) => e.contains(textEditingValue.text.toLowerCase()))
             : result;
       },
       onSelected: (option) => serverAddress.text = option,
