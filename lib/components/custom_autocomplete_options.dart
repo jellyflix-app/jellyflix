@@ -27,6 +27,7 @@ class CustomAutocompleteOptions<T extends Object> extends StatelessWidget {
       OptionsViewOpenDirection.up => AlignmentDirectional.bottomStart,
       OptionsViewOpenDirection.down => AlignmentDirectional.topStart,
     };
+    // taken from flutter\lib\src\material\autocomplete.dart and slightly modified
     return Align(
       alignment: optionsAlignment,
       child: Material(
