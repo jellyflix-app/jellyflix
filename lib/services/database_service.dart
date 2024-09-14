@@ -22,7 +22,7 @@ class DatabaseService {
   DatabaseService._internal(this.boxName, this.secureStorage);
 
   static Future<void> initialize() async {
-    await Hive.initFlutter();
+    await Hive.initFlutter("jellyflix");
     Hive.registerAdapter(UserAdapter());
     await DatabaseService('auth', SecureStorageService()).openBox();
     await DatabaseService('settings', SecureStorageService()).openBox();

@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' as intl;
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:tentacle/tentacle.dart';
@@ -140,7 +140,26 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
               );
         });
 
-        player.stream.error.listen((error) => throw Exception(error));
+        player.stream.error.listen((error) {
+          showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: const Text("An error occured"),
+                  content: Text(
+                      "There was an error while loading the stream: $error"),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        context.pop();
+                      },
+                      child: const Text("OK"),
+                    ),
+                  ],
+                );
+              });
+          throw Exception(error);
+        });
         player.stream.completed.listen((completed) async {
           if (completed) {
             await ref.read(apiProvider).reportStopPlayback(
@@ -266,6 +285,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
                   seekBarThumbColor: Theme.of(context).colorScheme.primary,
                   seekBarThumbSize: 15,
                   seekBarHeight: 4,
+                  seekOnDoubleTap: true,
                   seekBarMargin:
                       const EdgeInsets.only(bottom: 15, left: 10, right: 10)),
               fullscreen: MaterialVideoControlsThemeData(
@@ -282,6 +302,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
                   seekBarThumbColor: Theme.of(context).colorScheme.primary,
                   seekBarThumbSize: 15,
                   seekBarHeight: 4,
+                  seekOnDoubleTap: true,
                   seekBarMargin:
                       const EdgeInsets.only(bottom: 15, left: 10, right: 10)),
               child: MaterialDesktopVideoControlsTheme(
@@ -341,7 +362,10 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
     return [
       const MaterialPlayOrPauseButton(),
       const MaterialDesktopVolumeButton(),
-      const MaterialPositionIndicator(),
+      const Directionality(
+        textDirection: TextDirection.ltr,
+        child: MaterialPositionIndicator(),
+      ),
       if (!playbackHelper.subtitleListIsEmpty())
         MaterialDesktopCustomButton(
           onPressed: () async {
@@ -549,8 +573,8 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
       StreamBuilder(
         stream: player.stream.position,
         builder: (context, snapshot) {
-          return Text(AppLocalizations.of(context)!.ends(DateFormat("HH:mm")
-              .format(DateTime.now()
+          return Text(AppLocalizations.of(context)!.ends(
+              intl.DateFormat("HH:mm").format(DateTime.now()
                   .add(Duration(
                       minutes: player.state.duration.inMinutes -
                           player.state.position.inMinutes))

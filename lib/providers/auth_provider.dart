@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/models/auth_state.dart';
+import 'package:jellyflix/models/user.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:jellyflix/providers/database_provider.dart';
 import 'package:jellyflix/services/auth_service.dart';
@@ -45,3 +46,8 @@ final updateServerReachableProvider =
 final authStateStreamControllerProvider =
     StateProvider<StreamController<AuthState>>(
         (ref) => StreamController<AuthState>.broadcast());
+
+final allProfilesProvider =
+    FutureProvider.autoDispose<List<User>>((ref) async {
+  return ref.read(authProvider).getAllProfiles();
+});

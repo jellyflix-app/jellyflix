@@ -5,7 +5,8 @@ import 'package:filter_list/filter_list.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jellyflix/components/jellyfin_image.dart';
+import 'package:jellyflix/components/jfx_layout.dart';
+import 'package:jellyflix/components/jfx_tile.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/models/skeleton_item.dart';
 import 'package:jellyflix/providers/api_provider.dart';
@@ -60,6 +61,9 @@ class LibraryScreen extends HookConsumerWidget {
             element.toString().split(".").last.toLowerCase() ==
             sortOrderParam!.toLowerCase()));
     int page = int.parse(pageNumberParam ?? "0");
+
+    final layout = JfxLayout.scalingLayout(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.library),
@@ -202,11 +206,14 @@ class LibraryScreen extends HookConsumerWidget {
                           child: GridView.builder(
                             padding: const EdgeInsets.only(bottom: 50.0),
                             gridDelegate:
-                                const SliverGridDelegateWithMaxCrossAxisExtent(
-                                    maxCrossAxisExtent: 125,
-                                    mainAxisExtent: 250,
-                                    crossAxisSpacing: 10,
-                                    mainAxisSpacing: 10),
+                                SliverGridDelegateWithMaxCrossAxisExtent(
+                                    maxCrossAxisExtent:
+                                        layout.tileWidth + (layout.tilePadding),
+                                    mainAxisExtent: layout.tileHeight +
+                                        (layout.text.bodyMedium!.fontSize! *
+                                            3.5),
+                                    crossAxisSpacing: layout.tilePadding,
+                                    mainAxisSpacing: layout.tilePadding),
                             itemCount: itemsList.length,
                             itemBuilder: (context, index) {
                               return Column(
@@ -214,61 +221,25 @@ class LibraryScreen extends HookConsumerWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  AspectRatio(
-                                    aspectRatio: 2 / 3,
-                                    child: Stack(
-                                      children: [
-                                        Positioned.fill(
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                              boxShadow: [
-                                                BoxShadow(
-                                                  color: Colors.black
-                                                      .withOpacity(0.5),
-                                                  spreadRadius: 2,
-                                                  blurRadius: 5,
-                                                  offset: const Offset(0, 3),
-                                                ),
-                                              ],
-                                            ),
-                                            child: JellyfinImage(
-                                              id: itemsList[index].id!,
-                                              type: ImageType.primary,
-                                              blurHash: itemsList[index]
-                                                  .imageBlurHashes
-                                                  ?.primary
-                                                  ?.values
-                                                  .first,
-                                              cacheHeight: 300,
-                                            ),
-                                          ),
-                                        ),
-                                        Positioned.fill(
-                                          child: Material(
-                                            color: Colors.transparent,
-                                            child: InkWell(
-                                              borderRadius:
-                                                  BorderRadius.circular(10.0),
-                                              onTap: () {
-                                                context.push(Uri(
-                                                    path: ScreenPaths.detail,
-                                                    queryParameters: {
-                                                      "id":
-                                                          itemsList[index].id!,
-                                                    }).toString());
-                                              },
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
+                                  JfxTile(
+                                      id: itemsList[index].id!,
+                                      onTap: () {
+                                        context.push(Uri(
+                                            path: ScreenPaths.detail,
+                                            queryParameters: {
+                                              "id": itemsList[index].id!,
+                                            }).toString());
+                                      },
+                                      blurHash: itemsList[index]
+                                          .imageBlurHashes
+                                          ?.primary
+                                          ?.values
+                                          .first),
                                   const SizedBox(height: 5.0),
                                   Flexible(
                                     child: Text(
                                       itemsList[index].name!,
+                                      style: layout.text.bodyMedium,
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                     ),
@@ -278,7 +249,7 @@ class LibraryScreen extends HookConsumerWidget {
                                       itemsList[index]
                                           .productionYear
                                           .toString(),
-                                      style: const TextStyle(fontSize: 10),
+                                      style: layout.text.bodyMedium,
                                     ),
                                   ),
                                 ],

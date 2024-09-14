@@ -7,10 +7,10 @@ class JfxLayout {
   final double tileHeight;
   final TextTheme text;
   final ColorScheme color;
-  final double tileRightPadding;
+  final double tilePadding;
 
   JfxLayout._(this.buttonHeight, this.tileWidth, this.tileHeight, this.text,
-      this.color, this.tileRightPadding);
+      this.color, this.tilePadding);
 
   static JfxLayout scalingLayout(BuildContext context) {
     double viewportWidth = MediaQuery.of(context).size.width;
@@ -24,12 +24,12 @@ class JfxLayout {
       tileWidth = 100;
     }
     double tileHeight = (tileWidth * 3 / 2).roundToDouble();
-    double tileRightPadding = (scaleBaseline * 0.012).roundToDouble();
+    double tilePadding = (scaleBaseline * 0.012).roundToDouble();
     TextTheme text = JfxTextTheme.scalingTheme(context);
     ColorScheme color = Theme.of(context).colorScheme;
 
     // Remove context from the constructor call
     return JfxLayout._(
-        buttonHeight, tileWidth, tileHeight, text, color, tileRightPadding);
+        buttonHeight, tileWidth, tileHeight, text, color, tilePadding);
   }
 }
