@@ -51,7 +51,7 @@ class UrlFieldInput extends ConsumerWidget {
                 .where((e) => e.contains(textEditingValue.text.toLowerCase()))
             : result;
 
-        ref.read(optionsListProvider.notifier).overwriteList(options);
+        ref.watch(optionsListProvider.notifier).overwriteList(options);
         ref.invalidate(selectedOptionProvider);
 
         return options;
