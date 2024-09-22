@@ -17,6 +17,7 @@ class UrlFieldInput extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final savedAddress = ref.read(allProfilesProvider);
+
     // Needed to get width of the URL text field
     // so we can assign that to the autocomplete width
     final urlTextFieldKey = GlobalKey();
@@ -43,15 +44,18 @@ class UrlFieldInput extends ConsumerWidget {
                 .toLowerCase()
                 .contains(textEditingValue.text.toLowerCase()))
             .map((e) => e.serverAdress!);
+
         final options = result == null || result.isEmpty
             ? ['http://', 'https://']
                 .where((e) => e.contains(textEditingValue.text.toLowerCase()))
             : result;
+
         ref.read(optionsListProvider.notifier).overwriteList(options);
         ref.invalidate(selectedOptionProvider);
+
         return options;
       },
-      // onSelected: (option) => serverAddress.text = option,
+      onSelected: (option) => serverAddress.text = option,
       optionsViewOpenDirection: OptionsViewOpenDirection.down,
       fieldViewBuilder: (context, controller, focusNode, _) {
         return TextField(
