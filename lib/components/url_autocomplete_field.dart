@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -6,6 +7,7 @@ import 'package:jellyflix/models/user.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:jellyflix/providers/url_autocomplete_provider.dart';
+import 'package:media_kit_video/media_kit_video_controls/src/controls/methods/video_state.dart';
 
 // Courtesy of sevenrats for the shortcuts
 
@@ -85,7 +87,7 @@ class UrlFieldInput extends ConsumerWidget {
           onSelected: onSelected,
           options: options,
           openDirection: OptionsViewOpenDirection.down,
-          maxOptionsHeight: 100,
+          maxOptionsHeight: 150,
           maxOptionsWidth: renderBox?.size.width ?? 300,
         );
       },
@@ -103,24 +105,24 @@ class UrlFieldInput extends ConsumerWidget {
     // sometimes the optionsListProvider remains empty even after options are built
     // I don't understand why it happens, cannot recreate it and is pretty much random,
     // so its wrapped in a try catch
+    final currentOptions = ref.read(optionsListProvider);
     try {
-      final currentOptions = ref.read(optionsListProvider);
-      final user = savedAddress.valueOrNull?.firstWhere(
-        (element) =>
-            element.serverAdress!.startsWith(currentOptions[selectedInd]),
-      );
+      final option = currentOptions[selectedInd];
 
-      if (user != null) {
-        controller.text = user.serverAdress!;
-        // Move the cursor to the end of the text
-        controller.selection = TextSelection.fromPosition(
-          TextPosition(offset: controller.text.length),
-        );
-      }
+      controller.text = option;
+      // Move the cursor to the end of the text
+      controller.selection = TextSelection.fromPosition(
+        TextPosition(offset: controller.text.length),
+      );
     } catch (e) {
-      print('Option list accessed a element out of bounds');
-      print(e);
+      if (kDebugMode) {
+        print('Option list accessed a element out of bounds');
+        print('The following are the available options');
+        print(currentOptions);
+        print('Index that was accessed');
+        print(selectedInd);
+        print(e);
+      }
     }
   }
 }
-
