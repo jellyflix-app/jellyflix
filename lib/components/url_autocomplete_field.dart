@@ -7,7 +7,6 @@ import 'package:jellyflix/models/user.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:jellyflix/providers/url_autocomplete_provider.dart';
-import 'package:media_kit_video/media_kit_video_controls/src/controls/methods/video_state.dart';
 
 // Courtesy of sevenrats for the shortcuts
 
@@ -45,7 +44,7 @@ class UrlFieldInput extends ConsumerWidget {
             ?.where((element) => element.serverAdress!
                 .toLowerCase()
                 .contains(textEditingValue.text.toLowerCase()))
-            .map((e) => e.serverAdress!);
+            .map((e) => e.serverAdress!).toSet(); // remove duplicates
 
         final options = result == null || result.isEmpty
             ? ['http://', 'https://']
