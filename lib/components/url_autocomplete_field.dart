@@ -41,14 +41,20 @@ class UrlFieldInput extends ConsumerWidget {
       textEditingController: serverAddress,
       optionsBuilder: (TextEditingValue textEditingValue) {
         final result = savedAddress.valueOrNull
-            ?.where((element) => element.serverAdress!
-                .toLowerCase()
-                .contains(textEditingValue.text.toLowerCase()))
-            .map((e) => e.serverAdress!).toSet(); // remove duplicates
+            ?.where(
+              (element) =>
+                  element.serverAdress!
+                      .toLowerCase()
+                      .contains(textEditingValue.text.toLowerCase()) &&
+                  element.serverAdress! != textEditingValue.text.toLowerCase(),
+            )
+            .map((e) => e.serverAdress!)
+            .toSet(); // remove duplicates
 
         final options = result == null || result.isEmpty
-            ? ['http://', 'https://']
-                .where((e) => e.contains(textEditingValue.text.toLowerCase()))
+            ? ['http://', 'https://'].where((e) =>
+                e.contains(textEditingValue.text.toLowerCase()) &&
+                e != textEditingValue.text.toLowerCase())
             : result;
 
         ref.watch(optionsListProvider.notifier).overwriteList(options);
