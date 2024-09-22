@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -66,7 +68,21 @@ class CustomAutocompleteOptions<T extends Object> extends ConsumerWidget {
                   return Container(
                     color: highlight ? Theme.of(context).focusColor : null,
                     padding: const EdgeInsets.all(16.0),
-                    child: Text(displayStringForOption(option)),
+                    child: highlight
+                        ? Platform.isAndroid ||
+                                Platform
+                                    .isIOS // do not show shortcut hint on mobile platforms
+                            ? Text(displayStringForOption(option))
+                            : Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(displayStringForOption(option)),
+                                  const SizedBox(width: 20),
+                                  const Text('Enter to fill')
+                                ],
+                              )
+                        : Text(displayStringForOption(option)),
                   );
                 }),
               );
