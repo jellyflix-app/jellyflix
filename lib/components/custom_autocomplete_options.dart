@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:jellyflix/providers/url_autocomplete_provider.dart';
 
-class CustomAutocompleteOptions<T extends Object> extends StatelessWidget {
+class CustomAutocompleteOptions<T extends Object> extends ConsumerWidget {
   const CustomAutocompleteOptions({
     super.key,
     required this.displayStringForOption,
@@ -22,7 +24,7 @@ class CustomAutocompleteOptions<T extends Object> extends StatelessWidget {
   final double maxOptionsWidth;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final AlignmentDirectional optionsAlignment = switch (openDirection) {
       OptionsViewOpenDirection.up => AlignmentDirectional.bottomStart,
       OptionsViewOpenDirection.down => AlignmentDirectional.topStart,
@@ -51,6 +53,11 @@ class CustomAutocompleteOptions<T extends Object> extends StatelessWidget {
                   final bool highlight =
                       AutocompleteHighlightedOption.of(context) == index;
                   if (highlight) {
+                    // wrapped in a future to update the options after building
+                    Future(
+                      () => ref.read(selectedOptionProvider.notifier).state =
+                          index,
+                    );
                     SchedulerBinding.instance.addPostFrameCallback(
                         (Duration timeStamp) {
                       Scrollable.ensureVisible(context, alignment: 0.5);
