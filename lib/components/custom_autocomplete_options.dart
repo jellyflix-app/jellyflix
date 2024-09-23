@@ -58,30 +58,27 @@ class CustomAutocompleteOptions<T extends Object> extends ConsumerWidget {
                     // wrapped in a future to update the options after building
                     Future(
                       () => ref.read(selectedOptionProvider.notifier).state =
-                          index,
+                          option as String,
                     );
                     SchedulerBinding.instance.addPostFrameCallback(
                         (Duration timeStamp) {
                       Scrollable.ensureVisible(context, alignment: 0.5);
                     }, debugLabel: 'AutocompleteOptions.ensureVisible');
                   }
+
                   return Container(
                     color: highlight ? Theme.of(context).focusColor : null,
                     padding: const EdgeInsets.all(16.0),
-                    child: highlight
-                        ? Platform.isAndroid ||
-                                Platform
-                                    .isIOS // do not show shortcut hint on mobile platforms
-                            ? Text(displayStringForOption(option))
-                            : Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(displayStringForOption(option)),
-                                  const SizedBox(width: 20),
-                                  const Text('Enter to fill')
-                                ],
-                              )
+                    // do not show shortcut hint on mobile platforms
+                    child: highlight && !(Platform.isAndroid || Platform.isIOS)
+                        ? Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(displayStringForOption(option)),
+                              const SizedBox(width: 20),
+                              const Text('Enter to fill')
+                            ],
+                          )
                         : Text(displayStringForOption(option)),
                   );
                 }),

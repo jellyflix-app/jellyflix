@@ -1,9 +1,7 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/custom_autocomplete_options.dart';
-import 'package:jellyflix/models/user.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:jellyflix/providers/url_autocomplete_provider.dart';
@@ -30,7 +28,7 @@ class UrlFieldInput extends ConsumerWidget {
     focusNode.onKeyEvent = (FocusNode node, KeyEvent event) {
       if (event is KeyDownEvent &&
           event.logicalKey == LogicalKeyboardKey.enter) {
-        _selectAutocompleteOption(focusNode, serverAddress, savedAddress, ref);
+        serverAddress.text = ref.read(selectedOptionProvider);
         return KeyEventResult.handled;
       }
       return KeyEventResult.ignored;
@@ -44,8 +42,8 @@ class UrlFieldInput extends ConsumerWidget {
             ?.where(
               (element) =>
                   element.serverAdress!
-                      .toLowerCase()
                       .contains(textEditingValue.text.toLowerCase()) &&
+                  // ensure that the option is not already filled
                   element.serverAdress! != textEditingValue.text.toLowerCase(),
             )
             .map((e) => e.serverAdress!)
@@ -54,10 +52,11 @@ class UrlFieldInput extends ConsumerWidget {
         final options = result == null || result.isEmpty
             ? ['http://', 'https://'].where((e) =>
                 e.contains(textEditingValue.text.toLowerCase()) &&
+                // ensure that the option is not already filled
                 e != textEditingValue.text.toLowerCase())
             : result;
 
-        ref.watch(optionsListProvider.notifier).overwriteList(options);
+        // clear options on change
         ref.invalidate(selectedOptionProvider);
 
         return options;
@@ -97,37 +96,5 @@ class UrlFieldInput extends ConsumerWidget {
         );
       },
     );
-  }
-
-  void _selectAutocompleteOption(
-    FocusNode focusNode,
-    TextEditingController controller,
-    AsyncValue<List<User>> savedAddress,
-    WidgetRef ref,
-  ) {
-    final selectedInd = ref.read(selectedOptionProvider);
-    // there is a potential race condition that happens occasionally essentially
-    // sometimes the optionsListProvider remains empty even after options are built
-    // I don't understand why it happens, cannot recreate it and is pretty much random,
-    // so its wrapped in a try catch
-    final currentOptions = ref.read(optionsListProvider);
-    try {
-      final option = currentOptions[selectedInd];
-
-      controller.text = option;
-      // Move the cursor to the end of the text
-      controller.selection = TextSelection.fromPosition(
-        TextPosition(offset: controller.text.length),
-      );
-    } catch (e) {
-      if (kDebugMode) {
-        print('Option list accessed a element out of bounds');
-        print('The following are the available options');
-        print(currentOptions);
-        print('Index that was accessed');
-        print(selectedInd);
-        print(e);
-      }
-    }
   }
 }
