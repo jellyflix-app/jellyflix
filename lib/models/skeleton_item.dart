@@ -17,7 +17,7 @@ class SkeletonItem {
     return blurhashes;
   }
 
-  static final BaseItemDto baseItemDto = $BaseItemDto((p0) => p0
+  static final BaseItemDto baseItemDto = BaseItemDto((p0) => p0
     ..name = 'Captain America: The Winter Soldier'
     ..overview =
         'Lorem ipsum dolor sit amet, consectetur adipiscing elit. adipiscing elit. quisque vitae nisi vitae nisi'

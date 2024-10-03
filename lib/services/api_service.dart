@@ -293,7 +293,7 @@ class ApiService {
       int? subtitleStreamIndex,
       int? startTimeTicks,
       bool forceTranscoding) async {
-    var deviceProfile = ClientCapabilitiesDeviceProfileBuilder();
+    var deviceProfile = DeviceProfileBuilder();
     deviceProfile.directPlayProfiles = ListBuilder([
       DirectPlayProfile((b) => b..type = DlnaProfileType.video),
     ]);
