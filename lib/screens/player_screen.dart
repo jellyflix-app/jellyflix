@@ -141,26 +141,25 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
         });
 
         player.stream.error.listen((error) {
-          if (!context.mounted) {
-            return;
+          if (mounted) {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text("An error occured"),
+                    content: Text(
+                        "There was an error while loading the stream: $error"),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          context.pop();
+                        },
+                        child: const Text("OK"),
+                      ),
+                    ],
+                  );
+                });
           }
-          showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  title: const Text("An error occured"),
-                  content: Text(
-                      "There was an error while loading the stream: $error"),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        context.pop();
-                      },
-                      child: const Text("OK"),
-                    ),
-                  ],
-                );
-              });
           throw Exception(error);
         });
         player.stream.completed.listen((completed) async {
