@@ -141,6 +141,9 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
         });
 
         player.stream.error.listen((error) {
+          if (!context.mounted) {
+            return;
+          }
           showDialog(
               context: context,
               builder: (context) {

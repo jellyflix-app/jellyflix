@@ -8,7 +8,6 @@ import 'package:universal_io/io.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:async/async.dart';
-import 'package:path/path.dart' as path;
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 import 'package:jellyflix/models/download_metadata.dart';
@@ -79,7 +78,7 @@ class DownloadService {
     var contents = await Directory(downloadDir)
         .list()
         .where((event) => event is Directory)
-        .map((event) => path.basename(event.path))
+        .map((event) => event.path.split(Platform.pathSeparator).last)
         .toList();
     return contents;
   }
