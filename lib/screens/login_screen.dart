@@ -6,7 +6,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jellyflix/components/url_autocomplete_field.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/models/user.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
@@ -57,7 +56,15 @@ class LoginScreen extends HookConsumerWidget {
                         const SizedBox(height: 20),
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10.0),
-                          child: UrlFieldInput(serverAddress: serverAddress),
+                          child: TextField(
+                            controller: serverAddress,
+                            decoration: InputDecoration(
+                              border: const OutlineInputBorder(),
+                              labelText:
+                                  AppLocalizations.of(context)!.serverAddress,
+                              hintText: 'http://',
+                            ),
+                          ),
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10.0),
@@ -259,4 +266,3 @@ class LoginScreen extends HookConsumerWidget {
         .trim();
   }
 }
-
