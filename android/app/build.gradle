@@ -1,6 +1,7 @@
 plugins {
     id "com.android.application"
     id "kotlin-android"
+    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id "dev.flutter.flutter-gradle-plugin"
 }
 
@@ -29,51 +30,45 @@ def keystoreProperties = new Properties()
    }
 
 android {
-    namespace "com.ambark.jellyflix"
-    compileSdkVersion flutter.compileSdkVersion
-    ndkVersion flutter.ndkVersion
+    namespace = "com.ambark.jellyflix"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
-    }
-
-    sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
+        jvmTarget = 17
     }
 
     defaultConfig {
-        applicationId "com.ambark.jellyflix"
+        applicationId = "com.ambark.jellyflix"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion flutter.minSdkVersion
-        targetSdkVersion flutter.targetSdkVersion
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
+        minSdk = flutter.minSdkVersion
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutter.versionCode.toInteger()
+        versionName = flutter.versionName
     }
 
     signingConfigs {
         release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
-            storePassword keystoreProperties['storePassword']
+            keyAlias = keystoreProperties['keyAlias']
+            keyPassword = keystoreProperties['keyPassword']
+            storeFile = keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+            storePassword = keystoreProperties['storePassword']
         }
     }
 
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            signingConfig = signingConfigs.release
         }
     }
 }
 
 flutter {
-    source '../..'
+    source = "../.."
 }
-
-dependencies {}
