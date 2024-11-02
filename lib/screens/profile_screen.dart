@@ -12,7 +12,9 @@ import 'package:jellyflix/providers/api_provider.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:jellyflix/providers/database_provider.dart';
+import 'package:jellyflix/providers/device_info_provider.dart';
 import 'package:jellyflix/providers/download_provider.dart';
+import 'package:tentacle/tentacle.dart';
 
 class ProfileScreen extends HookConsumerWidget {
   const ProfileScreen({super.key});
@@ -315,8 +317,11 @@ class ProfileScreen extends HookConsumerWidget {
                             borderRadius: BorderRadius.circular(15)),
                         leading: const Icon(Icons.info_rounded),
                         title: Text(AppLocalizations.of(context)!.about),
-                        onTap: () {
-                          showLicensePage(context: context);
+                        onTap: () async {
+                          ref.read(appVersionProvider).whenData(
+                              (versionNumber) => showLicensePage(
+                                  context: context,
+                                  applicationVersion: versionNumber));
                         },
                       ),
                     ),
