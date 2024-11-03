@@ -14,7 +14,6 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:jellyflix/providers/database_provider.dart';
 import 'package:jellyflix/providers/device_info_provider.dart';
 import 'package:jellyflix/providers/download_provider.dart';
-import 'package:tentacle/tentacle.dart';
 
 class ProfileScreen extends HookConsumerWidget {
   const ProfileScreen({super.key});
