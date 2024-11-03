@@ -627,6 +627,7 @@ class ApiService {
             headers: headers,
             createPlaylistDto: CreatePlaylistDto(
               (b) => b
+                ..isPublic = false
                 ..name = "watchlist"
                 ..userId = _user!.id!,
             ),
