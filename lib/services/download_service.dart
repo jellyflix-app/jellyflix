@@ -78,14 +78,14 @@ class DownloadService {
     var contents = await Directory(downloadDir)
         .list()
         .where((event) => event is Directory)
-        .map((event) => event.path.split("/").last)
+        .map((event) => event.path.split(Platform.pathSeparator).last)
         .toList();
     return contents;
   }
 
   Future<String> getDownloadedItemPath() async {
     var downloadDir = await getDownloadDirectory();
-    return "$downloadDir/$itemId/main.m3u8";
+    return "$downloadDir${Platform.pathSeparator}$itemId${Platform.pathSeparator}main.m3u8";
   }
 
   void downloadItem(
@@ -136,7 +136,7 @@ class DownloadService {
   Future<void> writeMetadataToFile(
       PlaybackInfoResponse playbackInfo, String streamUrl) async {
     var downloadDirectory = await getDownloadDirectory();
-    var downloadPath = "$downloadDirectory/$itemId";
+    var downloadPath = "$downloadDirectory${Platform.pathSeparator}$itemId";
 
     BaseItemDto itemDetails = await _api.getItemDetails(itemId);
 
@@ -147,11 +147,12 @@ class DownloadService {
 
     int? downloadSize;
     MediaSourceInfo sourceInfo = playbackInfo.mediaSources![0];
-    String path = "$downloadPath/main.m3u8";
+    String path = "$downloadPath${Platform.pathSeparator}main.m3u8";
     if (sourceInfo.transcodingUrl == null) {
       downloadSize = int.parse(
           (await _dio!.head(streamUrl)).headers.value("content-length")!);
-      path = "$downloadPath/${sourceInfo.id}.${sourceInfo.container}";
+      path =
+          "$downloadPath${Platform.pathSeparator}${sourceInfo.id}.${sourceInfo.container}";
     }
 
     var metadata = DownloadMetadata(
@@ -168,53 +169,58 @@ class DownloadService {
         .toJson();
 
     // write metadata to file
-    await File("$downloadPath/metadata.json")
+    await File("$downloadPath${Platform.pathSeparator}metadata.json")
         .writeAsString(jsonEncode(metadata));
 
     // download backdrop image
     try {
       var imageUrl = _api.getImageUrl(itemId, ImageType.backdrop);
-      await _dio!.download(imageUrl, "$downloadPath/image.jpg");
+      await _dio!.download(
+          imageUrl, "$downloadPath${Platform.pathSeparator}image.jpg");
     } on DioException catch (e) {
       if (e.response!.statusCode == 404) {
         var imageUrl = _api.getImageUrl(itemId, ImageType.primary);
-        await _dio!.download(imageUrl, "$downloadPath/image.jpg");
+        await _dio!.download(
+            imageUrl, "$downloadPath${Platform.pathSeparator}image.jpg");
       }
     }
   }
 
   Future<String> getMetadataImagePath() async {
     var downloadDirectory = await getDownloadDirectory();
-    var downloadPath = "$downloadDirectory/$itemId";
-    return "$downloadPath/image.jpg";
+    var downloadPath = "$downloadDirectory${Platform.pathSeparator}$itemId";
+    return "$downloadPath${Platform.pathSeparator}image.jpg";
   }
 
   Future<DownloadMetadata> getMetadata() async {
     var downloadDirectory = await getDownloadDirectory();
-    var downloadPath = "$downloadDirectory/$itemId";
+    var downloadPath = "$downloadDirectory${Platform.pathSeparator}$itemId";
 
     // check if file exists
-    if (!await File("$downloadPath/metadata.json").exists()) {
+    if (!await File("$downloadPath${Platform.pathSeparator}metadata.json")
+        .exists()) {
       throw Exception("Metadata file not found");
     }
 
-    var metadata = await File("$downloadPath/metadata.json").readAsString();
+    var metadata =
+        await File("$downloadPath${Platform.pathSeparator}metadata.json")
+            .readAsString();
 
     return DownloadMetadata.fromJson(json.decode(metadata));
   }
 
   Future<void> resumeDownload() async {
     // Resume download
-    bool masterM3UExists =
-        await File("${await getDownloadDirectory()}/$itemId/master.m3u8")
-            .exists();
-    bool mainM3UExists =
-        await File("${await getDownloadDirectory()}/$itemId/main.m3u8")
-            .exists();
+    bool masterM3UExists = await File(
+            "${await getDownloadDirectory()}${Platform.pathSeparator}$itemId${Platform.pathSeparator}master.m3u8")
+        .exists();
+    bool mainM3UExists = await File(
+            "${await getDownloadDirectory()}${Platform.pathSeparator}$itemId${Platform.pathSeparator}main.m3u8")
+        .exists();
     if (Platform.isAndroid || Platform.isIOS) {
       var tasks = await FlutterDownloader.loadTasksWithRawQuery(
           query:
-              "SELECT * FROM task WHERE saved_dir LIKE '%downloads/$itemId%'");
+              "SELECT * FROM task WHERE saved_dir LIKE '%downloads${Platform.pathSeparator}$itemId%'");
       if (tasks != null && tasks.isNotEmpty) {
         isDownloading = true;
         var failedTasks = tasks
@@ -244,7 +250,7 @@ class DownloadService {
           isDownloading = false;
         });
     } else if (await File(
-            "${await getDownloadDirectory()}/$itemId/temp_download_data")
+            "${await getDownloadDirectory()}${Platform.pathSeparator}$itemId${Platform.pathSeparator}temp_download_data")
         .exists()) {
       isDownloading = true;
       _download = CancelableOperation.fromFuture(
@@ -266,7 +272,7 @@ class DownloadService {
   _resumeTranscodedDownload() async {
     // open main.m3u8
     var downloadDirectory = await getDownloadDirectory();
-    var downloadPath = "$downloadDirectory/$itemId";
+    var downloadPath = "$downloadDirectory${Platform.pathSeparator}$itemId";
     var mainM3U =
         await File("$downloadDirectory/$itemId/main.m3u8").readAsString();
 
@@ -279,23 +285,28 @@ class DownloadService {
             .split("&")
             .firstWhere((element) => element.startsWith("api_key"));
         line = line.replaceAll(pattern, "api_key=${_api.currentUser!.token}");
-        await _dio!.download(prefix + line, "$downloadPath/$fileName",
+        await _dio!.download(
+            prefix + line, "$downloadPath${Platform.pathSeparator}$fileName",
             cancelToken: cancelToken);
-        mainM3U = mainM3U.replaceAll(line, "file://$downloadPath/$fileName");
-        await File("$downloadPath/main.m3u8").writeAsString(mainM3U);
+        mainM3U = mainM3U.replaceAll(line, fileName);
+        await File("$downloadPath${Platform.pathSeparator}main.m3u8")
+            .writeAsString(mainM3U);
       } else {}
     }
   }
 
   _resumeDirectStreamDownload() async {
     var downloadDirectory = await getDownloadDirectory();
-    var downloadPath = "$downloadDirectory/$itemId";
+    var downloadPath = "$downloadDirectory${Platform.pathSeparator}$itemId";
 
-    if (await File("$downloadPath/temp_download_data").exists() &&
-        await File("$downloadPath/temp_chunk0").exists()) {
+    if (await File("$downloadPath${Platform.pathSeparator}temp_download_data")
+            .exists() &&
+        await File("$downloadPath${Platform.pathSeparator}temp_chunk0")
+            .exists()) {
       // load temp_download_data
       var tempDownloadData =
-          await File("$downloadPath/temp_download_data").readAsString();
+          await File("$downloadPath${Platform.pathSeparator}temp_download_data")
+              .readAsString();
       var tempData = tempDownloadData.split("\n");
       var streamUrl = tempData[0];
       var contentLength = int.parse(tempData[1]);
@@ -304,8 +315,10 @@ class DownloadService {
       // check if temp_chunk files exist
       var list = await Directory(downloadPath).list().toList();
       List<FileSystemEntity> chunks = list
-          .where((element) =>
-              element.path.split("/").last.startsWith("temp_chunk"))
+          .where((element) => element.path
+              .split(Platform.pathSeparator)
+              .last
+              .startsWith("temp_chunk"))
           .toList();
       // get size of all chunks
       var downloadedSize = 0;
@@ -315,7 +328,8 @@ class DownloadService {
       }
       if (downloadedSize < contentLength) {
         // download remaining data
-        var tempFile = File("$downloadPath/temp_chunk${chunks.length}");
+        var tempFile = File(
+            "$downloadPath${Platform.pathSeparator}temp_chunk${chunks.length}");
         Options options = Options(
           headers: {
             "Range": "bytes=$downloadedSize-",
@@ -328,21 +342,24 @@ class DownloadService {
           cancelToken: cancelToken,
         );
         for (int i = 0; i <= chunks.length; i++) {
-          var chunk = File("$downloadPath/temp_chunk$i");
+          var chunk =
+              File("$downloadPath${Platform.pathSeparator}temp_chunk$i");
           var bytes = await chunk.readAsBytes();
           await File(localFilePath).writeAsBytes(bytes, mode: FileMode.append);
           await chunk.delete();
         }
       } else {
         for (int i = 0; i < chunks.length; i++) {
-          var chunk = File("$downloadPath/temp_chunk$i");
+          var chunk =
+              File("$downloadPath${Platform.pathSeparator}temp_chunk$i");
           var bytes = await chunk.readAsBytes();
           await File(localFilePath).writeAsBytes(bytes, mode: FileMode.append);
           await chunk.delete();
         }
       }
       // delete temp_download_data
-      await File("$downloadPath/temp_download_data").delete();
+      await File("$downloadPath${Platform.pathSeparator}temp_download_data")
+          .delete();
     } else {
       await removeDownload();
     }
@@ -351,7 +368,7 @@ class DownloadService {
   Future<void> removeDownload() async {
     // Remove downloaded file
     var downloadDirectory = await getDownloadDirectory();
-    var downloadPath = "$downloadDirectory/$itemId";
+    var downloadPath = "$downloadDirectory${Platform.pathSeparator}$itemId";
 
     // Remove downloaded files
     if (await Directory(downloadPath).exists()) {
@@ -362,26 +379,28 @@ class DownloadService {
   static Future<String> getDownloadDirectory() async {
     // Get download directory
     final Directory appDocumentsDir = await getApplicationDocumentsDirectory();
-    return "${appDocumentsDir.path}/jellyflix/downloads";
+    return "${appDocumentsDir.path}${Platform.pathSeparator}jellyflix${Platform.pathSeparator}downloads";
   }
 
   Future<void> downloadTranscodedStream(String streamUrl) async {
     var downloadDirectory = await getDownloadDirectory();
-    var downloadPath = "$downloadDirectory/$itemId";
+    var downloadPath = "$downloadDirectory${Platform.pathSeparator}$itemId";
 
     // create download directory if it doesn't exist
     if (!await Directory(downloadPath).exists()) {
       await Directory(downloadPath).create();
     }
     var masterM3U = await _dio!.get(streamUrl, cancelToken: cancelToken);
-    await File("$downloadPath/master.m3u8").writeAsString(masterM3U.data);
+    await File("$downloadPath${Platform.pathSeparator}master.m3u8")
+        .writeAsString(masterM3U.data);
     var prefix =
         "${streamUrl.split("/").sublist(0, streamUrl.split("/").length - 1).join("/")}/";
     var mainM3U = await _dio!
         .get(prefix + masterM3U.data.split("\n")[2], cancelToken: cancelToken);
 
     // write original mainM3U to file
-    await File("$downloadPath/main.m3u8").writeAsString(mainM3U.data);
+    await File("$downloadPath${Platform.pathSeparator}main.m3u8")
+        .writeAsString(mainM3U.data);
     List<String> lines = mainM3U.data.split("\n");
 
     if (Platform.isAndroid || Platform.isIOS) {
@@ -405,12 +424,13 @@ class DownloadService {
       if (line.startsWith("hls1/main")) {
         var fileName = line.split("/").last.split("?").first;
         if (!Platform.isAndroid && !Platform.isIOS) {
-          await _dio!.download(prefix + line, "$downloadPath/$fileName",
+          await _dio!.download(
+              prefix + line, "$downloadPath${Platform.pathSeparator}$fileName",
               cancelToken: cancelToken);
         }
-        mainM3U.data =
-            mainM3U.data.replaceFirst(line, "file://$downloadPath/$fileName");
-        await File("$downloadPath/main.m3u8").writeAsString(mainM3U.data);
+        mainM3U.data = mainM3U.data.replaceFirst(line, fileName);
+        await File("$downloadPath${Platform.pathSeparator}main.m3u8")
+            .writeAsString(mainM3U.data);
       }
     }
   }
@@ -428,7 +448,7 @@ class DownloadService {
 
   _cancelableDownloadDirectStream(String streamUrl) async {
     var downloadDirectory = await getDownloadDirectory();
-    var downloadPath = "$downloadDirectory/$itemId";
+    var downloadPath = "$downloadDirectory${Platform.pathSeparator}$itemId";
     var fileExtension =
         streamUrl.split("/").last.split("?").first.split(".").last;
 
@@ -448,14 +468,15 @@ class DownloadService {
       var contentLength =
           int.parse(downloadInfo.headers.value("content-length")!);
 
-      var localFilePath = "$downloadPath/$itemId.$fileExtension";
+      var localFilePath =
+          "$downloadPath${Platform.pathSeparator}$itemId.$fileExtension";
       var localFile = File(localFilePath);
 
       // write temp_download_data to file
-      await File("$downloadPath/temp_download_data")
+      await File("$downloadPath${Platform.pathSeparator}temp_download_data")
           .writeAsString("$streamUrl\n$contentLength\n${localFile.path}");
 
-      var tempFile = File("$downloadPath/temp_chunk0");
+      var tempFile = File("$downloadPath${Platform.pathSeparator}temp_chunk0");
 
       await _dio!.download(
         streamUrl,
@@ -466,7 +487,8 @@ class DownloadService {
       // rename file
       await tempFile.rename(localFilePath);
       // remove temp_download_data
-      await File("$downloadPath/temp_download_data").delete();
+      await File("$downloadPath${Platform.pathSeparator}temp_download_data")
+          .delete();
     }
   }
 
@@ -480,11 +502,15 @@ class DownloadService {
   Future<int?> calculateProgress() async {
     var downloadDirectory = await getDownloadDirectory();
     // check if folder exists in downloadDirectory
-    if (await Directory("$downloadDirectory/$itemId").exists() &&
-        await File("$downloadDirectory/$itemId/main.m3u8").exists()) {
+    if (await Directory("$downloadDirectory${Platform.pathSeparator}$itemId")
+            .exists() &&
+        await File(
+                "$downloadDirectory${Platform.pathSeparator}$itemId${Platform.pathSeparator}main.m3u8")
+            .exists()) {
       // read mainm3u file
-      var mainM3U =
-          await File("$downloadDirectory/$itemId/main.m3u8").readAsString();
+      var mainM3U = await File(
+              "$downloadDirectory${Platform.pathSeparator}$itemId${Platform.pathSeparator}main.m3u8")
+          .readAsString();
 
       var totalChunks = mainM3U
           .split("\n")
@@ -493,7 +519,9 @@ class DownloadService {
 
       // get all files in folder
       var contents =
-          await Directory("$downloadDirectory/$itemId").list().toList();
+          await Directory("$downloadDirectory${Platform.pathSeparator}$itemId")
+              .list()
+              .toList();
       // get all files with .ts extension
       var downloadedChunks =
           contents.where((element) => element.path.endsWith(".ts")).length;
@@ -506,23 +534,30 @@ class DownloadService {
         }
         return progress;
       }
-    } else if (await File("$downloadDirectory/$itemId/metadata.json")
+    } else if (await File(
+            "$downloadDirectory${Platform.pathSeparator}$itemId${Platform.pathSeparator}metadata.json")
         .exists()) {
       // read metadata file
       DownloadMetadata metadata = await getMetadata();
       if (metadata.downloadSize != null &&
-          !await File("$downloadDirectory/$itemId/main.m3u8").exists()) {
+          !await File(
+                  "$downloadDirectory${Platform.pathSeparator}$itemId${Platform.pathSeparator}main.m3u8")
+              .exists()) {
         // check if chunks exist
-        var contents =
-            await Directory("$downloadDirectory/$itemId").list().toList();
+        var contents = await Directory(
+                "$downloadDirectory${Platform.pathSeparator}$itemId")
+            .list()
+            .toList();
 
         if (Platform.isAndroid || Platform.isIOS) {
           var tasks = await FlutterDownloader.loadTasksWithRawQuery(
             query: "SELECT * FROM task WHERE file_name LIKE '$itemId.%'",
           );
           if (tasks == null || tasks.isEmpty) {
-            contents.where(
-                (element) => element.path.split("/").last.startsWith(itemId));
+            contents.where((element) => element.path
+                .split(Platform.pathSeparator)
+                .last
+                .startsWith(itemId));
             if (contents.isNotEmpty) {
               return 100;
             }
@@ -533,8 +568,10 @@ class DownloadService {
           }
         } else {
           // check if chunks exist
-          contents.where((element) =>
-              element.path.split("/").last.startsWith("temp_chunk"));
+          contents.where((element) => element.path
+              .split(Platform.pathSeparator)
+              .last
+              .startsWith("temp_chunk"));
           if (contents.isNotEmpty) {
             int downloadedSize = 0;
             for (var chunk in contents) {

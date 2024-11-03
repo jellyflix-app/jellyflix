@@ -11,7 +11,25 @@ class DownloadScreen extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.downloads),
+        title: Row(
+          children: [
+            Text(AppLocalizations.of(context)!.downloads),
+            const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+              decoration: BoxDecoration(
+                color: Theme.of(context).buttonTheme.colorScheme!.onSecondary,
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: const Text(
+                'Beta',
+                style: TextStyle(
+                  fontSize: 12,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
       body: FutureBuilder(
         future: ref.read(getDownloadsProvider),

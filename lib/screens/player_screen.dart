@@ -141,23 +141,25 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
         });
 
         player.stream.error.listen((error) {
-          showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  title: const Text("An error occured"),
-                  content: Text(
-                      "There was an error while loading the stream: $error"),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        context.pop();
-                      },
-                      child: const Text("OK"),
-                    ),
-                  ],
-                );
-              });
+          if (mounted) {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text("An error occured"),
+                    content: Text(
+                        "There was an error while loading the stream: $error"),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          context.pop();
+                        },
+                        child: const Text("OK"),
+                      ),
+                    ],
+                  );
+                });
+          }
           throw Exception(error);
         });
         player.stream.completed.listen((completed) async {
@@ -289,6 +291,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
                     const EdgeInsets.only(bottom: 25, left: 10, right: 10),
                 bottomButtonBarMargin:
                     const EdgeInsets.only(bottom: 40, left: 10, right: 10),
+                seekOnDoubleTap: true,
               ),
               fullscreen: MaterialVideoControlsThemeData(
                 topButtonBar: getTopButtonBarThemeData(context),
@@ -299,14 +302,15 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
                     audioTrack,
                     maxStreamingBitrate,
                     context),
-                bottomButtonBarMargin:
-                    const EdgeInsets.only(bottom: 40, left: 10, right: 10),
                 seekBarPositionColor: Theme.of(context).colorScheme.onPrimary,
                 seekBarThumbColor: Theme.of(context).colorScheme.primary,
                 seekBarThumbSize: 15,
                 seekBarHeight: 4,
                 seekBarMargin:
                     const EdgeInsets.only(bottom: 25, left: 10, right: 10),
+                bottomButtonBarMargin:
+                    const EdgeInsets.only(bottom: 40, left: 10, right: 10),
+                seekOnDoubleTap: true,
               ),
               child: MaterialDesktopVideoControlsTheme(
                   normal: MaterialDesktopVideoControlsThemeData(

@@ -15,7 +15,7 @@
       }
     }
   },
-  "becauseYouLiked": "Weil du {title} mochtest",
+  "becauseYouLiked": "Weil du {title} geliked hast",
   "@becauseYouLiked": {
     "placeholders": {
       "title": {
@@ -63,7 +63,7 @@
   "favorites": "Favoriten",
   "liked": "Liked",
   "changeProfile": "Profil wechseln",
-  "logout": "Logout",
+  "logout": "Ausloggen",
   "about": "Über",
   "scanLibrary": "Bibliothek scannen",
   "scanStarted": "Scan gestartet",
@@ -74,7 +74,7 @@
   "quickConnectErrorUnknown": "Etwas ist schief gelaufen",
   "connect": "Verbinden",
   "code": "Code",
-  "writers": "Drehbuch",
+  "writers": "Autoren",
   "directors": "Regie",
   "genres": "Genres",
   "cast": "Besetzung",
@@ -146,7 +146,7 @@
   "setAudioAndSubtitleLanguage": "Ton und Untertitel Sprache einstellen",
   "setLocalDownloadBitrate": "Lokale Download Bitrate einstellen",
   "maxDownloadBitrateText": "Maxmiale Bitrate für Downloads einstellen",
-  "downloadApproxFilesize": "1h Wiedergabezeit entspricht ca. {size}GB",
+  "downloadApproxFilesize": "1 Std Wiedergabezeit entspricht ca. {size}GB",
   "@downloadApproxFilesize": {
     "placeholders": {
       "size": {

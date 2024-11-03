@@ -32,7 +32,7 @@ class LibraryScreen extends HookConsumerWidget {
     final genreFilter = useState<List<BaseItemDto>?>(genreFilterParam == ""
         ? null
         : genreFilterParam?.split(",").map((e) {
-            return $BaseItemDto(
+            return BaseItemDto(
               (p0) {
                 p0.id = e;
               },
