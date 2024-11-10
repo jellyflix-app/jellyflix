@@ -11,3 +11,8 @@ class ScreenPaths {
   static const String offlinePlayer = '/offlinePlayer';
   static const String loading = '/loading';
 }
+
+class LoginRouteNames {
+  static const String password = 'password';
+  static const String quickConnect = 'quickConnect';
+}

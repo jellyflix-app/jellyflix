@@ -68,6 +68,89 @@ class ApiService {
     return _user!;
   }
 
+  Future<void> registerAccessToken(User user) async {
+    _user = user;
+
+    String authHeader = await buildHeader();
+    await buildHeader();
+
+    _jellyfinApi = Tentacle(
+        dio: Dio(BaseOptions(
+      baseUrl: user.serverAdress!,
+      receiveTimeout: const Duration(seconds: 30),
+      sendTimeout: const Duration(seconds: 5),
+    )));
+
+    headers["Authorization"] =
+        "$authHeader, Token=\"${user.token}\"";
+
+    headers["Origin"] = user.serverAdress!;
+  }
+
+  Future<User?> loginByQuickConnect(String baseUrl,
+      Function(String) secretCallback, CancelToken token) async {
+    // TODO add error handling
+    String authHeader = await buildHeader();
+    await buildHeader();
+    _jellyfinApi = Tentacle(
+        dio: Dio(BaseOptions(
+      baseUrl: baseUrl,
+      receiveTimeout: const Duration(seconds: 30),
+      sendTimeout: const Duration(seconds: 5),
+    )));
+
+    var response = await _jellyfinApi!
+        .getQuickConnectApi()
+        .initiateQuickConnect(headers: headers);
+
+    if (response.statusCode != 200) {
+      return null;
+    }
+
+    var code = response.data?.code;
+
+    if (code == null) {
+      return null;
+    }
+
+    secretCallback(code);
+
+    while (!token.isCancelled) {
+      var stateResponse = await _jellyfinApi
+          ?.getQuickConnectApi()
+          .getQuickConnectState(secret: response.data!.secret!, cancelToken: token);
+
+      if (stateResponse?.data?.authenticated == true) {
+        var response =
+            await _jellyfinApi?.getUserApi().authenticateWithQuickConnect(
+                  quickConnectDto: QuickConnectDto(
+                      (b) => b..secret = stateResponse!.data!.secret),
+                  headers: headers,
+                  cancelToken: token,
+                );
+
+        if (response!.statusCode != 200) {
+          return null;
+        }
+
+        headers["Authorization"] =
+            "$authHeader, Token=\"${response.data!.accessToken!}\"";
+
+        headers["Origin"] = baseUrl;
+        _user = User(
+          id: response.data!.user!.id,
+          name: response.data!.user!.name,
+          serverAdress: baseUrl,
+          token: response.data!.accessToken!,
+        );
+
+        return _user;
+      }
+    }
+
+    return null;
+  }
+
   Future<void> logout() async {
     _user = null;
     _jellyfinApi = null;
