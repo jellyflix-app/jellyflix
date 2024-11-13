@@ -41,6 +41,8 @@ class LoginWithQuickConnectScreen extends HookConsumerWidget {
         }
       }
 
+      runQuickConnect();
+
       return () => token.cancel();
     }, [serverAddress]);
 
