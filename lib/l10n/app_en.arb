@@ -72,7 +72,7 @@
     "quickConnectError401": "Are you accessing the right server?",
     "quickConnectError404": "Invalid code",
     "quickConnectErrorUnknown": "Something went wrong",
-    "useQuickConnect": "Use Quick Connect to code",
+    "useQuickConnect": "Use Quick Connect to log in",
     "connect": "Connect",
     "code": "Code",
     "writers": "Writers",
