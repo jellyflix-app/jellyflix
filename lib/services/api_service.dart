@@ -72,7 +72,6 @@ class ApiService {
     _user = user;
 
     String authHeader = await buildHeader();
-    await buildHeader();
 
     _jellyfinApi = Tentacle(
         dio: Dio(BaseOptions(
