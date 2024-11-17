@@ -211,28 +211,47 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
         if (await Permission.videos.isDenied ||
             await Permission.videos.isPermanentlyDenied) {
           final state = await Permission.videos.request();
-          if (!state.isGranted) {
-            await SystemNavigator.pop();
+          if (!state.isGranted && mounted) {
+            goBackAndShowSnackBar(
+                content: AppLocalizations.of(context)!.videoPermission);
           }
         }
         // Audio permissions.
         if (await Permission.audio.isDenied ||
             await Permission.audio.isPermanentlyDenied) {
           final state = await Permission.audio.request();
-          if (!state.isGranted) {
-            await SystemNavigator.pop();
+          if (!state.isGranted && mounted) {
+            goBackAndShowSnackBar(
+                content: AppLocalizations.of(context)!.audioPermission);
           }
         }
       } else {
         if (await Permission.storage.isDenied ||
             await Permission.storage.isPermanentlyDenied) {
           final state = await Permission.storage.request();
-          if (!state.isGranted) {
-            await SystemNavigator.pop();
+          if (!state.isGranted && mounted) {
+            goBackAndShowSnackBar(
+                content: AppLocalizations.of(context)!.storagePermission);
           }
         }
       }
     }
+  }
+
+  void goBackAndShowSnackBar({required String content}) {
+    Navigator.of(context).pop();
+    // show snackbar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(content),
+        action: SnackBarAction(
+          label: AppLocalizations.of(context)!.settings,
+          onPressed: () {
+            openAppSettings();
+          },
+        ),
+      ),
+    );
   }
 
   Future updateStream(
