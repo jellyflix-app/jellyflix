@@ -9,11 +9,11 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/models/user.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
-import 'package:jellyflix/screens/login_messages.dart';
+import 'package:jellyflix/components/login_messages.dart';
 
-class LoginWithPasswordScreen extends HookConsumerWidget {
+class LoginPasswordScreen extends HookConsumerWidget {
   final String serverAddress;
-  const LoginWithPasswordScreen({super.key, required this.serverAddress});
+  const LoginPasswordScreen({super.key, required this.serverAddress});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -145,7 +145,7 @@ class LoginWithPasswordScreen extends HookConsumerWidget {
       );
       if (missingFields.isNotEmpty) {
         loadingListenable.value = false;
-        await showInfoDialog(
+        await LoginMessages.showInfoDialog(
           context,
           Text(
             AppLocalizations.of(context)!.emptyFields,
@@ -169,12 +169,12 @@ class LoginWithPasswordScreen extends HookConsumerWidget {
     } on DioException catch (e) {
       if (!context.mounted) return;
       loadingListenable.value = false;
-      await showHttpErrorDialog(context, e);
+      await LoginMessages.showHttpErrorDialog(context, e);
       return;
     } catch (e) {
       if (!context.mounted) return;
       loadingListenable.value = false;
-      await showErrorDialog(context, e);
+      await LoginMessages.showErrorDialog(context, e);
       return;
     }
     loadingListenable.value = false;

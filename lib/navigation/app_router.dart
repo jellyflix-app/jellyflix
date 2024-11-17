@@ -12,8 +12,8 @@ import 'package:jellyflix/screens/download_screen.dart';
 import 'package:jellyflix/screens/home_screen.dart';
 import 'package:jellyflix/screens/library_screen.dart';
 import 'package:jellyflix/screens/loading_screen.dart';
-import 'package:jellyflix/screens/login_password.dart';
-import 'package:jellyflix/screens/login_quickconnect.dart';
+import 'package:jellyflix/screens/login_password_screen.dart';
+import 'package:jellyflix/screens/login_quickconnect_screen.dart';
 import 'package:jellyflix/screens/login_wrapper_screen.dart';
 import 'package:jellyflix/screens/offline_player_screen.dart';
 import 'package:jellyflix/screens/profile_screen.dart';
@@ -147,7 +147,7 @@ class AppRouter {
           context: context,
           state: state,
           maintainState: false,
-          child: LoginWithPasswordScreen(serverAddress: state.pathParameters['server']!),
+          child: LoginPasswordScreen(serverAddress: state.pathParameters['server']!),
         ),
       ),
       GoRoute(
@@ -157,7 +157,7 @@ class AppRouter {
           context: context,
           state: state,
           maintainState: false,
-          child: LoginWithQuickConnectScreen(serverAddress: state.pathParameters['server']!),
+          child: LoginQuickConnectScreen(serverAddress: state.pathParameters['server']!),
         ),
       ),
     ],

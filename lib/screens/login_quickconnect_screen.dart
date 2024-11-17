@@ -8,11 +8,11 @@ import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
-import 'package:jellyflix/screens/login_messages.dart';
+import 'package:jellyflix/components/login_messages.dart';
 
-class LoginWithQuickConnectScreen extends HookConsumerWidget {
+class LoginQuickConnectScreen extends HookConsumerWidget {
   final String serverAddress;
-  const LoginWithQuickConnectScreen({super.key, required this.serverAddress});
+  const LoginQuickConnectScreen({super.key, required this.serverAddress});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -28,11 +28,11 @@ class LoginWithQuickConnectScreen extends HookConsumerWidget {
               .loginByQuickConnect(serverAddress, (c) => code.value = c, token);
         } on DioException catch (e) {
           if (!token.isCancelled && context.mounted) {
-            await showHttpErrorDialog(context, e);
+            await LoginMessages.showHttpErrorDialog(context, e);
           }
         } on Exception catch (e) {
           if (!token.isCancelled && context.mounted) {
-            await showErrorDialog(context, e);
+            await LoginMessages.showErrorDialog(context, e);
           }
         }
 
