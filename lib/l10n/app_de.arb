@@ -282,5 +282,19 @@
   "appName": "Jellyflix",
   "@appName": {},
   "emptyAddress": "Leere Serveradresse",
-  "@emptyAddress": {}
+  "@emptyAddress": {},
+  "emptyUsername": "Leerer Benutzername",
+  "@emptyUsername": {},
+  "emptyPassword": "Leeres Passwort",
+  "@emptyPassword": {},
+  "emptyFields": "Bitte die folgenden Felder ausfüllen",
+  "@emptyFields": {},
+  "errorConnectingToServer": "Fehler bei der Verbindung zum Server",
+  "@errorConnectingToServer": {},
+  "audioPermission": "Tonberechtigung verweigert",
+  "@audioPermission": {},
+  "videoPermission": "Videoberechtigung verweigert",
+  "@videoPermission": {},
+  "storagePermission": "Speicherzugriff verweigert",
+  "@storagePermission": {}
 }
