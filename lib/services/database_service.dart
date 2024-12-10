@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:jellyflix/models/baseitemdto_adapter.dart';
 import 'package:jellyflix/models/user.dart';
 import 'package:jellyflix/services/secure_storage_service.dart';
 
@@ -24,8 +25,10 @@ class DatabaseService {
   static Future<void> initialize() async {
     await Hive.initFlutter("jellyflix");
     Hive.registerAdapter(UserAdapter());
+    Hive.registerAdapter(BaseItemDtoAdapter());
     await DatabaseService('auth', SecureStorageService()).openBox();
     await DatabaseService('settings', SecureStorageService()).openBox();
+    await DatabaseService('queryCache', SecureStorageService()).openBox();
   }
 
   Future<void> openBox() async {
