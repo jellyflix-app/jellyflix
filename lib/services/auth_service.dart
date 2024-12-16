@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:jellyflix/models/user.dart';
 import 'package:jellyflix/services/api_service.dart';
 import 'package:jellyflix/services/database_service.dart';
@@ -40,15 +41,49 @@ class AuthService {
         return false;
       }
       User? user = _databaseService.get(profileId);
+
       try {
-        await login(user!);
-        _authStateStream.add(true);
-        return true;
-      } catch (_) {
-        _authStateStream.add(false);
-        return false;
-      }
+        if (user != null) {
+          if (user.password != null) {
+            await login(user);
+          } else {
+            await _apiService.registerAccessToken(user);
+          }
+          
+          _authStateStream.add(true);
+          return true;
+        }
+      } catch (_) {}
+
+      _authStateStream.add(false);
+      return false;
     }
+  }
+
+  Future<User?> loginByQuickConnect(
+      String serverAddress, Function(String) code, CancelToken token) async {
+    final (url, candidates) = await inferServerUrl(serverAddress);
+    if (url == null) {
+      throw Exception('No valid server found on the given url\n'
+          '\nTried the following urls:\n'
+          '${candidates.join('\n-------------\n')}');
+    }
+
+    final user = await _apiService.loginByQuickConnect(
+      url,
+      code,
+      token,
+    );
+
+    if (user == null) {
+      return null;
+    }
+
+    _databaseService.put(user.id! + user.serverAdress!, user);
+    _databaseService.put("currentProfileId", user.id! + user.serverAdress!);
+
+    _authStateStream.add(true);
+    return user;
   }
 
   Future<User> login(User user) async {
@@ -108,11 +143,13 @@ class AuthService {
 
   Future switchProfile(String profileId) async {
     User? user = _databaseService.get(profileId);
-    if (user != null &&
-        user.serverAdress != null &&
-        user.name != null &&
-        user.password != null) {
-      await _apiService.login(user.serverAdress!, user.name!, user.password!);
+    if (user != null && user.serverAdress != null && user.token != null) {
+      if (user.password != null) {
+        await _apiService.login(user.serverAdress!, user.name!, user.password!);
+      } else {
+        await _apiService.registerAccessToken(user);
+      }
+
       _authStateStream.add(true);
     } else {
       throw Exception("Profile not found");
