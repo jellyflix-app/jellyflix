@@ -27,7 +27,7 @@ class LoginMessages {
       ),
       content: e.response?.statusCode == null
           ? Text(e.toString())
-          : Text(_formatHttpErrorCode(e.response)),
+          : Text(_formatHttpErrorCode(e.response, context)),
     );
   }
 
@@ -63,25 +63,22 @@ class LoginMessages {
     );
   }
 
-  static String _formatHttpErrorCode(Response? resp) {
-    // todo PLACEHOLDER MESSAGES NOT FINAL
+  static String _formatHttpErrorCode(Response? response, BuildContext context) {
     var message = '';
-    switch (resp!.statusCode) {
+    switch (response!.statusCode) {
       case 400:
-        message =
-            'The server could not understand the request, if you are using proxies check the configuration, if the issue still persists let us know';
+        message = AppLocalizations.of(context)!.errorMessage400;
       case 401:
-        message = 'Your username or password may be incorrect';
+        message = AppLocalizations.of(context)!.errorMessage401;
       case 403:
-        message =
-            'The server is blocking request from this device, this probably means the device has been banned, please contact your admin to resolve this issue';
+        message = AppLocalizations.of(context)!.errorMessage403;
       default:
-        message = '';
+        message = AppLocalizations.of(context)!.errorMessageUnknown;
     }
 
     return '$message\n\n'
-            'Http Code: ${resp.statusCode ?? 'Unknown'}\n\n'
-            'Http Response: ${resp.statusMessage ?? 'Unknown'}\n\n'
+            'Status Code: ${response.statusCode ?? 'Unknown'}\n\n'
+            'Response: ${response.statusMessage ?? 'Unknown'}\n\n'
         .trim();
   }
 }

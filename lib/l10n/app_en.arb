@@ -92,8 +92,8 @@
     "addProfile": "Add Profile",
     "appSubtitle": "Another Jellyfin client",
     "serverAddress": "Server Address",
-    "loginWithPassword": "Use Password",
-    "loginWithQuickConnect": "Use QuickConnect",
+    "loginWithPassword": "Password",
+    "loginWithQuickConnect": "QuickConnect",
     "login": "Login",
     "username": "Username",
     "password": "Password",
@@ -190,6 +190,9 @@
     "storagePermission": "Storage Permission Denied",
     "audioPermission": "Audio Permission Denied",
     "videoPermission": "Video Permission Denied",
+    "errorMessage400": "The server could not understand the request, if you are using a proxy check its configuration.",
+    "errorMessage401": "Your username or password may be incorrect.",
+    "errorMessage403": "The server is blocking requests from this device. This probably means the device has been banned. Please contact your admin to resolve this issue.",
+    "errorMessageUnknown": "There has been an unknown error.",
     "appName": "Jellyflix"
-
 }
