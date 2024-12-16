@@ -29,7 +29,9 @@ class DatabaseService {
   }
 
   Future<void> openBox() async {
-    String? key = await secureStorage.read('encryptionKey');
+    String? key = await secureStorage
+        .read('encryptionKey')
+        .timeout(const Duration(seconds: 1));
     if (key == null) {
       // create a new key
       final encryptionKeyUint8List = Hive.generateSecureKey();
