@@ -296,5 +296,19 @@
   "errorConnectingToServer": "连接到服务器时出错",
   "@errorConnectingToServer": {},
   "emptyAddress": "服务器地址为空",
-  "@emptyAddress": {}
+  "@emptyAddress": {},
+  "useQuickConnect": "使用快速连接登录",
+  "@useQuickConnect": {},
+  "loginWithPassword": "密码",
+  "@loginWithPassword": {},
+  "loginWithQuickConnect": "快速连接",
+  "@loginWithQuickConnect": {},
+  "errorMessage401": "您的用户名或密码可能不正确。",
+  "@errorMessage401": {},
+  "errorMessageUnknown": "出现未知错误。",
+  "@errorMessageUnknown": {},
+  "errorMessage400": "服务器无法理解此请求，如果您使用代理，请检查其配置。",
+  "@errorMessage400": {},
+  "errorMessage403": "服务器正在阻止来自此设备的请求。这可能意味着此设备已被禁止。请联系您的管理员解决此问题。",
+  "@errorMessage403": {}
 }
