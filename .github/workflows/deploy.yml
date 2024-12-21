@@ -54,7 +54,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: "12.x"
+          java-version: "17.x"
           cache: gradle
 
       - name: Setup Flutter
@@ -121,7 +121,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '12.x'
+          java-version: '17.x'
           cache: gradle
 
       - name: Setup Flutter
@@ -413,7 +413,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '12.x'
+          java-version: '17.x'
           cache: gradle
 
       - name: Setup Flutter
@@ -481,7 +481,7 @@ jobs:
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '12.x'
+          java-version: '17.x'
           cache: gradle
       
       # fixes #278 https://github.com/subosito/flutter-action/issues/278
