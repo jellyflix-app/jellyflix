@@ -71,6 +71,14 @@ Contributions are much appreciated. You can help the development by:
 - translating the app
 - contributing with pull requests
 
+### Translation
+
+We are using a Weblate Instance provided by [Codeberg](https://codeberg.org/) for translations. You can find the project [here](https://translate.codeberg.org/engage/jellyflix/). If you want to contribute to the translation, you can create an account on Weblate and start translating.
+
+<a href="https://translate.codeberg.org/engage/jellyflix/">
+<img src="https://translate.codeberg.org/widget/jellyflix/jellyflix/multi-auto.svg" alt="Übersetzungsstatus" />
+</a>
+
 ## Build
 
 Jellyflix is developed in Flutter a cross-platform framework. The programming language is Dart, which is quite easy to learn. <br>

@@ -72,6 +72,7 @@
     "quickConnectError401": "Are you accessing the right server?",
     "quickConnectError404": "Invalid code",
     "quickConnectErrorUnknown": "Something went wrong",
+    "useQuickConnect": "Use Quick Connect to log in",
     "connect": "Connect",
     "code": "Code",
     "writers": "Writers",
@@ -91,6 +92,8 @@
     "addProfile": "Add Profile",
     "appSubtitle": "Another Jellyfin client",
     "serverAddress": "Server Address",
+    "loginWithPassword": "Password",
+    "loginWithQuickConnect": "QuickConnect",
     "login": "Login",
     "username": "Username",
     "password": "Password",
@@ -184,6 +187,12 @@
     "deletePlaylistNotice": "To prevent data loss, please delete the playlist from the server, if it's no longer needed.",
     "info": "Info",
     "showPrimaryForEpisodes": "Show primary image instead of series poster in Continue Watching",
+    "storagePermission": "Storage Permission Denied",
+    "audioPermission": "Audio Permission Denied",
+    "videoPermission": "Video Permission Denied",
+    "errorMessage400": "The server could not understand the request, if you are using a proxy check its configuration.",
+    "errorMessage401": "Your username or password may be incorrect.",
+    "errorMessage403": "The server is blocking requests from this device. This probably means the device has been banned. Please contact your admin to resolve this issue.",
+    "errorMessageUnknown": "There has been an unknown error.",
     "appName": "Jellyflix"
-
 }

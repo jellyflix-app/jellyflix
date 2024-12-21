@@ -7,7 +7,7 @@ publish_to: 'none'
 version: 00.00.00+0
 
 environment:
-  sdk: '>=3.2.2 <4.0.0'
+  sdk: '>=3.5.4 <4.0.0'
 
 dependencies:
   flutter:
@@ -35,7 +35,12 @@ dependencies:
   hooks_riverpod: ^2.4.9
   flutter_hooks: ^0.20.3
   riverpod_annotation: ^2.3.3
-  flutter_secure_storage: ^9.0.0
+  # remove when version 10.0.0 is released
+  flutter_secure_storage:
+    git:
+      url: https://github.com/juliansteenbakker/flutter_secure_storage
+      ref: develop
+      path: flutter_secure_storage
   permission_handler: ^11.1.0
   filter_list:
     git: https://github.com/TheAlphamerc/filterlist.git
@@ -48,18 +53,20 @@ dependencies:
   flutter_downloader: ^1.11.6
   dio: ^5.4.0
   device_info_plus: ^9.1.1
-  package_info_plus: ^5.0.1
+  package_info_plus: ^8.1.0
   flutter_localizations:
     sdk: flutter
   intl: any
   async: ^2.11.0
   universal_io: ^2.2.2
-  connectivity_plus: ^5.0.2
+  connectivity_plus: ^6.1.0
   transparent_image: ^2.0.1
   hive: ^2.2.3
   hive_flutter: ^1.1.0
 
 dependency_overrides: 
+  # remove when version 10.0.0 is released
+  js: ^0.7.1
   media_kit: 
     git:
       url: https://github.com/jellyflix-app/media-kit.git

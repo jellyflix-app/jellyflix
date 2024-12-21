@@ -141,23 +141,25 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
         });
 
         player.stream.error.listen((error) {
-          showDialog(
-              context: context,
-              builder: (context) {
-                return AlertDialog(
-                  title: const Text("An error occured"),
-                  content: Text(
-                      "There was an error while loading the stream: $error"),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        context.pop();
-                      },
-                      child: const Text("OK"),
-                    ),
-                  ],
-                );
-              });
+          if (mounted) {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    title: const Text("An error occured"),
+                    content: Text(
+                        "There was an error while loading the stream: $error"),
+                    actions: [
+                      TextButton(
+                        onPressed: () {
+                          context.pop();
+                        },
+                        child: const Text("OK"),
+                      ),
+                    ],
+                  );
+                });
+          }
           throw Exception(error);
         });
         player.stream.completed.listen((completed) async {
@@ -209,28 +211,47 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
         if (await Permission.videos.isDenied ||
             await Permission.videos.isPermanentlyDenied) {
           final state = await Permission.videos.request();
-          if (!state.isGranted) {
-            await SystemNavigator.pop();
+          if (!state.isGranted && mounted) {
+            goBackAndShowSnackBar(
+                content: AppLocalizations.of(context)!.videoPermission);
           }
         }
         // Audio permissions.
         if (await Permission.audio.isDenied ||
             await Permission.audio.isPermanentlyDenied) {
           final state = await Permission.audio.request();
-          if (!state.isGranted) {
-            await SystemNavigator.pop();
+          if (!state.isGranted && mounted) {
+            goBackAndShowSnackBar(
+                content: AppLocalizations.of(context)!.audioPermission);
           }
         }
       } else {
         if (await Permission.storage.isDenied ||
             await Permission.storage.isPermanentlyDenied) {
           final state = await Permission.storage.request();
-          if (!state.isGranted) {
-            await SystemNavigator.pop();
+          if (!state.isGranted && mounted) {
+            goBackAndShowSnackBar(
+                content: AppLocalizations.of(context)!.storagePermission);
           }
         }
       }
     }
+  }
+
+  void goBackAndShowSnackBar({required String content}) {
+    Navigator.of(context).pop();
+    // show snackbar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(content),
+        action: SnackBarAction(
+          label: AppLocalizations.of(context)!.settings,
+          onPressed: () {
+            openAppSettings();
+          },
+        ),
+      ),
+    );
   }
 
   Future updateStream(
@@ -273,38 +294,43 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
             // Use [Video] widget to display video output.
             child: MaterialVideoControlsTheme(
               normal: MaterialVideoControlsThemeData(
-                  topButtonBar: getTopButtonBarThemeData(context),
-                  bottomButtonBar: getBottomButtonBarThemeData(
-                      playbackHelper,
-                      subtitleEnabled,
-                      subtitleTrack,
-                      audioTrack,
-                      maxStreamingBitrate,
-                      context),
-                  seekBarPositionColor: Theme.of(context).colorScheme.onPrimary,
-                  seekBarThumbColor: Theme.of(context).colorScheme.primary,
-                  seekBarThumbSize: 15,
-                  seekBarHeight: 4,
-                  seekOnDoubleTap: true,
-                  seekBarMargin:
-                      const EdgeInsets.only(bottom: 15, left: 10, right: 10)),
+                topButtonBar: getTopButtonBarThemeData(context),
+                bottomButtonBar: getBottomButtonBarThemeData(
+                    playbackHelper,
+                    subtitleEnabled,
+                    subtitleTrack,
+                    audioTrack,
+                    maxStreamingBitrate,
+                    context),
+                seekBarPositionColor: Theme.of(context).colorScheme.onPrimary,
+                seekBarThumbColor: Theme.of(context).colorScheme.primary,
+                seekBarThumbSize: 15,
+                seekBarHeight: 4,
+                seekBarMargin:
+                    const EdgeInsets.only(bottom: 25, left: 10, right: 10),
+                bottomButtonBarMargin:
+                    const EdgeInsets.only(bottom: 40, left: 10, right: 10),
+                seekOnDoubleTap: true,
+              ),
               fullscreen: MaterialVideoControlsThemeData(
-                  topButtonBar: getTopButtonBarThemeData(context),
-                  bottomButtonBar: getBottomButtonBarThemeData(
-                      playbackHelper,
-                      subtitleEnabled,
-                      subtitleTrack,
-                      audioTrack,
-                      maxStreamingBitrate,
-                      context),
-                  bottomButtonBarMargin: const EdgeInsets.only(bottom: 25),
-                  seekBarPositionColor: Theme.of(context).colorScheme.onPrimary,
-                  seekBarThumbColor: Theme.of(context).colorScheme.primary,
-                  seekBarThumbSize: 15,
-                  seekBarHeight: 4,
-                  seekOnDoubleTap: true,
-                  seekBarMargin:
-                      const EdgeInsets.only(bottom: 15, left: 10, right: 10)),
+                topButtonBar: getTopButtonBarThemeData(context),
+                bottomButtonBar: getBottomButtonBarThemeData(
+                    playbackHelper,
+                    subtitleEnabled,
+                    subtitleTrack,
+                    audioTrack,
+                    maxStreamingBitrate,
+                    context),
+                seekBarPositionColor: Theme.of(context).colorScheme.onPrimary,
+                seekBarThumbColor: Theme.of(context).colorScheme.primary,
+                seekBarThumbSize: 15,
+                seekBarHeight: 4,
+                seekBarMargin:
+                    const EdgeInsets.only(bottom: 25, left: 10, right: 10),
+                bottomButtonBarMargin:
+                    const EdgeInsets.only(bottom: 40, left: 10, right: 10),
+                seekOnDoubleTap: true,
+              ),
               child: MaterialDesktopVideoControlsTheme(
                   normal: MaterialDesktopVideoControlsThemeData(
                     topButtonBar: getTopButtonBarThemeData(context),
