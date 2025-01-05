@@ -387,10 +387,10 @@ jobs:
           name: jellyflix-macos
           path: build/macos/Build/Products/Release/jellyflix.dmg
 
-  build_linux:
+  build_linux_22_04:
     name: Build Linux
     needs: [version]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: Clone Repo
         uses: actions/checkout@v4
@@ -408,13 +408,6 @@ jobs:
           path: version1.txt
       - name: Update version in YAML
         run: sed -i 's/00.00.00+0/${{ steps.version.outputs.content }}+${{ github.run_number }}/g' pubspec.yaml
-
-      - name: Setup Java
-        uses: actions/setup-java@v4
-        with:
-          distribution: "zulu"
-          java-version: "17.x"
-          cache: gradle
 
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
@@ -438,14 +431,67 @@ jobs:
         uses: montudor/action-zip@v1
 
       - name: Zip Linux
-        run: zip -qq -r jellyflix-linux.zip .
+        run: zip -qq -r jellyflix-linux-22_04.zip .
         working-directory: build/linux/x64/release/bundle
 
       - name: Upload Linux
         uses: actions/upload-artifact@v4
         with:
           name: jellyflix-linux
-          path: build/linux/x64/release/bundle/jellyflix-linux.zip
+          path: build/linux/x64/release/bundle/jellyflix-linux-22_04.zip
+
+  build_linux_24_04:
+    name: Build Linux
+    needs: [version]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Clone Repo
+        uses: actions/checkout@v4
+
+      - name: Get version.txt
+        uses: actions/download-artifact@v4
+        with:
+          name: gitversion
+      - name: Create new file without newline char from version.txt
+        run: tr -d '\n' < version.txt > version1.txt
+      - name: Read version
+        id: version
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: version1.txt
+      - name: Update version in YAML
+        run: sed -i 's/00.00.00+0/${{ steps.version.outputs.content }}+${{ github.run_number }}/g' pubspec.yaml
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: "stable"
+          cache: true
+
+      - name: Setup build tools
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ninja-build libgtk-3-dev clang libmpv-dev mpv libsecret-1-dev libjsoncpp-dev
+          flutter doctor
+
+      - name: Run Pub get
+        run: flutter pub get
+
+      - name: Build Linux
+        run: flutter build linux --release --dart-define=ENCRYPTION_KEY=${{ secrets.ENCRYPTION_KEY }}
+
+      - name: Install zip
+        uses: montudor/action-zip@v1
+
+      - name: Zip Linux
+        run: zip -qq -r jellyflix-linux-24_04.zip .
+        working-directory: build/linux/x64/release/bundle
+
+      - name: Upload Linux
+        uses: actions/upload-artifact@v4
+        with:
+          name: jellyflix-linux
+          path: build/linux/x64/release/bundle/jellyflix-linux-24_04.zip
 
   build_windows:
     name: Build Windows
@@ -515,7 +561,14 @@ jobs:
 
   create_release:
     name: Create Release
-    needs: [build_android, build_linux, build_windows, build_macos]
+    needs:
+      [
+        build_android,
+        build_linux_22_04,
+        build_linux_24_04,
+        build_windows,
+        build_macos,
+      ]
     runs-on: ubuntu-latest
     steps:
       - name: Clone Repo
@@ -541,11 +594,17 @@ jobs:
           name: jellyflix-apk
           path: jellyflix-apk
 
-      - name: Download Artifacts Linux
+      - name: Download Artifacts Linux 22.04
         uses: actions/download-artifact@v4
         with:
-          name: jellyflix-linux
-          path: jellyflix-linux
+          name: jellyflix-linux-22_04
+          path: jellyflix-linux-22_04
+
+      - name: Download Artifacts Linux 24.04
+        uses: actions/download-artifact@v4
+        with:
+          name: jellyflix-linux-24_04
+          path: jellyflix-linux-24_04
 
       - name: Download Artifacts Windows
         uses: actions/download-artifact@v4
@@ -570,7 +629,7 @@ jobs:
         id: create_release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "jellyflix-apk/*.apk,jellyflix-linux/*,jellyflix-windows/*,jellyflix-macos/*"
+          artifacts: "jellyflix-apk/*.apk,jellyflix-linux-22_04/*,jellyflix-linux-24_04/*,jellyflix-windows/*,jellyflix-macos/*"
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ steps.version.outputs.content }}
           commit: ${{ github.sha }}
