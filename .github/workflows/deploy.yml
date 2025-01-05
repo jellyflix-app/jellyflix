@@ -437,7 +437,7 @@ jobs:
       - name: Upload Linux
         uses: actions/upload-artifact@v4
         with:
-          name: jellyflix-linux
+          name: jellyflix-linux-22_04
           path: build/linux/x64/release/bundle/jellyflix-linux-22_04.zip
 
   build_linux_24_04:
@@ -490,7 +490,7 @@ jobs:
       - name: Upload Linux
         uses: actions/upload-artifact@v4
         with:
-          name: jellyflix-linux
+          name: jellyflix-linux-24_04
           path: build/linux/x64/release/bundle/jellyflix-linux-24_04.zip
 
   build_windows:
