@@ -1,15 +1,9 @@
-import 'package:openapi/openapi.dart';
+import 'package:jellyflix/models/bitrates.dart';
+import 'package:tentacle/tentacle.dart';
 
 class PlaybackHelperService {
   final PlaybackInfoResponse item;
-
-  Map<int, String> bitrateMap = {
-    120000000: "2160p 120 Mb/s",
-    60000000: "1080p 60 Mb/s",
-    8000000: "720p 8 Mb/s",
-    4000000: "480p 4 Mb/s",
-    420000: "360p 420 Kb/s",
-  };
+  Map<int, String> bitrateMap = BitRates().map;
 
   PlaybackHelperService({required this.item});
 
@@ -40,16 +34,44 @@ class PlaybackHelperService {
     return item.mediaSources![0].defaultAudioStreamIndex ?? -1;
   }
 
-  List<MediaStream> getSubtitleList() {
-    return item.mediaSources![0].mediaStreams!
+  Map<MediaStream, int?> getSubtitleList() {
+    var subtitleStreams = item.mediaSources![0].mediaStreams!
         .where((element) => element.type == MediaStreamType.subtitle)
         .toList();
+    int index = 2;
+    // map the subtitle streams to the index
+    Map<MediaStream, int?> subtitleMap = {
+      MediaStream(
+        (b) {
+          b.displayTitle = "None";
+          b.index = -1;
+        },
+      ): 1, // should this be 0 or 1 auto / none
+    };
+    for (var stream in subtitleStreams) {
+      if (stream.isExternal!) {
+        subtitleMap.addAll({stream: null});
+      } else {
+        subtitleMap.addAll({stream: index});
+        index++;
+      }
+    }
+    return subtitleMap;
   }
 
-  List<MediaStream> getAudioList() {
-    return item.mediaSources![0].mediaStreams!
+  Map<MediaStream, int?> getAudioList() {
+    var audioStreams = item.mediaSources![0].mediaStreams!
         .where((element) => element.type == MediaStreamType.audio)
         .toList();
+    int index = 2;
+    // map the audio streams to the index
+    Map<MediaStream, int?> audioMap = {};
+    for (var stream in audioStreams) {
+      audioMap.addAll({stream: index});
+      index++;
+    }
+
+    return audioMap;
   }
 
   bool subtitleListIsEmpty() {

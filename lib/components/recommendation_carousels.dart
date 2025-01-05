@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/item_carousel.dart';
+import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/navigation/app_router.dart';
 import 'package:jellyflix/providers/api_provider.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class RecommendationCarousels extends HookConsumerWidget {
@@ -62,6 +64,12 @@ class RecommendationCarousels extends HookConsumerWidget {
                         .map((e) => e.productionYear.toString())
                         .toList(),
                     title: buildTitleString(data[index]),
+                    onTap: (carouselIndex) {
+                      context
+                          .push(Uri(path: ScreenPaths.detail, queryParameters: {
+                        "id": data[index].items![carouselIndex].id!,
+                      }).toString());
+                    },
                   ),
                 );
               });

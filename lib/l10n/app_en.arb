@@ -1,6 +1,5 @@
 {
     "@@locale": "en",
-
     "continueWatching": "Continue Watching",
     "recentlyAddedMovies": "Recently Added Movies",
     "recentlyAddedShows": "Recently Added Shows",
@@ -73,6 +72,7 @@
     "quickConnectError401": "Are you accessing the right server?",
     "quickConnectError404": "Invalid code",
     "quickConnectErrorUnknown": "Something went wrong",
+    "useQuickConnect": "Use Quick Connect to log in",
     "connect": "Connect",
     "code": "Code",
     "writers": "Writers",
@@ -92,9 +92,16 @@
     "addProfile": "Add Profile",
     "appSubtitle": "Another Jellyfin client",
     "serverAddress": "Server Address",
+    "loginWithPassword": "Password",
+    "loginWithQuickConnect": "QuickConnect",
     "login": "Login",
     "username": "Username",
     "password": "Password",
+    "emptyAddress": "Empty Server Address",
+    "emptyUsername": "Empty Username",
+    "emptyPassword": "Empty Password",
+    "emptyFields": "Please fill out the following fields",
+    "errorConnectingToServer": "Error connecting to server",
     "webDemoNote": "This is a demo version of Jellyflix. To use it, you can use the following credentials: \n\nServer Address: https://demo.jellyfin.org/stable \nUser Name: demo \nand empty password \n\n",
     "quality": "Quality",
     "audio": "Audio",
@@ -107,5 +114,85 @@
     "markAsUnplayed": "Mark as unplayed",
     "couldNotOpenTrailer": "Could not open trailer",
     "watchTrailer": "Watch Trailer",
+    "showsMaybeMissed": "Shows you may have missed",
+    "moviesMaybeMissed": "Movies you may have missed",
+    "highesRatedMovies": "Highest Rated Movies",
+    "highestRatedShows": "Highest Rated Shows",
+    "top10": "Top {count}",
+    "@top10": {
+        "placeholders": {
+          "count": {
+            "type": "int",
+            "example": "10"
+          }
+        }
+      },
+    "minutes": "{count} min",
+    "@minutes": {
+        "placeholders": {
+            "count": {
+              "type": "int",
+              "example": "50"
+            }
+          }
+    },
+    "similar": "Similar",
+    "downloads": "Downloads",
+    "download": "Download",
+    "noDownloads": "No downloads found",
+    "resumeDownload": "Resume Download",
+    "deleteDownload": "Delete Download",
+    "removedDownload": "Removed Download",
+    "startedDownload": "Started Download",
+    "cancelDownload": "Cancel Download",
+    "cancelAndRemoveAllDownloads": "Cancel and remove all Downloads",
+    "downloaded": "Downloaded",
+    "couldNotResumeDownload": "Couldn't resume Download!",
+    "allDownloadsRemoved": "All Downloads removed",
+    "cancel": "Cancel",
+    "save": "Save",
+    "setAudioAndSubtitleLanguage": "Set audio and subtitle language",
+    "setLocalDownloadBitrate": "Set local download bitrate",
+    "maxDownloadBitrateText": "Set the maximum bitrate for local downloads.",
+    "downloadApproxFilesize": "1h of playback equals approx. {size}GB",
+    "@downloadApproxFilesize": {
+        "placeholders": {
+          "size": {
+            "type": "String",
+            "example": "1.5"
+          }
+        }
+      },
+    "resumedDownload": "Resumed Download",
+    "canceledDownload": "Canceled Download",
+    "details": "Details",
+    "showMore": "Show more",
+    "showLess": "Show less",
+    "offlineNotice": "You're offline",
+    "disableImageCaching": "Disable image caching",
+    "restartApp": "Restart app",
+    "restartAppDescription": "Please restart the app for the changes to take effect.",
+    "ok": "OK",
+    "selectProfile": "Select Profile",
+    "ends": "Ends at {date}",
+    "@ends": {
+        "placeholders": {
+          "date": {
+            "type": "String",
+            "example": "21:30"
+          }
+        }
+      },
+    "disableWatchlist": "Disable Watchlist",
+    "deletePlaylistNotice": "To prevent data loss, please delete the playlist from the server, if it's no longer needed.",
+    "info": "Info",
+    "showPrimaryForEpisodes": "Show primary image instead of series poster in Continue Watching",
+    "storagePermission": "Storage Permission Denied",
+    "audioPermission": "Audio Permission Denied",
+    "videoPermission": "Video Permission Denied",
+    "errorMessage400": "The server could not understand the request, if you are using a proxy check its configuration.",
+    "errorMessage401": "Your username or password may be incorrect.",
+    "errorMessage403": "The server is blocking requests from this device. This probably means the device has been banned. Please contact your admin to resolve this issue.",
+    "errorMessageUnknown": "There has been an unknown error.",
     "appName": "Jellyflix"
 }

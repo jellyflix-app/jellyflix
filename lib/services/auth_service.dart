@@ -1,15 +1,17 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
 import 'package:jellyflix/models/user.dart';
 import 'package:jellyflix/services/api_service.dart';
-import 'package:jellyflix/services/secure_storage_service.dart';
+import 'package:jellyflix/services/database_service.dart';
 
 class AuthService {
   final ApiService _apiService;
-  final SecureStorageService _secureStorageService;
+
+  final DatabaseService _databaseService;
 
   final StreamController<bool> _authStateStream = StreamController();
+
   Stream<bool> get authStateChange => _authStateStream.stream;
 
   Future<bool> get isAuthenticated => _authStateStream.stream.last;
@@ -18,156 +20,234 @@ class AuthService {
 
   AuthService(
       {required ApiService apiService,
-      required SecureStorageService secureStorageService})
+      required DatabaseService databaseService})
       : _apiService = apiService,
-        _secureStorageService = secureStorageService {
+        _databaseService = databaseService {
     _authStateStream.add(false);
     checkAuthentication().then((value) {
       _authStateStream.add(value);
     });
   }
 
-  Future<bool> checkAuthentication({int? profileIndex}) async {
-    profileIndex ??= await currentProfileIndex();
-    if (profileIndex == null) {
-      _authStateStream.add(false);
-      return false;
-    }
-    String? storedUsername =
-        await _secureStorageService.read("username$profileIndex");
-    String? storedPassword =
-        await _secureStorageService.read("password$profileIndex");
-    String? storedServerAdress =
-        await _secureStorageService.read("serverAdress$profileIndex");
-    try {
-      if (storedUsername != null &&
-          storedPassword != null &&
-          storedServerAdress != null) {
-        await _apiService.login(
-            storedServerAdress, storedUsername, storedPassword);
-        _authStateStream.add(true);
-        return true;
+  Future<bool> checkAuthentication() async {
+    bool authenticated = await _apiService.checkAuthentication();
+    if (authenticated) {
+      _authStateStream.add(true);
+      return true;
+    } else {
+      String? profileId = currentProfileid();
+      if (profileId == null) {
+        _authStateStream.add(false);
+        return false;
       }
-      _authStateStream.add(false);
-      return false;
-    } catch (e) {
-      debugPrint(e.toString());
+      User? user = _databaseService.get(profileId);
+
+      try {
+        if (user != null) {
+          if (user.password != null) {
+            await login(user);
+          } else {
+            await _apiService.registerAccessToken(user);
+          }
+          
+          _authStateStream.add(true);
+          return true;
+        }
+      } catch (_) {}
+
       _authStateStream.add(false);
       return false;
     }
   }
 
-  Future login(String serverAdress, String username, String password) async {
-    if (!serverAdress.startsWith("http://") &&
-        !serverAdress.startsWith("https://")) {
-      serverAdress = "http://$serverAdress";
+  Future<User?> loginByQuickConnect(
+      String serverAddress, Function(String) code, CancelToken token) async {
+    final (url, candidates) = await inferServerUrl(serverAddress);
+    if (url == null) {
+      throw Exception('No valid server found on the given url\n'
+          '\nTried the following urls:\n'
+          '${candidates.join('\n-------------\n')}');
     }
-    User? user;
-    try {
-      user = await _apiService.login(serverAdress, username, password);
-    } catch (e) {
-      if (serverAdress.split(":").last != "8096" &&
-          serverAdress.split(":").length == 2) {
-        serverAdress = "$serverAdress:8096";
-        user = await _apiService.login(serverAdress, username, password);
-      } else {
-        rethrow;
-      }
+
+    final user = await _apiService.loginByQuickConnect(
+      url,
+      code,
+      token,
+    );
+
+    if (user == null) {
+      return null;
     }
-    int profileIndex = await saveProfile(user, password, serverAdress);
-    await updateCurrentProfileIndex(profileIndex);
+
+    _databaseService.put(user.id! + user.serverAdress!, user);
+    _databaseService.put("currentProfileId", user.id! + user.serverAdress!);
+
     _authStateStream.add(true);
+    return user;
   }
 
-  Future<void> updateCurrentProfileIndex(int? profileIndex) async {
-    await _secureStorageService.delete("currentProfileIndex");
-    await _secureStorageService.write(
-        "currentProfileIndex", profileIndex == null ? null : "$profileIndex");
+  Future<User> login(User user) async {
+    final (url, candidates) = await inferServerUrl(user.serverAdress!);
+    if (url == null) {
+      throw Exception('No valid server found on the given url\n'
+          '\nTried the following urls:\n'
+          '${candidates.join('\n-------------\n')}');
+    }
+
+    user = await _apiService.login(
+      url,
+      user.name!,
+      user.password!,
+    );
+
+    _databaseService.put(user.id! + user.serverAdress!, user);
+    _databaseService.put("currentProfileId", user.id! + user.serverAdress!);
+
+    _authStateStream.add(true);
+    return user;
   }
 
-  Future logout({int? profileIndex}) async {
-    profileIndex ??= await currentProfileIndex();
-    await _secureStorageService.delete("username${profileIndex!}");
-    await _secureStorageService.delete("password$profileIndex");
-    await _secureStorageService.delete("serverAdress$profileIndex");
-    await _secureStorageService.delete("userid$profileIndex");
-    await _secureStorageService.delete("currentProfileIndex");
+  /// infer the server URL based on the provided incomplete URL.
+  Future<(String?, List<String>)> inferServerUrl(String url) async {
+    final candidates = generateUrlCandidates(url);
+    for (final url in candidates) {
+      if (await _isValidJellyfinServer(url)) {
+        return (url, <String>[]);
+      }
+    }
+    return (null, candidates);
+  }
+
+  Future<bool> _isValidJellyfinServer(String url) async =>
+      await _apiService.ping(user: User(serverAdress: url)) ?? false;
+
+  void updateCurrentProfileId(String? profileId) async {
+    if (profileId == null) {
+      _databaseService.delete("currentProfileId");
+    }
+    _databaseService.put("currentProfileId", profileId);
+  }
+
+  Future<void> logout() async {
+    await _apiService.logout();
     _authStateStream.add(false);
   }
 
-  Future<int> saveProfile(
-    User user,
-    String password,
-    String serverAdress,
-  ) async {
-    var profileIndex = 0;
-    // check if username with same name exists
-    var allValues = await _secureStorageService.readAll();
-    // max 25 profiles
-    while (
-        allValues.containsKey("username$profileIndex") || profileIndex > 24) {
-      profileIndex++;
-    }
-    if (profileIndex > 24) {
-      throw Exception("Max 25 profiles allowed");
-    }
-    await _secureStorageService.write("username$profileIndex", user.name);
-    await _secureStorageService.write("password$profileIndex", password);
-    await _secureStorageService.write("userid$profileIndex", user.id);
-    await _secureStorageService.write(
-        "serverAdress$profileIndex", serverAdress);
-
-    return profileIndex;
+  /// [profileId] is a combination of userid and server url
+  Future<void> logoutAndDeleteProfile({String? profileId}) async {
+    await logout();
+    profileId ??= currentProfileid();
+    _databaseService.delete(profileId!);
+    _databaseService.delete("currentProfileId");
   }
 
-  Future switchProfile(profileIndex) async {
-    String? storedUsername =
-        await _secureStorageService.read("username$profileIndex");
-    String? storedPassword =
-        await _secureStorageService.read("password$profileIndex");
-    String? storedServerAdress =
-        await _secureStorageService.read("serverAdress$profileIndex");
-    if (storedUsername != null &&
-        storedPassword != null &&
-        storedServerAdress != null) {
-      await _apiService.login(
-          storedServerAdress, storedUsername, storedPassword);
+  Future switchProfile(String profileId) async {
+    User? user = _databaseService.get(profileId);
+    if (user != null && user.serverAdress != null && user.token != null) {
+      if (user.password != null) {
+        await _apiService.login(user.serverAdress!, user.name!, user.password!);
+      } else {
+        await _apiService.registerAccessToken(user);
+      }
+
       _authStateStream.add(true);
     } else {
       throw Exception("Profile not found");
     }
   }
 
-  Future<int?> currentProfileIndex() async {
-    String currentProfileIndexString =
-        await _secureStorageService.read("currentProfileIndex") ?? "";
-    return int.tryParse(currentProfileIndexString);
-  }
-
-  Future<bool> profilesIsNotEmpty() async {
-    var allValues = await _secureStorageService.contains("username");
-    return allValues.isNotEmpty;
+  String? currentProfileid() {
+    String? currentProfileIndexString =
+        _databaseService.get("currentProfileId");
+    return currentProfileIndexString;
   }
 
   Future<List<User>> getAllProfiles() async {
-    var allValues = await _secureStorageService.contains("username");
-
-    List<User> profiles = [];
-
-    for (var i = 0; i < allValues.length; i++) {
-      var profileIndex =
-          int.parse(allValues.keys.toList()[i].split("username").last);
-      var serverAdress =
-          await _secureStorageService.read("serverAdress$profileIndex");
-      var userId = await _secureStorageService.read("userid$profileIndex");
-      var name = await _secureStorageService.read("username$profileIndex");
-      profiles.add(User(
-          profileIndex: profileIndex,
-          name: name!,
-          serverAdress: serverAdress!,
-          id: userId));
-    }
+    Map allValues = await _databaseService.getAll();
+    allValues.remove("currentProfileId");
+    List<User> profiles = allValues.values.map((e) => e as User).toList();
 
     return profiles;
   }
+
+  Future<bool?> checkServerReachable({String? profileId}) async {
+    // get latest element from the stream
+    profileId ??= currentProfileid();
+    if (profileId == null) {
+      return null;
+    }
+    User? user = _databaseService.get(profileId);
+
+    return await _apiService.ping(user: user);
+  }
+}
+
+/// Function to generate URL candidates based on the input URL.
+List<String> generateUrlCandidates(String input) {
+  if (input.endsWith('/')) {
+    input = input.substring(0, input.length - 1);
+  }
+
+  final result = parseUrl(input);
+  if (result == null) return [];
+
+  final (scheme, host, port, path) = result;
+
+  List<String> protoCandidates = [];
+  List<String> supportedProtos = ['https:', 'http:'];
+
+  if (scheme.isNotEmpty) {
+    protoCandidates.add('$scheme//$host');
+  } else {
+    // The user did not declare a protocol
+    for (String proto in supportedProtos) {
+      protoCandidates.add('$proto//$host');
+    }
+  }
+
+  List<String> finalCandidates = [];
+  if (port.isNotEmpty) {
+    for (String candidate in protoCandidates) {
+      finalCandidates.add('$candidate:$port$path');
+    }
+  } else {
+    // The port wasn't declared, so use default Jellyfin and protocol ports
+    for (final finalUrl in protoCandidates) {
+      // add url without port
+      finalCandidates.add('$finalUrl$path');
+      // Jellyfin defaults
+      if (finalUrl.startsWith('https')) {
+        finalCandidates.add('$finalUrl:8920$path');
+      } else if (finalUrl.startsWith('http')) {
+        finalCandidates.add('$finalUrl:8096$path');
+      }
+    }
+  }
+
+  return finalCandidates;
+}
+
+/// parse url and separate it into its components
+/// if you are wondering why we don't use Uri.tryParse() it cannot parse ipv4 or ipv6 addresses
+(String, String, String, String)? parseUrl(String input) {
+  if (!(input.startsWith('http://') || input.startsWith('https://'))) {
+    // fill in a empty protocol, so regex matches
+    input = 'none://$input';
+  }
+
+  final rgx = RegExp(r'^(.*:)//([A-Za-z0-9\-.]+)(:[0-9]+)?(.*)$');
+  final match = rgx.firstMatch(input);
+
+  if (match != null) {
+    var scheme = match.group(1) ?? '';
+    final body = match.group(2) ?? '';
+    final port = match.group(3)?.substring(1) ?? ''; // Remove leading colon
+    final path = match.group(4) ?? '';
+
+    if (scheme == 'none:') {
+      scheme = '';
+    }
+    return (scheme, body, port, path);
+  }
+  return null;
 }

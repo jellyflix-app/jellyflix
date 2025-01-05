@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:jellyflix/components/jfx_text_theme.dart';
 import 'package:universal_platform/universal_platform.dart';
 
-class ItemCarouselRow extends StatelessWidget {
-  const ItemCarouselRow({
+class ItemCarouselLabel extends StatelessWidget {
+  final String? title;
+  final ScrollController scrollController;
+  final double offsetWidth;
+
+  const ItemCarouselLabel({
     super.key,
     this.title,
     required this.scrollController,
     required this.offsetWidth,
   });
-
-  final String? title;
-  final ScrollController scrollController;
-  final double offsetWidth;
 
   @override
   Widget build(BuildContext context) {
@@ -19,11 +20,15 @@ class ItemCarouselRow extends StatelessWidget {
       children: [
         title == null
             ? const SizedBox()
-            : Text(
-                title!,
-                style: Theme.of(context).textTheme.headlineSmall,
+            : Expanded(
+                child: Text(
+                  title!,
+                  style: JfxTextTheme.scalingTheme(context).headlineSmall,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-        const Spacer(),
+        if (!UniversalPlatform.isAndroid && !UniversalPlatform.isIOS)
+          const Spacer(),
         if (!UniversalPlatform.isAndroid && !UniversalPlatform.isIOS)
           IconButton(
             icon: const Icon(Icons.arrow_back_ios),

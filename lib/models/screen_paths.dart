@@ -7,4 +7,12 @@ class ScreenPaths {
   static const String login = '/login';
   static const String library = '/library';
   static const String profileSelection = '/profileSelection';
+  static const String downloads = '/downloads';
+  static const String offlinePlayer = '/offlinePlayer';
+  static const String loading = '/loading';
+}
+
+class LoginRouteNames {
+  static const String password = 'password';
+  static const String quickConnect = 'quickConnect';
 }

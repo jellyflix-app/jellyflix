@@ -1,12 +1,27 @@
 import 'package:flutter/services.dart';
-import 'package:jellyflix/providers/router_provider.dart';
-import 'package:flutter/material.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:universal_io/io.dart';
+import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
-void main() {
+import 'package:jellyflix/providers/router_provider.dart';
+import 'package:jellyflix/providers/scaffold_key.dart';
+import 'package:jellyflix/services/database_service.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isAndroid || Platform.isIOS) {
+    await FlutterDownloader.initialize(
+        debug:
+            true, // optional: set to false to disable printing logs to console (default: true)
+        ignoreSsl:
+            true // option: set to false to disable working with http links (default: false)
+        );
+  }
+  await DatabaseService.initialize();
+
   // Necessary initialization for package:media_kit.
   MediaKit.ensureInitialized();
   runApp(ProviderScope(
@@ -24,6 +39,7 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final appRouter = ref.read(routerProvider).router;
     return MaterialApp.router(
+      scaffoldMessengerKey: rootScaffoldMessengerKey,
       // localization
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
@@ -41,7 +57,9 @@ class MyApp extends ConsumerWidget {
           },
         ),
         colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.deepPurple, brightness: Brightness.dark),
+            seedColor: Colors.deepPurple,
+            primary: const Color(0xFFDBEBC0),
+            brightness: Brightness.dark),
         useMaterial3: true,
       ),
     );

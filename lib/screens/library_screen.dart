@@ -1,13 +1,16 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:filter_list/filter_list.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/components/jfx_layout.dart';
+import 'package:jellyflix/components/jfx_tile.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/models/skeleton_item.dart';
-import 'package:jellyflix/models/sort_type.dart';
 import 'package:jellyflix/providers/api_provider.dart';
-import 'package:openapi/openapi.dart';
+import 'package:tentacle/tentacle.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
@@ -29,7 +32,7 @@ class LibraryScreen extends HookConsumerWidget {
     final genreFilter = useState<List<BaseItemDto>?>(genreFilterParam == ""
         ? null
         : genreFilterParam?.split(",").map((e) {
-            return $BaseItemDto(
+            return BaseItemDto(
               (p0) {
                 p0.id = e;
               },
@@ -45,9 +48,9 @@ class LibraryScreen extends HookConsumerWidget {
                     element.toString().split(".").last.toLowerCase() ==
                     e.toLowerCase());
               }).toList());
-    final sortType = useState<SortType>(sortTypeParam == null
-        ? SortType.sortName
-        : SortType.values
+    final sortType = useState<ItemSortBy>(sortTypeParam == null
+        ? ItemSortBy.sortName
+        : ItemSortBy.values
             .where((element) =>
                 element.toString().split(".").last.toLowerCase() ==
                 sortTypeParam?.toLowerCase())
@@ -58,6 +61,9 @@ class LibraryScreen extends HookConsumerWidget {
             element.toString().split(".").last.toLowerCase() ==
             sortOrderParam!.toLowerCase()));
     int page = int.parse(pageNumberParam ?? "0");
+
+    final layout = JfxLayout.scalingLayout(context);
+
     return Scaffold(
       appBar: AppBar(
         title: Text(AppLocalizations.of(context)!.library),
@@ -73,11 +79,18 @@ class LibraryScreen extends HookConsumerWidget {
                   Expanded(
                     child: TextButton(
                       onPressed: () async {
+                        final listData = await ref.read(apiProvider).getGenres(
+                            includeItemTypes: [
+                              BaseItemKind.movie,
+                              BaseItemKind.series,
+                              BaseItemKind.boxSet
+                            ]);
+                        if (!context.mounted) return;
                         genreFilter.value = await openGenreDialog(
                           context,
                           ref,
                           selectedItemList: genreFilter.value ?? [],
-                          listData: await ref.read(apiProvider).getGenres(),
+                          listData: listData,
                         );
                       },
                       child: Text(
@@ -135,12 +148,12 @@ class LibraryScreen extends HookConsumerWidget {
                   Expanded(
                     child: TextButton(
                       onPressed: () {
-                        if (sortType.value == SortType.sortName) {
-                          sortType.value = SortType.premiereDate;
-                        } else if (sortType.value == SortType.premiereDate) {
-                          sortType.value = SortType.random;
-                        } else if (sortType.value == SortType.random) {
-                          sortType.value = SortType.sortName;
+                        if (sortType.value == ItemSortBy.sortName) {
+                          sortType.value = ItemSortBy.premiereDate;
+                        } else if (sortType.value == ItemSortBy.premiereDate) {
+                          sortType.value = ItemSortBy.random;
+                        } else if (sortType.value == ItemSortBy.random) {
+                          sortType.value = ItemSortBy.sortName;
                         }
                       },
                       child: Text(
@@ -154,197 +167,196 @@ class LibraryScreen extends HookConsumerWidget {
               ),
             ),
             Expanded(
-              child: Padding(
-                padding:
-                    const EdgeInsets.only(left: 20.0, right: 20.0, top: 10),
-                child: FutureBuilder(
-                  future: ref.read(apiProvider).getFilterItems(
-                        genreIds: genreFilter.value,
-                        startIndex: page * 100,
-                        limit: 100,
-                        sortOrder: [sortOrder.value],
-                        sortBy: [sortType.value.toString().split(".").last],
-                        filters: filterType.value,
-                      ),
-                  builder:
-                      (context, AsyncSnapshot<List<BaseItemDto>> snapshot) {
-                    List<BaseItemDto> itemsList =
-                        List.filled(20, SkeletonItem.baseItemDto);
-                    if (snapshot.hasData) {
-                      itemsList = snapshot.data!;
+              child: FutureBuilder(
+                future: ref.read(apiProvider).getFilterItems(
+                    genreIds: genreFilter.value,
+                    startIndex: page * 100,
+                    limit: 100,
+                    sortOrder: [sortOrder.value],
+                    sortBy: [sortType.value],
+                    filters: filterType.value,
+                    includeItemTypes: [
+                      BaseItemKind.movie,
+                      BaseItemKind.series,
+                      BaseItemKind.boxSet
+                    ]),
+                builder: (context, AsyncSnapshot<List<BaseItemDto>> snapshot) {
+                  List<BaseItemDto> itemsList =
+                      List.filled(20, SkeletonItem.baseItemDto);
+                  if (snapshot.hasData) {
+                    itemsList = snapshot.data!;
 
-                      if (itemsList.isEmpty) {
-                        return Center(
-                          child:
-                              Text(AppLocalizations.of(context)!.noItemsFound),
-                        );
-                      }
+                    if (itemsList.isEmpty) {
+                      return Center(
+                        child: Text(AppLocalizations.of(context)!.noItemsFound),
+                      );
                     }
-                    return Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Expanded(
-                          child: Skeletonizer(
-                            effect: ShimmerEffect(
-                              baseColor: Colors.grey.withOpacity(0.5),
-                              highlightColor: Colors.white.withOpacity(0.5),
-                            ),
-                            enabled: !snapshot.hasData,
-                            child: GridView.builder(
-                              gridDelegate:
-                                  const SliverGridDelegateWithMaxCrossAxisExtent(
-                                      maxCrossAxisExtent: 125,
-                                      mainAxisExtent: 250,
-                                      crossAxisSpacing: 10,
-                                      mainAxisSpacing: 10),
-                              itemCount: itemsList.length,
-                              itemBuilder: (context, index) {
-                                return Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    AspectRatio(
-                                      aspectRatio: 2 / 3,
-                                      child: Stack(
-                                        children: [
-                                          Positioned.fill(
-                                            child: Container(
-                                              decoration: BoxDecoration(
-                                                borderRadius:
-                                                    BorderRadius.circular(10.0),
-                                                boxShadow: [
-                                                  BoxShadow(
-                                                    color: Colors.black
-                                                        .withOpacity(0.5),
-                                                    spreadRadius: 2,
-                                                    blurRadius: 5,
-                                                    offset: const Offset(0, 3),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: ref
-                                                  .read(apiProvider)
-                                                  .getImage(
-                                                    id: itemsList[index].id!,
-                                                    type: ImageType.primary,
-                                                    blurHash: itemsList[index]
-                                                        .imageBlurHashes
-                                                        ?.primary
-                                                        ?.values
-                                                        .first,
-                                                    cacheHeight: 300,
-                                                  ),
-                                            ),
-                                          ),
-                                          Positioned.fill(
-                                            child: Material(
-                                              color: Colors.transparent,
-                                              child: InkWell(
-                                                borderRadius:
-                                                    BorderRadius.circular(10.0),
-                                                onTap: () {
-                                                  context.push(Uri(
-                                                      path: ScreenPaths.detail,
-                                                      queryParameters: {
-                                                        "id": itemsList[index]
-                                                            .id!,
-                                                      }).toString());
-                                                },
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
+                  }
+                  return Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(
+                            left: 10.0, right: 10.0, top: 10),
+                        child: Skeletonizer(
+                          effect: ShimmerEffect(
+                            baseColor: Colors.grey.withOpacity(0.5),
+                            highlightColor: Colors.white.withOpacity(0.5),
+                          ),
+                          enabled: !snapshot.hasData,
+                          child: GridView.builder(
+                            padding: const EdgeInsets.only(bottom: 50.0),
+                            gridDelegate:
+                                SliverGridDelegateWithMaxCrossAxisExtent(
+                                    maxCrossAxisExtent:
+                                        layout.tileWidth + (layout.tilePadding),
+                                    mainAxisExtent: layout.tileHeight +
+                                        (layout.text.bodyMedium!.fontSize! *
+                                            3.5),
+                                    crossAxisSpacing: layout.tilePadding,
+                                    mainAxisSpacing: layout.tilePadding),
+                            itemCount: itemsList.length,
+                            itemBuilder: (context, index) {
+                              return Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  JfxTile(
+                                      id: itemsList[index].id!,
+                                      onTap: () {
+                                        context.push(Uri(
+                                            path: ScreenPaths.detail,
+                                            queryParameters: {
+                                              "id": itemsList[index].id!,
+                                            }).toString());
+                                      },
+                                      blurHash: itemsList[index]
+                                          .imageBlurHashes
+                                          ?.primary
+                                          ?.values
+                                          .first),
+                                  const SizedBox(height: 5.0),
+                                  Flexible(
+                                    child: Text(
+                                      itemsList[index].name!,
+                                      style: layout.text.bodyMedium,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
-                                    const SizedBox(height: 5.0),
-                                    Flexible(
-                                      child: Text(
-                                        itemsList[index].name!,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
+                                  ),
+                                  Flexible(
+                                    child: Text(
+                                      itemsList[index]
+                                          .productionYear
+                                          .toString(),
+                                      style: layout.text.bodyMedium,
                                     ),
-                                    Flexible(
-                                      child: Text(
-                                        itemsList[index]
-                                            .productionYear
-                                            .toString(),
-                                        style: const TextStyle(fontSize: 10),
-                                      ),
-                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.bottomCenter,
+                        child: ClipRRect(
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Theme.of(context)
+                                        .scaffoldBackgroundColor
+                                        .withOpacity(0.2),
+                                    Theme.of(context).scaffoldBackgroundColor,
                                   ],
-                                );
-                              },
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.5),
+                                    spreadRadius: 2,
+                                    blurRadius: 5,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  if (page > 0)
+                                    IconButton(
+                                      onPressed: () {
+                                        context.push(Uri(
+                                            path: ScreenPaths.library,
+                                            queryParameters: {
+                                              "genreFilter": genreFilter.value
+                                                  ?.map((e) => e.id)
+                                                  .join(","),
+                                              "filterType": filterType.value
+                                                  .map((e) => e
+                                                      .toString()
+                                                      .split(".")
+                                                      .last)
+                                                  .join(","),
+                                              "sortType": sortType.value
+                                                  .toString()
+                                                  .split(".")
+                                                  .last,
+                                              "sortOrder": sortOrder.value
+                                                  .toString()
+                                                  .split(".")
+                                                  .last,
+                                              "pageNumber":
+                                                  (page - 1).toString(),
+                                            }).toString());
+                                      },
+                                      icon: const Icon(Icons.arrow_back_ios),
+                                    ),
+                                  const SizedBox(
+                                    width: 20,
+                                  ),
+                                  if (itemsList.length == 100)
+                                    IconButton(
+                                      onPressed: () {
+                                        context.push(Uri(
+                                            path: ScreenPaths.library,
+                                            queryParameters: {
+                                              "genreFilter": genreFilter.value
+                                                  ?.map((e) => e.id)
+                                                  .join(","),
+                                              "filterType": filterType.value
+                                                  .map((e) => e
+                                                      .toString()
+                                                      .split(".")
+                                                      .last)
+                                                  .join(","),
+                                              "sortType": sortType.value
+                                                  .toString()
+                                                  .split(".")
+                                                  .last,
+                                              "sortOrder": sortOrder.value
+                                                  .toString()
+                                                  .split(".")
+                                                  .last,
+                                              "pageNumber":
+                                                  (page + 1).toString(),
+                                            }).toString());
+                                      },
+                                      icon: const Icon(Icons.arrow_forward_ios),
+                                    ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              if (page > 0)
-                                IconButton(
-                                  onPressed: () {
-                                    context.push(Uri(
-                                        path: ScreenPaths.library,
-                                        queryParameters: {
-                                          "genreFilter": genreFilter.value
-                                              ?.map((e) => e.id)
-                                              .join(","),
-                                          "filterType": filterType.value
-                                              .map((e) =>
-                                                  e.toString().split(".").last)
-                                              .join(","),
-                                          "sortType": sortType.value
-                                              .toString()
-                                              .split(".")
-                                              .last,
-                                          "sortOrder": sortOrder.value
-                                              .toString()
-                                              .split(".")
-                                              .last,
-                                          "pageNumber": (page - 1).toString(),
-                                        }).toString());
-                                  },
-                                  icon: const Icon(Icons.arrow_back_ios),
-                                ),
-                              const SizedBox(
-                                width: 20,
-                              ),
-                              IconButton(
-                                onPressed: () {
-                                  context.push(Uri(
-                                      path: ScreenPaths.library,
-                                      queryParameters: {
-                                        "genreFilter": genreFilter.value
-                                            ?.map((e) => e.id)
-                                            .join(","),
-                                        "filterType": filterType.value
-                                            .map((e) =>
-                                                e.toString().split(".").last)
-                                            .join(","),
-                                        "sortType": sortType.value
-                                            .toString()
-                                            .split(".")
-                                            .last,
-                                        "sortOrder": sortOrder.value
-                                            .toString()
-                                            .split(".")
-                                            .last,
-                                        "pageNumber": (page + 1).toString(),
-                                      }).toString());
-                                },
-                                icon: const Icon(Icons.arrow_forward_ios),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    );
-                  },
-                ),
+                      ),
+                    ],
+                  );
+                },
               ),
             ),
           ],
@@ -379,8 +391,8 @@ class LibraryScreen extends HookConsumerWidget {
             choiceChipBuilder: (context, item, isSelected) => Padding(
               padding: const EdgeInsets.all(5.0),
               child: ChoiceChip(
-                  color: MaterialStateProperty.resolveWith((states) {
-                    if (states.contains(MaterialState.selected)) {
+                  color: WidgetStateProperty.resolveWith((states) {
+                    if (states.contains(WidgetState.selected)) {
                       return Theme.of(context).buttonTheme.colorScheme!.primary;
                     }
                     return Theme.of(context).focusColor;
@@ -446,8 +458,8 @@ class LibraryScreen extends HookConsumerWidget {
               choiceChipBuilder: (context, item, isSelected) => Padding(
                 padding: const EdgeInsets.all(5.0),
                 child: ChoiceChip(
-                    color: MaterialStateProperty.resolveWith((states) {
-                      if (states.contains(MaterialState.selected)) {
+                    color: WidgetStateProperty.resolveWith((states) {
+                      if (states.contains(WidgetState.selected)) {
                         return Theme.of(context)
                             .buttonTheme
                             .colorScheme!
@@ -492,14 +504,16 @@ class LibraryScreen extends HookConsumerWidget {
     return null;
   }
 
-  String localizeSortType(BuildContext context, SortType sortType) {
+  String localizeSortType(BuildContext context, ItemSortBy sortType) {
     switch (sortType) {
-      case SortType.sortName:
+      case ItemSortBy.sortName:
         return AppLocalizations.of(context)!.name;
-      case SortType.premiereDate:
+      case ItemSortBy.premiereDate:
         return AppLocalizations.of(context)!.premiereDate;
-      case SortType.random:
+      case ItemSortBy.random:
         return AppLocalizations.of(context)!.random;
+      default:
+        return sortType.toString().split(".").last;
     }
   }
 }
