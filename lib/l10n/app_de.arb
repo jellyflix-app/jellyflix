@@ -296,5 +296,19 @@
   "videoPermission": "Videoberechtigung verweigert",
   "@videoPermission": {},
   "storagePermission": "Speicherzugriff verweigert",
-  "@storagePermission": {}
+  "@storagePermission": {},
+  "useQuickConnect": "Quick Connect zum Anmelden benutzen",
+  "@useQuickConnect": {},
+  "loginWithPassword": "Passwort",
+  "@loginWithPassword": {},
+  "loginWithQuickConnect": "QuickConnect",
+  "@loginWithQuickConnect": {},
+  "errorMessage401": "Dein Benutzername und Passwort könnten falsch sein.",
+  "@errorMessage401": {},
+  "errorMessage400": "Der Server konnte die Anfrage nicht verstehen, wenn du einen Proxy benutzt, prüfe dessen Konfiguration.",
+  "@errorMessage400": {},
+  "errorMessage403": "Der Server blockiert Anfragen von diesem Gerät. Das könnte bedeuten, dass das Gerät gebannt wurde. Bitte kontaktiere deinen Administrator um das Problem zu lösen.",
+  "@errorMessage403": {},
+  "errorMessageUnknown": "Ein unerwarteter Fehler ist aufgetreten.",
+  "@errorMessageUnknown": {}
 }

@@ -47,14 +47,16 @@ There is a native macOS app available. You can download it from the link above. 
 
 ### Linux
 
-[![](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://github.com/jellyflix-app/jellyflix/releases/latest/download/jellyflix-linux.zip)
+[![](https://img.shields.io/badge/Linux-FCC624?style=for-the-badge&logo=linux&logoColor=black)](https://github.com/jellyflix-app/jellyflix/releases/latest)
+Download and extract the version that is most suitable for your system.
 
 You also need to install the following dependencies to run Jellyflix:
 ```bash
 sudo apt install libjsoncpp-dev libsecret-1-0 libmpv-dev mpv
-``` 
+```
 
-If Jellyflix can't launch because it can't find libmpv, but you did install it. You can [follow the workaround below](#linux-1).
+If Jellyflix can't launch because it can't find libmpv or has key-ring issues. You can [the documentation below](#linux-1
+You might be prompted to choose a password for the keyring. This is a system dialog and not a Jellyflix dialog. The password is used to store the Jellyfin credentials securely.
 
 ### Web
 
@@ -103,6 +105,8 @@ sudo apt install clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev
 # Jellyflix needs the following additonal dependencies
 sudo apt install libjsoncpp-dev libmpv-dev libsecret-1-dev mpv
 ```
+
+Apart from libsecret you also need a keyring service, for that you need either gnome-keyring (for Gnome users) or ksecretsservice (for KDE users) or other light provider like [secret-service](https://github.com/yousefvand/secret-service).
 
 If your distro only provides libmpv, this workaround is necessary:
 
