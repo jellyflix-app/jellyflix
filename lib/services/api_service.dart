@@ -80,8 +80,7 @@ class ApiService {
       sendTimeout: const Duration(seconds: 5),
     )));
 
-    headers["Authorization"] =
-        "$authHeader, Token=\"${user.token}\"";
+    headers["Authorization"] = "$authHeader, Token=\"${user.token}\"";
 
     headers["Origin"] = user.serverAdress!;
   }
@@ -117,7 +116,8 @@ class ApiService {
     while (!token.isCancelled) {
       var stateResponse = await _jellyfinApi
           ?.getQuickConnectApi()
-          .getQuickConnectState(secret: response.data!.secret!, cancelToken: token);
+          .getQuickConnectState(
+              secret: response.data!.secret!, cancelToken: token);
 
       if (stateResponse?.data?.authenticated == true) {
         var response =
@@ -245,17 +245,19 @@ class ApiService {
     return response.data!.items!.toList();
   }
 
-  Future<List<BaseItemDto>> getFilterItems(
-      {List<BaseItemDto>? genreIds,
-      String? searchTerm,
-      bool? isPlayed,
-      List<ItemSortBy>? sortBy,
-      int? limit,
-      int? startIndex,
-      List<BaseItemKind>? includeItemTypes,
-      List<SortOrder>? sortOrder,
-      List<ItemFilter>? filters,
-      double? minCommunityRating}) async {
+  Future<List<BaseItemDto>> getFilterItems({
+    List<BaseItemDto>? genreIds,
+    String? searchTerm,
+    bool? isPlayed,
+    List<ItemSortBy>? sortBy,
+    int? limit,
+    int? startIndex,
+    List<BaseItemKind>? includeItemTypes,
+    List<SortOrder>? sortOrder,
+    List<ItemFilter>? filters,
+    double? minCommunityRating,
+    String? parentId,
+  }) async {
     var ids = genreIds == null
         ? null
         : BuiltList<String>.from(genreIds.map((e) => e.id!));
@@ -275,6 +277,7 @@ class ApiService {
             startIndex: startIndex,
             enableTotalRecordCount: false,
             minCommunityRating: minCommunityRating,
+            parentId: parentId,
             includeItemTypes: BuiltList<BaseItemKind>(
               includeItemTypes ??
                   [
@@ -284,11 +287,13 @@ class ApiService {
                     BaseItemKind.boxSet
                   ],
             ),
-            fields: BuiltList<ItemFields>([
-              ItemFields.overview,
-              ItemFields.providerIds,
-              ItemFields.mediaSources
-            ]),
+            fields: BuiltList<ItemFields>(
+              [
+                ItemFields.overview,
+                ItemFields.providerIds,
+                ItemFields.mediaSources
+              ],
+            ),
           );
 
       return response.data!.items!.toList();

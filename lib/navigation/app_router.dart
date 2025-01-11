@@ -66,6 +66,7 @@ class AppRouter {
                   pageNumberParam: state.uri.queryParameters['pageNumber'],
                   sortOrderParam: state.uri.queryParameters['sortOrder'],
                   sortTypeParam: state.uri.queryParameters['sortType'],
+                  libraryParam: state.uri.queryParameters['library'],
                 ),
               ),
             ),
@@ -147,7 +148,8 @@ class AppRouter {
           context: context,
           state: state,
           maintainState: false,
-          child: LoginPasswordScreen(serverAddress: state.pathParameters['server']!),
+          child: LoginPasswordScreen(
+              serverAddress: state.pathParameters['server']!),
         ),
       ),
       GoRoute(
@@ -157,7 +159,8 @@ class AppRouter {
           context: context,
           state: state,
           maintainState: false,
-          child: LoginQuickConnectScreen(serverAddress: state.pathParameters['server']!),
+          child: LoginQuickConnectScreen(
+              serverAddress: state.pathParameters['server']!),
         ),
       ),
     ],
