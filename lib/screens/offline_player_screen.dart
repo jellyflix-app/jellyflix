@@ -171,6 +171,7 @@ class _PlayerSreenState extends ConsumerState<OfflinePlayerScreen> {
                     seekBarPositionColor:
                         Theme.of(context).colorScheme.onPrimary,
                     seekBarThumbColor: Theme.of(context).colorScheme.primary,
+                    playAndPauseOnTap: true,
                   ),
                   fullscreen: MaterialDesktopVideoControlsThemeData(
                     topButtonBar: getTopButtonBarThemeData(context),
@@ -178,6 +179,7 @@ class _PlayerSreenState extends ConsumerState<OfflinePlayerScreen> {
                     seekBarPositionColor:
                         Theme.of(context).colorScheme.onPrimary,
                     seekBarThumbColor: Theme.of(context).colorScheme.primary,
+                    playAndPauseOnTap: true,
                   ),
                   child: Video(
                     key: key,
