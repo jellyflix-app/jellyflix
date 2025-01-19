@@ -4,6 +4,7 @@ import 'package:jellyflix/components/jellyfin_image.dart';
 
 class JfxTile extends StatelessWidget {
   final String id;
+  final Widget? overlay;
   final String? blurHash;
   final VoidCallback onTap;
 
@@ -11,6 +12,7 @@ class JfxTile extends StatelessWidget {
     super.key,
     required this.id,
     required this.onTap,
+    this.overlay,
     this.blurHash,
   });
 
@@ -98,6 +100,7 @@ class JfxTile extends StatelessWidget {
                     ),
                   ),
                 ),
+                overlay != null ? overlay! : const SizedBox.shrink(),
               ],
             ),
           );
