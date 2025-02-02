@@ -1,10 +1,10 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:filter_list/filter_list.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/components/jfx_filter_list_dialog.dart';
 import 'package:jellyflix/components/jfx_layout.dart';
 import 'package:jellyflix/components/jfx_tile.dart';
 import 'package:jellyflix/models/screen_paths.dart';
@@ -117,7 +117,8 @@ class LibraryScreen extends HookConsumerWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if (!(genreFilter.value == null &&
+                    if (!((genreFilter.value == null ||
+                            genreFilter.value!.isEmpty) &&
                         filterType.value.isEmpty &&
                         sortOrder.value == SortOrder.ascending &&
                         sortType.value == ItemSortBy.sortName &&
@@ -136,14 +137,15 @@ class LibraryScreen extends HookConsumerWidget {
                           ),
                           onPressed: () {
                             genreFilter.value = null;
-                            filterType.value = [];
+                            filterType.value.isEmpty;
                             sortType.value = ItemSortBy.sortName;
                             sortOrder.value = SortOrder.ascending;
                             order.value =
                                 AppLocalizations.of(context)!.ascending;
                             selectedLibrary.value = null;
                           }),
-                    if (!(genreFilter.value == null &&
+                    if (!((genreFilter.value == null ||
+                            genreFilter.value!.isEmpty) &&
                         filterType.value.isEmpty &&
                         sortOrder.value == SortOrder.ascending &&
                         sortType.value == ItemSortBy.sortName &&
@@ -152,99 +154,27 @@ class LibraryScreen extends HookConsumerWidget {
                         width: 10,
                       ),
                     FilterButton(
-                        text:
-                            "${AppLocalizations.of(context)!.library}: ${selectedLibrary.value == null ? AppLocalizations.of(context)!.all : selectedLibrary.value!.name}",
-                        length: 1,
-                        onPressed: () async {
-                          await showDialog(
-                            context: context,
-                            builder: (context) {
-                              return FilterListWidget<BaseItemDto>(
-                                enableOnlySingleSelection: true,
-                                listData: allLibraries.value!,
-                                selectedListData: selectedLibrary.value == null
-                                    ? []
-                                    : [selectedLibrary.value!],
-                                choiceChipLabel: (item) => item!.name,
-                                validateSelectedItem: (list, val) {
-                                  //if (list == null) return false;
-                                  return list!.contains(val);
-                                },
-                                onItemSearch: (item, query) {
-                                  return item.name!
-                                      .toLowerCase()
-                                      .contains(query.toLowerCase());
-                                },
-                                onApplyButtonClick: (list) {
-                                  if (list != null && list.isNotEmpty) {
-                                    selectedLibrary.value = list.first;
-                                  } else {
-                                    selectedLibrary.value = null;
-                                  }
-                                  Navigator.pop(context, list);
-                                },
-                                choiceChipBuilder:
-                                    (context, item, isSelected) => Padding(
-                                  padding: const EdgeInsets.all(5.0),
-                                  child: ChoiceChip(
-                                      color: WidgetStateProperty.resolveWith(
-                                          (states) {
-                                        if (states
-                                            .contains(WidgetState.selected)) {
-                                          return Theme.of(context)
-                                              .buttonTheme
-                                              .colorScheme!
-                                              .primary;
-                                        }
-                                        return Theme.of(context).focusColor;
-                                      }),
-                                      label: Text(
-                                        item.name,
-                                        style: const TextStyle(
-                                            color: Colors.white),
-                                      ),
-                                      selected: isSelected ?? false),
-                                ),
-                                themeData: FilterListThemeData(
-                                  context,
-                                  backgroundColor:
-                                      Theme.of(context).dialogBackgroundColor,
-                                  headerTheme: HeaderThemeData(
-                                    backgroundColor:
-                                        Theme.of(context).dialogBackgroundColor,
-                                    searchFieldBackgroundColor:
-                                        Theme.of(context).focusColor,
-                                    searchFieldIconColor:
-                                        Theme.of(context).iconTheme.color,
-                                    closeIconColor:
-                                        Theme.of(context).iconTheme.color!,
-                                  ),
-                                  controlButtonBarTheme:
-                                      ControlButtonBarThemeData(
-                                    context,
-                                    backgroundColor:
-                                        Theme.of(context).focusColor,
-                                    padding: EdgeInsets.zero,
-                                    controlButtonTheme: ControlButtonThemeData(
-                                      textStyle: TextStyle(
-                                        color: Theme.of(context)
-                                            .buttonTheme
-                                            .colorScheme!
-                                            .onSurface,
-                                      ),
-                                      primaryButtonBackgroundColor:
-                                          Theme.of(context)
-                                              .buttonTheme
-                                              .colorScheme!
-                                              .primary,
-                                    ),
-                                  ),
-                                  wrapAlignment: WrapAlignment.center,
-                                ),
-                              );
-                            },
-                          );
-                        }),
+                      text:
+                          "${AppLocalizations.of(context)!.library}: ${selectedLibrary.value == null ? AppLocalizations.of(context)!.all : selectedLibrary.value!.name}",
+                      length: 1,
+                      onPressed: () async {
+                        await JfxFilterListDialog.show<BaseItemDto>(
+                          context,
+                          listData: allLibraries.value!,
+                          selectedListData: selectedLibrary.value == null
+                              ? []
+                              : [selectedLibrary.value!],
+                          onApplyButtonClick: (list) {
+                            if (list != null && list.isNotEmpty) {
+                              selectedLibrary.value = list.first;
+                            } else {
+                              selectedLibrary.value = null;
+                            }
+                            context.pop();
+                          },
+                        );
+                      },
+                    ),
                     const SizedBox(
                       width: 10,
                     ),
@@ -260,12 +190,13 @@ class LibraryScreen extends HookConsumerWidget {
                               BaseItemKind.boxSet
                             ]);
                         if (!context.mounted) return;
-                        genreFilter.value = await openGenreDialog(
-                          context,
-                          ref,
-                          selectedItemList: genreFilter.value ?? [],
-                          listData: listData,
-                        );
+                        await JfxFilterListDialog.show<BaseItemDto>(context,
+                            listData: listData,
+                            selectedListData: genreFilter.value ?? [],
+                            onApplyButtonClick: (list) {
+                          genreFilter.value = list;
+                          context.pop(list);
+                        });
                       },
                     ),
                     const SizedBox(
@@ -278,10 +209,15 @@ class LibraryScreen extends HookConsumerWidget {
                           .map((e) => e.toString().split("."))
                           .length,
                       onPressed: () async {
-                        filterType.value = await openFilterDialog(context, ref,
-                                selectedItemList: filterType.value,
-                                listData: ItemFilter.values.toList()) ??
-                            [];
+                        await JfxFilterListDialog.show<ItemFilter>(context,
+                            selectedListData: filterType.value,
+                            listData: ItemFilter.values.where((e) {
+                              return e != ItemFilter.isFolder &&
+                                  e != ItemFilter.isNotFolder;
+                            }).toList(), onApplyButtonClick: (list) {
+                          filterType.value = list ?? [];
+                          context.pop();
+                        });
                       },
                     ),
                     const SizedBox(
@@ -537,145 +473,6 @@ class LibraryScreen extends HookConsumerWidget {
         ],
       ),
     );
-  }
-
-  Future<List<BaseItemDto>?> openGenreDialog(
-    BuildContext context,
-    WidgetRef ref, {
-    required List<BaseItemDto> selectedItemList,
-    required List<BaseItemDto> listData,
-  }) async {
-    List<BaseItemDto>? resultList;
-    if (context.mounted) {
-      await showDialog(
-        context: context,
-        builder: (context) {
-          return FilterListWidget<BaseItemDto>(
-            listData: listData,
-            selectedListData: selectedItemList,
-            choiceChipLabel: (item) => item!.name,
-            validateSelectedItem: (list, val) => list!.contains(val),
-            onItemSearch: (item, query) {
-              return item.name!.toLowerCase().contains(query.toLowerCase());
-            },
-            onApplyButtonClick: (list) {
-              resultList = list;
-              Navigator.pop(context, list);
-            },
-            choiceChipBuilder: (context, item, isSelected) => Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: ChoiceChip(
-                  color: WidgetStateProperty.resolveWith((states) {
-                    if (states.contains(WidgetState.selected)) {
-                      return Theme.of(context).buttonTheme.colorScheme!.primary;
-                    }
-                    return Theme.of(context).focusColor;
-                  }),
-                  label: Text(
-                    item!.name,
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  selected: isSelected ?? false),
-            ),
-            themeData: FilterListThemeData(
-              context,
-              backgroundColor: Theme.of(context).dialogBackgroundColor,
-              headerTheme: HeaderThemeData(
-                backgroundColor: Theme.of(context).dialogBackgroundColor,
-                searchFieldBackgroundColor: Theme.of(context).focusColor,
-                searchFieldIconColor: Theme.of(context).iconTheme.color,
-                closeIconColor: Theme.of(context).iconTheme.color!,
-              ),
-              controlButtonBarTheme: ControlButtonBarThemeData(
-                context,
-                backgroundColor: Theme.of(context).focusColor,
-                padding: EdgeInsets.zero,
-                controlButtonTheme: ControlButtonThemeData(
-                  textStyle: TextStyle(
-                    color: Theme.of(context).buttonTheme.colorScheme!.onSurface,
-                  ),
-                  primaryButtonBackgroundColor:
-                      Theme.of(context).buttonTheme.colorScheme!.primary,
-                ),
-              ),
-              wrapAlignment: WrapAlignment.center,
-            ),
-          );
-        },
-      );
-      return resultList;
-    }
-    return null;
-  }
-
-  Future<List<ItemFilter>?> openFilterDialog(
-      BuildContext context, WidgetRef ref,
-      {required List<ItemFilter> selectedItemList,
-      required List<ItemFilter> listData}) async {
-    List<ItemFilter>? resultList;
-    if (context.mounted) {
-      await showDialog(
-          context: context,
-          builder: (context) {
-            return FilterListWidget<ItemFilter>(
-              listData: listData,
-              selectedListData: selectedItemList,
-              choiceChipLabel: (item) => item!.name,
-              validateSelectedItem: (list, val) => list!.contains(val),
-              onItemSearch: (item, query) {
-                return item.name.toLowerCase().contains(query.toLowerCase());
-              },
-              onApplyButtonClick: (list) {
-                resultList = list;
-                Navigator.pop(context, list);
-              },
-              choiceChipBuilder: (context, item, isSelected) => Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: ChoiceChip(
-                    color: WidgetStateProperty.resolveWith((states) {
-                      if (states.contains(WidgetState.selected)) {
-                        return Theme.of(context)
-                            .buttonTheme
-                            .colorScheme!
-                            .primary;
-                      }
-                      return Theme.of(context).focusColor;
-                    }),
-                    label: Text(
-                      item.toString().split(".").last,
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                    selected: isSelected ?? false),
-              ),
-              themeData: FilterListThemeData(
-                context,
-                backgroundColor: Theme.of(context).dialogBackgroundColor,
-                headerTheme: HeaderThemeData(
-                  backgroundColor: Theme.of(context).dialogBackgroundColor,
-                  searchFieldBackgroundColor: Theme.of(context).focusColor,
-                  searchFieldIconColor: Theme.of(context).iconTheme.color,
-                  closeIconColor: Theme.of(context).iconTheme.color!,
-                ),
-                controlButtonBarTheme: ControlButtonBarThemeData(
-                  context,
-                  backgroundColor: Theme.of(context).focusColor,
-                  padding: EdgeInsets.zero,
-                  controlButtonTheme: ControlButtonThemeData(
-                    textStyle: TextStyle(
-                      color:
-                          Theme.of(context).buttonTheme.colorScheme!.onSurface,
-                    ),
-                    primaryButtonBackgroundColor:
-                        Theme.of(context).buttonTheme.colorScheme!.primary,
-                  ),
-                ),
-                wrapAlignment: WrapAlignment.center,
-              ),
-            );
-          });
-      return resultList;
-    }
-    return null;
   }
 
   String localizeSortType(BuildContext context, ItemSortBy sortType) {

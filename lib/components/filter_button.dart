@@ -29,7 +29,7 @@ class FilterButton extends StatelessWidget {
                 shape: BoxShape.circle,
               ),
               child: Padding(
-                padding: const EdgeInsets.all(4.0),
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
                 child: Text(
                   "$length",
                   style: TextStyle(
