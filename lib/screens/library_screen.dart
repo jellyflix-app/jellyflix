@@ -143,6 +143,7 @@ class LibraryScreen extends HookConsumerWidget {
                             order.value =
                                 AppLocalizations.of(context)!.ascending;
                             selectedLibrary.value = null;
+                            filterType.value = [];
                           }),
                     if (!((genreFilter.value == null ||
                             genreFilter.value!.isEmpty) &&
@@ -160,9 +161,10 @@ class LibraryScreen extends HookConsumerWidget {
                       onPressed: () async {
                         await JfxFilterListDialog.show<BaseItemDto>(
                           context,
+                          enableOnlySingleSelection: true,
                           listData: allLibraries.value!,
                           selectedListData: selectedLibrary.value == null
-                              ? []
+                              ? List<BaseItemDto>.empty()
                               : [selectedLibrary.value!],
                           onApplyButtonClick: (list) {
                             if (list != null && list.isNotEmpty) {
