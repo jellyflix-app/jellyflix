@@ -309,5 +309,11 @@
   "errorMessage403": "De server blokkeert verzoeken van je apparaat. Mogelijk is je apparaat verbannen en dien je contact op te nemen met de systeembeheerder.",
   "@errorMessage403": {},
   "errorMessage401": "Je gebruikersnaam of wachtwoord is onjuist.",
-  "@errorMessage401": {}
+  "@errorMessage401": {},
+  "reset": "Standaardwaarden",
+  "@reset": {},
+  "apply": "Toepassen",
+  "@apply": {},
+  "selectedItems": "geselecteerde items",
+  "@selectedItems": {}
 }
