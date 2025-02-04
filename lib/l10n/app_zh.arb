@@ -123,7 +123,7 @@
   "@addedToWatchlist": {},
   "removedFromWatchlist": "从观看列表中移除",
   "@removedFromWatchlist": {},
-  "noItemsFound": "未找到条目",
+  "noItemsFound": "未找到内容",
   "@noItemsFound": {},
   "noResultsFound": "未找到结果",
   "@noResultsFound": {},
@@ -310,5 +310,11 @@
   "errorMessage400": "服务器无法理解此请求，如果您使用代理，请检查其配置。",
   "@errorMessage400": {},
   "errorMessage403": "服务器正在阻止来自此设备的请求。这可能意味着此设备已被禁止。请联系您的管理员解决此问题。",
-  "@errorMessage403": {}
+  "@errorMessage403": {},
+  "selectedItems": "所选内容",
+  "@selectedItems": {},
+  "reset": "重置",
+  "@reset": {},
+  "apply": "应用",
+  "@apply": {}
 }
