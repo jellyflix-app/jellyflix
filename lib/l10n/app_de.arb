@@ -311,5 +311,10 @@
   "@errorMessage403": {},
   "errorMessageUnknown": "Ein unerwarteter Fehler ist aufgetreten.",
   "@errorMessageUnknown": {},
-  "apply": "Anwenden"
+  "apply": "Anwenden",
+  "@apply": {},
+  "selectedItems": "ausgewählte Elemente",
+  "@selectedItems": {},
+  "reset": "Zurücksetzen",
+  "@reset": {}
 }
