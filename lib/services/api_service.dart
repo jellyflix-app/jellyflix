@@ -187,7 +187,10 @@ class ApiService {
 
   Future<List<BaseItemDto>> getContinueWatching({String? parentId}) async {
     var response = await _jellyfinApi!.getItemsApi().getResumeItems(
-        userId: _user!.id!, parentId: parentId, headers: headers);
+        userId: _user!.id!,
+        parentId: parentId,
+        headers: headers,
+        mediaTypes: [MediaType.video].toBuiltList());
     return response.data!.items!.toList();
   }
 
