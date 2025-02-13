@@ -22,4 +22,4 @@ branches:
 
 major-version-bump-message: '.*\+semver:\s?(breaking|major).*'
 minor-version-bump-message: '^(feat)(\(.*\))?:'
-patch-version-bump-message: '^(build|chore|ci|docs|fix|perf|refactor|revert|style|test)(\(.*\))?:'
+patch-version-bump-message: '^(build|chore|ci|docs|fix|perf|refactor|revert|style|test)(\\([\\w\\s-]*\\))?:'
