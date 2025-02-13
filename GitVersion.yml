@@ -1,28 +1,25 @@
-mode: Mainline
 branches:
   preview:
     regex: ^preview$
     source-branches:
       - "main"
-    tag: 'preview'
+    label: "preview"
     is-release-branch: true
-    is-mainline: true
-    prevent-increment-of-merged-branch-version: true
+    increment: Inherit
     track-merge-target: false
-    
+
   stable:
     regex: ^stable$
     source-branches:
       - "main"
       - "preview"
-    tag: ''
-    increment: None
-    prevent-increment-of-merged-branch-version: true
-    is-mainline: true
+    label: ""
+    increment: Inherit
+    is-main-branch: true
     is-release-branch: true
     tracks-release-branches: false
     track-merge-target: false
-    
+
 major-version-bump-message: '.*\+semver:\s?(breaking|major).*'
-minor-version-bump-message: '^(feat)(\\([\\w\\s-]*\\))?:'
-patch-version-bump-message: '^(build|chore|ci|docs|fix|perf|refactor|revert|style|test)(\\([\\w\\s-]*\\))?:'
+minor-version-bump-message: '^(feat)(\(.*\))?:'
+patch-version-bump-message: '^(build|chore|ci|docs|fix|perf|refactor|revert|style|test)(\(.*\))?:'
