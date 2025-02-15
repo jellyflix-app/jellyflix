@@ -5,7 +5,25 @@ class PlaybackHelperService {
   final PlaybackInfoResponse item;
   Map<int, String> bitrateMap = BitRates().map;
 
-  PlaybackHelperService({required this.item});
+  late final List<MediaStream> subtitles;
+  late final List<MediaStream> audioStreams;
+
+  PlaybackHelperService({required this.item}) {
+    audioStreams = item.mediaSources![0].mediaStreams!
+        .where((element) => element.type == MediaStreamType.audio)
+        .toList();
+    subtitles = [
+      MediaStream(
+        (b) {
+          b.displayTitle = "None";
+          b.index = -1;
+        },
+      ),
+      ...item.mediaSources![0].mediaStreams!
+          .where((element) => element.type == MediaStreamType.subtitle)
+          .toList()
+    ];
+  }
 
   Map<int, String> getBitrateMap() {
     // add orignal bitrate at the beginning

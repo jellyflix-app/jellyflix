@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:jellyflix/models/user.dart';
 import 'package:jellyflix/services/api_service.dart';
 import 'package:jellyflix/services/database_service.dart';
+import 'package:jellyflix/services/jfx_logger.dart';
 
 class AuthService {
   final ApiService _apiService;
@@ -11,6 +12,8 @@ class AuthService {
   final DatabaseService _databaseService;
 
   final StreamController<bool> _authStateStream = StreamController();
+
+  final JfxLogger _logger;
 
   Stream<bool> get authStateChange => _authStateStream.stream;
 
@@ -20,9 +23,11 @@ class AuthService {
 
   AuthService(
       {required ApiService apiService,
-      required DatabaseService databaseService})
+      required DatabaseService databaseService,
+      required JfxLogger logger})
       : _apiService = apiService,
-        _databaseService = databaseService {
+        _databaseService = databaseService,
+        _logger = logger {
     _authStateStream.add(false);
     checkAuthentication().then((value) {
       _authStateStream.add(value);
@@ -32,11 +37,13 @@ class AuthService {
   Future<bool> checkAuthentication() async {
     bool authenticated = await _apiService.checkAuthentication();
     if (authenticated) {
+      _logger.verbose("Auth: Reused credentials. User is authenticated");
       _authStateStream.add(true);
       return true;
     } else {
       String? profileId = currentProfileid();
       if (profileId == null) {
+        _logger.verbose("Auth: No profile found. Cannot check authentication");
         _authStateStream.add(false);
         return false;
       }
@@ -49,12 +56,12 @@ class AuthService {
           } else {
             await _apiService.registerAccessToken(user);
           }
-          
+          _logger.verbose("Auth: User is authenticated");
           _authStateStream.add(true);
           return true;
         }
       } catch (_) {}
-
+      _logger.verbose("Auth: Unkown error. User is not authenticated");
       _authStateStream.add(false);
       return false;
     }
@@ -64,9 +71,11 @@ class AuthService {
       String serverAddress, Function(String) code, CancelToken token) async {
     final (url, candidates) = await inferServerUrl(serverAddress);
     if (url == null) {
-      throw Exception('No valid server found on the given url\n'
+      String error = 'No valid server found on the given url\n'
           '\nTried the following urls:\n'
-          '${candidates.join('\n-------------\n')}');
+          '${candidates.join('\n-------------\n')}';
+      _logger.error(error);
+      throw Exception(error);
     }
 
     final user = await _apiService.loginByQuickConnect(
@@ -89,9 +98,11 @@ class AuthService {
   Future<User> login(User user) async {
     final (url, candidates) = await inferServerUrl(user.serverAdress!);
     if (url == null) {
-      throw Exception('No valid server found on the given url\n'
+      String error = 'No valid server found on the given url\n'
           '\nTried the following urls:\n'
-          '${candidates.join('\n-------------\n')}');
+          '${candidates.join('\n-------------\n')}';
+      _logger.error(error);
+      throw Exception(error);
     }
 
     user = await _apiService.login(
@@ -152,7 +163,9 @@ class AuthService {
 
       _authStateStream.add(true);
     } else {
-      throw Exception("Profile not found");
+      String error = "Profile not found. Cannot switch profile";
+      _logger.error(error);
+      throw Exception(error);
     }
   }
 
@@ -174,11 +187,15 @@ class AuthService {
     // get latest element from the stream
     profileId ??= currentProfileid();
     if (profileId == null) {
+      _logger
+          .verbose("Auth: No profile found. Cannot check server reachability");
       return null;
     }
     User? user = _databaseService.get(profileId);
 
-    return await _apiService.ping(user: user);
+    bool? isReachable = await _apiService.ping(user: user);
+    _logger.verbose("Auth: Server is reachable: $isReachable");
+    return isReachable;
   }
 }
 

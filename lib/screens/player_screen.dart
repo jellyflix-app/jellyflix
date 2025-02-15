@@ -6,6 +6,8 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:jellyflix/providers/logger_provider.dart' show loggerProvider;
+import 'package:jellyflix/services/jfx_logger.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:tentacle/tentacle.dart';
@@ -41,11 +43,13 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
   late PlaybackInfoResponse playbackInfo;
   late String streamUrl;
   late final Map<String, String> headers;
+  late final logger;
 
   Timer? _timer;
 
   @override
   void initState() {
+    logger = ref.read(loggerProvider);
     headers = ref.read(apiProvider).headers;
 
     streamUrl = widget.streamUrlAndPlaybackInfo.$1;
@@ -66,8 +70,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
           Map<MediaStream, int?> subtitleStreams =
               playbackHelper.getSubtitleList();
 
-          if (audioTracks.length > 3 &&
-              playbackInfo.mediaSources!.first.transcodingUrl == null) {
+          if (audioStreams.length > 2) {
             var index = playbackHelper.getDefaultAudioIndex();
             // get value of the key, where key.index == index
             AudioTrack newAudioTrack = audioTracks[audioStreams.entries
@@ -78,9 +81,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
               player.setAudioTrack(newAudioTrack);
             }
           }
-          if ((subtitleTracks.length > 2 ||
-                  subtitleStreams.values.contains(null)) &&
-              playbackInfo.mediaSources!.first.transcodingUrl == null) {
+          if (subtitleStreams.length > 2) {
             var index = playbackHelper.getDefaultSubtitleIndex();
             // get value of the key, where key.index == index
             MapEntry<MediaStream, int?> subtitleIndex = subtitleStreams.entries
@@ -88,6 +89,8 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
                     orElse: () => subtitleStreams.entries.first);
             SubtitleTrack newSubtitleTrack;
             if (subtitleIndex.value == null) {
+              logger.verbose(
+                  "Player: External subtitle selected: ${subtitleIndex.key}");
               // external subtitle
               SubtitleTrack externalSubtitle = await ref
                   .read(apiProvider)
@@ -95,6 +98,8 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
                       deliveryUrl: subtitleIndex.key.deliveryUrl!);
               newSubtitleTrack = externalSubtitle;
             } else {
+              logger.verbose(
+                  "Player: Internal subtitle selected: ${subtitleIndex.key}");
               newSubtitleTrack = subtitleTracks[subtitleIndex.value!];
             }
             if (player.state.track.subtitle != newSubtitleTrack) {
@@ -112,31 +117,32 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
           );
         }
         _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
-          await ref.read(apiProvider).reportPlaybackProgress(
-                player.state.position.inMilliseconds * 10000,
-                audioStreamIndex: player.state.track.audio.id == "auto"
-                    ? playbackHelper.getDefaultAudioIndex()
-                    : playbackHelper
-                        .getAudioList()
-                        .entries
-                        .firstWhere((element) =>
-                            element.value ==
-                            int.parse(player.state.track.audio.id))
-                        .key
-                        .index!,
-                subtitleStreamIndex: player.state.track.subtitle.id == "auto"
-                    ? playbackHelper.getDefaultSubtitleIndex()
-                    : player.state.track.subtitle.id == "no"
-                        ? -1
-                        : playbackHelper
-                            .getSubtitleList()
-                            .entries
-                            .firstWhere((element) =>
-                                element.value ==
-                                int.parse(player.state.track.subtitle.id))
-                            .key
-                            .index!,
-              );
+          //TODO
+          // await ref.read(apiProvider).reportPlaybackProgress(
+          //       player.state.position.inMilliseconds * 10000,
+          //       audioStreamIndex: player.state.track.audio.id == "auto"
+          //           ? playbackHelper.getDefaultAudioIndex()
+          //           : playbackHelper
+          //               .getAudioList()
+          //               .entries
+          //               .firstWhere((element) =>
+          //                   element.value ==
+          //                   int.parse(player.state.track.audio.id))
+          //               .key
+          //               .index!,
+          //       subtitleStreamIndex: player.state.track.subtitle.id == "auto"
+          //           ? playbackHelper.getDefaultSubtitleIndex()
+          //           : player.state.track.subtitle.id == "no"
+          //               ? -1
+          //               : playbackHelper
+          //                   .getSubtitleList()
+          //                   .entries
+          //                   .firstWhere((element) =>
+          //                       element.value ==
+          //                       int.parse(player.state.track.subtitle.id))
+          //                   .key
+          //                   .index!,
+          //     );
         });
 
         player.stream.error.listen((error) {
@@ -159,6 +165,8 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
                   );
                 });
           }
+          logger.error("An error occured while loading the stream: $error",
+              error: error);
           throw Exception(error);
         });
         player.stream.completed.listen((completed) async {
@@ -198,6 +206,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
           event.inMilliseconds * 10000 < startTimeTicks - 10000 &&
           isInitialSeek) {
         player.seek(Duration(microseconds: startTimeTicks ~/ 10));
+        logger.info("Seeking to ${startTimeTicks ~/ 10000000}s");
         isInitialSeek = false;
       }
     });
@@ -238,6 +247,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
   }
 
   void goBackAndShowSnackBar({required String content}) {
+    logger.warning(content);
     Navigator.of(context).pop();
     // show snackbar
     ScaffoldMessenger.of(context).showSnackBar(
@@ -255,6 +265,8 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
 
   Future updateStream(
       audioStreamIndex, subtitleStreamIndex, maxStreamingBitrate) async {
+    logger.verbose(
+        "Updating stream with audioStreamIndex: $audioStreamIndex, subtitleStreamIndex: $subtitleStreamIndex, maxStreamingBitrate: $maxStreamingBitrate");
     var startTimeTicks = player.state.position.inMilliseconds * 10000;
     var newStreamUrlAndPlaybackInfo =
         await ref.read(apiProvider).getStreamUrlAndPlaybackInfo(
@@ -496,6 +508,8 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
                             element.key.index == selectedMediaStream.index!)
                         .value;
                     if (subtitleTrackIndex == null) {
+                      logger.verbose(
+                          "Player: External subtitle selected: $selectedMediaStream");
                       SubtitleTrack externalSubtitle = await ref
                           .read(apiProvider)
                           .getExternalSubtitle(
@@ -503,6 +517,8 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
 
                       await player.setSubtitleTrack(externalSubtitle);
                     } else {
+                      logger.verbose(
+                          "Player: Internal subtitle selected: $selectedMediaStream");
                       await player
                           .setSubtitleTrack(subtitles[subtitleTrackIndex]);
                     }

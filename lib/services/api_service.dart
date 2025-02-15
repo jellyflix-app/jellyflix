@@ -6,11 +6,13 @@ import 'package:jellyflix/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:jellyflix/navigation/app_router.dart';
 import 'package:jellyflix/services/device_info_service.dart';
+import 'package:jellyflix/services/jfx_logger.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:built_collection/built_collection.dart';
 
 class ApiService {
+  late final JfxLogger _logger;
   final DeviceInfoService _deviceInfoService = DeviceInfoService();
   Tentacle? _jellyfinApi;
   User? _user;
@@ -28,7 +30,9 @@ class ApiService {
 
   User? get currentUser => _user;
 
-  ApiService();
+  ApiService({required logger}) {
+    _logger = logger;
+  }
 
   Future<String> buildHeader() async {
     var model = await _deviceInfoService.getDeviceModel();
@@ -370,6 +374,8 @@ class ApiService {
 
     if (url != null) {
       playbackInfo = response.data!;
+      _logger.info("Stream URL: $url");
+      //TODO _logger.info("Playback Info: ${response.data!}");
       return (url, response.data!);
     }
 
@@ -853,6 +859,7 @@ class ApiService {
           result.add(modifiedLine.trim());
         }
       }
+      print(result.join("\n"));
       return SubtitleTrack.data(result.join("\n"));
     } else {
       return SubtitleTrack.uri(_user!.serverAdress! + deliveryUrl);
