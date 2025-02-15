@@ -61,6 +61,7 @@ dependencies:
   logger: ^2.5.0
   markdown: ^7.3.0
   flutter_widget_from_html_core: ^0.15.2
+  file_saver: ^0.2.14
 
 dependency_overrides:
   flutter_secure_storage_web: ^2.0.0-beta.2

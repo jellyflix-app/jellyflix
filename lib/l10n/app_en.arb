@@ -197,5 +197,7 @@
     "selectedItems": "selected items",
     "reset": "Reset",
     "apply": "Apply",
+    "enableLogging": "Enable Logging",
+    "logExported": "Log exported to downloads",
     "appName": "Jellyflix"
 }
