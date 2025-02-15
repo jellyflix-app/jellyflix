@@ -88,8 +88,10 @@ class JfxFilterListDialog<T extends Object> {
                 ),
                 controlButtonBarTheme: ControlButtonBarThemeData(
                   context,
-                  backgroundColor:
-                      Theme.of(context).colorScheme.surface.withOpacity(0.8),
+                  backgroundColor: Theme.of(context)
+                      .colorScheme
+                      .surface
+                      .withValues(alpha: 0.8),
                   padding: const EdgeInsets.symmetric(horizontal: 5.0),
                   controlButtonTheme: ControlButtonThemeData(
                     primaryButtonTextStyle: TextStyle(

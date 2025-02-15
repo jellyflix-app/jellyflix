@@ -21,14 +21,14 @@ class NavigationDrawerTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 5.0),
         child: Material(
           color: selected
-              ? Theme.of(context).colorScheme.primary.withOpacity(0.3)
-              : Colors.white.withOpacity(0.05),
+              ? Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)
+              : Colors.white.withValues(alpha: 0.05),
           //color: Theme.of(context).navigationRailTheme.indicatorColor,
           borderRadius: BorderRadius.circular(15),
           child: InkWell(
             onTap: onTap,
             overlayColor: WidgetStateProperty.all(
-                Theme.of(context).colorScheme.primary.withOpacity(0.3)),
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
             customBorder: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(15),
             ),

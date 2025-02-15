@@ -304,8 +304,8 @@ class LibraryScreen extends HookConsumerWidget {
                         padding: const EdgeInsets.only(left: 10.0, right: 10.0),
                         child: Skeletonizer(
                           effect: ShimmerEffect(
-                            baseColor: Colors.grey.withOpacity(0.5),
-                            highlightColor: Colors.white.withOpacity(0.5),
+                            baseColor: Colors.grey.withValues(alpha: 0.5),
+                            highlightColor: Colors.white.withValues(alpha: 0.5),
                           ),
                           enabled: !snapshot.hasData,
                           child: GridView.builder(
@@ -381,13 +381,13 @@ class LibraryScreen extends HookConsumerWidget {
                                   colors: [
                                     Theme.of(context)
                                         .scaffoldBackgroundColor
-                                        .withOpacity(0.2),
+                                        .withValues(alpha: 0.2),
                                     Theme.of(context).scaffoldBackgroundColor,
                                   ],
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.5),
+                                    color: Colors.black.withValues(alpha: 0.5),
                                     spreadRadius: 2,
                                     blurRadius: 5,
                                     offset: const Offset(0, 3),

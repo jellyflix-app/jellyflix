@@ -224,7 +224,7 @@ class EpisodeListTile extends HookConsumerWidget {
                   child: Icon(
                     Icons.check_circle_outline_rounded,
                     size: 20,
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                   ),
                 )
               : const SizedBox.shrink(),
