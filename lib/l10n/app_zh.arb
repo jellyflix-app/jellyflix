@@ -316,5 +316,9 @@
   "reset": "重置",
   "@reset": {},
   "apply": "应用",
-  "@apply": {}
+  "@apply": {},
+  "enableLogging": "启用日志记录",
+  "@enableLogging": {},
+  "logExported": "日志导出到下载",
+  "@logExported": {}
 }
