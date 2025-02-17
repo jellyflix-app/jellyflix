@@ -375,7 +375,7 @@ class ApiService {
     if (url != null) {
       playbackInfo = response.data!;
       _logger.info("Stream URL: $url");
-      //TODO _logger.info("Playback Info: ${response.data!}");
+      //_logger.info("Playback Info: ${response.data!}");
       return (url, response.data!);
     }
 
@@ -859,7 +859,6 @@ class ApiService {
           result.add(modifiedLine.trim());
         }
       }
-      print(result.join("\n"));
       return SubtitleTrack.data(result.join("\n"));
     } else {
       return SubtitleTrack.uri(_user!.serverAdress! + deliveryUrl);

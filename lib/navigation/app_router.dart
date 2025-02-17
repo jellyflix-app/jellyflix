@@ -40,7 +40,6 @@ class AppRouter {
       ShellRoute(
           navigatorKey: shellNavigatorKey,
           pageBuilder: (context, state, child) {
-            //print(state.location);
             return NoTransitionPage(
                 child: ResponsiveNavigationBar(
               body: child,
