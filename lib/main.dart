@@ -22,6 +22,10 @@ void main() async {
   }
   await DatabaseService.initialize();
 
+  // await rootBundle.load('assets/fonts/NotoSans-Regular.ttf');
+  // // save to file
+  // var fileName = "NotoSans-Regular.ttf";
+
   // Necessary initialization for package:media_kit.
   MediaKit.ensureInitialized();
   runApp(ProviderScope(

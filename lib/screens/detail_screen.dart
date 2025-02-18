@@ -77,7 +77,7 @@ class DetailScreen extends HookConsumerWidget {
                   filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                   child: AppBar(
                     elevation: 0.0,
-                    backgroundColor: Colors.black.withOpacity(0.2),
+                    backgroundColor: Colors.black.withValues(alpha: 0.2),
                   ),
                 ),
               ),

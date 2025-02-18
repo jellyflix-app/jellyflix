@@ -36,6 +36,8 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
   final player = Player(
       configuration: const PlayerConfiguration(
     libass: true,
+    libassAndroidFont: "assets/fonts/droid-sans.ttf",
+    libassAndroidFontName: "Droid Sans Fallback",
     title: "Jellyflix",
   ));
   late final controller = VideoController(player);
@@ -67,12 +69,12 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
         trackStream = player.stream.tracks.listen((event) {
           List<AudioTrack> audioTracks = event.audio;
           List<SubtitleTrack> subtitleTracks = event.subtitle;
-          if (audioTracks.length > 2 &&
-              subtitleTracks.length > 2 &&
-              playbackHelper.getDefaultSubtitle().index != -1) {
+          if (audioTracks.length > 2 || subtitleTracks.length > 2) {
             playbackHelper.setAudio(playbackHelper.audioStream);
 
-            playbackHelper.enableSubtitle();
+            if (playbackHelper.getDefaultSubtitle().index != -1) {
+              playbackHelper.enableSubtitle();
+            }
 
             // only run until initial load
             trackStream?.cancel();
