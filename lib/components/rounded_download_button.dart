@@ -59,7 +59,6 @@ class RoundedDownloadButton extends HookConsumerWidget {
                   );
                 },
               );
-
               if (selectedSettings.$1 == null && selectedSettings.$2 == null) {
                 return;
               }

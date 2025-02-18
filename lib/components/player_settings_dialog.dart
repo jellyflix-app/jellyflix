@@ -1,17 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:jellyflix/services/playback_helper_service.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:tentacle/tentacle.dart';
 
-class PlayerSettingsDialog<T1, T2> extends StatelessWidget {
+class PlayerSettingsDialog extends StatelessWidget {
   final PlaybackHelperService playbackHelper;
-  final T1 audioTrack;
-  final T2 subtitleTrack;
-  final List<DropdownMenuEntry<T1>> audioEntries;
-  final List<DropdownMenuEntry<T2>> subtitleEntries;
+  final MediaStream audioTrack;
+  final MediaStream subtitleTrack;
   final int maxStreamingBitrate;
   final bool isSubtitleEnabled;
-  final Function(T2?) onSubtitleSelected;
-  final Function(T1?) onAudioSelected;
+  final Function(MediaStream?) onSubtitleSelected;
+  final Function(MediaStream?) onAudioSelected;
   final Function(int?) onBitrateSelected;
 
   const PlayerSettingsDialog({
@@ -24,21 +23,14 @@ class PlayerSettingsDialog<T1, T2> extends StatelessWidget {
     required this.onAudioSelected,
     required this.onBitrateSelected,
     required this.isSubtitleEnabled,
-    required this.audioEntries,
-    required this.subtitleEntries,
   });
 
   @override
   Widget build(BuildContext context) {
-    // List<DropdownMenuEntry<T2>> subtitleMenuEntries =
-    //     subtitleList.map((e) {
-    //   return DropdownMenuEntry(value: , label: e.displayTitle!);
-    // }).toList();
-    // // add "None" to the beginning
-    // subtitleMenuEntries.insert(
-    //     0,
-    //     DropdownMenuEntry(
-    //         value: -1, label: AppLocalizations.of(context)!.none));
+    var subtitle = playbackHelper.subtitles
+        .firstWhere((e) => e.index == subtitleTrack.index);
+    var audio = playbackHelper.audioStreams
+        .firstWhere((e) => e.index == audioTrack.index);
     return SafeArea(
         child: Align(
             alignment: Alignment.bottomRight,
@@ -99,28 +91,36 @@ class PlayerSettingsDialog<T1, T2> extends StatelessWidget {
                           ),
                           const SizedBox(height: 10),
                           Material(
-                            child: DropdownMenu<T1>(
+                            child: DropdownMenu(
                               width: 250,
                               requestFocusOnTap: false,
                               label: Text(AppLocalizations.of(context)!.audio),
                               leadingIcon: const Icon(Icons.volume_up_rounded),
-                              initialSelection: audioTrack,
-                              dropdownMenuEntries: audioEntries,
+                              initialSelection: audio,
+                              dropdownMenuEntries: playbackHelper.audioStreams
+                                  .map((e) => DropdownMenuEntry(
+                                      value: e,
+                                      label: e.displayTitle ?? "Unknown"))
+                                  .toList(),
                               onSelected: onAudioSelected,
                             ),
                           ),
                           const SizedBox(height: 10),
-                          if (!playbackHelper.subtitleListIsEmpty())
+                          if (playbackHelper.subtitles.isNotEmpty)
                             Material(
-                              child: DropdownMenu<T2>(
+                              child: DropdownMenu<MediaStream>(
                                   width: 250,
                                   label: Text(
                                       AppLocalizations.of(context)!.subtitles),
                                   requestFocusOnTap: false,
                                   leadingIcon:
                                       const Icon(Icons.videocam_outlined),
-                                  initialSelection: subtitleTrack,
-                                  dropdownMenuEntries: subtitleEntries,
+                                  initialSelection: subtitle,
+                                  dropdownMenuEntries: playbackHelper.subtitles
+                                      .map((e) => DropdownMenuEntry(
+                                          value: e,
+                                          label: e.displayTitle ?? "Unknown"))
+                                      .toList(),
                                   onSelected: onSubtitleSelected),
                             ),
                         ]),

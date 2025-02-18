@@ -15,14 +15,7 @@ class JfxLogger {
   void buildLogger({bool alwaysLog = false}) {
     if (kDebugMode) {
       _logger = Logger(
-        printer: PrettyPrinter(
-          methodCount: 0,
-          errorMethodCount: 8,
-          lineLength: 80,
-          colors: true,
-          printEmojis: true,
-          dateTimeFormat: DateTimeFormat.onlyTimeAndSinceStart,
-        ),
+        printer: LogfmtPrinter(),
       );
     } else {
       _logger = Logger(
@@ -48,8 +41,8 @@ class JfxLogger {
     _logger.i(message);
   }
 
-  void error(String message) {
-    _logger.e(message);
+  void error(String message, {dynamic error}) {
+    _logger.e(message, error: error);
   }
 
   void warning(String message) {
@@ -60,8 +53,8 @@ class JfxLogger {
     _logger.d(message);
   }
 
-  void verbose(String message, {dynamic error}) {
-    _logger.t(message, error: error);
+  void verbose(String message) {
+    _logger.t(message);
   }
 
   void critical(String message, {dynamic error, StackTrace? stackTrace}) {
