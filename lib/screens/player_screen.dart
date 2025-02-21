@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:intl/intl.dart' as intl;
 import 'package:jellyflix/providers/logger_provider.dart' show loggerProvider;
 import 'package:jellyflix/services/jfx_logger.dart';
 import 'package:media_kit/media_kit.dart';
@@ -15,10 +14,9 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:universal_platform/universal_platform.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
-import 'package:jellyflix/components/player_settings_dialog.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:jellyflix/providers/playback_helper_provider.dart';
-import 'package:jellyflix/services/playback_helper_service.dart';
+import 'package:jellyflix/services/stream_player_helper.dart';
 
 class PlayerScreen extends StatefulHookConsumerWidget {
   const PlayerScreen(
@@ -33,14 +31,9 @@ class PlayerScreen extends StatefulHookConsumerWidget {
 }
 
 class _PlayerSreenState extends ConsumerState<PlayerScreen> {
-  final player = Player(
-      configuration: const PlayerConfiguration(
-    libass: true,
-    libassAndroidFont: "assets/fonts/droid-sans.ttf",
-    libassAndroidFontName: "Droid Sans Fallback",
-    title: "Jellyflix",
-  ));
-  late final controller = VideoController(player);
+  late final StreamPlayerHelper playbackHelper;
+  late final Player player;
+  late final VideoController controller;
   final GlobalKey<VideoState> key = GlobalKey<VideoState>();
   late PlaybackInfoResponse playbackInfo;
   late String streamUrl;
@@ -57,8 +50,9 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
     streamUrl = widget.streamUrlAndPlaybackInfo.$1;
     playbackInfo = widget.streamUrlAndPlaybackInfo.$2;
 
-    var playbackHelper =
-        ref.read(playbackHelperProvider((playbackInfo, player)));
+    playbackHelper = ref.read(playerHelperProvider(playbackInfo));
+    player = playbackHelper.player;
+    controller = playbackHelper.controller;
 
     requestPermissions().then(
       (value) async {
@@ -217,8 +211,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final playbackHelper =
-        ref.read(playbackHelperProvider((playbackInfo, player)));
+    final playbackHelper = ref.read(playerHelperProvider(playbackInfo));
     final subtitleEnabled =
         useValueNotifier<bool>(playbackHelper.getDefaultSubtitle().index != -1);
     final subtitleTrack =
@@ -226,6 +219,40 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
     final audioTrack = useState<MediaStream>(playbackHelper.getDefaultAudio());
     final maxStreamingBitrate =
         useState<int>(playbackHelper.getDefaultBitrate());
+
+    var materialVideoControlsThemeData = playbackHelper.videoControls(
+      context,
+      key,
+      backButtonPressed: () {
+        unawaited(ref
+            .read(apiProvider)
+            .reportStopPlayback(player.state.position.inMilliseconds * 10000)
+            .then((value) {}));
+      },
+      playerPositionSream: player.stream.position,
+      title: playbackInfo.mediaSources!.first.name!,
+      subtitleEnabled: subtitleEnabled,
+      subtitleTrack: subtitleTrack,
+      audioTrack: audioTrack,
+      maxStreamingBitrate: maxStreamingBitrate,
+    );
+    var materialDesktopVideoControlsThemeData =
+        playbackHelper.desktopVideoControls(
+      context,
+      key,
+      backButtonPressed: () {
+        unawaited(ref
+            .read(apiProvider)
+            .reportStopPlayback(player.state.position.inMilliseconds * 10000)
+            .then((value) {}));
+      },
+      playerPositionSream: player.stream.position,
+      title: playbackInfo.mediaSources!.first.name!,
+      subtitleEnabled: subtitleEnabled,
+      subtitleTrack: subtitleTrack,
+      audioTrack: audioTrack,
+      maxStreamingBitrate: maxStreamingBitrate,
+    );
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -236,73 +263,11 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
             height: MediaQuery.of(context).size.width * 9.0 / 16.0,
             // Use [Video] widget to display video output.
             child: MaterialVideoControlsTheme(
-              normal: MaterialVideoControlsThemeData(
-                topButtonBar: getTopButtonBarThemeData(context),
-                bottomButtonBar: getBottomButtonBarThemeData(
-                    playbackHelper,
-                    subtitleEnabled,
-                    subtitleTrack,
-                    audioTrack,
-                    maxStreamingBitrate,
-                    context),
-                seekBarPositionColor: Theme.of(context).colorScheme.onPrimary,
-                seekBarThumbColor: Theme.of(context).colorScheme.primary,
-                seekBarThumbSize: 15,
-                seekBarHeight: 4,
-                seekBarMargin:
-                    const EdgeInsets.only(bottom: 25, left: 10, right: 10),
-                bottomButtonBarMargin:
-                    const EdgeInsets.only(bottom: 40, left: 10, right: 10),
-                seekOnDoubleTap: true,
-              ),
-              fullscreen: MaterialVideoControlsThemeData(
-                topButtonBar: getTopButtonBarThemeData(context),
-                bottomButtonBar: getBottomButtonBarThemeData(
-                    playbackHelper,
-                    subtitleEnabled,
-                    subtitleTrack,
-                    audioTrack,
-                    maxStreamingBitrate,
-                    context),
-                seekBarPositionColor: Theme.of(context).colorScheme.onPrimary,
-                seekBarThumbColor: Theme.of(context).colorScheme.primary,
-                seekBarThumbSize: 15,
-                seekBarHeight: 4,
-                seekBarMargin:
-                    const EdgeInsets.only(bottom: 25, left: 10, right: 10),
-                bottomButtonBarMargin:
-                    const EdgeInsets.only(bottom: 40, left: 10, right: 10),
-                seekOnDoubleTap: true,
-              ),
+              normal: materialVideoControlsThemeData,
+              fullscreen: materialVideoControlsThemeData,
               child: MaterialDesktopVideoControlsTheme(
-                  normal: MaterialDesktopVideoControlsThemeData(
-                    topButtonBar: getTopButtonBarThemeData(context),
-                    bottomButtonBar: getBottomButtonBarThemeData(
-                        playbackHelper,
-                        subtitleEnabled,
-                        subtitleTrack,
-                        audioTrack,
-                        maxStreamingBitrate,
-                        context),
-                    seekBarPositionColor:
-                        Theme.of(context).colorScheme.onPrimary,
-                    seekBarThumbColor: Theme.of(context).colorScheme.primary,
-                    playAndPauseOnTap: true,
-                  ),
-                  fullscreen: MaterialDesktopVideoControlsThemeData(
-                    topButtonBar: getTopButtonBarThemeData(context),
-                    bottomButtonBar: getBottomButtonBarThemeData(
-                        playbackHelper,
-                        subtitleEnabled,
-                        subtitleTrack,
-                        audioTrack,
-                        maxStreamingBitrate,
-                        context),
-                    seekBarPositionColor:
-                        Theme.of(context).colorScheme.onPrimary,
-                    seekBarThumbColor: Theme.of(context).colorScheme.primary,
-                    playAndPauseOnTap: true,
-                  ),
+                  normal: materialDesktopVideoControlsThemeData,
+                  fullscreen: materialDesktopVideoControlsThemeData,
                   child: Video(
                     key: key,
                     controller: controller,
@@ -321,120 +286,5 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
         ),
       ),
     );
-  }
-
-  List<Widget> getBottomButtonBarThemeData(
-      PlaybackHelperService playbackHelper,
-      ValueNotifier<bool> subtitleEnabled,
-      ValueNotifier<MediaStream> subtitleTrack,
-      ValueNotifier<MediaStream> audioTrack,
-      ValueNotifier<int> maxStreamingBitrate,
-      BuildContext context) {
-    return [
-      const MaterialPlayOrPauseButton(),
-      const MaterialDesktopVolumeButton(),
-      const Directionality(
-        textDirection: TextDirection.ltr,
-        child: MaterialPositionIndicator(),
-      ),
-      if (playbackHelper.subtitles.isNotEmpty)
-        MaterialDesktopCustomButton(
-          onPressed: () async {
-            subtitleEnabled.value = !subtitleEnabled.value;
-            if (subtitleEnabled.value) {
-              await playbackHelper.enableSubtitle();
-            } else {
-              await playbackHelper.disableSubtitle();
-            }
-          },
-          icon: ValueListenableBuilder(
-            valueListenable: subtitleEnabled,
-            builder: (context, value, child) {
-              return Icon(
-                subtitleEnabled.value
-                    ? Icons.subtitles_rounded
-                    : Icons.subtitles_outlined,
-                size: 25,
-              );
-            },
-          ),
-        ),
-      const Spacer(),
-      MaterialDesktopCustomButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) => PlayerSettingsDialog(
-              playbackHelper: playbackHelper,
-              audioTrack: audioTrack.value,
-              subtitleTrack: subtitleTrack.value,
-              isSubtitleEnabled: subtitleEnabled.value,
-              maxStreamingBitrate: maxStreamingBitrate.value,
-              onSubtitleSelected: (value) async {
-                if (value != null) {
-                  subtitleEnabled.value = value.index == -1 ? false : true;
-                  subtitleTrack.value = value;
-                  logger.verbose("Setting subtitle: ${value.displayTitle}");
-                  await playbackHelper.setSubtitle(value);
-                }
-              },
-              onAudioSelected: (value) async {
-                if (audioTrack.value != value) {
-                  audioTrack.value = value!;
-                  await playbackHelper.setAudio(value);
-                }
-              },
-              onBitrateSelected: (value) async {
-                if (maxStreamingBitrate.value != value) {
-                  maxStreamingBitrate.value = value!;
-                  await playbackHelper.setBitrate(value);
-                  // opening a new stream will reset the subtitle track
-                  if (subtitleEnabled.value) {
-                    await playbackHelper.enableSubtitle();
-                  }
-                }
-              },
-            ),
-          );
-        },
-        icon: const Icon(
-          Icons.settings_rounded,
-          size: 20,
-        ),
-      ),
-      const MaterialFullscreenButton(),
-    ];
-  }
-
-  List<Widget> getTopButtonBarThemeData(BuildContext context) {
-    return [
-      BackButton(
-        onPressed: () async {
-          await defaultExitNativeFullscreen();
-          unawaited(ref
-              .read(apiProvider)
-              .reportStopPlayback(player.state.position.inMilliseconds * 10000)
-              .then((value) {}));
-          if (key.currentState?.isFullscreen() ?? false) {
-            await key.currentState?.exitFullscreen();
-          }
-          if (context.mounted) {
-            context.pop();
-          }
-        },
-      ),
-      const Spacer(),
-      StreamBuilder(
-        stream: player.stream.position,
-        builder: (context, snapshot) {
-          return Text(AppLocalizations.of(context)!.ends(
-              intl.DateFormat("HH:mm").format(DateTime.now()
-                  .add(Duration(
-                      minutes: player.state.duration.inMinutes -
-                          player.state.position.inMinutes))
-                  .toLocal())));
-        },
-      )
-    ];
   }
 }

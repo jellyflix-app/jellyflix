@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:jellyflix/services/playback_helper_service.dart';
+import 'package:jellyflix/services/player_helper.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:tentacle/tentacle.dart';
 
 class PlayerSettingsDialog extends StatelessWidget {
-  final PlaybackHelperService playbackHelper;
+  final PlayerHelper playbackHelper;
   final MediaStream audioTrack;
   final MediaStream subtitleTrack;
   final int maxStreamingBitrate;

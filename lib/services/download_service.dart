@@ -4,6 +4,8 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:jellyflix/services/jfx_logger.dart';
+import 'package:jellyflix/services/player_helper.dart';
 import 'package:universal_io/io.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:path_provider/path_provider.dart';
@@ -22,7 +24,8 @@ class DownloadService {
   final ApiService _api;
   late CancelableOperation<void> _download;
   late final String itemId;
-  late ConnectivityService connectivityService;
+  late final ConnectivityService connectivityService;
+  late final JfxLogger logger;
   Dio? _dio;
 
   bool isDownloading = false;
@@ -33,12 +36,15 @@ class DownloadService {
     api, {
     required String itemId,
     required ConnectivityService connectivityService,
+    required JfxLogger logger,
   }) {
     if (_instances.containsKey(itemId)) {
       return _instances[itemId]!;
     } else {
       final instance = DownloadService._internal(api,
-          itemId: itemId, connectivityService: connectivityService);
+          itemId: itemId,
+          connectivityService: connectivityService,
+          logger: logger);
       _instances[itemId] = instance;
       return instance;
     }
@@ -48,6 +54,7 @@ class DownloadService {
     this._api, {
     required this.itemId,
     required this.connectivityService,
+    required this.logger,
   }) {
     if (_api.currentUser != null) {
       _dio = Dio(
@@ -104,17 +111,13 @@ class DownloadService {
     )..value.whenComplete(() {}).onError((error, stackTrace) {
         isDownloading = false;
       });
+    logger.verbose("Downloads: Downloading item: $itemId");
   }
 
   Future<void> _downloadItem(
       {int? audioStreamIndex,
       int? subtitleStreamIndex,
       required int downloadBitrate}) async {
-    // create download directory if it doesn't exist
-    var downloadDirectory = await getDownloadDirectory();
-    if (!await Directory(downloadDirectory).exists()) {
-      await Directory(downloadDirectory).create();
-    }
     isDownloading = true;
     var response = await _api.getStreamUrlAndPlaybackInfo(
         itemId: itemId,
@@ -122,9 +125,13 @@ class DownloadService {
         audioStreamIndex: audioStreamIndex,
         subtitleStreamIndex: subtitleStreamIndex);
     PlaybackInfoResponse playbackInfo = response.$2;
+    logger.verbose("Downloads: PlaybackInfo: $playbackInfo");
 
-    await writeMetadataToFile(playbackInfo, response.$1);
+    var subtitlePath =
+        await downloadSubtitle(playbackInfo, subtitleStreamIndex);
 
+    await writeMetadataToFile(playbackInfo, response.$1,
+        subtitlePath: subtitlePath);
     if (playbackInfo.mediaSources![0].transcodingUrl == null) {
       await downloadDirectStream(response.$1);
     } else {
@@ -133,8 +140,48 @@ class DownloadService {
     }
   }
 
+  Future<String?> downloadSubtitle(
+      PlaybackInfoResponse playbackInfo, int? subtitleStreamIndex) async {
+    if (subtitleStreamIndex == null) {
+      return null;
+    }
+
+    // create download directory if it doesn't exist
+    var downloadDirectory = await getDownloadDirectory();
+    logger.verbose("Downloads: Download directory: $downloadDirectory");
+    if (!await Directory(downloadDirectory).exists()) {
+      await Directory(downloadDirectory).create();
+    }
+    // TODO
+    PlayerHelper helper = PlayerHelper(playbackInfo: playbackInfo);
+    MediaStream subtitle = helper.subtitles
+        .firstWhere((element) => element.index == subtitleStreamIndex);
+
+    if (subtitle.deliveryMethod == SubtitleDeliveryMethod.external_) {
+      logger.verbose("Downloads: Download external subtitle: $subtitle");
+      // download external subtitle
+      String externalSubtitle =
+          await _api.getExternalSubtitle(deliveryUrl: subtitle.deliveryUrl!);
+      String fileName = subtitle.deliveryUrl!.split("?")[0].split("/").last;
+      String downloadPath =
+          "$downloadDirectory${Platform.pathSeparator}$itemId";
+      // create download directory if it doesn't exist
+      if (!await Directory(downloadPath).exists()) {
+        await Directory(downloadPath).create();
+      }
+      await File(downloadPath + Platform.pathSeparator + fileName)
+          .writeAsString(externalSubtitle);
+      logger.verbose(
+          "Downloads: External subtitle downloaded: $downloadPath/$fileName");
+      return downloadPath + Platform.pathSeparator + fileName;
+    } else {
+      return null;
+    }
+  }
+
   Future<void> writeMetadataToFile(
-      PlaybackInfoResponse playbackInfo, String streamUrl) async {
+      PlaybackInfoResponse playbackInfo, String streamUrl,
+      {String? subtitlePath}) async {
     var downloadDirectory = await getDownloadDirectory();
     var downloadPath = "$downloadDirectory${Platform.pathSeparator}$itemId";
 
@@ -165,6 +212,7 @@ class DownloadService {
             indexNumber: itemDetails.indexNumber ?? 0,
             parentIndexNumber: itemDetails.parentIndexNumber ?? 0,
             path: path,
+            subtitlePath: subtitlePath,
             downloadSize: downloadSize)
         .toJson();
 

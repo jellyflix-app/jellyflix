@@ -843,25 +843,40 @@ class ApiService {
     }
   }
 
-  Future<SubtitleTrack> getExternalSubtitle(
+  Future<SubtitleTrack> getExternalSubtitleTrack(
       {required String deliveryUrl}) async {
     if (deliveryUrl.split("?")[0].endsWith(".vtt")) {
       var response = await Dio().get(_user!.serverAdress! + deliveryUrl);
-      final lines = response.data!.split('\n');
-      final result = <String>[];
-      for (var line in lines) {
-        // Skip lines that contain 'Region:' or 'region:'
-        if (!line.startsWith('Region:') && !line.contains('region:')) {
-          result.add(line);
-        } else if (line.contains('region:')) {
-          // Remove 'region:' parameter within timestamp lines
-          final modifiedLine = line.replaceAll(RegExp(r'region:[^\s]+'), '');
-          result.add(modifiedLine.trim());
-        }
-      }
-      return SubtitleTrack.data(result.join("\n"));
+      String subtitleData = cleanVttSubtitle(response.data);
+      return SubtitleTrack.data(subtitleData);
     } else {
       return SubtitleTrack.uri(_user!.serverAdress! + deliveryUrl);
     }
+  }
+
+  Future<String> getExternalSubtitle({required String deliveryUrl}) async {
+    var response = await Dio().get(_user!.serverAdress! + deliveryUrl);
+    if (deliveryUrl.split("?")[0].endsWith(".vtt")) {
+      String subtitleData = cleanVttSubtitle(response.data);
+      return subtitleData;
+    } else {
+      return response.data;
+    }
+  }
+
+  String cleanVttSubtitle(String vtt) {
+    final lines = vtt.split('\n');
+    final result = <String>[];
+    for (var line in lines) {
+      // Skip lines that contain 'Region:' or 'region:'
+      if (!line.startsWith('Region:') && !line.contains('region:')) {
+        result.add(line);
+      } else if (line.contains('region:')) {
+        // Remove 'region:' parameter within timestamp lines
+        final modifiedLine = line.replaceAll(RegExp(r'region:[^\s]+'), '');
+        result.add(modifiedLine.trim());
+      }
+    }
+    return result.join("\n");
   }
 }
