@@ -15,11 +15,10 @@ import 'package:jellyflix/screens/loading_screen.dart';
 import 'package:jellyflix/screens/login_password_screen.dart';
 import 'package:jellyflix/screens/login_quickconnect_screen.dart';
 import 'package:jellyflix/screens/login_wrapper_screen.dart';
-import 'package:jellyflix/screens/offline_player_screen.dart';
 import 'package:jellyflix/screens/profile_screen.dart';
 import 'package:jellyflix/screens/search_screen.dart';
 import 'package:jellyflix/screens/player_screen.dart';
-import 'package:tentacle/tentacle.dart';
+import 'package:jellyflix/services/player_helper.dart';
 
 final navigatorKey = GlobalKey<NavigatorState>();
 final shellNavigatorKey = GlobalKey<NavigatorState>();
@@ -116,19 +115,7 @@ class AppRouter {
           child: PlayerScreen(
               startTimeTicks:
                   int.parse(state.uri.queryParameters['startTimeTicks'] ?? "0"),
-              streamUrlAndPlaybackInfo:
-                  state.extra as (String, PlaybackInfoResponse)),
-        ),
-      ),
-      GoRoute(
-        path: ScreenPaths.offlinePlayer,
-        pageBuilder: (context, state) => buildPageWithDefaultTransition(
-          context: context,
-          state: state,
-          child: OfflinePlayerScreen(
-              startTimeTicks:
-                  int.parse(state.uri.queryParameters['startTimeTicks'] ?? "0"),
-              streamPath: state.extra as String),
+              playerHelper: state.extra as PlayerHelper),
         ),
       ),
       GoRoute(
@@ -169,7 +156,7 @@ class AppRouter {
     },
     redirect: (context, state) async {
       final isGoingToOfflinePlayer =
-          state.matchedLocation == ScreenPaths.offlinePlayer;
+          state.matchedLocation == ScreenPaths.player;
       final isGoingToDownloads = state.matchedLocation == ScreenPaths.downloads;
       final isGoingToLogin = state.matchedLocation == ScreenPaths.login;
       final isGoingToProfile = state.matchedLocation == ScreenPaths.profile;

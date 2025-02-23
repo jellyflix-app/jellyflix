@@ -338,7 +338,7 @@ class ApiService {
   /// maxStreamingBitrate is the default bitrate set in the settings if null
   /// audioStreamIndex is the default audioStreamIndex set by jellyfin if null
   /// subtitleStreamIndex is the default subtitleStreamIndex set by jellyfin if null
-  Future<(String, PlaybackInfoResponse)> getStreamUrlAndPlaybackInfo({
+  Future<PlaybackInfoResponse> getPlaybackInfo({
     required String itemId,
     int? audioStreamIndex,
     int? subtitleStreamIndex,
@@ -353,32 +353,29 @@ class ApiService {
         startTimeTicks,
         false);
 
-    String? url;
-    // if (response.data!.mediaSources!.toList().first.supportsDirectPlay ==
-    //     true) {
-    //   url =
-    //       "${_user!.serverAdress}/Videos/$itemId/stream?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}&SubtitleStreamIndex=${subtitleStreamIndex ?? response.data!.mediaSources!.first.defaultSubtitleStreamIndex ?? -1}&Static=true";
-    // } else
-    if (response.data!.mediaSources!.toList().first.supportsDirectStream ==
-        true) {
-      url =
-          "${_user!.serverAdress}/Videos/$itemId/stream.${response.data!.mediaSources!.first.container}?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}&SubtitleStreamIndex=${subtitleStreamIndex ?? response.data!.mediaSources!.first.defaultSubtitleStreamIndex ?? -1}&Static=true";
-    } else if (response.data!.mediaSources!.first.supportsTranscoding == true) {
+    if ((response.data!.mediaSources!.toList().first.supportsDirectStream ==
+            false) &&
+        response.data!.mediaSources!.first.supportsTranscoding == true) {
       if (response.data!.mediaSources!.first.transcodingUrl == null) {
         response = await postPlaybackInfoRequest(itemId, maxStreamingBitrate,
             audioStreamIndex, subtitleStreamIndex, startTimeTicks, true);
       }
-      url =
-          "${_user!.serverAdress}${response.data!.mediaSources!.first.transcodingUrl}";
     }
+    return response.data!;
+  }
 
-    if (url != null) {
-      playbackInfo = response.data!;
-      _logger.info("Stream URL: $url");
-      //_logger.info("Playback Info: ${response.data!}");
-      return (url, response.data!);
+  String getStreamUrl(PlaybackInfoResponse playbackInfo) {
+    if (playbackInfo.mediaSources!.first.supportsDirectStream == true) {
+      String url =
+          "${_user!.serverAdress}/Videos/${playbackInfo.mediaSources!.first.id}/stream.${playbackInfo.mediaSources!.first.container}?mediaSourceId=${playbackInfo.mediaSources!.first.id}&AudioStreamIndex=${playbackInfo.mediaSources!.first.defaultAudioStreamIndex!}&SubtitleStreamIndex=${playbackInfo.mediaSources!.first.defaultSubtitleStreamIndex ?? -1}&Static=true";
+      _logger.info("Stream url: $url");
+      return url;
+    } else if (playbackInfo.mediaSources!.first.supportsTranscoding == true) {
+      String url =
+          "${_user!.serverAdress}${playbackInfo.mediaSources!.first.transcodingUrl}";
+      _logger.info("Stream url: $url");
+      return url;
     }
-
     throw Exception("Couldn't get stream url");
   }
 

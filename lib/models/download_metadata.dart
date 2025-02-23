@@ -2,7 +2,7 @@ import 'package:tentacle/tentacle.dart';
 
 class DownloadMetadata {
   final String id;
-  final String name;
+  String name;
   final BaseItemKind type;
   final int runTimeTicks;
   final String? seriesName;
@@ -10,7 +10,6 @@ class DownloadMetadata {
   final int? indexNumber;
   final int? parentIndexNumber;
   final String? path;
-  final String? subtitlePath;
   final int? downloadSize;
 
   DownloadMetadata({
@@ -23,7 +22,6 @@ class DownloadMetadata {
     required this.indexNumber,
     required this.parentIndexNumber,
     required this.path,
-    this.subtitlePath,
     this.downloadSize,
   });
 
@@ -38,7 +36,6 @@ class DownloadMetadata {
       "IndexNumber": indexNumber,
       "ParentIndexNumber": parentIndexNumber,
       "Path": path,
-      "SubtitlePath": subtitlePath,
       "DownloadSize": downloadSize,
     };
   }
@@ -54,7 +51,6 @@ class DownloadMetadata {
       indexNumber: json["IndexNumber"],
       parentIndexNumber: json["ParentIndexNumber"],
       path: json["Path"],
-      subtitlePath: json["SubtitlePath"],
       downloadSize: json["DownloadSize"],
     );
   }

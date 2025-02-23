@@ -2,28 +2,23 @@ import 'dart:async';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:jellyflix/providers/logger_provider.dart' show loggerProvider;
+import 'package:jellyflix/providers/logger_provider.dart';
 import 'package:jellyflix/services/jfx_logger.dart';
+import 'package:jellyflix/services/player_helper.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
-import 'package:tentacle/tentacle.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:tentacle/tentacle.dart';
 import 'package:universal_platform/universal_platform.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
-
-import 'package:jellyflix/providers/api_provider.dart';
-import 'package:jellyflix/providers/playback_helper_provider.dart';
-import 'package:jellyflix/services/stream_player_helper.dart';
 
 class PlayerScreen extends StatefulHookConsumerWidget {
   const PlayerScreen(
-      {super.key,
-      required this.streamUrlAndPlaybackInfo,
-      required this.startTimeTicks});
-  final (String, PlaybackInfoResponse) streamUrlAndPlaybackInfo;
+      {super.key, required this.playerHelper, required this.startTimeTicks});
+  final PlayerHelper playerHelper;
   final int startTimeTicks;
 
   @override
@@ -31,13 +26,11 @@ class PlayerScreen extends StatefulHookConsumerWidget {
 }
 
 class _PlayerSreenState extends ConsumerState<PlayerScreen> {
-  late final StreamPlayerHelper playbackHelper;
+  late final PlayerHelper playbackHelper;
   late final Player player;
   late final VideoController controller;
   final GlobalKey<VideoState> key = GlobalKey<VideoState>();
-  late PlaybackInfoResponse playbackInfo;
   late String streamUrl;
-  late final Map<String, String> headers;
   late final JfxLogger logger;
 
   Timer? _timer;
@@ -45,37 +38,15 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
   @override
   void initState() {
     logger = ref.read(loggerProvider);
-    headers = ref.read(apiProvider).headers;
 
-    streamUrl = widget.streamUrlAndPlaybackInfo.$1;
-    playbackInfo = widget.streamUrlAndPlaybackInfo.$2;
+    playbackHelper = widget.playerHelper;
 
-    playbackHelper = ref.read(playerHelperProvider(playbackInfo));
     player = playbackHelper.player;
     controller = playbackHelper.controller;
 
     requestPermissions().then(
       (value) async {
-        await player.open(Media(streamUrl,
-            httpHeaders: headers,
-            start: Duration(microseconds: widget.startTimeTicks ~/ 10)));
-        StreamSubscription? trackStream;
-        trackStream = player.stream.tracks.listen((event) {
-          List<AudioTrack> audioTracks = event.audio;
-          List<SubtitleTrack> subtitleTracks = event.subtitle;
-          if (audioTracks.length > 2 || subtitleTracks.length > 2) {
-            playbackHelper.setAudio(playbackHelper.audioStream);
-
-            if (playbackHelper.getDefaultSubtitle().index != -1) {
-              playbackHelper.enableSubtitle();
-            }
-
-            // only run until initial load
-            trackStream?.cancel();
-          }
-        });
-
-        ref.read(apiProvider).reportStartPlayback(widget.startTimeTicks);
+        await playbackHelper.initStream(widget.startTimeTicks, _timer);
 
         if (player.platform is NativePlayer) {
           (player.platform as dynamic).setProperty(
@@ -83,13 +54,6 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
             'yes',
           );
         }
-        _timer = Timer.periodic(const Duration(seconds: 5), (timer) async {
-          await ref.read(apiProvider).reportPlaybackProgress(
-                player.state.position.inMilliseconds * 10000,
-                audioStreamIndex: playbackHelper.audioStream.index,
-                subtitleStreamIndex: playbackHelper.subtitle.index,
-              );
-        });
 
         player.stream.error.listen((error) {
           if (mounted) {
@@ -117,8 +81,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
         });
         player.stream.completed.listen((completed) async {
           if (completed) {
-            await ref.read(apiProvider).reportStopPlayback(
-                player.state.position.inMilliseconds * 10000);
+            await playbackHelper.completedPlayback();
             await defaultExitNativeFullscreen();
             if (key.currentState?.isFullscreen() ?? false) {
               await key.currentState?.exitFullscreen();
@@ -211,7 +174,6 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final playbackHelper = ref.read(playerHelperProvider(playbackInfo));
     final subtitleEnabled =
         useValueNotifier<bool>(playbackHelper.getDefaultSubtitle().index != -1);
     final subtitleTrack =
@@ -223,14 +185,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
     var materialVideoControlsThemeData = playbackHelper.videoControls(
       context,
       key,
-      backButtonPressed: () {
-        unawaited(ref
-            .read(apiProvider)
-            .reportStopPlayback(player.state.position.inMilliseconds * 10000)
-            .then((value) {}));
-      },
-      playerPositionSream: player.stream.position,
-      title: playbackInfo.mediaSources!.first.name!,
+      title: playbackHelper.playbackInfo.mediaSources!.first.name!,
       subtitleEnabled: subtitleEnabled,
       subtitleTrack: subtitleTrack,
       audioTrack: audioTrack,
@@ -240,14 +195,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
         playbackHelper.desktopVideoControls(
       context,
       key,
-      backButtonPressed: () {
-        unawaited(ref
-            .read(apiProvider)
-            .reportStopPlayback(player.state.position.inMilliseconds * 10000)
-            .then((value) {}));
-      },
-      playerPositionSream: player.stream.position,
-      title: playbackInfo.mediaSources!.first.name!,
+      title: playbackHelper.playbackInfo.mediaSources!.first.name!,
       subtitleEnabled: subtitleEnabled,
       subtitleTrack: subtitleTrack,
       audioTrack: audioTrack,

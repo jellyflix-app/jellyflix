@@ -1,15 +1,20 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart' as intl;
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:jellyflix/components/player_settings_dialog.dart'
     show PlayerSettingsDialog;
+import 'package:jellyflix/models/bitrates.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:media_kit_video/media_kit_video.dart';
 import 'package:tentacle/tentacle.dart';
+import 'package:universal_platform/universal_platform.dart';
 
-// TODO make abstract
 class PlayerHelper {
+  Map<int, String> bitrateMap = BitRates().map;
+
   PlaybackInfoResponse playbackInfo;
   late List<MediaStream> audioStreams;
   late List<MediaStream> subtitles;
@@ -19,6 +24,7 @@ class PlayerHelper {
   late MediaStream audioStream;
   late MediaStream subtitle;
   late bool isSubtitleEnabled;
+  late bool isTranscoding;
 
   final Player player = Player(
       configuration: const PlayerConfiguration(
@@ -35,7 +41,27 @@ class PlayerHelper {
     audioStream = getDefaultAudio();
     subtitle = getDefaultSubtitle();
     isSubtitleEnabled = subtitle.index != -1;
+    isTranscoding = playbackInfo.mediaSources![0].transcodingUrl != null;
     controller = VideoController(player);
+  }
+
+  Map<int, String> getBitrateMap() {
+    // add orignal bitrate at the beginning
+    bitrateMap[playbackInfo.mediaSources![0].bitrate ?? 0] =
+        "Original ${playbackInfo.mediaSources![0].bitrate! ~/ 1000000} Mb/s";
+    // add original bitrate at the beginning and sort the rest descending
+    bitrateMap = Map.fromEntries(
+      bitrateMap.entries.toList()..sort((e1, e2) => e2.key.compareTo(e1.key)),
+    );
+    // remove bitrates that are higher than the original
+    bitrateMap.removeWhere(
+        (key, value) => key > playbackInfo.mediaSources![0].bitrate!);
+
+    return bitrateMap;
+  }
+
+  int getDefaultBitrate() {
+    return playbackInfo.mediaSources![0].bitrate ?? 0;
   }
 
   void initSubtitleList() {
@@ -96,28 +122,17 @@ class PlayerHelper {
   MaterialVideoControlsThemeData videoControls(
     BuildContext context,
     GlobalKey<VideoState> key, {
-    Function()? backButtonPressed,
-    required Stream playerPositionSream,
     required String title,
     required ValueNotifier<bool> subtitleEnabled,
     //TODO make required
     ValueNotifier<MediaStream>? subtitleTrack,
     ValueNotifier<MediaStream>? audioTrack,
     ValueNotifier<int>? maxStreamingBitrate,
-    bool hideSettings = false,
   }) {
     return MaterialVideoControlsThemeData(
-      topButtonBar: getTopButtonBarThemeData(context, key,
-          backButtonPressed: backButtonPressed,
-          playerPositionSream: player.stream.position,
-          title: title),
-      bottomButtonBar: getBottomButtonBarThemeData(
-          subtitleEnabled,
-          subtitleTrack,
-          audioTrack,
-          maxStreamingBitrate,
-          hideSettings,
-          context),
+      topButtonBar: getTopButtonBarThemeData(context, key, title: title),
+      bottomButtonBar: getBottomButtonBarThemeData(subtitleEnabled,
+          subtitleTrack, audioTrack, maxStreamingBitrate, context),
       seekBarPositionColor: Theme.of(context).colorScheme.onPrimary,
       seekBarThumbColor: Theme.of(context).colorScheme.primary,
       seekBarThumbSize: 15,
@@ -129,27 +144,18 @@ class PlayerHelper {
   }
 
   MaterialDesktopVideoControlsThemeData desktopVideoControls(
-      BuildContext context, GlobalKey<VideoState> key,
-      {Function()? backButtonPressed,
-      required Stream playerPositionSream,
-      required String title,
-      required ValueNotifier<bool> subtitleEnabled,
-      required ValueNotifier<MediaStream>? subtitleTrack,
-      required ValueNotifier<MediaStream>? audioTrack,
-      required ValueNotifier<int>? maxStreamingBitrate,
-      bool hideSettings = false}) {
+    BuildContext context,
+    GlobalKey<VideoState> key, {
+    required String title,
+    required ValueNotifier<bool> subtitleEnabled,
+    required ValueNotifier<MediaStream>? subtitleTrack,
+    required ValueNotifier<MediaStream>? audioTrack,
+    required ValueNotifier<int>? maxStreamingBitrate,
+  }) {
     return MaterialDesktopVideoControlsThemeData(
-      topButtonBar: getTopButtonBarThemeData(context, key,
-          backButtonPressed: backButtonPressed,
-          playerPositionSream: player.stream.position,
-          title: title),
-      bottomButtonBar: getBottomButtonBarThemeData(
-          subtitleEnabled,
-          subtitleTrack,
-          audioTrack,
-          maxStreamingBitrate,
-          hideSettings,
-          context),
+      topButtonBar: getTopButtonBarThemeData(context, key, title: title),
+      bottomButtonBar: getBottomButtonBarThemeData(subtitleEnabled,
+          subtitleTrack, audioTrack, maxStreamingBitrate, context),
       seekBarPositionColor: Theme.of(context).colorScheme.onPrimary,
       seekBarThumbColor: Theme.of(context).colorScheme.primary,
       playAndPauseOnTap: true,
@@ -158,16 +164,15 @@ class PlayerHelper {
 
   List<Widget> getTopButtonBarThemeData(
       BuildContext context, GlobalKey<VideoState> key,
-      {Function()? backButtonPressed,
-      required Stream playerPositionSream,
-      required String title}) {
+      {required String title}) {
     return [
       BackButton(
         onPressed: () async {
           backButtonPressed;
-          // if (key.currentState?.isFullscreen() ?? false) {
-          //   await key.currentState?.exitFullscreen();
-          // }
+          if (UniversalPlatform.isDesktop &&
+              (key.currentState?.isFullscreen() ?? false)) {
+            await key.currentState?.exitFullscreen();
+          }
           if (context.mounted) {
             context.pop();
           }
@@ -215,7 +220,6 @@ class PlayerHelper {
       ValueNotifier<MediaStream>? subtitleTrack,
       ValueNotifier<MediaStream>? audioTrack,
       ValueNotifier<int>? maxStreamingBitrate,
-      bool hideSettings,
       BuildContext context) {
     return [
       const MaterialPlayOrPauseButton(),
@@ -247,50 +251,61 @@ class PlayerHelper {
           ),
         ),
       const Spacer(),
-      if (hideSettings)
-        MaterialDesktopCustomButton(
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) => PlayerSettingsDialog(
-                playbackHelper: this,
-                audioTrack: audioTrack!.value,
-                subtitleTrack: subtitleTrack!.value,
-                isSubtitleEnabled: subtitleEnabled.value,
-                maxStreamingBitrate: maxStreamingBitrate!.value,
-                onSubtitleSelected: (value) async {
-                  if (value != null) {
-                    subtitleEnabled.value = value.index == -1 ? false : true;
-                    subtitleTrack.value = value;
-                    //logger.verbose("Setting subtitle: ${value.displayTitle}");
-                    await setSubtitle(value);
+      MaterialDesktopCustomButton(
+        onPressed: () {
+          showDialog(
+            context: context,
+            builder: (context) => PlayerSettingsDialog(
+              playbackHelper: this,
+              audioTrack: audioTrack!.value,
+              subtitleTrack: subtitleTrack!.value,
+              isSubtitleEnabled: subtitleEnabled.value,
+              maxStreamingBitrate: maxStreamingBitrate!.value,
+              onSubtitleSelected: (value) async {
+                if (value != null) {
+                  subtitleEnabled.value = value.index == -1 ? false : true;
+                  subtitleTrack.value = value;
+                  //logger.verbose("Setting subtitle: ${value.displayTitle}");
+                  await setSubtitle(value);
+                }
+              },
+              onAudioSelected: (value) async {
+                if (audioTrack.value != value) {
+                  audioTrack.value = value!;
+                  await setAudio(value);
+                }
+              },
+              onBitrateSelected: (value) async {
+                if (maxStreamingBitrate.value != value) {
+                  maxStreamingBitrate.value = value!;
+                  await setBitrate(value);
+                  // opening a new stream will reset the subtitle track
+                  if (subtitleEnabled.value) {
+                    await enableSubtitle();
                   }
-                },
-                onAudioSelected: (value) async {
-                  if (audioTrack.value != value) {
-                    audioTrack.value = value!;
-                    await setAudio(value);
-                  }
-                },
-                onBitrateSelected: (value) async {
-                  if (maxStreamingBitrate.value != value) {
-                    maxStreamingBitrate.value = value!;
-                    await setBitrate(value);
-                    // opening a new stream will reset the subtitle track
-                    if (subtitleEnabled.value) {
-                      await enableSubtitle();
-                    }
-                  }
-                },
-              ),
-            );
-          },
-          icon: const Icon(
-            Icons.settings_rounded,
-            size: 20,
-          ),
+                }
+              },
+            ),
+          );
+        },
+        icon: const Icon(
+          Icons.settings_rounded,
+          size: 20,
         ),
+      ),
       const MaterialFullscreenButton(),
     ];
+  }
+
+  void backButtonPressed() async {
+    throw UnimplementedError();
+  }
+
+  Future<void> initStream(int startTimeTicks, Timer? playbackTimer) {
+    throw UnimplementedError();
+  }
+
+  Future<void> completedPlayback() async {
+    throw UnimplementedError();
   }
 }

@@ -4,6 +4,7 @@ import 'dart:ui';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
+import 'package:jellyflix/providers/player_helper_provider.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -399,14 +400,14 @@ class DetailScreen extends HookConsumerWidget {
 
   Future<void> goToPlayerScreen(WidgetRef ref, String itemId,
       int playbackStartTicks, BuildContext context) async {
-    var playbackInfo = await ref.read(apiProvider).getStreamUrlAndPlaybackInfo(
-        itemId: itemId, startTimeTicks: playbackStartTicks);
+    var playerHelper =
+        await ref.read(streamPlayerHelperProvider(itemId).future);
     if (context.mounted) {
       context.push(
           Uri(path: ScreenPaths.player, queryParameters: {
             "startTimeTicks": playbackStartTicks.toString()
           }).toString(),
-          extra: playbackInfo);
+          extra: playerHelper);
     }
   }
 }

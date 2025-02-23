@@ -1,41 +1,19 @@
-import 'package:jellyflix/models/bitrates.dart';
+import 'dart:async';
+
 import 'package:jellyflix/services/api_service.dart';
 import 'package:jellyflix/services/player_helper.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:tentacle/tentacle.dart';
 
 class StreamPlayerHelper extends PlayerHelper {
-  Map<int, String> bitrateMap = BitRates().map;
-
   late final ApiService _apiService;
-  late final bool isTranscoding;
   late int bitrate;
 
   StreamPlayerHelper({required playbackInfo, required apiService})
-      : super(playbackInfo: playbackInfo) {
+      : _apiService = apiService,
+        super(playbackInfo: playbackInfo) {
     bitrate = getDefaultBitrate();
     isSubtitleEnabled = subtitle.index != -1;
-    isTranscoding = playbackInfo.mediaSources![0].transcodingUrl != null;
-    _apiService = apiService;
-  }
-
-  Map<int, String> getBitrateMap() {
-    // add orignal bitrate at the beginning
-    bitrateMap[playbackInfo.mediaSources![0].bitrate ?? 0] =
-        "Original ${playbackInfo.mediaSources![0].bitrate! ~/ 1000000} Mb/s";
-    // add original bitrate at the beginning and sort the rest descending
-    bitrateMap = Map.fromEntries(
-      bitrateMap.entries.toList()..sort((e1, e2) => e2.key.compareTo(e1.key)),
-    );
-    // remove bitrates that are higher than the original
-    bitrateMap.removeWhere(
-        (key, value) => key > playbackInfo.mediaSources![0].bitrate!);
-
-    return bitrateMap;
-  }
-
-  int getDefaultBitrate() {
-    return playbackInfo.mediaSources![0].bitrate ?? 0;
   }
 
   @override
@@ -153,7 +131,7 @@ class StreamPlayerHelper extends PlayerHelper {
       {int? maxStreamingBitrate,
       int? audioStreamIndex,
       int? subtitleIndex}) async {
-    var result = await _apiService.getStreamUrlAndPlaybackInfo(
+    var result = await _apiService.getPlaybackInfo(
       itemId: playbackInfo.mediaSources!.first.id!,
       maxStreamingBitrate: maxStreamingBitrate ?? bitrate,
       audioStreamIndex: audioStreamIndex ?? audioStream.index,
@@ -162,14 +140,14 @@ class StreamPlayerHelper extends PlayerHelper {
     );
     // update all mediastreams
     bitrate = maxStreamingBitrate ?? bitrate;
-    playbackInfo = result.$2;
+    playbackInfo = result;
     initAudioList();
     initSubtitleList();
     // map current subtitle
     audioStream = audioStreams.firstWhere((e) => audioStream.index == e.index);
     subtitle = subtitles.firstWhere((e) => subtitle.index == e.index);
     isTranscoding = playbackInfo.mediaSources![0].transcodingUrl != null;
-    await player.open(Media(result.$1,
+    await player.open(Media(_apiService.getStreamUrl(playbackInfo),
         httpHeaders: _apiService.headers,
         start: Duration(milliseconds: player.state.position.inMilliseconds)));
   }
@@ -187,5 +165,49 @@ class StreamPlayerHelper extends PlayerHelper {
     }
   }
 
-  saveToFile() {}
+  @override
+  Future<void> initStream(int startTimeTicks, Timer? playbackTimer) async {
+    String streamUrl = _apiService.getStreamUrl(playbackInfo);
+    await player.open(Media(streamUrl,
+        httpHeaders: _apiService.headers,
+        start: Duration(microseconds: startTimeTicks ~/ 10)));
+    StreamSubscription? trackStream;
+    trackStream = player.stream.tracks.listen((event) {
+      List<AudioTrack> audioTracks = event.audio;
+      List<SubtitleTrack> subtitleTracks = event.subtitle;
+      if (audioTracks.length > 2 || subtitleTracks.length > 2) {
+        setAudio(audioStream);
+
+        if (getDefaultSubtitle().index != -1) {
+          enableSubtitle();
+        }
+
+        // only run until initial load
+        trackStream?.cancel();
+      }
+    });
+
+    _apiService.reportStartPlayback(startTimeTicks);
+
+    playbackTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+      await _apiService.reportPlaybackProgress(
+        player.state.position.inMilliseconds * 10000,
+        audioStreamIndex: audioStream.index,
+        subtitleStreamIndex: subtitle.index,
+      );
+    });
+  }
+
+  @override
+  Future<void> completedPlayback() async {
+    await _apiService
+        .reportStopPlayback(player.state.position.inMilliseconds * 10000);
+  }
+
+  @override
+  void backButtonPressed() async {
+    unawaited(_apiService
+        .reportStopPlayback(player.state.position.inMilliseconds * 10000)
+        .then((value) {}));
+  }
 }

@@ -9,7 +9,7 @@ import 'package:jellyflix/components/jellyfin_image.dart';
 import 'package:jellyflix/components/playback_progress_overlay.dart';
 import 'package:jellyflix/models/bitrates.dart';
 import 'package:jellyflix/models/screen_paths.dart';
-import 'package:jellyflix/providers/api_provider.dart';
+import 'package:jellyflix/providers/player_helper_provider.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:jellyflix/providers/connectivity_provider.dart';
 import 'package:jellyflix/providers/database_provider.dart';
@@ -54,9 +54,8 @@ class EpisodeListTile extends HookConsumerWidget {
           type: ImageType.primary,
           blurHash: episode.imageBlurHashes?.primary?[episode.id!]),
       onTap: () async {
-        var playbackInfo = await ref
-            .read(apiProvider)
-            .getStreamUrlAndPlaybackInfo(itemId: episode.id!);
+        var playbackInfo =
+            await ref.read(streamPlayerHelperProvider(episode.id!).future);
         if (context.mounted) {
           context.push(
               Uri(path: ScreenPaths.player, queryParameters: {
@@ -100,6 +99,16 @@ class EpisodeListTile extends HookConsumerWidget {
                         !(ref.read(connectivityProvider).isConnected)) {
                       return;
                     }
+
+                    int downloadBitrate = await ref
+                            .read(databaseProvider("settings"))
+                            .get("downloadBitrate") ??
+                        BitRates.defaultBitrate();
+
+                    PlaybackInfoResponse downloadInfo = await ref
+                        .read(downloadProvider(episode.id!))
+                        .getDownloadInfo(downloadBitrate: downloadBitrate);
+
                     int audioCount = episode.mediaSources![0].mediaStreams!
                         .where(
                             (element) => element.type == MediaStreamType.audio)
@@ -109,18 +118,13 @@ class EpisodeListTile extends HookConsumerWidget {
                             element.type == MediaStreamType.subtitle)
                         .length;
 
-                    int downloadBitrate = await ref
-                            .read(databaseProvider("settings"))
-                            .get("downloadBitrate") ??
-                        BitRates.defaultBitrate();
-
                     if (context.mounted &&
-                        (audioCount != 1 || subtitleCount != 0)) {
+                        (audioCount > 1 || subtitleCount > 0)) {
                       var selectedSettings = await showDialog(
                         context: context,
                         builder: (context) {
                           return DownloadSettingsDialog(
-                            item: episode,
+                            downloadInfo: downloadInfo,
                           );
                         },
                       );
