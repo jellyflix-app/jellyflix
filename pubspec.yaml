@@ -115,6 +115,8 @@ dev_dependencies:
 flutter:
   uses-material-design: true
   generate: true
+  assets:
+    - assets/fonts/droid-sans.ttf
 
 flutter_launcher_icons:
   android: "launcher_icon"

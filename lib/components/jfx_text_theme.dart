@@ -12,8 +12,8 @@ class JfxTextTheme {
         screenWidth > screenHeight ? screenWidth : screenHeight;
 
     double headlineSmallSize = sizeBaseline * 0.018;
-    if (headlineSmallSize < 24) {
-      headlineSmallSize = 24;
+    if (headlineSmallSize < 20) {
+      headlineSmallSize = 20;
     }
     double titleMediumSize = headlineSmallSize * 2 / 3;
     double bodyLargeSize = titleMediumSize * .875;

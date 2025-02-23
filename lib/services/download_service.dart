@@ -4,6 +4,9 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:jellyflix/models/playback_info_response_serializer.dart';
+import 'package:jellyflix/services/jfx_logger.dart';
+import 'package:jellyflix/services/player_helper.dart';
 import 'package:universal_io/io.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:path_provider/path_provider.dart';
@@ -22,7 +25,8 @@ class DownloadService {
   final ApiService _api;
   late CancelableOperation<void> _download;
   late final String itemId;
-  late ConnectivityService connectivityService;
+  late final ConnectivityService connectivityService;
+  late final JfxLogger logger;
   Dio? _dio;
 
   bool isDownloading = false;
@@ -33,12 +37,15 @@ class DownloadService {
     api, {
     required String itemId,
     required ConnectivityService connectivityService,
+    required JfxLogger logger,
   }) {
     if (_instances.containsKey(itemId)) {
       return _instances[itemId]!;
     } else {
       final instance = DownloadService._internal(api,
-          itemId: itemId, connectivityService: connectivityService);
+          itemId: itemId,
+          connectivityService: connectivityService,
+          logger: logger);
       _instances[itemId] = instance;
       return instance;
     }
@@ -48,6 +55,7 @@ class DownloadService {
     this._api, {
     required this.itemId,
     required this.connectivityService,
+    required this.logger,
   }) {
     if (_api.currentUser != null) {
       _dio = Dio(
@@ -88,6 +96,13 @@ class DownloadService {
     return "$downloadDir${Platform.pathSeparator}$itemId${Platform.pathSeparator}main.m3u8";
   }
 
+  Future<PlaybackInfoResponse> getDownloadInfo(
+      {int? audioStreamIndex,
+      int? subtitleStreamIndex,
+      required int downloadBitrate}) async {
+    return (await _api.getPlaybackInfo(itemId: itemId));
+  }
+
   void downloadItem(
       {int? audioStreamIndex,
       int? subtitleStreamIndex,
@@ -104,37 +119,73 @@ class DownloadService {
     )..value.whenComplete(() {}).onError((error, stackTrace) {
         isDownloading = false;
       });
+    logger.verbose("Downloads: Downloading item: $itemId");
   }
 
   Future<void> _downloadItem(
       {int? audioStreamIndex,
       int? subtitleStreamIndex,
       required int downloadBitrate}) async {
-    // create download directory if it doesn't exist
-    var downloadDirectory = await getDownloadDirectory();
-    if (!await Directory(downloadDirectory).exists()) {
-      await Directory(downloadDirectory).create();
-    }
     isDownloading = true;
-    var response = await _api.getStreamUrlAndPlaybackInfo(
+    PlaybackInfoResponse playbackInfo = await _api.getPlaybackInfo(
         itemId: itemId,
         maxStreamingBitrate: downloadBitrate,
         audioStreamIndex: audioStreamIndex,
         subtitleStreamIndex: subtitleStreamIndex);
-    PlaybackInfoResponse playbackInfo = response.$2;
+    logger.verbose("Downloads: PlaybackInfo: $playbackInfo");
 
-    await writeMetadataToFile(playbackInfo, response.$1);
+    PlayerHelper helper = PlayerHelper(playbackInfo: playbackInfo);
+    MediaStream subtitle = helper.subtitles
+        .firstWhere((element) => element.index == subtitleStreamIndex);
 
+    var subtitlePath = await downloadSubtitle(subtitle);
+
+    await writePlaybackInfoToFile(playbackInfo, subtitle, subtitlePath);
+
+    String streamUrl = _api.getStreamUrl(playbackInfo);
+    await writeMetadataToFile(playbackInfo, streamUrl,
+        subtitlePath: subtitlePath);
     if (playbackInfo.mediaSources![0].transcodingUrl == null) {
-      await downloadDirectStream(response.$1);
+      await downloadDirectStream(streamUrl);
     } else {
       await downloadTranscodedStream(
           playbackInfo.mediaSources![0].transcodingUrl!);
     }
   }
 
+  Future<String> downloadSubtitle(MediaStream subtitle) async {
+    // create download directory if it doesn't exist
+    var downloadDirectory = await getDownloadDirectory();
+    logger.verbose("Downloads: Download directory: $downloadDirectory");
+    if (!await Directory(downloadDirectory).exists()) {
+      await Directory(downloadDirectory).create();
+    }
+
+    if (subtitle.deliveryMethod == SubtitleDeliveryMethod.external_) {
+      logger.verbose("Downloads: Download external subtitle: $subtitle");
+      // download external subtitle
+      String externalSubtitle =
+          await _api.getExternalSubtitle(deliveryUrl: subtitle.deliveryUrl!);
+      String fileName = subtitle.deliveryUrl!.split("?")[0].split("/").last;
+      String downloadPath =
+          "$downloadDirectory${Platform.pathSeparator}$itemId";
+      // create download directory if it doesn't exist
+      if (!await Directory(downloadPath).exists()) {
+        await Directory(downloadPath).create();
+      }
+      await File(downloadPath + Platform.pathSeparator + fileName)
+          .writeAsString(externalSubtitle);
+      logger.verbose(
+          "Downloads: External subtitle downloaded: $downloadPath/$fileName");
+      return downloadPath + Platform.pathSeparator + fileName;
+    } else {
+      throw Exception("Subtitle is not external");
+    }
+  }
+
   Future<void> writeMetadataToFile(
-      PlaybackInfoResponse playbackInfo, String streamUrl) async {
+      PlaybackInfoResponse playbackInfo, String streamUrl,
+      {String? subtitlePath}) async {
     var downloadDirectory = await getDownloadDirectory();
     var downloadPath = "$downloadDirectory${Platform.pathSeparator}$itemId";
 
@@ -186,6 +237,54 @@ class DownloadService {
     }
   }
 
+  Future<void> writePlaybackInfoToFile(PlaybackInfoResponse playbackInfo,
+      MediaStream subtitle, String subtitlePath) async {
+    var downloadDirectory = await getDownloadDirectory();
+    var downloadPath = "$downloadDirectory${Platform.pathSeparator}$itemId";
+
+    // create download directory if it doesn't exist
+    if (!await Directory(downloadPath).exists()) {
+      await Directory(downloadPath).create();
+    }
+
+    List<MediaStream> streamsToKeep = [];
+
+    for (var stream in playbackInfo.mediaSources![0].mediaStreams!) {
+      if (stream.type == MediaStreamType.audio ||
+          stream.type == MediaStreamType.video ||
+          (stream.type == MediaStreamType.subtitle &&
+              stream.deliveryMethod == SubtitleDeliveryMethod.embed)) {
+        streamsToKeep.add(stream);
+      }
+    }
+
+    MediaStream updatedSubtitle =
+        subtitle.rebuild((b) => b..deliveryUrl = subtitlePath);
+    streamsToKeep.add(updatedSubtitle);
+
+    PlaybackInfoResponse updatedInfo = playbackInfo.rebuild((b) {
+      if (b.mediaSources.isNotEmpty) {
+        // Update only the first media source
+        b.mediaSources[0] = b.mediaSources[0].rebuild((ms) {
+          ms.mediaStreams.replace(streamsToKeep);
+        });
+      }
+    });
+
+    // write playback info to file
+    await File("$downloadPath${Platform.pathSeparator}playback_info.json")
+        .writeAsString(PlaybackInfoResponseSerializer.toJson(updatedInfo));
+  }
+
+  Future<PlaybackInfoResponse> getPlaybackInfoFromFile() async {
+    var downloadDirectory = await getDownloadDirectory();
+    var downloadPath = "$downloadDirectory${Platform.pathSeparator}$itemId";
+
+    return PlaybackInfoResponseSerializer.fromJson(
+        await File("$downloadPath${Platform.pathSeparator}playback_info.json")
+            .readAsString());
+  }
+
   Future<String> getMetadataImagePath() async {
     var downloadDirectory = await getDownloadDirectory();
     var downloadPath = "$downloadDirectory${Platform.pathSeparator}$itemId";
@@ -202,11 +301,25 @@ class DownloadService {
       throw Exception("Metadata file not found");
     }
 
+    if (!await File("$downloadPath${Platform.pathSeparator}playback_info.json")
+        .exists()) {
+      throw Exception("Playback info file not found");
+    }
+
     var metadata =
         await File("$downloadPath${Platform.pathSeparator}metadata.json")
             .readAsString();
 
-    return DownloadMetadata.fromJson(json.decode(metadata));
+    var playbackInfo =
+        await File("$downloadPath${Platform.pathSeparator}playback_info.json")
+            .readAsString();
+
+    var bla = PlaybackInfoResponseSerializer.fromJson(playbackInfo);
+    var blub = DownloadMetadata.fromJson(json.decode(metadata));
+
+    blub.name = bla.mediaSources![0].mediaStreams?.length.toString() ?? "Bla";
+
+    return blub;
   }
 
   Future<void> resumeDownload() async {

@@ -38,28 +38,31 @@ class RoundedDownloadButton extends HookConsumerWidget {
               ));
             }
           } else if (isDownloaded.value == null) {
-            int audioCount = data.mediaSources![0].mediaStreams!
-                .where((element) => element.type == MediaStreamType.audio)
-                .length;
-            int subtitleCount = data.mediaSources![0].mediaStreams!
-                .where((element) => element.type == MediaStreamType.subtitle)
-                .length;
-
             int downloadBitrate = await ref
                     .read(databaseProvider("settings"))
                     .get("downloadBitrate") ??
                 BitRates.defaultBitrate();
 
-            if (context.mounted && (audioCount != 1 || subtitleCount != 0)) {
+            PlaybackInfoResponse downloadInfo = await ref
+                .read(downloadProvider(itemId))
+                .getDownloadInfo(downloadBitrate: downloadBitrate);
+
+            int audioCount = downloadInfo.mediaSources![0].mediaStreams!
+                .where((element) => element.type == MediaStreamType.audio)
+                .length;
+            int subtitleCount = downloadInfo.mediaSources![0].mediaStreams!
+                .where((element) => element.type == MediaStreamType.subtitle)
+                .length;
+
+            if (context.mounted && (audioCount > 1 || subtitleCount > 0)) {
               (int?, int?) selectedSettings = await showDialog(
                 context: context,
                 builder: (context) {
                   return DownloadSettingsDialog(
-                    item: data,
+                    downloadInfo: downloadInfo,
                   );
                 },
               );
-
               if (selectedSettings.$1 == null && selectedSettings.$2 == null) {
                 return;
               }

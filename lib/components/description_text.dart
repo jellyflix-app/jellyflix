@@ -41,7 +41,7 @@ class DescriptionText extends HookConsumerWidget {
         return Column(
           children: <Widget>[
             HtmlWidget(
-              showMoreState.value
+              showMoreState.value || !exceeded
                   ? markdown.markdownToHtml(text)
                   : markdown.markdownToHtml(firstHalf),
               textStyle: layout.text.bodyLarge,

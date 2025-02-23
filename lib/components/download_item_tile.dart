@@ -9,6 +9,8 @@ import 'package:jellyflix/components/item_list_tile.dart';
 import 'package:jellyflix/models/download_metadata.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/download_provider.dart';
+import 'package:jellyflix/providers/player_helper_provider.dart';
+import 'package:jellyflix/services/player_helper.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:universal_io/io.dart';
 
@@ -89,14 +91,25 @@ class DownloadItemTile extends HookConsumerWidget {
               subscription = ref
                   .read(downloadProvider(itemId))
                   .downloadProgress(1)
-                  .listen((progress) {
-                if (progress == 100 && context.mounted) {
-                  context.push(
-                    Uri(
-                      path: ScreenPaths.offlinePlayer,
-                    ).toString(),
-                    extra: metaData.data!.path,
-                  );
+                  .listen((progress) async {
+                if (progress == 100) {
+                  PlayerHelper playerHelper = await ref
+                      .read(offlinePlayerHelperProvider(itemId).future);
+
+                  if (context.mounted) {
+                    context.push(
+                        Uri(
+                                path: ScreenPaths.player,
+                                queryParameters: {"startTimeTicks": "0"})
+                            .toString(),
+                        extra: playerHelper);
+                  }
+                  // context.push(
+                  //   Uri(
+                  //     path: ScreenPaths.player,
+                  //   ).toString(),
+                  //   extra: metaData.data!.path,
+                  // );
                 }
                 subscription?.cancel();
               });

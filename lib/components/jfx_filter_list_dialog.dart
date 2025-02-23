@@ -76,9 +76,10 @@ class JfxFilterListDialog<T extends Object> {
               resetButtonText: AppLocalizations.of(context)!.reset,
               themeData: FilterListThemeData(
                 context,
-                backgroundColor: Theme.of(context).dialogBackgroundColor,
+                backgroundColor: Theme.of(context).dialogTheme.backgroundColor,
                 headerTheme: HeaderThemeData(
-                  backgroundColor: Theme.of(context).dialogBackgroundColor,
+                  backgroundColor:
+                      Theme.of(context).dialogTheme.backgroundColor,
                   searchFieldBackgroundColor: Theme.of(context).focusColor,
                   searchFieldIconColor: Theme.of(context).iconTheme.color,
                   closeIconColor: Theme.of(context).iconTheme.color!,
