@@ -128,7 +128,6 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: "stable"
-          flutter-version: "3.24.x"
           cache: true
 
       - name: Run Pub get
@@ -180,7 +179,7 @@ jobs:
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "2.6.10"
+          ruby-version: "3.3.0"
           bundler-cache: true
           working-directory: "ios"
 
