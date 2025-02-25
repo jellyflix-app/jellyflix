@@ -172,7 +172,7 @@ jobs:
   build_ios:
     needs: [version]
     name: Build iOS
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Checkout the code
         uses: actions/checkout@v4
@@ -271,7 +271,7 @@ jobs:
   build_macos:
     name: Build macOS
     needs: [version]
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - name: Clone Repo
         uses: actions/checkout@v4
