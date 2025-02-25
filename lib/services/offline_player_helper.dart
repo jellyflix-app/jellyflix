@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:jellyflix/models/download_metadata.dart';
 import 'package:jellyflix/services/player_helper.dart';
 import 'package:media_kit/media_kit.dart';
+import 'package:tentacle/tentacle.dart';
 
 class OfflinePlayerHelper extends PlayerHelper {
   late int bitrate;
@@ -13,6 +14,7 @@ class OfflinePlayerHelper extends PlayerHelper {
     audioStream = getDefaultAudio();
     subtitle = getDefaultSubtitle();
     isSubtitleEnabled = subtitle.index != -1;
+    showBitrate = false;
   }
 
   @override
@@ -53,9 +55,46 @@ class OfflinePlayerHelper extends PlayerHelper {
     });
   }
 
+  // no additional logic needed for offline playback
   @override
   Future<void> completedPlayback() async {}
 
+  // no additional logic needed for offline playback
   @override
   void backButtonPressed() async {}
+
+  @override
+  Future<void> setAudio(MediaStream mediaStream) async {
+    mediaStream = audioStreams
+        .firstWhere((element) => element.index == mediaStream.index);
+    int index = mappedAudioStreams[mediaStream]!;
+    player.setAudioTrack(player.state.tracks.audio[index]);
+    audioStream = mediaStream;
+  }
+
+  @override
+  Future<void> setSubtitle(MediaStream mediaStream) async {
+    mediaStream =
+        subtitles.firstWhere((element) => element.index == mediaStream.index);
+    if (mediaStream.deliveryMethod == SubtitleDeliveryMethod.external_) {
+      // load subtitle from file
+      SubtitleTrack externalSubtitle =
+          SubtitleTrack.uri(mediaStream.deliveryUrl!);
+      // external subtitles
+      await player.setSubtitleTrack(externalSubtitle);
+      isSubtitleEnabled = true;
+      subtitle = mediaStream;
+    } else {
+      if (mediaStream.index == -1) {
+        // no subtitles is track with index 1
+        player.setSubtitleTrack(player.state.tracks.subtitle[1]);
+        isSubtitleEnabled = false;
+      } else {
+        int index = mappedSubtitles[mediaStream]!;
+        player.setSubtitleTrack(player.state.tracks.subtitle[index]);
+        isSubtitleEnabled = true;
+        subtitle = mediaStream;
+      }
+    }
+  }
 }

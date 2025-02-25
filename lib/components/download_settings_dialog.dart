@@ -15,7 +15,6 @@ class DownloadSettingsDialog extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     MediaStream selectedAudio = playerHelper.getDefaultAudio();
     MediaStream selectedSubtitle = playerHelper.getDefaultSubtitle();
-
     return AlertDialog(
       title: Text(AppLocalizations.of(context)!.setAudioAndSubtitleLanguage),
       content: Column(
@@ -53,7 +52,7 @@ class DownloadSettingsDialog extends HookConsumerWidget {
               },
             ),
           const SizedBox(height: 20),
-          if (playerHelper.subtitles.isNotEmpty)
+          if (playerHelper.subtitles.length > 1)
             DropdownMenu<MediaStream>(
               expandedInsets: EdgeInsets.zero,
               enableSearch: false,

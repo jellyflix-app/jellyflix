@@ -100,7 +100,11 @@ class DownloadService {
       {int? audioStreamIndex,
       int? subtitleStreamIndex,
       required int downloadBitrate}) async {
-    return (await _api.getPlaybackInfo(itemId: itemId));
+    return (await _api.getPlaybackInfo(
+        itemId: itemId,
+        maxStreamingBitrate: downloadBitrate,
+        audioStreamIndex: audioStreamIndex,
+        subtitleStreamIndex: subtitleStreamIndex));
   }
 
   void downloadItem(
@@ -115,9 +119,12 @@ class DownloadService {
       ),
       onCancel: () {
         isDownloading = false;
+        logger.warning("Downloads: Download canceled");
       },
     )..value.whenComplete(() {}).onError((error, stackTrace) {
         isDownloading = false;
+        logger.error("Downloads: Error downloading item: $itemId: $stackTrace",
+            error: error);
       });
     logger.verbose("Downloads: Downloading item: $itemId");
   }
@@ -134,20 +141,28 @@ class DownloadService {
         subtitleStreamIndex: subtitleStreamIndex);
     logger.verbose("Downloads: PlaybackInfo: $playbackInfo");
 
-    PlayerHelper helper = PlayerHelper(playbackInfo: playbackInfo);
-    MediaStream subtitle = helper.subtitles
-        .firstWhere((element) => element.index == subtitleStreamIndex);
+    MediaStream? subtitle;
+    String? subtitlePath;
 
-    var subtitlePath = await downloadSubtitle(subtitle);
+    if (subtitleStreamIndex != null && subtitleStreamIndex != -1) {
+      PlayerHelper helper = PlayerHelper(playbackInfo: playbackInfo);
 
-    await writePlaybackInfoToFile(playbackInfo, subtitle, subtitlePath);
+      MediaStream subtitle = helper.subtitles
+          .firstWhere((element) => element.index == subtitleStreamIndex);
+      subtitlePath = await downloadSubtitle(subtitle);
+    }
 
     String streamUrl = _api.getStreamUrl(playbackInfo);
-    await writeMetadataToFile(playbackInfo, streamUrl,
-        subtitlePath: subtitlePath);
+    await writeMetadataToFile(playbackInfo, streamUrl);
     if (playbackInfo.mediaSources![0].transcodingUrl == null) {
+      await writePlaybackInfoToFile(playbackInfo,
+          subtitle: subtitle, subtitlePath: subtitlePath);
       await downloadDirectStream(streamUrl);
     } else {
+      await writePlaybackInfoToFile(playbackInfo,
+          subtitle: subtitle,
+          subtitlePath: subtitlePath,
+          audioStreamIndex: audioStreamIndex);
       await downloadTranscodedStream(
           playbackInfo.mediaSources![0].transcodingUrl!);
     }
@@ -184,8 +199,9 @@ class DownloadService {
   }
 
   Future<void> writeMetadataToFile(
-      PlaybackInfoResponse playbackInfo, String streamUrl,
-      {String? subtitlePath}) async {
+    PlaybackInfoResponse playbackInfo,
+    String streamUrl,
+  ) async {
     var downloadDirectory = await getDownloadDirectory();
     var downloadPath = "$downloadDirectory${Platform.pathSeparator}$itemId";
 
@@ -238,7 +254,9 @@ class DownloadService {
   }
 
   Future<void> writePlaybackInfoToFile(PlaybackInfoResponse playbackInfo,
-      MediaStream subtitle, String subtitlePath) async {
+      {MediaStream? subtitle,
+      String? subtitlePath,
+      int? audioStreamIndex}) async {
     var downloadDirectory = await getDownloadDirectory();
     var downloadPath = "$downloadDirectory${Platform.pathSeparator}$itemId";
 
@@ -250,7 +268,8 @@ class DownloadService {
     List<MediaStream> streamsToKeep = [];
 
     for (var stream in playbackInfo.mediaSources![0].mediaStreams!) {
-      if (stream.type == MediaStreamType.audio ||
+      if ((stream.type == MediaStreamType.audio &&
+              stream.index! == audioStreamIndex) ||
           stream.type == MediaStreamType.video ||
           (stream.type == MediaStreamType.subtitle &&
               stream.deliveryMethod == SubtitleDeliveryMethod.embed)) {
@@ -258,9 +277,14 @@ class DownloadService {
       }
     }
 
-    MediaStream updatedSubtitle =
-        subtitle.rebuild((b) => b..deliveryUrl = subtitlePath);
-    streamsToKeep.add(updatedSubtitle);
+    if (subtitle != null && subtitlePath != null) {
+      MediaStream updatedSubtitle =
+          subtitle.rebuild((b) => b..deliveryUrl = subtitlePath);
+      streamsToKeep.add(updatedSubtitle);
+    } else if (subtitle != null || subtitlePath != null) {
+      throw Exception(
+          "Subtitle and subtitlePath must be either both null or both not null");
+    }
 
     PlaybackInfoResponse updatedInfo = playbackInfo.rebuild((b) {
       if (b.mediaSources.isNotEmpty) {

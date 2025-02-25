@@ -12,6 +12,7 @@ class PlayerSettingsDialog extends StatelessWidget {
   final Function(MediaStream?) onSubtitleSelected;
   final Function(MediaStream?) onAudioSelected;
   final Function(int?) onBitrateSelected;
+  final bool showBitrate;
 
   const PlayerSettingsDialog({
     super.key,
@@ -23,6 +24,7 @@ class PlayerSettingsDialog extends StatelessWidget {
     required this.onAudioSelected,
     required this.onBitrateSelected,
     required this.isSubtitleEnabled,
+    required this.showBitrate,
   });
 
   @override
@@ -70,43 +72,47 @@ class PlayerSettingsDialog extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 20),
-                          Material(
-                            child: DropdownMenu(
+                          if (showBitrate)
+                            Material(
+                              child: DropdownMenu(
+                                  width: 250,
+                                  requestFocusOnTap: false,
+                                  label: Text(
+                                      AppLocalizations.of(context)!.quality),
+                                  leadingIcon:
+                                      const Icon(Icons.videocam_outlined),
+                                  initialSelection: maxStreamingBitrate,
+                                  dropdownMenuEntries: playbackHelper
+                                      .getBitrateMap()
+                                      .entries
+                                      .toList()
+                                      .map((e) {
+                                    return DropdownMenuEntry(
+                                        value: e.key, label: e.value);
+                                  }).toList(),
+                                  onSelected: onBitrateSelected),
+                            ),
+                          if (showBitrate) const SizedBox(height: 10),
+                          if (playbackHelper.audioStreams.length > 1)
+                            Material(
+                              child: DropdownMenu(
                                 width: 250,
                                 requestFocusOnTap: false,
                                 label:
-                                    Text(AppLocalizations.of(context)!.quality),
+                                    Text(AppLocalizations.of(context)!.audio),
                                 leadingIcon:
-                                    const Icon(Icons.videocam_outlined),
-                                initialSelection: maxStreamingBitrate,
-                                dropdownMenuEntries: playbackHelper
-                                    .getBitrateMap()
-                                    .entries
-                                    .toList()
-                                    .map((e) {
-                                  return DropdownMenuEntry(
-                                      value: e.key, label: e.value);
-                                }).toList(),
-                                onSelected: onBitrateSelected),
-                          ),
-                          const SizedBox(height: 10),
-                          Material(
-                            child: DropdownMenu(
-                              width: 250,
-                              requestFocusOnTap: false,
-                              label: Text(AppLocalizations.of(context)!.audio),
-                              leadingIcon: const Icon(Icons.volume_up_rounded),
-                              initialSelection: audio,
-                              dropdownMenuEntries: playbackHelper.audioStreams
-                                  .map((e) => DropdownMenuEntry(
-                                      value: e,
-                                      label: e.displayTitle ?? "Unknown"))
-                                  .toList(),
-                              onSelected: onAudioSelected,
+                                    const Icon(Icons.volume_up_rounded),
+                                initialSelection: audio,
+                                dropdownMenuEntries: playbackHelper.audioStreams
+                                    .map((e) => DropdownMenuEntry(
+                                        value: e,
+                                        label: e.displayTitle ?? "Unknown"))
+                                    .toList(),
+                                onSelected: onAudioSelected,
+                              ),
                             ),
-                          ),
                           const SizedBox(height: 10),
-                          if (playbackHelper.subtitles.isNotEmpty)
+                          if (playbackHelper.subtitles.length > 1)
                             Material(
                               child: DropdownMenu<MediaStream>(
                                   width: 250,

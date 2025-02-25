@@ -25,6 +25,7 @@ class PlayerHelper {
   late MediaStream subtitle;
   late bool isSubtitleEnabled;
   late bool isTranscoding;
+  bool showBitrate = true;
 
   final Player player = Player(
       configuration: const PlayerConfiguration(
@@ -228,7 +229,7 @@ class PlayerHelper {
         textDirection: TextDirection.ltr,
         child: MaterialPositionIndicator(),
       ),
-      if (subtitles.isNotEmpty)
+      if (subtitles.length > 1)
         MaterialDesktopCustomButton(
           onPressed: () async {
             subtitleEnabled.value = !subtitleEnabled.value;
@@ -251,48 +252,50 @@ class PlayerHelper {
           ),
         ),
       const Spacer(),
-      MaterialDesktopCustomButton(
-        onPressed: () {
-          showDialog(
-            context: context,
-            builder: (context) => PlayerSettingsDialog(
-              playbackHelper: this,
-              audioTrack: audioTrack!.value,
-              subtitleTrack: subtitleTrack!.value,
-              isSubtitleEnabled: subtitleEnabled.value,
-              maxStreamingBitrate: maxStreamingBitrate!.value,
-              onSubtitleSelected: (value) async {
-                if (value != null) {
-                  subtitleEnabled.value = value.index == -1 ? false : true;
-                  subtitleTrack.value = value;
-                  //logger.verbose("Setting subtitle: ${value.displayTitle}");
-                  await setSubtitle(value);
-                }
-              },
-              onAudioSelected: (value) async {
-                if (audioTrack.value != value) {
-                  audioTrack.value = value!;
-                  await setAudio(value);
-                }
-              },
-              onBitrateSelected: (value) async {
-                if (maxStreamingBitrate.value != value) {
-                  maxStreamingBitrate.value = value!;
-                  await setBitrate(value);
-                  // opening a new stream will reset the subtitle track
-                  if (subtitleEnabled.value) {
-                    await enableSubtitle();
+      if (showBitrate || subtitles.length > 1 || audioStreams.length > 1)
+        MaterialDesktopCustomButton(
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) => PlayerSettingsDialog(
+                playbackHelper: this,
+                showBitrate: showBitrate,
+                audioTrack: audioTrack!.value,
+                subtitleTrack: subtitleTrack!.value,
+                isSubtitleEnabled: subtitleEnabled.value,
+                maxStreamingBitrate: maxStreamingBitrate!.value,
+                onSubtitleSelected: (value) async {
+                  if (value != null) {
+                    subtitleEnabled.value = value.index == -1 ? false : true;
+                    subtitleTrack.value = value;
+                    //logger.verbose("Setting subtitle: ${value.displayTitle}");
+                    await setSubtitle(value);
                   }
-                }
-              },
-            ),
-          );
-        },
-        icon: const Icon(
-          Icons.settings_rounded,
-          size: 20,
+                },
+                onAudioSelected: (value) async {
+                  if (audioTrack.value != value) {
+                    audioTrack.value = value!;
+                    await setAudio(value);
+                  }
+                },
+                onBitrateSelected: (value) async {
+                  if (maxStreamingBitrate.value != value) {
+                    maxStreamingBitrate.value = value!;
+                    await setBitrate(value);
+                    // opening a new stream will reset the subtitle track
+                    if (subtitleEnabled.value) {
+                      await enableSubtitle();
+                    }
+                  }
+                },
+              ),
+            );
+          },
+          icon: const Icon(
+            Icons.settings_rounded,
+            size: 20,
+          ),
         ),
-      ),
       const MaterialFullscreenButton(),
     ];
   }

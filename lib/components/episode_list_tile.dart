@@ -109,17 +109,22 @@ class EpisodeListTile extends HookConsumerWidget {
                         .read(downloadProvider(episode.id!))
                         .getDownloadInfo(downloadBitrate: downloadBitrate);
 
-                    int audioCount = episode.mediaSources![0].mediaStreams!
-                        .where(
-                            (element) => element.type == MediaStreamType.audio)
-                        .length;
-                    int subtitleCount = episode.mediaSources![0].mediaStreams!
+                    int audioCount = downloadInfo.mediaSources![0].mediaStreams!
                         .where((element) =>
-                            element.type == MediaStreamType.subtitle)
+                            element.type == MediaStreamType.audio &&
+                            downloadInfo.mediaSources!.first.transcodingUrl !=
+                                null)
+                        .length;
+                    int subtitleCount = downloadInfo
+                        .mediaSources![0].mediaStreams!
+                        .where((element) =>
+                            element.type == MediaStreamType.subtitle &&
+                            element.deliveryMethod ==
+                                SubtitleDeliveryMethod.external_)
                         .length;
 
                     if (context.mounted &&
-                        (audioCount > 1 || subtitleCount > 0)) {
+                        (audioCount > 0 || subtitleCount > 0)) {
                       var selectedSettings = await showDialog(
                         context: context,
                         builder: (context) {
