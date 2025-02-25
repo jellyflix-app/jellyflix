@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:media_kit/media_kit.dart';
@@ -14,13 +15,16 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   if (Platform.isAndroid || Platform.isIOS) {
     await FlutterDownloader.initialize(
-        debug:
-            true, // optional: set to false to disable printing logs to console (default: true)
+        debug: kDebugMode ? true : false,
         ignoreSsl:
             true // option: set to false to disable working with http links (default: false)
         );
   }
   await DatabaseService.initialize();
+
+  // await rootBundle.load('assets/fonts/NotoSans-Regular.ttf');
+  // // save to file
+  // var fileName = "NotoSans-Regular.ttf";
 
   // Necessary initialization for package:media_kit.
   MediaKit.ensureInitialized();

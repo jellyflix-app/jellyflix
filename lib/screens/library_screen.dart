@@ -1,15 +1,16 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:filter_list/filter_list.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/components/jfx_filter_list_dialog.dart';
 import 'package:jellyflix/components/jfx_layout.dart';
 import 'package:jellyflix/components/jfx_tile.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/models/skeleton_item.dart';
 import 'package:jellyflix/providers/api_provider.dart';
+import 'package:jellyflix/components/filter_button.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -20,13 +21,15 @@ class LibraryScreen extends HookConsumerWidget {
   final String? sortTypeParam;
   final String? sortOrderParam;
   final String? pageNumberParam;
+  final String? libraryParam;
   const LibraryScreen(
       {super.key,
       this.genreFilterParam,
       this.filterTypeParam,
       this.sortTypeParam,
       this.sortOrderParam,
-      this.pageNumberParam});
+      this.pageNumberParam,
+      this.libraryParam});
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final genreFilter = useState<List<BaseItemDto>?>(genreFilterParam == ""
@@ -60,24 +63,127 @@ class LibraryScreen extends HookConsumerWidget {
         : SortOrder.values.firstWhere((element) =>
             element.toString().split(".").last.toLowerCase() ==
             sortOrderParam!.toLowerCase()));
+    final allLibraries = useState<List<BaseItemDto>?>(null);
+    final selectedLibrary = useState<BaseItemDto?>(null);
     int page = int.parse(pageNumberParam ?? "0");
 
     final layout = JfxLayout.scalingLayout(context);
 
+    useEffect(() {
+      ref.read(apiProvider).getMediaFolders().then((value) {
+        if (value.isNotEmpty) {
+          allLibraries.value = value;
+          if (libraryParam != null) {
+            var libraryIds = libraryParam!.split(",").map((e) {
+              return e;
+            }).toList();
+            selectedLibrary.value =
+                value.firstWhere((element) => libraryIds.contains(element.id));
+          }
+        }
+      });
+      return null;
+    }, []);
+
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.library),
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextButton(
+        flexibleSpace: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+            child: Container(
+              color: Colors.transparent,
+            ),
+          ),
+        ),
+        title: Align(
+          alignment: Alignment.centerLeft,
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            child: Text(AppLocalizations.of(context)!.library),
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(42),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 10.0, left: 15),
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (!((genreFilter.value == null ||
+                            genreFilter.value!.isEmpty) &&
+                        filterType.value.isEmpty &&
+                        sortOrder.value == SortOrder.ascending &&
+                        sortType.value == ItemSortBy.sortName &&
+                        selectedLibrary.value == null))
+                      TextButton(
+                          style: ButtonStyle(
+                            backgroundColor: WidgetStateProperty.resolveWith(
+                                (states) =>
+                                    Theme.of(context).secondaryHeaderColor),
+                          ),
+                          child: const Row(
+                            children: [
+                              Icon(Icons.filter_list),
+                              Icon(Icons.close_outlined),
+                            ],
+                          ),
+                          onPressed: () {
+                            genreFilter.value = null;
+                            filterType.value.isEmpty;
+                            sortType.value = ItemSortBy.sortName;
+                            sortOrder.value = SortOrder.ascending;
+                            order.value =
+                                AppLocalizations.of(context)!.ascending;
+                            selectedLibrary.value = null;
+                            filterType.value = [];
+                          }),
+                    if (!((genreFilter.value == null ||
+                            genreFilter.value!.isEmpty) &&
+                        filterType.value.isEmpty &&
+                        sortOrder.value == SortOrder.ascending &&
+                        sortType.value == ItemSortBy.sortName &&
+                        selectedLibrary.value == null))
+                      const SizedBox(
+                        width: 10,
+                      ),
+                    FilterButton(
+                      text:
+                          "${AppLocalizations.of(context)!.library}: ${selectedLibrary.value == null ? AppLocalizations.of(context)!.all : selectedLibrary.value!.name}",
+                      length: 1,
+                      onPressed: () async {
+                        await JfxFilterListDialog.show<BaseItemDto>(
+                          context,
+                          enableOnlySingleSelection: true,
+                          listData: allLibraries.value!,
+                          selectedListData: selectedLibrary.value == null
+                              ? List<BaseItemDto>.empty()
+                              : [selectedLibrary.value!],
+                          onApplyButtonClick: (list) {
+                            if (list != null && list.isNotEmpty) {
+                              selectedLibrary.value = list.first;
+                            } else {
+                              selectedLibrary.value = null;
+                            }
+                            context.pop();
+                          },
+                        );
+                      },
+                    ),
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    FilterButton(
+                      text:
+                          "${AppLocalizations.of(context)!.genre}: ${genreFilter.value == null || genreFilter.value!.map((e) => e.name).isEmpty ? AppLocalizations.of(context)!.all : genreFilter.value!.length <= 1 ? genreFilter.value!.map((e) => e.name).join() : ""}",
+                      length: genreFilter.value?.length ?? 0,
                       onPressed: () async {
                         final listData = await ref.read(apiProvider).getGenres(
                             includeItemTypes: [
@@ -86,67 +192,43 @@ class LibraryScreen extends HookConsumerWidget {
                               BaseItemKind.boxSet
                             ]);
                         if (!context.mounted) return;
-                        genreFilter.value = await openGenreDialog(
-                          context,
-                          ref,
-                          selectedItemList: genreFilter.value ?? [],
-                          listData: listData,
-                        );
+                        await JfxFilterListDialog.show<BaseItemDto>(context,
+                            listData: listData,
+                            selectedListData: genreFilter.value ?? [],
+                            onApplyButtonClick: (list) {
+                          genreFilter.value = list;
+                          context.pop(list);
+                        });
                       },
-                      child: Text(
-                        "${AppLocalizations.of(context)!.genre}: ${genreFilter.value == null ? AppLocalizations.of(context)!.all : genreFilter.value!.map(
-                              (e) => e.name,
-                            ).isEmpty ? AppLocalizations.of(context)!.all : genreFilter.value!.map(
-                              (e) => e.name,
-                            ).join(", ")}",
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
                     ),
-                  ),
-                  const SizedBox(
-                    width: 20,
-                  ),
-                  Expanded(
-                    child: TextButton(
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    FilterButton(
+                      text:
+                          "${AppLocalizations.of(context)!.filter}: ${filterType.value.map((e) => e.toString().split(".").last).isEmpty ? AppLocalizations.of(context)!.none : filterType.value.map((e) => e.toString().split(".")).length <= 1 ? filterType.value.map((e) => e.toString().split(".").last).join() : ""}",
+                      length: filterType.value
+                          .map((e) => e.toString().split("."))
+                          .length,
                       onPressed: () async {
-                        filterType.value = await openFilterDialog(context, ref,
-                                selectedItemList: filterType.value,
-                                listData: ItemFilter.values.toList()) ??
-                            [];
+                        await JfxFilterListDialog.show<ItemFilter>(context,
+                            selectedListData: filterType.value,
+                            listData: ItemFilter.values.where((e) {
+                              return e != ItemFilter.isFolder &&
+                                  e != ItemFilter.isNotFolder;
+                            }).toList(), onApplyButtonClick: (list) {
+                          filterType.value = list ?? [];
+                          context.pop();
+                        });
                       },
-                      child: Text(
-                        "${AppLocalizations.of(context)!.filter}: ${filterType.value.map((e) => e.toString().split(".").last).isEmpty ? AppLocalizations.of(context)!.none : filterType.value.map((e) => e.toString().split(".").last).join(", ")}",
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
                     ),
-                  ),
-                  const SizedBox(
-                    width: 20,
-                  ),
-                  Expanded(
-                      child: TextButton(
-                    onPressed: () {
-                      if (sortOrder.value == SortOrder.ascending) {
-                        sortOrder.value = SortOrder.descending;
-                        order.value = AppLocalizations.of(context)!.descending;
-                      } else {
-                        sortOrder.value = SortOrder.ascending;
-                        order.value = AppLocalizations.of(context)!.ascending;
-                      }
-                    },
-                    child: Text(
-                      "${AppLocalizations.of(context)!.order}: ${order.value}",
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                    const SizedBox(
+                      width: 10,
                     ),
-                  )),
-                  const SizedBox(
-                    width: 20,
-                  ),
-                  Expanded(
-                    child: TextButton(
+                    FilterButton(
+                      text:
+                          "${AppLocalizations.of(context)!.sort}: ${localizeSortType(context, sortType.value)}",
+                      length: 1,
                       onPressed: () {
                         if (sortType.value == ItemSortBy.sortName) {
                           sortType.value = ItemSortBy.premiereDate;
@@ -156,19 +238,43 @@ class LibraryScreen extends HookConsumerWidget {
                           sortType.value = ItemSortBy.sortName;
                         }
                       },
-                      child: Text(
-                        "${AppLocalizations.of(context)!.sort}: ${localizeSortType(context, sortType.value)}",
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    FilterButton(
+                      text: order.value,
+                      length: 1,
+                      onPressed: () {
+                        if (sortOrder.value == SortOrder.ascending) {
+                          sortOrder.value = SortOrder.descending;
+                          order.value =
+                              AppLocalizations.of(context)!.descending;
+                        } else {
+                          sortOrder.value = SortOrder.ascending;
+                          order.value = AppLocalizations.of(context)!.ascending;
+                        }
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
-            Expanded(
+          ),
+        ),
+      ),
+      body: Stack(
+        children: [
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 0.0),
               child: FutureBuilder(
                 future: ref.read(apiProvider).getFilterItems(
+                    parentId: selectedLibrary.value?.id,
                     genreIds: genreFilter.value,
                     startIndex: page * 100,
                     limit: 100,
@@ -195,23 +301,23 @@ class LibraryScreen extends HookConsumerWidget {
                   return Stack(
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(
-                            left: 10.0, right: 10.0, top: 10),
+                        padding: const EdgeInsets.only(left: 10.0, right: 10.0),
                         child: Skeletonizer(
                           effect: ShimmerEffect(
-                            baseColor: Colors.grey.withOpacity(0.5),
-                            highlightColor: Colors.white.withOpacity(0.5),
+                            baseColor: Colors.grey.withValues(alpha: 0.5),
+                            highlightColor: Colors.white.withValues(alpha: 0.5),
                           ),
                           enabled: !snapshot.hasData,
                           child: GridView.builder(
-                            padding: const EdgeInsets.only(bottom: 50.0),
+                            padding:
+                                const EdgeInsets.only(bottom: 70.0, top: 110.0),
                             gridDelegate:
                                 SliverGridDelegateWithMaxCrossAxisExtent(
                                     maxCrossAxisExtent:
                                         layout.tileWidth + (layout.tilePadding),
                                     mainAxisExtent: layout.tileHeight +
-                                        (layout.text.bodyMedium!.fontSize! *
-                                            3.5),
+                                        (layout.text.headlineMedium!.fontSize! *
+                                            2),
                                     crossAxisSpacing: layout.tilePadding,
                                     mainAxisSpacing: layout.tilePadding),
                             itemCount: itemsList.length,
@@ -261,6 +367,10 @@ class LibraryScreen extends HookConsumerWidget {
                       Align(
                         alignment: Alignment.bottomCenter,
                         child: ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(15.0),
+                            topRight: Radius.circular(15.0),
+                          ),
                           child: BackdropFilter(
                             filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
                             child: Container(
@@ -271,13 +381,13 @@ class LibraryScreen extends HookConsumerWidget {
                                   colors: [
                                     Theme.of(context)
                                         .scaffoldBackgroundColor
-                                        .withOpacity(0.2),
+                                        .withValues(alpha: 0.2),
                                     Theme.of(context).scaffoldBackgroundColor,
                                   ],
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.5),
+                                    color: Colors.black.withValues(alpha: 0.5),
                                     spreadRadius: 2,
                                     blurRadius: 5,
                                     offset: const Offset(0, 3),
@@ -310,6 +420,7 @@ class LibraryScreen extends HookConsumerWidget {
                                                   .toString()
                                                   .split(".")
                                                   .last,
+                                              "library": selectedLibrary.value,
                                               "pageNumber":
                                                   (page - 1).toString(),
                                             }).toString());
@@ -342,6 +453,7 @@ class LibraryScreen extends HookConsumerWidget {
                                                   .toString()
                                                   .split(".")
                                                   .last,
+                                              "library": selectedLibrary.value,
                                               "pageNumber":
                                                   (page + 1).toString(),
                                             }).toString());
@@ -359,149 +471,10 @@ class LibraryScreen extends HookConsumerWidget {
                 },
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
-  }
-
-  Future<List<BaseItemDto>?> openGenreDialog(
-    BuildContext context,
-    WidgetRef ref, {
-    required List<BaseItemDto> selectedItemList,
-    required List<BaseItemDto> listData,
-  }) async {
-    List<BaseItemDto>? resultList;
-    if (context.mounted) {
-      await showDialog(
-        context: context,
-        builder: (context) {
-          return FilterListWidget<BaseItemDto>(
-            listData: listData,
-            selectedListData: selectedItemList,
-            choiceChipLabel: (item) => item!.name,
-            validateSelectedItem: (list, val) => list!.contains(val),
-            onItemSearch: (item, query) {
-              return item.name!.toLowerCase().contains(query.toLowerCase());
-            },
-            onApplyButtonClick: (list) {
-              resultList = list;
-              Navigator.pop(context, list);
-            },
-            choiceChipBuilder: (context, item, isSelected) => Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: ChoiceChip(
-                  color: WidgetStateProperty.resolveWith((states) {
-                    if (states.contains(WidgetState.selected)) {
-                      return Theme.of(context).buttonTheme.colorScheme!.primary;
-                    }
-                    return Theme.of(context).focusColor;
-                  }),
-                  label: Text(
-                    item!.name,
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                  selected: isSelected ?? false),
-            ),
-            themeData: FilterListThemeData(
-              context,
-              backgroundColor: Theme.of(context).dialogBackgroundColor,
-              headerTheme: HeaderThemeData(
-                backgroundColor: Theme.of(context).dialogBackgroundColor,
-                searchFieldBackgroundColor: Theme.of(context).focusColor,
-                searchFieldIconColor: Theme.of(context).iconTheme.color,
-                closeIconColor: Theme.of(context).iconTheme.color!,
-              ),
-              controlButtonBarTheme: ControlButtonBarThemeData(
-                context,
-                backgroundColor: Theme.of(context).focusColor,
-                padding: EdgeInsets.zero,
-                controlButtonTheme: ControlButtonThemeData(
-                  textStyle: TextStyle(
-                    color: Theme.of(context).buttonTheme.colorScheme!.onSurface,
-                  ),
-                  primaryButtonBackgroundColor:
-                      Theme.of(context).buttonTheme.colorScheme!.primary,
-                ),
-              ),
-              wrapAlignment: WrapAlignment.center,
-            ),
-          );
-        },
-      );
-      return resultList;
-    }
-    return null;
-  }
-
-  Future<List<ItemFilter>?> openFilterDialog(
-      BuildContext context, WidgetRef ref,
-      {required List<ItemFilter> selectedItemList,
-      required List<ItemFilter> listData}) async {
-    List<ItemFilter>? resultList;
-    if (context.mounted) {
-      await showDialog(
-          context: context,
-          builder: (context) {
-            return FilterListWidget<ItemFilter>(
-              listData: listData,
-              selectedListData: selectedItemList,
-              choiceChipLabel: (item) => item!.name,
-              validateSelectedItem: (list, val) => list!.contains(val),
-              onItemSearch: (item, query) {
-                return item.name.toLowerCase().contains(query.toLowerCase());
-              },
-              onApplyButtonClick: (list) {
-                resultList = list;
-                Navigator.pop(context, list);
-              },
-              choiceChipBuilder: (context, item, isSelected) => Padding(
-                padding: const EdgeInsets.all(5.0),
-                child: ChoiceChip(
-                    color: WidgetStateProperty.resolveWith((states) {
-                      if (states.contains(WidgetState.selected)) {
-                        return Theme.of(context)
-                            .buttonTheme
-                            .colorScheme!
-                            .primary;
-                      }
-                      return Theme.of(context).focusColor;
-                    }),
-                    label: Text(
-                      item.toString().split(".").last,
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                    selected: isSelected ?? false),
-              ),
-              themeData: FilterListThemeData(
-                context,
-                backgroundColor: Theme.of(context).dialogBackgroundColor,
-                headerTheme: HeaderThemeData(
-                  backgroundColor: Theme.of(context).dialogBackgroundColor,
-                  searchFieldBackgroundColor: Theme.of(context).focusColor,
-                  searchFieldIconColor: Theme.of(context).iconTheme.color,
-                  closeIconColor: Theme.of(context).iconTheme.color!,
-                ),
-                controlButtonBarTheme: ControlButtonBarThemeData(
-                  context,
-                  backgroundColor: Theme.of(context).focusColor,
-                  padding: EdgeInsets.zero,
-                  controlButtonTheme: ControlButtonThemeData(
-                    textStyle: TextStyle(
-                      color:
-                          Theme.of(context).buttonTheme.colorScheme!.onSurface,
-                    ),
-                    primaryButtonBackgroundColor:
-                        Theme.of(context).buttonTheme.colorScheme!.primary,
-                  ),
-                ),
-                wrapAlignment: WrapAlignment.center,
-              ),
-            );
-          });
-      return resultList;
-    }
-    return null;
   }
 
   String localizeSortType(BuildContext context, ItemSortBy sortType) {

@@ -35,7 +35,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                   // add elevation
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 5,
                       spreadRadius: 5,
                     )
@@ -103,7 +103,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                               ? Theme.of(context)
                                   .colorScheme
                                   .primary
-                                  .withOpacity(0.3)
+                                  .withValues(alpha: 0.3)
                               : Colors.transparent,
                         ),
                         child: IconButton(
@@ -146,7 +146,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                   // add elevation
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 5,
                       spreadRadius: 5,
                     )

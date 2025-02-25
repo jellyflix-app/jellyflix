@@ -194,5 +194,10 @@
     "errorMessage401": "Your username or password may be incorrect.",
     "errorMessage403": "The server is blocking requests from this device. This probably means the device has been banned. Please contact your admin to resolve this issue.",
     "errorMessageUnknown": "There has been an unknown error.",
+    "selectedItems": "selected items",
+    "reset": "Reset",
+    "apply": "Apply",
+    "enableLogging": "Enable Logging",
+    "logExported": "Log exported to downloads",
     "appName": "Jellyflix"
 }

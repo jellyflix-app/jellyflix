@@ -2,24 +2,24 @@ name: jellyflix
 description: "Another Jellyfin client for Android, iOS, Windows, macOS, Linux and Web."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
-publish_to: 'none' 
+publish_to: "none"
 
 version: 00.00.00+0
 
 environment:
-  sdk: '>=3.5.4 <4.0.0'
+  sdk: ">=3.5.4 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
   tentacle:
     git: https://github.com/TentacleOrg/Tentacle.git
-  media_kit: 
+  media_kit:
     git:
       url: https://github.com/jellyflix-app/media-kit.git
-      ref: main 
+      ref: main
       path: ./media_kit
-  media_kit_video: 
+  media_kit_video:
     git:
       url: https://github.com/jellyflix-app/media-kit.git
       ref: main
@@ -59,15 +59,18 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   logger: ^2.5.0
+  markdown: ^7.3.0
+  flutter_widget_from_html_core: ^0.15.2
+  file_saver: ^0.2.14
 
-dependency_overrides: 
+dependency_overrides:
   flutter_secure_storage_web: ^2.0.0-beta.2
-  media_kit: 
+  media_kit:
     git:
       url: https://github.com/jellyflix-app/media-kit.git
-      ref: main 
+      ref: main
       path: ./media_kit
-  media_kit_video: 
+  media_kit_video:
     git:
       url: https://github.com/jellyflix-app/media-kit.git
       ref: main
@@ -109,10 +112,11 @@ dev_dependencies:
   flutter_launcher_icons: "^0.13.1"
   hive_generator: ^2.0.1
 
-
 flutter:
   uses-material-design: true
   generate: true
+  assets:
+    - assets/fonts/droid-sans.ttf
 
 flutter_launcher_icons:
   android: "launcher_icon"

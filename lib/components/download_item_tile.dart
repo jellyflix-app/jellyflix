@@ -9,6 +9,8 @@ import 'package:jellyflix/components/item_list_tile.dart';
 import 'package:jellyflix/models/download_metadata.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/download_provider.dart';
+import 'package:jellyflix/providers/player_helper_provider.dart';
+import 'package:jellyflix/services/player_helper.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:universal_io/io.dart';
 
@@ -20,9 +22,6 @@ class DownloadItemTile extends HookConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final dismissed = useState(false);
-    final isDownloading =
-        useState(ref.read(downloadProvider(itemId)).isDownloading);
-    final downloadProgress = useState(0);
 
     return FutureBuilder(
         future: ref.read(downloadProvider(itemId)).getMetadata(),
@@ -40,33 +39,14 @@ class DownloadItemTile extends HookConsumerWidget {
                   : metaData.data!.name,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            subtitle: isDownloading.value
-                ? switch (ref.watch(downloadProgressProvider(itemId))) {
-                    AsyncError(:final error) =>
-                      Center(child: Text('Error: $error')),
-                    AsyncData(:final value) => Text(
-                        '${value?.round()}% ${AppLocalizations.of(context)!.downloaded}'),
-                    _ => const Center(child: CircularProgressIndicator()),
-                  }
-                : FutureBuilder(
-                    future:
-                        ref.read(downloadProvider(itemId)).calculateProgress(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData) {
-                        //downloadProgress.value = snapshot.data!;
-                        if (snapshot.data == 100) {
-                          return Text(
-                              "${(metaData.data!.runTimeTicks / 10000000 / 60).round()} min");
-                        }
-                        return Text(
-                          "${snapshot.data!.round()}% ${AppLocalizations.of(context)!.downloaded}",
-                        );
-                      } else {
-                        return Text(AppLocalizations.of(context)!
-                            .quickConnectErrorUnknown);
-                      }
-                    },
-                  ),
+            subtitle: ref.watch(downloadProgressProvider(itemId)).when(
+                  data: (value) => Text(value == 100
+                      ? '${(metaData.data!.runTimeTicks / 10000000 / 60).round()} min'
+                      : '${value?.round()}% ${AppLocalizations.of(context)!.downloaded}'),
+                  loading: () =>
+                      const Center(child: CircularProgressIndicator()),
+                  error: (error, stack) => Center(child: Text('Error: $error')),
+                ),
             leading: FutureBuilder(
                 future:
                     ref.read(downloadProvider(itemId)).getMetadataImagePath(),
@@ -89,33 +69,49 @@ class DownloadItemTile extends HookConsumerWidget {
               subscription = ref
                   .read(downloadProvider(itemId))
                   .downloadProgress(1)
-                  .listen((progress) {
-                if (progress == 100 && context.mounted) {
-                  context.push(
-                    Uri(
-                      path: ScreenPaths.offlinePlayer,
-                    ).toString(),
-                    extra: metaData.data!.path,
-                  );
+                  .listen((progress) async {
+                if (progress == 100) {
+                  PlayerHelper playerHelper = await ref
+                      .read(offlinePlayerHelperProvider(itemId).future);
+                  if (context.mounted) {
+                    context.push(
+                        Uri(
+                                path: ScreenPaths.player,
+                                queryParameters: {"startTimeTicks": "0"})
+                            .toString(),
+                        extra: playerHelper);
+                  }
                 }
                 subscription?.cancel();
               });
             },
             popupMenuEntries: [
-              if (!isDownloading.value && downloadProgress.value != 100)
-                PopupMenuItem(
-                  value: "resume",
-                  child: ListTile(
-                    leading: const Icon(Icons.play_arrow_rounded),
-                    iconColor: Theme.of(context).colorScheme.primary,
-                    title: Text(
-                      AppLocalizations.of(context)!.resumeDownload,
-                    ),
+              ...ref.watch(downloadProgressProvider(itemId)).when(
+                    data: (value) {
+                      if (value != 100 &&
+                          !ref.read(downloadProvider(itemId)).isDownloading) {
+                        return [
+                          PopupMenuItem<String>(
+                            value: "resume",
+                            child: ListTile(
+                              leading: const Icon(Icons.play_arrow_rounded),
+                              iconColor: Theme.of(context).colorScheme.primary,
+                              title: Text(
+                                AppLocalizations.of(context)!.resumeDownload,
+                              ),
+                            ),
+                          ),
+                        ];
+                      } else {
+                        return [];
+                      }
+                    },
+                    loading: () => [],
+                    error: (error, stack) => [],
                   ),
-                ),
-              PopupMenuItem(
+              PopupMenuItem<String>(
                 value: "delete",
-                child: isDownloading.value
+                child: ref.read(downloadProvider(itemId)).isDownloading
                     ? ListTile(
                         leading: const Icon(Icons.close_rounded),
                         iconColor: Theme.of(context).colorScheme.primary,
@@ -135,15 +131,14 @@ class DownloadItemTile extends HookConsumerWidget {
             onSelectedMenuItem: (p0) async {
               if (p0 == "delete") {
                 dismissed.value = true;
-                if (isDownloading.value) {
+                if (ref.read(downloadProvider(itemId)).isDownloading) {
                   await ref.read(downloadProvider(itemId)).cancelDownload();
                 } else {
                   await ref.read(downloadProvider(itemId)).removeDownload();
                 }
               }
-              if (p0 == "resume" && !isDownloading.value) {
+              if (p0 == "resume") {
                 await ref.read(downloadProvider(itemId)).resumeDownload();
-                isDownloading.value = true;
               }
             },
           );

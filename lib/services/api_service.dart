@@ -6,11 +6,13 @@ import 'package:jellyflix/models/user.dart';
 import 'package:flutter/material.dart';
 import 'package:jellyflix/navigation/app_router.dart';
 import 'package:jellyflix/services/device_info_service.dart';
+import 'package:jellyflix/services/jfx_logger.dart';
 import 'package:media_kit/media_kit.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:built_collection/built_collection.dart';
 
 class ApiService {
+  late final JfxLogger _logger;
   final DeviceInfoService _deviceInfoService = DeviceInfoService();
   Tentacle? _jellyfinApi;
   User? _user;
@@ -28,7 +30,9 @@ class ApiService {
 
   User? get currentUser => _user;
 
-  ApiService();
+  ApiService({required logger}) {
+    _logger = logger;
+  }
 
   Future<String> buildHeader() async {
     var model = await _deviceInfoService.getDeviceModel();
@@ -80,8 +84,7 @@ class ApiService {
       sendTimeout: const Duration(seconds: 5),
     )));
 
-    headers["Authorization"] =
-        "$authHeader, Token=\"${user.token}\"";
+    headers["Authorization"] = "$authHeader, Token=\"${user.token}\"";
 
     headers["Origin"] = user.serverAdress!;
   }
@@ -117,7 +120,8 @@ class ApiService {
     while (!token.isCancelled) {
       var stateResponse = await _jellyfinApi
           ?.getQuickConnectApi()
-          .getQuickConnectState(secret: response.data!.secret!, cancelToken: token);
+          .getQuickConnectState(
+              secret: response.data!.secret!, cancelToken: token);
 
       if (stateResponse?.data?.authenticated == true) {
         var response =
@@ -187,7 +191,10 @@ class ApiService {
 
   Future<List<BaseItemDto>> getContinueWatching({String? parentId}) async {
     var response = await _jellyfinApi!.getItemsApi().getResumeItems(
-        userId: _user!.id!, parentId: parentId, headers: headers);
+        userId: _user!.id!,
+        parentId: parentId,
+        headers: headers,
+        mediaTypes: [MediaType.video].toBuiltList());
     return response.data!.items!.toList();
   }
 
@@ -245,17 +252,19 @@ class ApiService {
     return response.data!.items!.toList();
   }
 
-  Future<List<BaseItemDto>> getFilterItems(
-      {List<BaseItemDto>? genreIds,
-      String? searchTerm,
-      bool? isPlayed,
-      List<ItemSortBy>? sortBy,
-      int? limit,
-      int? startIndex,
-      List<BaseItemKind>? includeItemTypes,
-      List<SortOrder>? sortOrder,
-      List<ItemFilter>? filters,
-      double? minCommunityRating}) async {
+  Future<List<BaseItemDto>> getFilterItems({
+    List<BaseItemDto>? genreIds,
+    String? searchTerm,
+    bool? isPlayed,
+    List<ItemSortBy>? sortBy,
+    int? limit,
+    int? startIndex,
+    List<BaseItemKind>? includeItemTypes,
+    List<SortOrder>? sortOrder,
+    List<ItemFilter>? filters,
+    double? minCommunityRating,
+    String? parentId,
+  }) async {
     var ids = genreIds == null
         ? null
         : BuiltList<String>.from(genreIds.map((e) => e.id!));
@@ -275,6 +284,7 @@ class ApiService {
             startIndex: startIndex,
             enableTotalRecordCount: false,
             minCommunityRating: minCommunityRating,
+            parentId: parentId,
             includeItemTypes: BuiltList<BaseItemKind>(
               includeItemTypes ??
                   [
@@ -284,11 +294,13 @@ class ApiService {
                     BaseItemKind.boxSet
                   ],
             ),
-            fields: BuiltList<ItemFields>([
-              ItemFields.overview,
-              ItemFields.providerIds,
-              ItemFields.mediaSources
-            ]),
+            fields: BuiltList<ItemFields>(
+              [
+                ItemFields.overview,
+                ItemFields.providerIds,
+                ItemFields.mediaSources
+              ],
+            ),
           );
 
       return response.data!.items!.toList();
@@ -326,7 +338,7 @@ class ApiService {
   /// maxStreamingBitrate is the default bitrate set in the settings if null
   /// audioStreamIndex is the default audioStreamIndex set by jellyfin if null
   /// subtitleStreamIndex is the default subtitleStreamIndex set by jellyfin if null
-  Future<(String, PlaybackInfoResponse)> getStreamUrlAndPlaybackInfo({
+  Future<PlaybackInfoResponse> getPlaybackInfo({
     required String itemId,
     int? audioStreamIndex,
     int? subtitleStreamIndex,
@@ -341,30 +353,29 @@ class ApiService {
         startTimeTicks,
         false);
 
-    String? url;
-    // if (response.data!.mediaSources!.toList().first.supportsDirectPlay ==
-    //     true) {
-    //   url =
-    //       "${_user!.serverAdress}/Videos/$itemId/stream?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}&SubtitleStreamIndex=${subtitleStreamIndex ?? response.data!.mediaSources!.first.defaultSubtitleStreamIndex ?? -1}&Static=true";
-    // } else
-    if (response.data!.mediaSources!.toList().first.supportsDirectStream ==
-        true) {
-      url =
-          "${_user!.serverAdress}/Videos/$itemId/stream.${response.data!.mediaSources!.first.container}?mediaSourceId=$itemId&AudioStreamIndex=${audioStreamIndex ?? response.data!.mediaSources!.first.defaultAudioStreamIndex!}&SubtitleStreamIndex=${subtitleStreamIndex ?? response.data!.mediaSources!.first.defaultSubtitleStreamIndex ?? -1}&Static=true";
-    } else if (response.data!.mediaSources!.first.supportsTranscoding == true) {
+    if ((response.data!.mediaSources!.toList().first.supportsDirectStream ==
+            false) &&
+        response.data!.mediaSources!.first.supportsTranscoding == true) {
       if (response.data!.mediaSources!.first.transcodingUrl == null) {
         response = await postPlaybackInfoRequest(itemId, maxStreamingBitrate,
             audioStreamIndex, subtitleStreamIndex, startTimeTicks, true);
       }
-      url =
-          "${_user!.serverAdress}${response.data!.mediaSources!.first.transcodingUrl}";
     }
+    return response.data!;
+  }
 
-    if (url != null) {
-      playbackInfo = response.data!;
-      return (url, response.data!);
+  String getStreamUrl(PlaybackInfoResponse playbackInfo) {
+    if (playbackInfo.mediaSources!.first.supportsDirectStream == true) {
+      String url =
+          "${_user!.serverAdress}/Videos/${playbackInfo.mediaSources!.first.id}/stream.${playbackInfo.mediaSources!.first.container}?mediaSourceId=${playbackInfo.mediaSources!.first.id}&AudioStreamIndex=${playbackInfo.mediaSources!.first.defaultAudioStreamIndex!}&SubtitleStreamIndex=${playbackInfo.mediaSources!.first.defaultSubtitleStreamIndex ?? -1}&Static=true";
+      _logger.info("Stream url: $url");
+      return url;
+    } else if (playbackInfo.mediaSources!.first.supportsTranscoding == true) {
+      String url =
+          "${_user!.serverAdress}${playbackInfo.mediaSources!.first.transcodingUrl}";
+      _logger.info("Stream url: $url");
+      return url;
     }
-
     throw Exception("Couldn't get stream url");
   }
 
@@ -829,25 +840,40 @@ class ApiService {
     }
   }
 
-  Future<SubtitleTrack> getExternalSubtitle(
+  Future<SubtitleTrack> getExternalSubtitleTrack(
       {required String deliveryUrl}) async {
     if (deliveryUrl.split("?")[0].endsWith(".vtt")) {
       var response = await Dio().get(_user!.serverAdress! + deliveryUrl);
-      final lines = response.data!.split('\n');
-      final result = <String>[];
-      for (var line in lines) {
-        // Skip lines that contain 'Region:' or 'region:'
-        if (!line.startsWith('Region:') && !line.contains('region:')) {
-          result.add(line);
-        } else if (line.contains('region:')) {
-          // Remove 'region:' parameter within timestamp lines
-          final modifiedLine = line.replaceAll(RegExp(r'region:[^\s]+'), '');
-          result.add(modifiedLine.trim());
-        }
-      }
-      return SubtitleTrack.data(result.join("\n"));
+      String subtitleData = cleanVttSubtitle(response.data);
+      return SubtitleTrack.data(subtitleData);
     } else {
       return SubtitleTrack.uri(_user!.serverAdress! + deliveryUrl);
     }
+  }
+
+  Future<String> getExternalSubtitle({required String deliveryUrl}) async {
+    var response = await Dio().get(_user!.serverAdress! + deliveryUrl);
+    if (deliveryUrl.split("?")[0].endsWith(".vtt")) {
+      String subtitleData = cleanVttSubtitle(response.data);
+      return subtitleData;
+    } else {
+      return response.data;
+    }
+  }
+
+  String cleanVttSubtitle(String vtt) {
+    final lines = vtt.split('\n');
+    final result = <String>[];
+    for (var line in lines) {
+      // Skip lines that contain 'Region:' or 'region:'
+      if (!line.startsWith('Region:') && !line.contains('region:')) {
+        result.add(line);
+      } else if (line.contains('region:')) {
+        // Remove 'region:' parameter within timestamp lines
+        final modifiedLine = line.replaceAll(RegExp(r'region:[^\s]+'), '');
+        result.add(modifiedLine.trim());
+      }
+    }
+    return result.join("\n");
   }
 }

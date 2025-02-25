@@ -310,5 +310,11 @@
   "errorMessage403": "Der Server blockiert Anfragen von diesem Gerät. Das könnte bedeuten, dass das Gerät gebannt wurde. Bitte kontaktiere deinen Administrator um das Problem zu lösen.",
   "@errorMessage403": {},
   "errorMessageUnknown": "Ein unerwarteter Fehler ist aufgetreten.",
-  "@errorMessageUnknown": {}
+  "@errorMessageUnknown": {},
+  "apply": "Anwenden",
+  "@apply": {},
+  "selectedItems": "ausgewählte Elemente",
+  "@selectedItems": {},
+  "reset": "Zurücksetzen",
+  "@reset": {}
 }

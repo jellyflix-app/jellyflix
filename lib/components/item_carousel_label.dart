@@ -32,8 +32,10 @@ class ItemCarouselLabel extends StatelessWidget {
         if (!UniversalPlatform.isAndroid && !UniversalPlatform.isIOS)
           IconButton(
             icon: const Icon(Icons.arrow_back_ios),
-            hoverColor:
-                Theme.of(context).colorScheme.primaryContainer.withOpacity(0.2),
+            hoverColor: Theme.of(context)
+                .colorScheme
+                .primaryContainer
+                .withValues(alpha: 0.2),
             onPressed: () {
               scrollController.animateTo(
                 scrollController.offset - offsetWidth,
@@ -45,8 +47,10 @@ class ItemCarouselLabel extends StatelessWidget {
         if (!UniversalPlatform.isAndroid && !UniversalPlatform.isIOS)
           IconButton(
             icon: const Icon(Icons.arrow_forward_ios),
-            hoverColor:
-                Theme.of(context).colorScheme.primaryContainer.withOpacity(0.2),
+            hoverColor: Theme.of(context)
+                .colorScheme
+                .primaryContainer
+                .withValues(alpha: 0.2),
             onPressed: () {
               scrollController.animateTo(
                 scrollController.offset + offsetWidth,

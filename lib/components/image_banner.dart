@@ -6,6 +6,7 @@ import 'package:jellyflix/components/image_banner_inner_portrait.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:async/async.dart';
+import 'package:jellyflix/providers/player_helper_provider.dart';
 
 import 'package:tentacle/tentacle.dart';
 
@@ -153,16 +154,13 @@ class ImageBannerState extends ConsumerState<ImageBanner> {
       if (itemId == null) {
         return;
       }
-      ref
-          .read(apiProvider)
-          .getStreamUrlAndPlaybackInfo(itemId: itemId)
-          .then((playbackInfo) {
+      ref.read(streamPlayerHelperProvider(itemId).future).then((playerHelper) {
         if (context.mounted) {
           context.push(
             Uri(path: ScreenPaths.player, queryParameters: {
               "startTimeTicks": playbackStartTicks.toString()
             }).toString(),
-            extra: playbackInfo,
+            extra: playerHelper,
           );
           Future.delayed(const Duration(seconds: 1), () {
             setState(() {

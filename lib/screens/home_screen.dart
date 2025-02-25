@@ -59,9 +59,8 @@ class HomeScreen extends HookConsumerWidget {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: PaginatedItemCarousel(
-                future: (startIndex, limit) =>
-                    ref.read(apiProvider).continueWatchingAndNextUp(),
+              child: FutureItemCarousel(
+                future: ref.read(apiProvider).continueWatchingAndNextUp(),
                 onTap: (index, id) {
                   context.push(Uri(path: ScreenPaths.detail, queryParameters: {
                     "id": id,
