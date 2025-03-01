@@ -15,6 +15,10 @@ class DownloadSettingsDialog extends HookConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     MediaStream selectedAudio = playerHelper.getDefaultAudio();
     MediaStream selectedSubtitle = playerHelper.getDefaultSubtitle();
+    if (selectedSubtitle.deliveryMethod == SubtitleDeliveryMethod.embed) {
+      selectedSubtitle = playerHelper.subtitles
+          .firstWhere((element) => element.index == selectedSubtitle.index);
+    }
     return AlertDialog(
       title: Text(AppLocalizations.of(context)!.setAudioAndSubtitleLanguage),
       content: Column(
