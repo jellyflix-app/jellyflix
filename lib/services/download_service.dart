@@ -173,7 +173,7 @@ class DownloadService {
     var downloadDirectory = await getDownloadDirectory();
     logger.verbose("Downloads: Download directory: $downloadDirectory");
     if (!await Directory(downloadDirectory).exists()) {
-      await Directory(downloadDirectory).create();
+      await Directory(downloadDirectory).create(recursive: true);
     }
 
     if (subtitle.deliveryMethod == SubtitleDeliveryMethod.external_) {
@@ -186,7 +186,7 @@ class DownloadService {
           "$downloadDirectory${Platform.pathSeparator}$itemId";
       // create download directory if it doesn't exist
       if (!await Directory(downloadPath).exists()) {
-        await Directory(downloadPath).create();
+        await Directory(downloadPath).create(recursive: true);
       }
       await File(downloadPath + Platform.pathSeparator + fileName)
           .writeAsString(externalSubtitle);
@@ -209,7 +209,7 @@ class DownloadService {
 
     // create download directory if it doesn't exist
     if (!await Directory(downloadPath).exists()) {
-      await Directory(downloadPath).create();
+      await Directory(downloadPath).create(recursive: true);
     }
 
     int? downloadSize;
@@ -262,7 +262,7 @@ class DownloadService {
 
     // create download directory if it doesn't exist
     if (!await Directory(downloadPath).exists()) {
-      await Directory(downloadPath).create();
+      await Directory(downloadPath).create(recursive: true);
     }
 
     List<MediaStream> streamsToKeep = [];
@@ -525,7 +525,7 @@ class DownloadService {
 
     // create download directory if it doesn't exist
     if (!await Directory(downloadPath).exists()) {
-      await Directory(downloadPath).create();
+      await Directory(downloadPath).create(recursive: true);
     }
     var masterM3U = await _dio!.get(streamUrl, cancelToken: cancelToken);
     await File("$downloadPath${Platform.pathSeparator}master.m3u8")

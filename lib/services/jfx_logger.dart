@@ -1,12 +1,12 @@
 import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
-import 'package:universal_io/io.dart';
 import 'package:file_saver/file_saver.dart';
 
 class JfxLogger {
   late Logger _logger;
   static const _logFileName = "jellyflix-log";
   static const _logFileExtension = ".txt";
+  final MemoryOutput _memoryOutput = MemoryOutput();
 
   JfxLogger() {
     buildLogger();
@@ -20,10 +20,7 @@ class JfxLogger {
     } else {
       _logger = Logger(
         printer: LogfmtPrinter(),
-        output: FileOutput(
-          file: File(_logFileName),
-          overrideExisting: true,
-        ),
+        output: _memoryOutput,
         filter: alwaysLog ? ProductionFilter() : null,
       );
     }
@@ -64,9 +61,10 @@ class JfxLogger {
   Future<void> exportLog() async {
     _logger.i("Exporting log to file");
 
+    var logBytes = Uint8List.fromList(_memoryOutput.toString().codeUnits);
     await FileSaver.instance.saveFile(
         name:
             "${_logFileName}_${DateTime.now().toIso8601String().replaceAll(":", "-")}$_logFileExtension",
-        filePath: _logFileName);
+        bytes: logBytes);
   }
 }
