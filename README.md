@@ -103,7 +103,10 @@ If you want to build Jellyflix for Linux you need some additional dependencies:
 sudo apt install clang cmake git ninja-build pkg-config libgtk-3-dev liblzma-dev libstdc++-12-dev
 
 # Jellyflix needs the following additonal dependencies
+# Using apt:
 sudo apt install libjsoncpp-dev libmpv-dev libsecret-1-dev mpv
+# Using dnf:
+sudo dnf install jsoncpp-devel libsecret libsecret-devel mpv mpv-libs mpv-devel
 ```
 
 Apart from libsecret you also need a keyring service, for that you need either gnome-keyring (for Gnome users) or ksecretsservice (for KDE users) or other light provider like [secret-service](https://github.com/yousefvand/secret-service).
@@ -111,7 +114,10 @@ Apart from libsecret you also need a keyring service, for that you need either g
 If your distro only provides libmpv, this workaround is necessary:
 
 ```bash
+# Debian based:
 sudo ln -s /usr/lib/x86_64-linux-gnu/libmpv.so.2 /usr/lib/x86_64-linux-gnu/libmpv.so.1
+# Fedora based:
+sudo ln -s /usr/lib64/libmpv.so /usr/lib64/libmpv.so.1
 ```
 
 #### We would welcome the contribution of build instructions for Fedora. Unfortunately, as of now, there are no developers using Fedora-like systems.
