@@ -319,8 +319,8 @@ class JfxButtonRow extends StatelessWidget {
             : buildPlayButton(context, ref, data, layout),
         const SizedBox(width: 8.0),
         buildFavoriteButton(context, ref, itemId, layout, onWatchlist),
-        if (data.type != BaseItemKind.series) const SizedBox(width: 8.0),
-        if (data.type != BaseItemKind.series)
+        if (data.type == BaseItemKind.movie) const SizedBox(width: 8.0),
+        if (data.type == BaseItemKind.movie)
           Container(
             height: 40,
             width: 40,
