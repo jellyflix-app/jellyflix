@@ -158,7 +158,8 @@ class ImageBannerState extends ConsumerState<ImageBanner> {
         if (context.mounted) {
           context.push(
             Uri(path: ScreenPaths.player, queryParameters: {
-              "startTimeTicks": playbackStartTicks.toString()
+              "startTimeTicks": playbackStartTicks.toString(),
+              "title": item.name
             }).toString(),
             extra: playerHelper,
           );

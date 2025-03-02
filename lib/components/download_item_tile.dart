@@ -75,10 +75,10 @@ class DownloadItemTile extends HookConsumerWidget {
                       .read(offlinePlayerHelperProvider(itemId).future);
                   if (context.mounted) {
                     context.push(
-                        Uri(
-                                path: ScreenPaths.player,
-                                queryParameters: {"startTimeTicks": "0"})
-                            .toString(),
+                        Uri(path: ScreenPaths.player, queryParameters: {
+                          "startTimeTicks": "0",
+                          "title": metaData.data!.name
+                        }).toString(),
                         extra: playerHelper);
                   }
                 }

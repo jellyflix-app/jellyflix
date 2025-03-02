@@ -17,9 +17,13 @@ import 'package:universal_platform/universal_platform.dart';
 
 class PlayerScreen extends StatefulHookConsumerWidget {
   const PlayerScreen(
-      {super.key, required this.playerHelper, required this.startTimeTicks});
+      {super.key,
+      required this.playerHelper,
+      required this.startTimeTicks,
+      required this.title});
   final PlayerHelper playerHelper;
   final int startTimeTicks;
+  final String title;
 
   @override
   ConsumerState<PlayerScreen> createState() => _PlayerSreenState();
@@ -185,7 +189,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
     var materialVideoControlsThemeData = playbackHelper.videoControls(
       context,
       key,
-      title: playbackHelper.playbackInfo.mediaSources!.first.name!,
+      title: widget.title,
       subtitleEnabled: subtitleEnabled,
       subtitleTrack: subtitleTrack,
       audioTrack: audioTrack,
@@ -195,7 +199,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
         playbackHelper.desktopVideoControls(
       context,
       key,
-      title: playbackHelper.playbackInfo.mediaSources!.first.name!,
+      title: widget.title,
       subtitleEnabled: subtitleEnabled,
       subtitleTrack: subtitleTrack,
       audioTrack: audioTrack,

@@ -63,10 +63,11 @@ class JfxButtonRow extends StatelessWidget {
       Function goToPlayerScreen) {
     JfxLayout layout = JfxLayout.scalingLayout(context);
 
-    Widget buildPlayButton(
-        BuildContext context, WidgetRef ref, data, JfxLayout layout) {
+    Widget buildPlayButton(BuildContext context, WidgetRef ref,
+        BaseItemDto data, JfxLayout layout) {
       return ElevatedButton.icon(
           onPressed: () async {
+            String title;
             String itemId;
             int playbackStartTicks = 0;
             if (data.type == BaseItemKind.series) {
@@ -77,24 +78,29 @@ class JfxButtonRow extends StatelessWidget {
                 itemId = continueWatching.first.id!;
                 playbackStartTicks =
                     continueWatching.first.userData!.playbackPositionTicks!;
+                title = continueWatching.first.episodeTitle!;
               } else {
                 List<BaseItemDto> result = await ref
                     .read(apiProvider)
                     .getNextUpEpisode(seriesId: data.id!);
                 if (result.isNotEmpty) {
                   itemId = result.first.id!;
+                  title = result.first.episodeTitle!;
                 } else {
                   List<BaseItemDto> episodes =
                       await ref.read(apiProvider).getEpisodes(data.id!);
                   itemId = episodes.first.id!;
+                  title = episodes.first.episodeTitle!;
                 }
               }
             } else {
               itemId = data.mediaSources!.first.id!;
               playbackStartTicks = data.userData!.playbackPositionTicks!;
+              title = data.name!;
             }
             if (context.mounted) {
-              await goToPlayerScreen(ref, itemId, playbackStartTicks, context);
+              await goToPlayerScreen(
+                  ref, itemId, playbackStartTicks, context, title);
             }
           },
           icon: const Padding(
@@ -137,8 +143,8 @@ class JfxButtonRow extends StatelessWidget {
             },
             tooltip: "",
             onSelected: (value) async {
-              await goToPlayerScreen(
-                  ref, value, data.userData!.playbackPositionTicks!, context);
+              await goToPlayerScreen(ref, value,
+                  data.userData!.playbackPositionTicks!, context, data.name!);
             },
             child: MouseRegion(
               onEnter: (event) {
@@ -319,8 +325,11 @@ class JfxButtonRow extends StatelessWidget {
             : buildPlayButton(context, ref, data, layout),
         const SizedBox(width: 8.0),
         buildFavoriteButton(context, ref, itemId, layout, onWatchlist),
-        if (data.type == BaseItemKind.movie) const SizedBox(width: 8.0),
-        if (data.type == BaseItemKind.movie)
+        if (data.type == BaseItemKind.movie ||
+            data.type == BaseItemKind.episode)
+          const SizedBox(width: 8.0),
+        if (data.type == BaseItemKind.movie ||
+            data.type == BaseItemKind.episode)
           Container(
             height: 40,
             width: 40,

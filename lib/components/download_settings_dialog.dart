@@ -68,8 +68,14 @@ class DownloadSettingsDialog extends HookConsumerWidget {
               dropdownMenuEntries: playerHelper.subtitles
                   .map(
                     (e) => DropdownMenuEntry(
-                      enabled:
-                          e.deliveryMethod == SubtitleDeliveryMethod.external_,
+                      leadingIcon: e.deliveryMethod ==
+                                  SubtitleDeliveryMethod.external_ ||
+                              e.index == -1
+                          ? null
+                          : const Icon(Icons.done_rounded),
+                      enabled: e.deliveryMethod ==
+                              SubtitleDeliveryMethod.external_ ||
+                          e.index == -1,
                       value: e,
                       labelWidget: Text(
                         e.displayTitle ?? AppLocalizations.of(context)!.none,

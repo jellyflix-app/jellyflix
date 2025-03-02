@@ -147,7 +147,7 @@ class DownloadService {
     if (subtitleStreamIndex != null && subtitleStreamIndex != -1) {
       PlayerHelper helper = PlayerHelper(playbackInfo: playbackInfo);
 
-      MediaStream subtitle = helper.subtitles
+      subtitle = helper.subtitles
           .firstWhere((element) => element.index == subtitleStreamIndex);
       subtitlePath = await downloadSubtitle(subtitle);
     }
@@ -696,11 +696,15 @@ class DownloadService {
                 .last
                 .startsWith(itemId));
             if (contents.isNotEmpty) {
+              await completeDownload();
               return 100;
             }
             return null;
           } else {
             tasks.sort((a, b) => a.timeCreated.compareTo(b.timeCreated));
+            if (tasks.last.progress == 100) {
+              await completeDownload();
+            }
             return tasks.last.progress;
           }
         } else {
