@@ -316,5 +316,9 @@
   "selectedItems": "ausgewählte Elemente",
   "@selectedItems": {},
   "reset": "Zurücksetzen",
-  "@reset": {}
+  "@reset": {},
+  "enableLogging": "Protokollierung aktivieren",
+  "@enableLogging": {},
+  "logExported": "Protokoll in die Downloads exportiert",
+  "@logExported": {}
 }
