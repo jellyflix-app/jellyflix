@@ -60,7 +60,8 @@ class EpisodeListTile extends HookConsumerWidget {
           context.push(
               Uri(path: ScreenPaths.player, queryParameters: {
                 "startTimeTicks":
-                    episode.userData?.playbackPositionTicks?.toString()
+                    episode.userData?.playbackPositionTicks?.toString(),
+                "title": episode.name!
               }).toString(),
               extra: playbackInfo);
         }

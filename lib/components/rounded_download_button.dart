@@ -48,10 +48,14 @@ class RoundedDownloadButton extends HookConsumerWidget {
                 .getDownloadInfo(downloadBitrate: downloadBitrate);
 
             int audioCount = downloadInfo.mediaSources![0].mediaStreams!
-                .where((element) => element.type == MediaStreamType.audio)
+                .where((element) =>
+                    element.type == MediaStreamType.audio &&
+                    downloadInfo.mediaSources!.first.transcodingUrl != null)
                 .length;
             int subtitleCount = downloadInfo.mediaSources![0].mediaStreams!
-                .where((element) => element.type == MediaStreamType.subtitle)
+                .where((element) =>
+                    element.type == MediaStreamType.subtitle &&
+                    element.deliveryMethod == SubtitleDeliveryMethod.external_)
                 .length;
 
             if (context.mounted && (audioCount > 1 || subtitleCount > 0)) {

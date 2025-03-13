@@ -399,13 +399,14 @@ class DetailScreen extends HookConsumerWidget {
   }
 
   Future<void> goToPlayerScreen(WidgetRef ref, String itemId,
-      int playbackStartTicks, BuildContext context) async {
+      int playbackStartTicks, BuildContext context, String title) async {
     var playerHelper =
         await ref.read(streamPlayerHelperProvider(itemId).future);
     if (context.mounted) {
       context.push(
           Uri(path: ScreenPaths.player, queryParameters: {
-            "startTimeTicks": playbackStartTicks.toString()
+            "startTimeTicks": playbackStartTicks.toString(),
+            "title": title
           }).toString(),
           extra: playerHelper);
     }

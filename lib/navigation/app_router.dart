@@ -115,7 +115,8 @@ class AppRouter {
           child: PlayerScreen(
               startTimeTicks:
                   int.parse(state.uri.queryParameters['startTimeTicks'] ?? "0"),
-              playerHelper: state.extra as PlayerHelper),
+              playerHelper: state.extra as PlayerHelper,
+              title: state.uri.queryParameters['title'] ?? ""),
         ),
       ),
       GoRoute(

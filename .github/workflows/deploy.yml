@@ -35,7 +35,7 @@ jobs:
         uses: gittools/actions/gitversion/execute@v1
 
       - name: Create version.txt with nuGetVersion
-        run: echo ${{ steps.gitversion.outputs.MajorMinorPatch  }}${{ steps.gitversion.outputs.PreReleaseLabelWithDash }} > version.txt
+        run: echo ${{ steps.gitversion.outputs.MajorMinorPatch  }}${{ steps.gitversion.outputs.PreReleaseLabelWithDash }}${{ steps.gitversion.outputs.WeightedPreReleaseNumber }} > version.txt
 
       - name: Upload version.txt
         uses: actions/upload-artifact@v4
