@@ -315,5 +315,9 @@
   "apply": "Toepassen",
   "@apply": {},
   "selectedItems": "geselecteerde items",
-  "@selectedItems": {}
+  "@selectedItems": {},
+  "enableLogging": "Logboek aanleggen",
+  "@enableLogging": {},
+  "logExported": "Het logboek is geëxporteerd naar downloads",
+  "@logExported": {}
 }

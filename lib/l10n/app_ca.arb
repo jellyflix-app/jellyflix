@@ -1,0 +1,58 @@
+{
+  "continueWatching": "Continua mirant",
+  "@continueWatching": {},
+  "recentlyAddedMovies": "Pel·lícules afegides recentment",
+  "@recentlyAddedMovies": {},
+  "recentlyAddedShows": "Series afegides recentment",
+  "@recentlyAddedShows": {},
+  "top10inYourLibrary": "Top 10 a la teva biblioteca",
+  "@top10inYourLibrary": {},
+  "becauseYouWatched": "Per què has vist {title}",
+  "@becauseYouWatched": {},
+  "becauseYouLiked": "Per què t'ha agradat {title}",
+  "@becauseYouLiked": {
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Forrest Gump"
+      }
+    }
+  },
+  "directedBy": "Dirigida per {director}",
+  "@directedBy": {
+    "placeholders": {
+      "director": {
+        "type": "String",
+        "example": "Robert Zemeckis"
+      }
+    }
+  },
+  "recommendedForYou": "Recomanat per a tu",
+  "@recommendedForYou": {},
+  "moreInfo": "Més informació",
+  "@moreInfo": {},
+  "search": "Busca",
+  "@search": {},
+  "startTypingSearch": "Comença a escriure per a buscar",
+  "@startTypingSearch": {},
+  "favorites": "Preferits",
+  "@favorites": {},
+  "liked": "Agradat",
+  "@liked": {},
+  "changeProfile": "Canvia el perfil",
+  "@changeProfile": {},
+  "logout": "Desconnexió",
+  "@logout": {},
+  "about": "Sobre",
+  "@about": {},
+  "scanLibrary": "Escaneja la biblioteca",
+  "@scanLibrary": {},
+  "quickConnect": "Connexió ràpida",
+  "@quickConnect": {},
+  "quickConnectDescription": "Introdueix el codi mostrat en el teu dispositiu",
+  "@quickConnectDescription": {},
+  "play": "Reprodueix",
+  "@play": {},
+  "scanStarted": "Escaneig iniciat",
+  "@scanStarted": {}
+}
