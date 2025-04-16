@@ -191,5 +191,109 @@
   "errorMessageUnknown": "Det har uppstått ett okänt fel.",
   "@errorMessageUnknown": {},
   "reset": "Återställ",
-  "@reset": {}
+  "@reset": {},
+  "similarToWatchHistory": "Liknar din tittarhistorik",
+  "@similarToWatchHistory": {},
+  "starring": "I huvudrollen {actor}",
+  "@starring": {
+    "placeholders": {
+      "actor": {
+        "type": "String",
+        "example": "Tom Hanks"
+      }
+    }
+  },
+  "play": "Spela upp",
+  "@play": {},
+  "genre": "Genre",
+  "@genre": {},
+  "all": "Allt",
+  "@all": {},
+  "none": "Inga",
+  "@none": {},
+  "random": "Slumpmässig",
+  "@random": {},
+  "unplayed": "Ospelad",
+  "@unplayed": {},
+  "played": "Spelat",
+  "@played": {},
+  "liked": "Gillat",
+  "@liked": {},
+  "na": "N/A",
+  "@na": {},
+  "quickConnectError401": "Kommer du åt rätt server?",
+  "@quickConnectError401": {},
+  "useQuickConnect": "Använd Quick Connect för att logga in",
+  "@useQuickConnect": {},
+  "noResultsFound": "Inga resultat hittades",
+  "@noResultsFound": {},
+  "loginWithQuickConnect": "",
+  "@loginWithQuickConnect": {},
+  "minutes": "{count} min",
+  "@minutes": {
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "50"
+      }
+    }
+  },
+  "emptyAddress": "Tom serveradress",
+  "@emptyAddress": {},
+  "emptyUsername": "Tomt användarnamn",
+  "@emptyUsername": {},
+  "emptyPassword": "Tomt lösenord",
+  "@emptyPassword": {},
+  "watchTrailer": "Se trailer",
+  "@watchTrailer": {},
+  "couldNotResumeDownload": "Det gick inte att återuppta nedladdningen!",
+  "@couldNotResumeDownload": {},
+  "allDownloadsRemoved": "Alla nedladdningar har tagits bort",
+  "@allDownloadsRemoved": {},
+  "setLocalDownloadBitrate": "Ställ in lokal nedladdningsbithastighet",
+  "@setLocalDownloadBitrate": {},
+  "maxDownloadBitrateText": "Ställ in maximal bithastighet för lokala nedladdningar.",
+  "@maxDownloadBitrateText": {},
+  "downloadApproxFilesize": "1 timmes uppspelning motsvarar ca. {size}GB",
+  "@downloadApproxFilesize": {
+    "placeholders": {
+      "size": {
+        "type": "String",
+        "example": "1.5"
+      }
+    }
+  },
+  "disableImageCaching": "Inaktivera bildcachelagring",
+  "@disableImageCaching": {},
+  "restartAppDescription": "Starta om appen för att ändringarna ska träda i kraft.",
+  "@restartAppDescription": {},
+  "ends": "Slutar {date}",
+  "@ends": {
+    "placeholders": {
+      "date": {
+        "type": "String",
+        "example": "21:30"
+      }
+    }
+  },
+  "storagePermission": "Lagringstillstånd nekad",
+  "@storagePermission": {},
+  "audioPermission": "Ljudtillstånd nekad",
+  "@audioPermission": {},
+  "videoPermission": "Videotillstånd nekad",
+  "@videoPermission": {},
+  "errorMessage400": "Servern kunde inte förstå begäran, om du använder en proxy kontrollera dess konfiguration.",
+  "@errorMessage400": {},
+  "errorMessage403": "Servern blockerar förfrågningar från den här enheten. Detta betyder förmodligen att enheten har blivit bannlyst. Kontakta din administratör för att lösa problemet.",
+  "@errorMessage403": {},
+  "selectedItems": "valda objekt",
+  "@selectedItems": {},
+  "apply": "Tillämpa",
+  "@apply": {},
+  "enableLogging": "Aktivera loggning",
+  "@enableLogging": {},
+  "logExported": "Loggen exporterades till nedladdningar",
+  "@logExported": {},
+  "appName": "Jellyflix",
+  "@appName": {}
 }
