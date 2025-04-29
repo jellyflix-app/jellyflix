@@ -310,5 +310,15 @@
   "errorMessage403": "Le serveur bloque les requêtes de cet appareil. Cela veut surement dire que cet appareil a été banni. Contactez votre administrateur pour résolution du problème.",
   "@errorMessage403": {},
   "errorMessage400": "Le serveur n'a pas pu comprendre la requête, si vous utilisez un proxy, vérifiez sa configuration.",
-  "@errorMessage400": {}
+  "@errorMessage400": {},
+  "selectedItems": "Items séelctionnés",
+  "@selectedItems": {},
+  "apply": "Appliquer",
+  "@apply": {},
+  "reset": "Réinitialiser",
+  "@reset": {},
+  "enableLogging": "Activer la journalisation",
+  "@enableLogging": {},
+  "logExported": "Journaux exportés vers les téléchargements",
+  "@logExported": {}
 }
