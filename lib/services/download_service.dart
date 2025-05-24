@@ -179,7 +179,7 @@ class DownloadService {
     if (subtitle.deliveryMethod == SubtitleDeliveryMethod.external_) {
       logger.verbose("Downloads: Download external subtitle: $subtitle");
       // download external subtitle
-      String externalSubtitle =
+      var externalSubtitle =
           await _api.getExternalSubtitle(deliveryUrl: subtitle.deliveryUrl!);
       String fileName = subtitle.deliveryUrl!.split("?")[0].split("/").last;
       String downloadPath =
@@ -189,7 +189,7 @@ class DownloadService {
         await Directory(downloadPath).create(recursive: true);
       }
       await File(downloadPath + Platform.pathSeparator + fileName)
-          .writeAsString(externalSubtitle);
+          .writeAsBytes(externalSubtitle);
       logger.verbose(
           "Downloads: External subtitle downloaded: $downloadPath/$fileName");
       return downloadPath + Platform.pathSeparator + fileName;
@@ -413,6 +413,7 @@ class DownloadService {
         query:
             "SELECT * FROM task WHERE saved_dir LIKE '%downloads${Platform.pathSeparator}$itemId%'");
     if (tasks != null && tasks.isNotEmpty) {
+      List removeTasks = [];
       // check if file already exists
       for (var task in tasks) {
         if (await File(task.savedDir + Platform.pathSeparator + task.filename!)
@@ -421,8 +422,11 @@ class DownloadService {
           logger.verbose(
               "Downloads: File already exists, removing task: ${task.taskId} (${task.filename})");
           // remove task from list
-          tasks.remove(task);
+          removeTasks.add(task);
         }
+      }
+      for (var task in removeTasks) {
+        tasks.remove(task);
       }
     }
     if (tasks != null && tasks.isNotEmpty) {
@@ -435,8 +439,7 @@ class DownloadService {
         for (var task in failedTasks) {
           logger.verbose(
               "Downloads: Restarting download for task: ${task.taskId} (${task.filename})");
-          await FlutterDownloader.retry(taskId: task.taskId);
-          await FlutterDownloader.remove(taskId: task.taskId);
+          await _enqueueUpdatedDownloadUrl(task);
         }
       }
       var pausedTasks = tasks
@@ -446,8 +449,7 @@ class DownloadService {
         for (var task in pausedTasks) {
           logger.verbose(
               "Downloads: Resuming download for task: ${task.taskId} (${task.filename})");
-          await FlutterDownloader.resume(taskId: task.taskId);
-          await FlutterDownloader.remove(taskId: task.taskId);
+          await _enqueueUpdatedDownloadUrl(task);
         }
       }
       tasks = await FlutterDownloader.loadTasksWithRawQuery(
@@ -460,6 +462,21 @@ class DownloadService {
           content: Text(AppLocalizations.of(navigatorKey.currentContext!)!
               .couldNotResumeDownload)));
     }
+  }
+
+  _enqueueUpdatedDownloadUrl(DownloadTask task) async {
+    // Replace the api_key parameter value in the URL with the current user's token, until the next '&'
+    String newUrl = task.url.replaceFirst(
+      RegExp(r'api_key=[a-zA-Z0-9]+(?=&)'),
+      'api_key=${_api.currentUser!.token}',
+    );
+    await FlutterDownloader.enqueue(
+      url: newUrl,
+      savedDir: task.savedDir,
+      fileName: task.filename,
+      showNotification: false,
+      openFileFromNotification: false,
+    );
   }
 
   _resumeTranscodedDownload() async {

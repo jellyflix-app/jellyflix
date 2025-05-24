@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:jellyflix/models/user.dart';
@@ -851,11 +852,16 @@ class ApiService {
     }
   }
 
-  Future<String> getExternalSubtitle({required String deliveryUrl}) async {
-    var response = await Dio().get(_user!.serverAdress! + deliveryUrl);
+  Future<Uint8List> getExternalSubtitle({required String deliveryUrl}) async {
+    var response = await Dio().get(
+      _user!.serverAdress! + deliveryUrl,
+      options: Options(responseType: ResponseType.bytes),
+    );
     if (deliveryUrl.split("?")[0].endsWith(".vtt")) {
-      String subtitleData = cleanVttSubtitle(response.data);
-      return subtitleData;
+      // convert to String and clean the subtitle
+      String subtitleData = utf8.decode(response.data);
+      subtitleData = cleanVttSubtitle(subtitleData);
+      return utf8.encode(subtitleData);
     } else {
       return response.data;
     }
