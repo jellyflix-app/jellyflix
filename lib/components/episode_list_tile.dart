@@ -125,7 +125,7 @@ class EpisodeListTile extends HookConsumerWidget {
                         .length;
 
                     if (context.mounted &&
-                        (audioCount > 0 || subtitleCount > 0)) {
+                        (audioCount > 1 || subtitleCount > 0)) {
                       var selectedSettings = await showDialog(
                         context: context,
                         builder: (context) {

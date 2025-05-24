@@ -270,6 +270,8 @@ class DownloadService {
     for (var stream in playbackInfo.mediaSources![0].mediaStreams!) {
       if ((stream.type == MediaStreamType.audio &&
               stream.index! == audioStreamIndex) ||
+          (stream.type == MediaStreamType.audio &&
+              stream.deliveryMethod == null) ||
           stream.type == MediaStreamType.video ||
           (stream.type == MediaStreamType.subtitle &&
               stream.deliveryMethod == SubtitleDeliveryMethod.embed)) {
