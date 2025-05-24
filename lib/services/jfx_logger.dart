@@ -16,7 +16,6 @@ class JfxLogger {
     if (kDebugMode) {
       _logger = Logger(
         printer: LogfmtPrinter(),
-        output: _memoryOutput,
       );
     } else {
       _logger = Logger(
