@@ -324,7 +324,6 @@ class ProfileScreen extends HookConsumerWidget {
                             value: loggingEnabled.value,
                             onChanged: (value) async {
                               loggingEnabled.value = value;
-                              ref.read(loggerProvider).error("Test");
                               ref
                                   .read(databaseProvider("settings"))
                                   .put("loggingEnabled", value);

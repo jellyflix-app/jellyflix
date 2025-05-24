@@ -179,7 +179,7 @@ class DownloadService {
     if (subtitle.deliveryMethod == SubtitleDeliveryMethod.external_) {
       logger.verbose("Downloads: Download external subtitle: $subtitle");
       // download external subtitle
-      String externalSubtitle =
+      var externalSubtitle =
           await _api.getExternalSubtitle(deliveryUrl: subtitle.deliveryUrl!);
       String fileName = subtitle.deliveryUrl!.split("?")[0].split("/").last;
       String downloadPath =
@@ -189,7 +189,7 @@ class DownloadService {
         await Directory(downloadPath).create(recursive: true);
       }
       await File(downloadPath + Platform.pathSeparator + fileName)
-          .writeAsString(externalSubtitle);
+          .writeAsBytes(externalSubtitle);
       logger.verbose(
           "Downloads: External subtitle downloaded: $downloadPath/$fileName");
       return downloadPath + Platform.pathSeparator + fileName;
@@ -270,6 +270,8 @@ class DownloadService {
     for (var stream in playbackInfo.mediaSources![0].mediaStreams!) {
       if ((stream.type == MediaStreamType.audio &&
               stream.index! == audioStreamIndex) ||
+          (stream.type == MediaStreamType.audio &&
+              stream.deliveryMethod == null) ||
           stream.type == MediaStreamType.video ||
           (stream.type == MediaStreamType.subtitle &&
               stream.deliveryMethod == SubtitleDeliveryMethod.embed)) {
@@ -355,36 +357,32 @@ class DownloadService {
             "${await getDownloadDirectory()}${Platform.pathSeparator}$itemId${Platform.pathSeparator}main.m3u8")
         .exists();
     if (Platform.isAndroid || Platform.isIOS) {
-      var tasks = await FlutterDownloader.loadTasksWithRawQuery(
-          query:
-              "SELECT * FROM task WHERE saved_dir LIKE '%downloads${Platform.pathSeparator}$itemId%'");
-      if (tasks != null && tasks.isNotEmpty) {
-        isDownloading = true;
-        var failedTasks = tasks
-            .where((element) =>
-                element.status == DownloadTaskStatus.failed ||
-                element.status == DownloadTaskStatus.canceled)
-            .toList();
-        if (failedTasks.isNotEmpty) {
-          for (var task in failedTasks) {
-            await FlutterDownloader.retry(taskId: task.taskId);
-          }
-        }
-      } else {
-        await removeDownload();
-        rootScaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
-            content: Text(AppLocalizations.of(navigatorKey.currentContext!)!
-                .couldNotResumeDownload)));
-      }
+      isDownloading = true;
+      _download = CancelableOperation.fromFuture(
+        _resumeMobileDownload(),
+        onCancel: () {
+          isDownloading = false;
+          logger.warning("Downloads: Download canceled");
+        },
+      )..value.whenComplete(() {}).onError((error, stackTrace) {
+          isDownloading = false;
+          logger.error(
+              "Downloads: Error resuming download: $itemId: $stackTrace",
+              error: error);
+        });
     } else if (masterM3UExists && mainM3UExists) {
       isDownloading = true;
       _download = CancelableOperation.fromFuture(
         _resumeTranscodedDownload(),
         onCancel: () {
           isDownloading = false;
+          logger.warning("Downloads: Download canceled");
         },
       )..value.whenComplete(() {}).onError((error, stackTrace) {
           isDownloading = false;
+          logger.error(
+              "Downloads: Error resuming download: $itemId: $stackTrace",
+              error: error);
         });
     } else if (await File(
             "${await getDownloadDirectory()}${Platform.pathSeparator}$itemId${Platform.pathSeparator}temp_download_data")
@@ -394,9 +392,13 @@ class DownloadService {
         _resumeDirectStreamDownload(),
         onCancel: () {
           isDownloading = false;
+          logger.warning("Downloads: Download canceled");
         },
       )..value.whenComplete(() {}).onError((error, stackTrace) {
           isDownloading = false;
+          logger.error(
+              "Downloads: Error resuming download: $itemId: $stackTrace",
+              error: error);
         });
     } else {
       await removeDownload();
@@ -404,6 +406,77 @@ class DownloadService {
           content: Text(AppLocalizations.of(navigatorKey.currentContext!)!
               .couldNotResumeDownload)));
     }
+  }
+
+  _resumeMobileDownload() async {
+    var tasks = await FlutterDownloader.loadTasksWithRawQuery(
+        query:
+            "SELECT * FROM task WHERE saved_dir LIKE '%downloads${Platform.pathSeparator}$itemId%'");
+    if (tasks != null && tasks.isNotEmpty) {
+      List removeTasks = [];
+      // check if file already exists
+      for (var task in tasks) {
+        if (await File(task.savedDir + Platform.pathSeparator + task.filename!)
+            .exists()) {
+          await FlutterDownloader.remove(taskId: task.taskId);
+          logger.verbose(
+              "Downloads: File already exists, removing task: ${task.taskId} (${task.filename})");
+          // remove task from list
+          removeTasks.add(task);
+        }
+      }
+      for (var task in removeTasks) {
+        tasks.remove(task);
+      }
+    }
+    if (tasks != null && tasks.isNotEmpty) {
+      var failedTasks = tasks
+          .where((element) =>
+              element.status == DownloadTaskStatus.failed ||
+              element.status == DownloadTaskStatus.canceled)
+          .toList();
+      if (failedTasks.isNotEmpty) {
+        for (var task in failedTasks) {
+          logger.verbose(
+              "Downloads: Restarting download for task: ${task.taskId} (${task.filename})");
+          await _enqueueUpdatedDownloadUrl(task);
+        }
+      }
+      var pausedTasks = tasks
+          .where((element) => element.status == DownloadTaskStatus.paused)
+          .toList();
+      if (pausedTasks.isNotEmpty) {
+        for (var task in pausedTasks) {
+          logger.verbose(
+              "Downloads: Resuming download for task: ${task.taskId} (${task.filename})");
+          await _enqueueUpdatedDownloadUrl(task);
+        }
+      }
+      tasks = await FlutterDownloader.loadTasksWithRawQuery(
+          query:
+              "SELECT * FROM task WHERE saved_dir LIKE '%downloads${Platform.pathSeparator}$itemId%'");
+      logger.verbose("Downloads: Tasks after resuming: ${tasks?.length}");
+    } else {
+      await removeDownload();
+      rootScaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
+          content: Text(AppLocalizations.of(navigatorKey.currentContext!)!
+              .couldNotResumeDownload)));
+    }
+  }
+
+  _enqueueUpdatedDownloadUrl(DownloadTask task) async {
+    // Replace the api_key parameter value in the URL with the current user's token, until the next '&'
+    String newUrl = task.url.replaceFirst(
+      RegExp(r'api_key=[a-zA-Z0-9]+(?=&)'),
+      'api_key=${_api.currentUser!.token}',
+    );
+    await FlutterDownloader.enqueue(
+      url: newUrl,
+      savedDir: task.savedDir,
+      fileName: task.filename,
+      showNotification: false,
+      openFileFromNotification: false,
+    );
   }
 
   _resumeTranscodedDownload() async {
@@ -523,6 +596,8 @@ class DownloadService {
     var downloadDirectory = await getDownloadDirectory();
     var downloadPath = "$downloadDirectory${Platform.pathSeparator}$itemId";
 
+    logger.verbose("Downloads: Download directory: $downloadDirectory");
+
     // create download directory if it doesn't exist
     if (!await Directory(downloadPath).exists()) {
       await Directory(downloadPath).create(recursive: true);
@@ -588,6 +663,8 @@ class DownloadService {
     var downloadPath = "$downloadDirectory${Platform.pathSeparator}$itemId";
     var fileExtension =
         streamUrl.split("/").last.split("?").first.split(".").last;
+
+    logger.verbose("Downloads: Download directory: $downloadPath");
 
     if (Platform.isAndroid || Platform.isIOS) {
       await FlutterDownloader.enqueue(
@@ -753,6 +830,7 @@ class DownloadService {
   }
 
   Future<void> cancelDownload() async {
+    isDownloading = false;
     if (Platform.isAndroid || Platform.isIOS) {
       for (var taskId in downloadTaskIds) {
         await FlutterDownloader.cancel(taskId: taskId);
