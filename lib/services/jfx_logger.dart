@@ -6,7 +6,7 @@ class JfxLogger {
   late Logger _logger;
   static const _logFileName = "jellyflix-log";
   static const _logFileExtension = ".txt";
-  final MemoryOutput _memoryOutput = MemoryOutput();
+  MemoryOutput _memoryOutput = MemoryOutput();
 
   JfxLogger() {
     buildLogger();
@@ -16,6 +16,7 @@ class JfxLogger {
     if (kDebugMode) {
       _logger = Logger(
         printer: LogfmtPrinter(),
+        output: _memoryOutput,
       );
     } else {
       _logger = Logger(
@@ -61,10 +62,15 @@ class JfxLogger {
   Future<void> exportLog() async {
     _logger.i("Exporting log to file");
 
-    var logBytes = Uint8List.fromList(_memoryOutput.toString().codeUnits);
+    // Join all log lines into a single string and convert to bytes
+    final logString =
+        _memoryOutput.buffer.map((event) => event.lines.join('\n')).join('\n');
+    final logBytes = Uint8List.fromList(logString.codeUnits);
     await FileSaver.instance.saveFile(
         name:
             "${_logFileName}_${DateTime.now().toIso8601String().replaceAll(":", "-")}$_logFileExtension",
         bytes: logBytes);
+    // Reset the memory output after exporting
+    _memoryOutput = MemoryOutput();
   }
 }
