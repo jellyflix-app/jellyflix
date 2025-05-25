@@ -6,7 +6,7 @@ import 'package:jellyflix/components/jfx_layout.dart';
 import 'package:jellyflix/components/navigation_drawer_tile.dart';
 import 'package:jellyflix/models/auth_state.dart';
 import 'package:jellyflix/models/screen_paths.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/l10n/generated/app_localizations.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
 
 class ResponsiveNavigationBar extends HookConsumerWidget {

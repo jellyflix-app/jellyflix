@@ -46,3 +46,6 @@ app.*.map.json
 
 # prevent keystore from leaking
 /android/key.properties
+
+# ignore generated l10n files
+lib/l10n/generated

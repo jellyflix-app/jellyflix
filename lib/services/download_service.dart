@@ -11,7 +11,7 @@ import 'package:universal_io/io.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:async/async.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/l10n/generated/app_localizations.dart';
 
 import 'package:jellyflix/models/download_metadata.dart';
 import 'package:jellyflix/navigation/app_router.dart';

@@ -14,7 +14,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:jellyflix/providers/database_provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/l10n/generated/app_localizations.dart';
 
 class HomeScreen extends HookConsumerWidget {
   const HomeScreen({super.key});

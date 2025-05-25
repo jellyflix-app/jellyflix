@@ -7,7 +7,7 @@ import 'package:jellyflix/components/jfx_text_theme.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:tentacle/tentacle.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/l10n/generated/app_localizations.dart';
 
 class SearchScreen extends HookConsumerWidget {
   const SearchScreen({super.key});
