@@ -6,7 +6,7 @@ import 'package:jellyflix/components/profile_image.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
 import 'package:jellyflix/screens/login_screen.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/l10n/generated/app_localizations.dart';
 
 class ProfileSelectionScreen extends HookConsumerWidget {
   const ProfileSelectionScreen({super.key});

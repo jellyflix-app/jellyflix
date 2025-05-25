@@ -11,7 +11,7 @@ import 'package:universal_io/io.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:async/async.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/l10n/generated/app_localizations.dart';
 
 import 'package:jellyflix/models/download_metadata.dart';
 import 'package:jellyflix/navigation/app_router.dart';
@@ -431,37 +431,22 @@ class DownloadService {
     }
     if (tasks != null && tasks.isNotEmpty) {
       var failedTasks = tasks
-          .where((element) =>
-              element.status == DownloadTaskStatus.failed ||
-              element.status == DownloadTaskStatus.canceled)
+          .where((element) => element.status != DownloadTaskStatus.complete)
           .toList();
       if (failedTasks.isNotEmpty) {
         for (var task in failedTasks) {
           logger.verbose(
               "Downloads: Restarting download for task: ${task.taskId} (${task.filename})");
           await _enqueueUpdatedDownloadUrl(task);
-        }
-      }
-      var pausedTasks = tasks
-          .where((element) => element.status == DownloadTaskStatus.paused)
-          .toList();
-      if (pausedTasks.isNotEmpty) {
-        for (var task in pausedTasks) {
-          logger.verbose(
-              "Downloads: Resuming download for task: ${task.taskId} (${task.filename})");
-          await _enqueueUpdatedDownloadUrl(task);
+          await FlutterDownloader.remove(taskId: task.taskId);
         }
       }
       tasks = await FlutterDownloader.loadTasksWithRawQuery(
           query:
               "SELECT * FROM task WHERE saved_dir LIKE '%downloads${Platform.pathSeparator}$itemId%'");
       logger.verbose("Downloads: Tasks after resuming: ${tasks?.length}");
-    } else {
-      await removeDownload();
-      rootScaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
-          content: Text(AppLocalizations.of(navigatorKey.currentContext!)!
-              .couldNotResumeDownload)));
     }
+    // tasks can be empty if all tasks were removed and they haven't been reported correctly by FlutterDownloader
   }
 
   _enqueueUpdatedDownloadUrl(DownloadTask task) async {
@@ -753,6 +738,7 @@ class DownloadService {
         .exists()) {
       // read metadata file
       DownloadMetadata metadata = await getMetadata();
+      // calculate progress for direct stream downloads
       if (metadata.downloadSize != null &&
           !await File(
                   "$downloadDirectory${Platform.pathSeparator}$itemId${Platform.pathSeparator}main.m3u8")
@@ -767,17 +753,16 @@ class DownloadService {
           var tasks = await FlutterDownloader.loadTasksWithRawQuery(
             query: "SELECT * FROM task WHERE file_name LIKE '$itemId.%'",
           );
-          if (tasks == null || tasks.isEmpty) {
-            contents.where((element) => element.path
-                .split(Platform.pathSeparator)
-                .last
-                .startsWith(itemId));
-            if (contents.isNotEmpty) {
-              await completeDownload();
-              return 100;
-            }
-            return null;
-          } else {
+          // it's more reliable to check if the file exists in the download directory than checking the status
+          if (contents
+              .where((element) => element.path
+                  .split(Platform.pathSeparator)
+                  .last
+                  .startsWith(itemId))
+              .isNotEmpty) {
+            await completeDownload();
+            return 100;
+          } else if (tasks != null && tasks.isNotEmpty) {
             tasks.sort((a, b) => a.timeCreated.compareTo(b.timeCreated));
             if (tasks.last.progress == 100) {
               await completeDownload();

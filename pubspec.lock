@@ -50,10 +50,10 @@ packages:
     dependency: "direct main"
     description:
       name: async
-      sha256: d2872f9c19731c2e5f10444b14686eb7cc85c76274bd6c16e1816bff9a3bab63
+      sha256: "758e6d74e971c3e5aceb4110bfd6698efc7f501675bcfe0c775459a8140750eb"
       url: "https://pub.dev"
     source: hosted
-    version: "2.12.0"
+    version: "2.13.0"
   boolean_selector:
     dependency: transitive
     description:
@@ -330,10 +330,10 @@ packages:
     dependency: transitive
     description:
       name: fake_async
-      sha256: "6a95e56b2449df2273fd8c45a662d6947ce1ebb7aafe80e550a3f68297f3cacc"
+      sha256: "5368f224a74523e8d2e7399ea1638b37aecfca824a3cc4dfdf77bf1fa905ac44"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.2"
+    version: "1.3.3"
   ffi:
     dependency: transitive
     description:
@@ -363,7 +363,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "6e1e4d9eefc4a249d987adf778600b4a2ce38116"
+      resolved-ref: "4a7510a8cc183c7a72973f6bc7b1ba8fda3717fb"
       url: "https://github.com/TheAlphamerc/filterlist.git"
     source: git
     version: "1.0.3"
@@ -599,10 +599,10 @@ packages:
     dependency: transitive
     description:
       name: http
-      sha256: fe7ab022b76f3034adc518fb6ea04a82387620e19977665ea18d30a1cf43442f
+      sha256: "2c11f3f94c687ee9bad77c171151672986360b2b001d109814ee7140b2cf261b"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.0"
+    version: "1.4.0"
   http_multi_server:
     dependency: transitive
     description:
@@ -631,10 +631,10 @@ packages:
     dependency: "direct main"
     description:
       name: intl
-      sha256: d6f56758b7d3014a48af9701c085700aac781a92a87a62b1333b46d8879661cf
+      sha256: "3df61194eb431efc39c4ceba583b95633a403f46c9fd341e550ce0bfa50e9aa5"
       url: "https://pub.dev"
     source: hosted
-    version: "0.19.0"
+    version: "0.20.2"
   io:
     dependency: transitive
     description:
@@ -663,10 +663,10 @@ packages:
     dependency: transitive
     description:
       name: leak_tracker
-      sha256: c35baad643ba394b40aac41080300150a4f08fd0fd6a10378f8f7c6bc161acec
+      sha256: "6bb818ecbdffe216e81182c2f0714a2e62b593f4a4f13098713ff1685dfb6ab0"
       url: "https://pub.dev"
     source: hosted
-    version: "10.0.8"
+    version: "10.0.9"
   leak_tracker_flutter_testing:
     dependency: transitive
     description:
@@ -744,7 +744,7 @@ packages:
     description:
       path: media_kit
       ref: main
-      resolved-ref: "660685e6908666b92eb8ff38e03f859aa8ebffdd"
+      resolved-ref: e95d9f7c75f5c456d05370ced9b0a00db9b5a5d8
       url: "https://github.com/jellyflix-app/media-kit.git"
     source: git
     version: "1.2.0"
@@ -753,7 +753,7 @@ packages:
     description:
       path: "libs/android/media_kit_libs_android_video"
       ref: main
-      resolved-ref: "660685e6908666b92eb8ff38e03f859aa8ebffdd"
+      resolved-ref: e95d9f7c75f5c456d05370ced9b0a00db9b5a5d8
       url: "https://github.com/jellyflix-app/media-kit.git"
     source: git
     version: "1.3.7"
@@ -762,7 +762,7 @@ packages:
     description:
       path: "libs/ios/media_kit_libs_ios_video"
       ref: main
-      resolved-ref: "660685e6908666b92eb8ff38e03f859aa8ebffdd"
+      resolved-ref: e95d9f7c75f5c456d05370ced9b0a00db9b5a5d8
       url: "https://github.com/jellyflix-app/media-kit.git"
     source: git
     version: "1.1.4"
@@ -779,7 +779,7 @@ packages:
     description:
       path: "libs/macos/media_kit_libs_macos_video"
       ref: main
-      resolved-ref: "660685e6908666b92eb8ff38e03f859aa8ebffdd"
+      resolved-ref: e95d9f7c75f5c456d05370ced9b0a00db9b5a5d8
       url: "https://github.com/jellyflix-app/media-kit.git"
     source: git
     version: "1.1.4"
@@ -788,7 +788,7 @@ packages:
     description:
       path: "libs/universal/media_kit_libs_video"
       ref: main
-      resolved-ref: "660685e6908666b92eb8ff38e03f859aa8ebffdd"
+      resolved-ref: e95d9f7c75f5c456d05370ced9b0a00db9b5a5d8
       url: "https://github.com/jellyflix-app/media-kit.git"
     source: git
     version: "1.0.6"
@@ -797,7 +797,7 @@ packages:
     description:
       path: "libs/windows/media_kit_libs_windows_video"
       ref: main
-      resolved-ref: "660685e6908666b92eb8ff38e03f859aa8ebffdd"
+      resolved-ref: e95d9f7c75f5c456d05370ced9b0a00db9b5a5d8
       url: "https://github.com/jellyflix-app/media-kit.git"
     source: git
     version: "1.0.11"
@@ -806,7 +806,7 @@ packages:
     description:
       path: media_kit_video
       ref: main
-      resolved-ref: "660685e6908666b92eb8ff38e03f859aa8ebffdd"
+      resolved-ref: e95d9f7c75f5c456d05370ced9b0a00db9b5a5d8
       url: "https://github.com/jellyflix-app/media-kit.git"
     source: git
     version: "1.3.0"
@@ -1142,10 +1142,10 @@ packages:
     dependency: "direct main"
     description:
       name: skeletonizer
-      sha256: ff4c36e826efd5288d7a84e7619a6e9be8185d3064cecf101a9133762f3b401b
+      sha256: a9ddf63900947f4c0648372b6e9987bc2b028db9db843376db6767224d166c31
       url: "https://pub.dev"
     source: hosted
-    version: "0.8.0"
+    version: "2.0.1"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -1428,18 +1428,18 @@ packages:
     dependency: transitive
     description:
       name: vm_service
-      sha256: "0968250880a6c5fe7edc067ed0a13d4bae1577fe2771dcf3010d52c4a9d3ca14"
+      sha256: ddfa8d30d89985b96407efce8acbdd124701f96741f2d981ca860662f1c0dc02
       url: "https://pub.dev"
     source: hosted
-    version: "14.3.1"
+    version: "15.0.0"
   volume_controller:
     dependency: transitive
     description:
       name: volume_controller
-      sha256: e82fd689bb8e1fe8e64be3fa5946ff8699058f8cf9f4c1679acdba20cda7f5bd
+      sha256: d75039e69c0d90e7810bfd47e3eedf29ff8543ea7a10392792e81f9bded7edf5
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.3"
+    version: "3.4.0"
   wakelock_plus:
     dependency: transitive
     description:
@@ -1476,10 +1476,10 @@ packages:
     dependency: transitive
     description:
       name: web_socket
-      sha256: bfe6f435f6ec49cb6c01da1e275ae4228719e59a6b067048c51e72d9d63bcc4b
+      sha256: "34d64019aa8e36bf9842ac014bb5d2f5586ca73df5e4d9bf5c936975cae6982c"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0"
+    version: "1.0.1"
   web_socket_channel:
     dependency: transitive
     description:
@@ -1492,10 +1492,10 @@ packages:
     dependency: transitive
     description:
       name: win32
-      sha256: dc6ecaa00a7c708e5b4d10ee7bec8c270e9276dfcab1783f57e9962d7884305f
+      sha256: "329edf97fdd893e0f1e3b9e88d6a0e627128cc17cc316a8d67fda8f1451178ba"
       url: "https://pub.dev"
     source: hosted
-    version: "5.12.0"
+    version: "5.13.0"
   win32_registry:
     dependency: transitive
     description:
@@ -1530,4 +1530,4 @@ packages:
     version: "3.1.3"
 sdks:
   dart: ">=3.7.0 <4.0.0"
-  flutter: ">=3.27.0"
+  flutter: ">=3.31.0-0.0.pre"

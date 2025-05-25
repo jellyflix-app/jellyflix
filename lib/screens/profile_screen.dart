@@ -10,7 +10,7 @@ import 'package:jellyflix/models/bitrates.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/l10n/generated/app_localizations.dart';
 import 'package:jellyflix/providers/database_provider.dart';
 import 'package:jellyflix/providers/device_info_provider.dart';
 import 'package:jellyflix/providers/download_provider.dart';

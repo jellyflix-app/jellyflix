@@ -13,7 +13,7 @@ import 'package:jellyflix/providers/api_provider.dart';
 import 'package:jellyflix/components/filter_button.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/l10n/generated/app_localizations.dart';
 
 class LibraryScreen extends HookConsumerWidget {
   final String? genreFilterParam;
