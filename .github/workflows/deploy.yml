@@ -565,7 +565,7 @@ jobs:
         id: create_release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: "jellyflix-apk/*.apk,jellyflix-linux-22_04/*,jellyflix-linux-24_04/*,jellyflix-windows/*,jellyflix-macos/*"
+          artifacts: "jellyflix-apk/*.apk,jellyflix-linux-24_04/*,jellyflix-windows/*,jellyflix-macos/*"
           token: ${{ secrets.GITHUB_TOKEN }}
           tag: ${{ steps.version.outputs.content }}
           commit: ${{ github.sha }}
