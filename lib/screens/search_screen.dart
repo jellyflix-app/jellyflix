@@ -65,11 +65,11 @@ class SearchScreen extends HookConsumerWidget {
                                 includeItemTypes: [BaseItemKind.movie],
                               ),
                               onTap: (p0, p1) {
-                                context.push(Uri(
-                                    path: ScreenPaths.detail,
+                                context.pushNamed(
+                                    ScreenPaths.search + ScreenPaths.detail,
                                     queryParameters: {
                                       "id": p1,
-                                    }).toString());
+                                    });
                               },
                             ),
                             FutureItemCarousel(
@@ -83,11 +83,11 @@ class SearchScreen extends HookConsumerWidget {
                                   includeItemTypes: [BaseItemKind.series],
                                 ),
                                 onTap: (p0, p1) {
-                                  context.push(Uri(
-                                      path: ScreenPaths.detail,
+                                  context.pushNamed(
+                                      ScreenPaths.search + ScreenPaths.detail,
                                       queryParameters: {
                                         "id": p1,
-                                      }).toString());
+                                      });
                                 }),
                             FutureItemCarousel(
                                 title: AppLocalizations.of(context)!.episodes,
@@ -100,11 +100,11 @@ class SearchScreen extends HookConsumerWidget {
                                   includeItemTypes: [BaseItemKind.episode],
                                 ),
                                 onTap: (p0, p1) {
-                                  context.push(Uri(
-                                      path: ScreenPaths.detail,
+                                  context.pushNamed(
+                                      ScreenPaths.search + ScreenPaths.detail,
                                       queryParameters: {
                                         "id": p1,
-                                      }).toString());
+                                      });
                                 }),
                             FutureItemCarousel(
                               title: AppLocalizations.of(context)!.collections,
@@ -119,11 +119,11 @@ class SearchScreen extends HookConsumerWidget {
                                 ],
                               ),
                               onTap: (p0, p1) {
-                                context.push(Uri(
-                                    path: ScreenPaths.detail,
+                                context.pushNamed(
+                                    ScreenPaths.search + ScreenPaths.detail,
                                     queryParameters: {
                                       "id": p1,
-                                    }).toString());
+                                    });
                               },
                             ),
                             // FutureItemCarousel(

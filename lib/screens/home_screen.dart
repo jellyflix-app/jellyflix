@@ -50,6 +50,7 @@ class HomeScreen extends HookConsumerWidget {
                   return Skeletonizer(
                     enabled: !snapshot.hasData,
                     child: ImageBanner(
+                      parentPath: ScreenPaths.home,
                       items: items,
                     ),
                   );
@@ -62,9 +63,10 @@ class HomeScreen extends HookConsumerWidget {
               child: FutureItemCarousel(
                 future: ref.read(apiProvider).continueWatchingAndNextUp(),
                 onTap: (index, id) {
-                  context.push(Uri(path: ScreenPaths.detail, queryParameters: {
-                    "id": id,
-                  }).toString());
+                  context.pushNamed(ScreenPaths.home + ScreenPaths.detail,
+                      queryParameters: {
+                        "id": id,
+                      });
                 },
                 imageMapping: (BaseItemDto e) {
                   if (e.type == BaseItemKind.episode &&
@@ -104,9 +106,10 @@ class HomeScreen extends HookConsumerWidget {
                         startIndex: startIndex,
                         limit: limit),
                 onTap: (index, id) {
-                  context.push(Uri(path: ScreenPaths.detail, queryParameters: {
-                    "id": id,
-                  }).toString());
+                  context.pushNamed(ScreenPaths.home + ScreenPaths.detail,
+                      queryParameters: {
+                        "id": id,
+                      });
                 },
                 title: AppLocalizations.of(context)!.recentlyAddedMovies,
                 imageMapping: (e) => e.id!,
@@ -130,9 +133,10 @@ class HomeScreen extends HookConsumerWidget {
                         startIndex: startIndex,
                         limit: limit),
                 onTap: (index, id) {
-                  context.push(Uri(path: ScreenPaths.detail, queryParameters: {
-                    "id": id,
-                  }).toString());
+                  context.pushNamed(ScreenPaths.home + ScreenPaths.detail,
+                      queryParameters: {
+                        "id": id,
+                      });
                 },
                 title: AppLocalizations.of(context)!.recentlyAddedShows,
                 imageMapping: (e) => e.id!,
@@ -160,10 +164,10 @@ class HomeScreen extends HookConsumerWidget {
                       ref.read(apiProvider).getWatchlist(),
                   title: AppLocalizations.of(context)!.yourWatchlist,
                   onTap: (index, id) {
-                    context
-                        .push(Uri(path: ScreenPaths.detail, queryParameters: {
-                      "id": id,
-                    }).toString());
+                    context.pushNamed(ScreenPaths.home + ScreenPaths.detail,
+                        queryParameters: {
+                          "id": id,
+                        });
                   },
                 ),
               ),
@@ -171,9 +175,10 @@ class HomeScreen extends HookConsumerWidget {
               padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: FutureItemCarousel(
                 onTap: (index, id) {
-                  context.push(Uri(path: ScreenPaths.detail, queryParameters: {
-                    "id": id,
-                  }).toString());
+                  context.pushNamed(ScreenPaths.home + ScreenPaths.detail,
+                      queryParameters: {
+                        "id": id,
+                      });
                 },
                 titleMapping: (e) => e.name!,
                 imageMapping: (e) => e.id!,
@@ -213,9 +218,10 @@ class HomeScreen extends HookConsumerWidget {
                 future: (startIndex, limit) =>
                     ref.read(apiProvider).similarItemsByLastWatched(),
                 onTap: (index, id) {
-                  context.push(Uri(path: ScreenPaths.detail, queryParameters: {
-                    "id": id,
-                  }).toString());
+                  context.pushNamed(ScreenPaths.home + ScreenPaths.detail,
+                      queryParameters: {
+                        "id": id,
+                      });
                 },
               ),
             ),
@@ -237,9 +243,10 @@ class HomeScreen extends HookConsumerWidget {
                         startIndex: startIndex,
                         limit: limit),
                 onTap: (index, id) {
-                  context.push(Uri(path: ScreenPaths.detail, queryParameters: {
-                    "id": id,
-                  }).toString());
+                  context.pushNamed(ScreenPaths.home + ScreenPaths.detail,
+                      queryParameters: {
+                        "id": id,
+                      });
                 },
               ),
             ),
@@ -261,9 +268,10 @@ class HomeScreen extends HookConsumerWidget {
                         startIndex: startIndex,
                         limit: limit),
                 onTap: (index, id) {
-                  context.push(Uri(path: ScreenPaths.detail, queryParameters: {
-                    "id": id,
-                  }).toString());
+                  context.pushNamed(ScreenPaths.home + ScreenPaths.detail,
+                      queryParameters: {
+                        "id": id,
+                      });
                 },
               ),
             ),
@@ -286,9 +294,10 @@ class HomeScreen extends HookConsumerWidget {
                         startIndex: startIndex,
                         limit: limit),
                 onTap: (index, id) {
-                  context.push(Uri(path: ScreenPaths.detail, queryParameters: {
-                    "id": id,
-                  }).toString());
+                  context.pushNamed(ScreenPaths.home + ScreenPaths.detail,
+                      queryParameters: {
+                        "id": id,
+                      });
                 },
               ),
             ),
@@ -311,9 +320,10 @@ class HomeScreen extends HookConsumerWidget {
                         startIndex: startIndex,
                         limit: limit),
                 onTap: (index, id) {
-                  context.push(Uri(path: ScreenPaths.detail, queryParameters: {
-                    "id": id,
-                  }).toString());
+                  context.pushNamed(ScreenPaths.home + ScreenPaths.detail,
+                      queryParameters: {
+                        "id": id,
+                      });
                 },
               ),
             ),

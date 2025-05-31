@@ -330,11 +330,12 @@ class LibraryScreen extends HookConsumerWidget {
                                   JfxTile(
                                       id: itemsList[index].id!,
                                       onTap: () {
-                                        context.push(Uri(
-                                            path: ScreenPaths.detail,
+                                        context.pushNamed(
+                                            ScreenPaths.library +
+                                                ScreenPaths.detail,
                                             queryParameters: {
                                               "id": itemsList[index].id!,
-                                            }).toString());
+                                            });
                                       },
                                       blurHash: itemsList[index]
                                           .imageBlurHashes
@@ -400,8 +401,9 @@ class LibraryScreen extends HookConsumerWidget {
                                   if (page > 0)
                                     IconButton(
                                       onPressed: () {
-                                        context.push(Uri(
-                                            path: ScreenPaths.library,
+                                        context.pushNamed(
+                                            ScreenPaths.library +
+                                                ScreenPaths.library,
                                             queryParameters: {
                                               "genreFilter": genreFilter.value
                                                   ?.map((e) => e.id)
@@ -423,7 +425,7 @@ class LibraryScreen extends HookConsumerWidget {
                                               "library": selectedLibrary.value,
                                               "pageNumber":
                                                   (page - 1).toString(),
-                                            }).toString());
+                                            });
                                       },
                                       icon: const Icon(Icons.arrow_back_ios),
                                     ),
@@ -433,8 +435,9 @@ class LibraryScreen extends HookConsumerWidget {
                                   if (itemsList.length == 100)
                                     IconButton(
                                       onPressed: () {
-                                        context.push(Uri(
-                                            path: ScreenPaths.library,
+                                        context.pushNamed(
+                                            ScreenPaths.library +
+                                                ScreenPaths.library,
                                             queryParameters: {
                                               "genreFilter": genreFilter.value
                                                   ?.map((e) => e.id)
@@ -456,7 +459,7 @@ class LibraryScreen extends HookConsumerWidget {
                                               "library": selectedLibrary.value,
                                               "pageNumber":
                                                   (page + 1).toString(),
-                                            }).toString());
+                                            });
                                       },
                                       icon: const Icon(Icons.arrow_forward_ios),
                                     ),

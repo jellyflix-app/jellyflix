@@ -18,10 +18,14 @@ import 'package:universal_io/io.dart';
 
 class EpisodeListTile extends HookConsumerWidget {
   const EpisodeListTile(
-      {super.key, required this.episode, required this.onSelected});
+      {super.key,
+      required this.episode,
+      required this.onSelected,
+      required this.parentPath});
 
   final BaseItemDto episode;
   final Function(String) onSelected;
+  final String parentPath;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -57,12 +61,12 @@ class EpisodeListTile extends HookConsumerWidget {
         var playbackInfo =
             await ref.read(streamPlayerHelperProvider(episode.id!).future);
         if (context.mounted) {
-          context.push(
-              Uri(path: ScreenPaths.player, queryParameters: {
+          context.pushNamed(parentPath + ScreenPaths.player,
+              queryParameters: {
                 "startTimeTicks":
                     episode.userData?.playbackPositionTicks?.toString(),
                 "title": episode.name!
-              }).toString(),
+              },
               extra: playbackInfo);
         }
       },

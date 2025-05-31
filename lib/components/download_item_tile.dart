@@ -16,8 +16,10 @@ import 'package:universal_io/io.dart';
 
 class DownloadItemTile extends HookConsumerWidget {
   final String itemId;
+  final String parentBranch;
 
-  const DownloadItemTile({super.key, required this.itemId});
+  const DownloadItemTile(
+      {super.key, required this.itemId, required this.parentBranch});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -74,11 +76,11 @@ class DownloadItemTile extends HookConsumerWidget {
                   PlayerHelper playerHelper = await ref
                       .read(offlinePlayerHelperProvider(itemId).future);
                   if (context.mounted) {
-                    context.push(
-                        Uri(path: ScreenPaths.player, queryParameters: {
+                    context.pushNamed(parentBranch + ScreenPaths.player,
+                        queryParameters: {
                           "startTimeTicks": "0",
                           "title": metaData.data!.name
-                        }).toString(),
+                        },
                         extra: playerHelper);
                   }
                 }

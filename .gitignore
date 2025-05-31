@@ -49,3 +49,5 @@ app.*.map.json
 
 # ignore generated l10n files
 lib/l10n/generated
+
+/android/app/.cxx

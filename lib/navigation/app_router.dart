@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/models/auth_state.dart';
@@ -36,89 +37,107 @@ class AppRouter {
     debugLogDiagnostics: true,
     initialLocation: ScreenPaths.login,
     routes: [
-      ShellRoute(
-          navigatorKey: shellNavigatorKey,
+      StatefulShellRoute.indexedStack(
+          builder: (context, state, child) => Scaffold(
+                body: child,
+              ),
+          //navigatorKey: shellNavigatorKey,
           pageBuilder: (context, state, child) {
             return NoTransitionPage(
                 child: ResponsiveNavigationBar(
-              body: child,
+              navigationShell: child,
             ));
           },
-          routes: [
-            GoRoute(
-              path: ScreenPaths.home,
-              pageBuilder: (context, state) => buildPageWithDefaultTransition(
-                context: context,
-                state: state,
-                child: const HomeScreen(),
-              ),
-            ),
-            GoRoute(
-              path: ScreenPaths.library,
-              pageBuilder: (context, state) => buildPageWithDefaultTransition(
-                context: context,
-                state: state,
-                child: LibraryScreen(
-                  filterTypeParam: state.uri.queryParameters['filterType'],
-                  genreFilterParam: state.uri.queryParameters['genreFilter'],
-                  pageNumberParam: state.uri.queryParameters['pageNumber'],
-                  sortOrderParam: state.uri.queryParameters['sortOrder'],
-                  sortTypeParam: state.uri.queryParameters['sortType'],
-                  libraryParam: state.uri.queryParameters['library'],
-                ),
-              ),
-            ),
-            GoRoute(
-              path: ScreenPaths.detail,
-              pageBuilder: (context, state) => CupertinoPage(
-                child: DetailScreen(
-                  itemId: state.uri.queryParameters['id']!,
-                ),
-              ),
-            ),
-            GoRoute(
-              path: ScreenPaths.search,
-              pageBuilder: (context, state) => buildPageWithDefaultTransition(
-                context: context,
-                state: state,
-                child: const SearchScreen(),
-              ),
-            ),
-            GoRoute(
-              path: ScreenPaths.profile,
-              pageBuilder: (context, state) => buildPageWithDefaultTransition(
-                context: context,
-                state: state,
-                child: const ProfileScreen(),
-              ),
-            ),
-            GoRoute(
-              path: ScreenPaths.downloads,
-              pageBuilder: (context, state) => buildPageWithDefaultTransition(
-                context: context,
-                state: state,
-                child: const DownloadScreen(),
-              ),
-            ),
-            GoRoute(
-                path: ScreenPaths.loading,
-                pageBuilder: (context, state) => buildPageWithDefaultTransition(
+          branches: [
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: ScreenPaths.home,
+                  pageBuilder: (context, state) =>
+                      buildPageWithDefaultTransition(
                     context: context,
                     state: state,
-                    child: const LoadingScreen())),
+                    child: const HomeScreen(),
+                  ),
+                  routes: [
+                    ...buildSharedRoutes(ScreenPaths.home),
+                  ],
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: ScreenPaths.search,
+                  pageBuilder: (context, state) =>
+                      buildPageWithDefaultTransition(
+                    context: context,
+                    state: state,
+                    child: const SearchScreen(),
+                  ),
+                  routes: [
+                    ...buildSharedRoutes(ScreenPaths.search),
+                  ],
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: ScreenPaths.downloads,
+                  pageBuilder: (context, state) =>
+                      buildPageWithDefaultTransition(
+                    context: context,
+                    state: state,
+                    child: const DownloadScreen(),
+                  ),
+                  routes: [
+                    ...buildSharedRoutes(ScreenPaths.downloads),
+                  ],
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: ScreenPaths.library,
+                  pageBuilder: (context, state) =>
+                      buildPageWithDefaultTransition(
+                    context: context,
+                    state: state,
+                    child: LibraryScreen(
+                      filterTypeParam: state.uri.queryParameters['filterType'],
+                      genreFilterParam:
+                          state.uri.queryParameters['genreFilter'],
+                      pageNumberParam: state.uri.queryParameters['pageNumber'],
+                      sortOrderParam: state.uri.queryParameters['sortOrder'],
+                      sortTypeParam: state.uri.queryParameters['sortType'],
+                      libraryParam: state.uri.queryParameters['library'],
+                    ),
+                  ),
+                  routes: [
+                    ...buildSharedRoutes(ScreenPaths.library),
+                  ],
+                ),
+              ],
+            ),
+            StatefulShellBranch(
+              routes: [
+                GoRoute(
+                  path: ScreenPaths.profile,
+                  pageBuilder: (context, state) =>
+                      buildPageWithDefaultTransition(
+                    context: context,
+                    state: state,
+                    child: const ProfileScreen(),
+                  ),
+                  routes: [
+                    ...buildSharedRoutes(ScreenPaths.profile),
+                  ],
+                ),
+              ],
+            ),
           ]),
-      GoRoute(
-        path: ScreenPaths.player,
-        pageBuilder: (context, state) => buildPageWithDefaultTransition(
-          context: context,
-          state: state,
-          child: PlayerScreen(
-              startTimeTicks:
-                  int.parse(state.uri.queryParameters['startTimeTicks'] ?? "0"),
-              playerHelper: state.extra as PlayerHelper,
-              title: state.uri.queryParameters['title'] ?? ""),
-        ),
-      ),
       GoRoute(
         path: ScreenPaths.login,
         pageBuilder: (context, state) => buildPageWithDefaultTransition(
@@ -150,9 +169,15 @@ class AppRouter {
               serverAddress: state.pathParameters['server']!),
         ),
       ),
+      GoRoute(
+          path: ScreenPaths.loading,
+          pageBuilder: (context, state) => buildPageWithDefaultTransition(
+              context: context, state: state, child: const LoadingScreen())),
     ],
     errorBuilder: (context, state) {
       //TODO Add 404 screen
+      print("Error: ${state.error}");
+      print("Error");
       return const LoadingScreen();
     },
     redirect: (context, state) async {
@@ -237,6 +262,34 @@ class AppRouter {
       transitionsBuilder: (context, animation, secondaryAnimation, child) =>
           FadeTransition(opacity: animation, child: child),
     );
+  }
+
+  List<GoRoute> buildSharedRoutes(String parentPath) {
+    return [
+      GoRoute(
+        name: parentPath + ScreenPaths.detail,
+        path: ScreenPaths.detail,
+        pageBuilder: (context, state) => CupertinoPage(
+          child: DetailScreen(
+            parentPath: parentPath,
+            itemId: state.uri.queryParameters['id']!,
+          ),
+        ),
+      ),
+      GoRoute(
+        name: parentPath + ScreenPaths.player,
+        path: ScreenPaths.player,
+        pageBuilder: (context, state) => buildPageWithDefaultTransition(
+          context: context,
+          state: state,
+          child: PlayerScreen(
+              startTimeTicks:
+                  int.parse(state.uri.queryParameters['startTimeTicks'] ?? "0"),
+              playerHelper: state.extra as PlayerHelper,
+              title: state.uri.queryParameters['title'] ?? ""),
+        ),
+      ),
+    ];
   }
 }
 

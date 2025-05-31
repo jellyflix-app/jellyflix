@@ -16,6 +16,7 @@ class ImageBannerInnerPortrait extends HookConsumerWidget {
   final Function(int) setCurrentPageCallback;
   final int currentPage;
   final bool playButtonPressed;
+  final String parentPath;
 
   const ImageBannerInnerPortrait({
     super.key,
@@ -26,6 +27,7 @@ class ImageBannerInnerPortrait extends HookConsumerWidget {
     required this.setCurrentPageCallback,
     required this.currentPage,
     required this.playButtonPressed,
+    required this.parentPath,
   });
 
   @override
@@ -127,11 +129,11 @@ class ImageBannerInnerPortrait extends HookConsumerWidget {
                             ),
                             TextButton(
                                 onPressed: () {
-                                  context.push(Uri(
-                                      path: ScreenPaths.detail,
+                                  context.pushNamed(
+                                      parentPath + ScreenPaths.detail,
                                       queryParameters: {
                                         "id": items[index].id!,
-                                      }).toString());
+                                      });
                                 },
                                 child: Text(
                                     style: JfxTextTheme.scalingTheme(context)

@@ -15,15 +15,18 @@ class ImageBannerInnerLandscape extends HookConsumerWidget {
   final Function(int) setCurrentPageCallback;
   final int currentPage;
   final bool playButtonPressed;
+  final String parentPath;
 
-  const ImageBannerInnerLandscape(
-      {super.key,
-      required this.items,
-      required this.onPressedPlay,
-      required this.controller,
-      required this.setCurrentPageCallback,
-      required this.currentPage,
-      required this.playButtonPressed});
+  const ImageBannerInnerLandscape({
+    super.key,
+    required this.items,
+    required this.onPressedPlay,
+    required this.controller,
+    required this.setCurrentPageCallback,
+    required this.currentPage,
+    required this.playButtonPressed,
+    required this.parentPath,
+  });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -150,11 +153,11 @@ class ImageBannerInnerLandscape extends HookConsumerWidget {
                             ),
                             TextButton(
                                 onPressed: () {
-                                  context.push(Uri(
-                                      path: ScreenPaths.detail,
+                                  context.pushNamed(
+                                      parentPath + ScreenPaths.detail,
                                       queryParameters: {
                                         "id": items[index].id!,
-                                      }).toString());
+                                      });
                                 },
                                 child: Text(
                                     style: JfxTextTheme.scalingTheme(context)

@@ -51,11 +51,10 @@ class GenreBanner extends HookConsumerWidget {
                         padding: const EdgeInsets.all(8.0),
                         child: InkWell(
                           onTap: () {
-                            context.push(Uri(
-                                path: ScreenPaths.library,
+                            context.pushNamed(ScreenPaths.library,
                                 queryParameters: {
                                   "genreFilter": snapshot.data![index].id,
-                                }).toString());
+                                });
                           },
                           child: Stack(
                             children: [

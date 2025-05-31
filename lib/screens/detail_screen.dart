@@ -25,8 +25,10 @@ import 'package:jellyflix/components/future_item_carousel.dart';
 
 class DetailScreen extends HookConsumerWidget {
   final String itemId;
+  final String parentPath;
 
-  const DetailScreen({super.key, required this.itemId});
+  const DetailScreen(
+      {super.key, required this.itemId, required this.parentPath});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -295,6 +297,7 @@ class DetailScreen extends HookConsumerWidget {
 
                       data.isFolder ?? false
                           ? EpisodeList(
+                              parentPath: parentPath,
                               episodeStreamController: episodeStreamController,
                               data: data,
                               markedAsPlayed: markedAsPlayed,
@@ -316,11 +319,11 @@ class DetailScreen extends HookConsumerWidget {
                                         AppLocalizations.of(context)!.na)
                                     .toList(),
                                 onTap: (index) {
-                                  context.push(Uri(
-                                      path: ScreenPaths.detail,
+                                  context.pushNamed(
+                                      parentPath + ScreenPaths.detail,
                                       queryParameters: {
                                         "id": data.people![index].id!,
-                                      }).toString());
+                                      });
                                 },
                               ),
                             )
@@ -334,10 +337,10 @@ class DetailScreen extends HookConsumerWidget {
                         blurHashMapping: (e) =>
                             e.imageBlurHashes?.primary?[e.id!],
                         onTap: (index, id) {
-                          context.push(
-                              Uri(path: ScreenPaths.detail, queryParameters: {
-                            "id": id,
-                          }).toString());
+                          context.pushNamed(parentPath + ScreenPaths.detail,
+                              queryParameters: {
+                                "id": id,
+                              });
                         },
                       ),
                       const SizedBox(
@@ -403,11 +406,11 @@ class DetailScreen extends HookConsumerWidget {
     var playerHelper =
         await ref.read(streamPlayerHelperProvider(itemId).future);
     if (context.mounted) {
-      context.push(
-          Uri(path: ScreenPaths.player, queryParameters: {
+      context.pushNamed(parentPath + ScreenPaths.player,
+          queryParameters: {
             "startTimeTicks": playbackStartTicks.toString(),
             "title": title
-          }).toString(),
+          },
           extra: playerHelper);
     }
   }

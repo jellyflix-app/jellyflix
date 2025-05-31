@@ -5,14 +5,13 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/jfx_layout.dart';
 import 'package:jellyflix/components/navigation_drawer_tile.dart';
 import 'package:jellyflix/models/auth_state.dart';
-import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/l10n/generated/app_localizations.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
 
 class ResponsiveNavigationBar extends HookConsumerWidget {
-  final Widget body;
+  final StatefulNavigationShell navigationShell;
 
-  const ResponsiveNavigationBar({Key? key, required this.body})
+  const ResponsiveNavigationBar({Key? key, required this.navigationShell})
       : super(key: key);
 
   @override
@@ -64,7 +63,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                           selectedIndex.value = 0;
                         }
                         if (!context.mounted) return;
-                        context.go(ScreenPaths.home);
+                        navigationShell.goBranch(0);
                         break;
                       case 1:
                         bool online = await showOfflineSnackbar(context,
@@ -73,13 +72,12 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                           selectedIndex.value = 1;
                         }
                         if (!context.mounted) return;
-                        context.go(ScreenPaths.search);
+                        navigationShell.goBranch(1);
                         break;
                       case 2:
                         selectedIndex.value = 2;
-
                         if (!context.mounted) return;
-                        context.go(ScreenPaths.downloads);
+                        navigationShell.goBranch(2);
                         break;
                       case 3:
                         bool online = await showOfflineSnackbar(context,
@@ -88,7 +86,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                           selectedIndex.value = 3;
                         }
                         if (!context.mounted) return;
-                        context.go(ScreenPaths.library);
+                        navigationShell.goBranch(3);
                         break;
                     }
                   },
@@ -110,7 +108,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                             onPressed: () async {
                               selectedIndex.value = 4;
                               if (!context.mounted) return;
-                              context.go(ScreenPaths.profile);
+                              navigationShell.goBranch(4);
                             },
                             icon: const Icon(Icons.person_rounded)),
                       ),
@@ -174,7 +172,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                           selectedIndex.value = 0;
                         }
                         if (!context.mounted) return;
-                        context.go(ScreenPaths.home);
+                        navigationShell.goBranch(0);
                       },
                     ),
                     NavigationDrawerTile(
@@ -188,7 +186,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                           selectedIndex.value = 1;
                         }
                         if (!context.mounted) return;
-                        context.go(ScreenPaths.search);
+                        navigationShell.goBranch(1);
                       },
                     ),
                     NavigationDrawerTile(
@@ -198,7 +196,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       onTap: () async {
                         selectedIndex.value = 2;
                         if (!context.mounted) return;
-                        context.go(ScreenPaths.downloads);
+                        navigationShell.goBranch(2);
                       },
                     ),
                     NavigationDrawerTile(
@@ -212,7 +210,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                           selectedIndex.value = 3;
                         }
                         if (!context.mounted) return;
-                        context.go(ScreenPaths.library);
+                        navigationShell.goBranch(3);
                       },
                     ),
                     const Expanded(
@@ -225,7 +223,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       onTap: () async {
                         selectedIndex.value = 4;
                         if (!context.mounted) return;
-                        context.go(ScreenPaths.profile);
+                        navigationShell.goBranch(4);
                       },
                     ),
                   ],
@@ -236,7 +234,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
           // Main content
           // This part is always shown
           // You will see it on both small and wide screen
-          Expanded(child: body),
+          Expanded(child: navigationShell),
         ],
       ),
       bottomNavigationBar: MediaQuery.of(context).size.width < 640
@@ -257,7 +255,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       selectedIndex.value = 0;
                     }
                     if (!context.mounted) return;
-                    context.go(ScreenPaths.home);
+                    navigationShell.goBranch(0);
                     break;
                   case 1:
                     bool online = await showOfflineSnackbar(
@@ -266,11 +264,11 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       selectedIndex.value = 1;
                     }
                     if (!context.mounted) return;
-                    context.go(ScreenPaths.search);
+                    navigationShell.goBranch(1);
                     break;
                   case 2:
                     selectedIndex.value = 2;
-                    context.go(ScreenPaths.downloads);
+                    navigationShell.goBranch(2);
                     break;
                   case 3:
                     bool online = await showOfflineSnackbar(
@@ -279,12 +277,12 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       selectedIndex.value = 3;
                     }
                     if (!context.mounted) return;
-                    context.go(ScreenPaths.library);
+                    navigationShell.goBranch(3);
                     break;
                   case 4:
                     selectedIndex.value = 4;
                     if (!context.mounted) return;
-                    context.go(ScreenPaths.profile);
+                    navigationShell.goBranch(4);
                     break;
                 }
               },

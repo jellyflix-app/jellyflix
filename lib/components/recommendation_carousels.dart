@@ -65,10 +65,10 @@ class RecommendationCarousels extends HookConsumerWidget {
                         .toList(),
                     title: buildTitleString(data[index]),
                     onTap: (carouselIndex) {
-                      context
-                          .push(Uri(path: ScreenPaths.detail, queryParameters: {
-                        "id": data[index].items![carouselIndex].id!,
-                      }).toString());
+                      context.pushNamed(ScreenPaths.home + ScreenPaths.detail,
+                          queryParameters: {
+                            "id": data[index].items![carouselIndex].id!,
+                          });
                     },
                   ),
                 );
