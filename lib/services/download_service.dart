@@ -32,6 +32,7 @@ class DownloadService {
   bool isDownloading = false;
   CancelToken cancelToken = CancelToken();
   List<String> downloadTaskIds = [];
+  int? totalChunks;
 
   factory DownloadService(
     api, {
@@ -141,6 +142,11 @@ class DownloadService {
         subtitleStreamIndex: subtitleStreamIndex);
     logger.verbose("Downloads: PlaybackInfo: $playbackInfo");
 
+    String streamUrl = _api.getStreamUrl(playbackInfo);
+    await writeMetadataToFile(playbackInfo, streamUrl);
+
+    logger.verbose("Downloads: Stream URL: $streamUrl");
+
     MediaStream? subtitle;
     String? subtitlePath;
 
@@ -152,8 +158,8 @@ class DownloadService {
       subtitlePath = await downloadSubtitle(subtitle);
     }
 
-    String streamUrl = _api.getStreamUrl(playbackInfo);
-    await writeMetadataToFile(playbackInfo, streamUrl);
+    logger.verbose("Downloads: Subtitle downloaded to path: $subtitlePath");
+
     if (playbackInfo.mediaSources![0].transcodingUrl == null) {
       await writePlaybackInfoToFile(playbackInfo,
           subtitle: subtitle, subtitlePath: subtitlePath);
@@ -271,7 +277,8 @@ class DownloadService {
       if ((stream.type == MediaStreamType.audio &&
               stream.index! == audioStreamIndex) ||
           (stream.type == MediaStreamType.audio &&
-              stream.deliveryMethod == null) ||
+              stream.deliveryMethod == null &&
+              playbackInfo.mediaSources![0].transcodingUrl == null) ||
           stream.type == MediaStreamType.video ||
           (stream.type == MediaStreamType.subtitle &&
               stream.deliveryMethod == SubtitleDeliveryMethod.embed)) {
@@ -706,15 +713,17 @@ class DownloadService {
         await File(
                 "$downloadDirectory${Platform.pathSeparator}$itemId${Platform.pathSeparator}main.m3u8")
             .exists()) {
-      // read mainm3u file
-      var mainM3U = await File(
-              "$downloadDirectory${Platform.pathSeparator}$itemId${Platform.pathSeparator}main.m3u8")
-          .readAsString();
+      if (totalChunks == null) {
+        // read mainm3u file
+        var mainM3U = await File(
+                "$downloadDirectory${Platform.pathSeparator}$itemId${Platform.pathSeparator}main.m3u8")
+            .readAsString();
 
-      var totalChunks = mainM3U
-          .split("\n")
-          .where((element) => element.startsWith("#EXTINF:"))
-          .length;
+        totalChunks = mainM3U
+            .split("\n")
+            .where((element) => element.startsWith("#EXTINF:"))
+            .length;
+      }
 
       // get all files in folder
       var contents =
@@ -727,7 +736,7 @@ class DownloadService {
       if (totalChunks == 0) {
         return 0;
       } else {
-        int progress = (downloadedChunks / totalChunks * 100).toInt();
+        int progress = (downloadedChunks / totalChunks! * 100).toInt();
         if (progress == 100) {
           await completeDownload();
         }

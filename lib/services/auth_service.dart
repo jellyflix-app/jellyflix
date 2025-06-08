@@ -60,7 +60,9 @@ class AuthService {
           _authStateStream.add(true);
           return true;
         }
-      } catch (_) {}
+      } catch (e) {
+        _logger.error("Auth: Error while checking authentication: $e");
+      }
       _logger.verbose("Auth: Unkown error. User is not authenticated");
       _authStateStream.add(false);
       return false;
