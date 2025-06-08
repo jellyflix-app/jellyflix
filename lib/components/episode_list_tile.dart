@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/l10n/generated/app_localizations.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -9,7 +9,7 @@ import 'package:jellyflix/components/jellyfin_image.dart';
 import 'package:jellyflix/components/playback_progress_overlay.dart';
 import 'package:jellyflix/models/bitrates.dart';
 import 'package:jellyflix/models/screen_paths.dart';
-import 'package:jellyflix/providers/api_provider.dart';
+import 'package:jellyflix/providers/player_helper_provider.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:jellyflix/providers/connectivity_provider.dart';
 import 'package:jellyflix/providers/database_provider.dart';
@@ -18,10 +18,14 @@ import 'package:universal_io/io.dart';
 
 class EpisodeListTile extends HookConsumerWidget {
   const EpisodeListTile(
-      {super.key, required this.episode, required this.onSelected});
+      {super.key,
+      required this.episode,
+      required this.onSelected,
+      required this.parentPath});
 
   final BaseItemDto episode;
   final Function(String) onSelected;
+  final String parentPath;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -54,15 +58,15 @@ class EpisodeListTile extends HookConsumerWidget {
           type: ImageType.primary,
           blurHash: episode.imageBlurHashes?.primary?[episode.id!]),
       onTap: () async {
-        var playbackInfo = await ref
-            .read(apiProvider)
-            .getStreamUrlAndPlaybackInfo(itemId: episode.id!);
+        var playbackInfo =
+            await ref.read(streamPlayerHelperProvider(episode.id!).future);
         if (context.mounted) {
-          context.push(
-              Uri(path: ScreenPaths.player, queryParameters: {
+          context.pushNamed(parentPath + ScreenPaths.player,
+              queryParameters: {
                 "startTimeTicks":
-                    episode.userData?.playbackPositionTicks?.toString()
-              }).toString(),
+                    episode.userData?.playbackPositionTicks?.toString(),
+                "title": episode.name!
+              },
               extra: playbackInfo);
         }
       },
@@ -100,27 +104,37 @@ class EpisodeListTile extends HookConsumerWidget {
                         !(ref.read(connectivityProvider).isConnected)) {
                       return;
                     }
-                    int audioCount = episode.mediaSources![0].mediaStreams!
-                        .where(
-                            (element) => element.type == MediaStreamType.audio)
-                        .length;
-                    int subtitleCount = episode.mediaSources![0].mediaStreams!
-                        .where((element) =>
-                            element.type == MediaStreamType.subtitle)
-                        .length;
 
                     int downloadBitrate = await ref
                             .read(databaseProvider("settings"))
                             .get("downloadBitrate") ??
                         BitRates.defaultBitrate();
 
+                    PlaybackInfoResponse downloadInfo = await ref
+                        .read(downloadProvider(episode.id!))
+                        .getDownloadInfo(downloadBitrate: downloadBitrate);
+
+                    int audioCount = downloadInfo.mediaSources![0].mediaStreams!
+                        .where((element) =>
+                            element.type == MediaStreamType.audio &&
+                            downloadInfo.mediaSources!.first.transcodingUrl !=
+                                null)
+                        .length;
+                    int subtitleCount = downloadInfo
+                        .mediaSources![0].mediaStreams!
+                        .where((element) =>
+                            element.type == MediaStreamType.subtitle &&
+                            element.deliveryMethod ==
+                                SubtitleDeliveryMethod.external_)
+                        .length;
+
                     if (context.mounted &&
-                        (audioCount != 1 || subtitleCount != 0)) {
+                        (audioCount > 1 || subtitleCount > 0)) {
                       var selectedSettings = await showDialog(
                         context: context,
                         builder: (context) {
                           return DownloadSettingsDialog(
-                            item: episode,
+                            downloadInfo: downloadInfo,
                           );
                         },
                       );
@@ -224,7 +238,7 @@ class EpisodeListTile extends HookConsumerWidget {
                   child: Icon(
                     Icons.check_circle_outline_rounded,
                     size: 20,
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                   ),
                 )
               : const SizedBox.shrink(),

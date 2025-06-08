@@ -2,7 +2,7 @@ import 'package:tentacle/tentacle.dart';
 
 class DownloadMetadata {
   final String id;
-  final String name;
+  String name;
   final BaseItemKind type;
   final int runTimeTicks;
   final String? seriesName;

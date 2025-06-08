@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:jellyflix/services/playback_helper_service.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/services/player_helper.dart';
+import 'package:jellyflix/l10n/generated/app_localizations.dart';
+import 'package:tentacle/tentacle.dart';
 
-class PlayerSettingsDialog<T1, T2> extends StatelessWidget {
-  final PlaybackHelperService playbackHelper;
-  final T1 audioTrack;
-  final T2 subtitleTrack;
-  final List<DropdownMenuEntry<T1>> audioEntries;
-  final List<DropdownMenuEntry<T2>> subtitleEntries;
+class PlayerSettingsDialog extends StatelessWidget {
+  final PlayerHelper playbackHelper;
+  final MediaStream audioTrack;
+  final MediaStream subtitleTrack;
   final int maxStreamingBitrate;
   final bool isSubtitleEnabled;
-  final Function(T2?) onSubtitleSelected;
-  final Function(T1?) onAudioSelected;
+  final Function(MediaStream?) onSubtitleSelected;
+  final Function(MediaStream?) onAudioSelected;
   final Function(int?) onBitrateSelected;
+  final bool showBitrate;
 
   const PlayerSettingsDialog({
     super.key,
@@ -24,21 +24,15 @@ class PlayerSettingsDialog<T1, T2> extends StatelessWidget {
     required this.onAudioSelected,
     required this.onBitrateSelected,
     required this.isSubtitleEnabled,
-    required this.audioEntries,
-    required this.subtitleEntries,
+    required this.showBitrate,
   });
 
   @override
   Widget build(BuildContext context) {
-    // List<DropdownMenuEntry<T2>> subtitleMenuEntries =
-    //     subtitleList.map((e) {
-    //   return DropdownMenuEntry(value: , label: e.displayTitle!);
-    // }).toList();
-    // // add "None" to the beginning
-    // subtitleMenuEntries.insert(
-    //     0,
-    //     DropdownMenuEntry(
-    //         value: -1, label: AppLocalizations.of(context)!.none));
+    var subtitle = playbackHelper.subtitles
+        .firstWhere((e) => e.index == subtitleTrack.index);
+    var audio = playbackHelper.audioStreams
+        .firstWhere((e) => e.index == audioTrack.index);
     return SafeArea(
         child: Align(
             alignment: Alignment.bottomRight,
@@ -78,49 +72,61 @@ class PlayerSettingsDialog<T1, T2> extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 20),
-                          Material(
-                            child: DropdownMenu(
+                          if (showBitrate)
+                            Material(
+                              child: DropdownMenu(
+                                  width: 250,
+                                  requestFocusOnTap: false,
+                                  label: Text(
+                                      AppLocalizations.of(context)!.quality),
+                                  leadingIcon:
+                                      const Icon(Icons.videocam_outlined),
+                                  initialSelection: maxStreamingBitrate,
+                                  dropdownMenuEntries: playbackHelper
+                                      .getBitrateMap()
+                                      .entries
+                                      .toList()
+                                      .map((e) {
+                                    return DropdownMenuEntry(
+                                        value: e.key, label: e.value);
+                                  }).toList(),
+                                  onSelected: onBitrateSelected),
+                            ),
+                          if (showBitrate) const SizedBox(height: 10),
+                          if (playbackHelper.audioStreams.length > 1)
+                            Material(
+                              child: DropdownMenu(
                                 width: 250,
                                 requestFocusOnTap: false,
                                 label:
-                                    Text(AppLocalizations.of(context)!.quality),
+                                    Text(AppLocalizations.of(context)!.audio),
                                 leadingIcon:
-                                    const Icon(Icons.videocam_outlined),
-                                initialSelection: maxStreamingBitrate,
-                                dropdownMenuEntries: playbackHelper
-                                    .getBitrateMap()
-                                    .entries
-                                    .toList()
-                                    .map((e) {
-                                  return DropdownMenuEntry(
-                                      value: e.key, label: e.value);
-                                }).toList(),
-                                onSelected: onBitrateSelected),
-                          ),
-                          const SizedBox(height: 10),
-                          Material(
-                            child: DropdownMenu<T1>(
-                              width: 250,
-                              requestFocusOnTap: false,
-                              label: Text(AppLocalizations.of(context)!.audio),
-                              leadingIcon: const Icon(Icons.volume_up_rounded),
-                              initialSelection: audioTrack,
-                              dropdownMenuEntries: audioEntries,
-                              onSelected: onAudioSelected,
+                                    const Icon(Icons.volume_up_rounded),
+                                initialSelection: audio,
+                                dropdownMenuEntries: playbackHelper.audioStreams
+                                    .map((e) => DropdownMenuEntry(
+                                        value: e,
+                                        label: e.displayTitle ?? "Unknown"))
+                                    .toList(),
+                                onSelected: onAudioSelected,
+                              ),
                             ),
-                          ),
                           const SizedBox(height: 10),
-                          if (!playbackHelper.subtitleListIsEmpty())
+                          if (playbackHelper.subtitles.length > 1)
                             Material(
-                              child: DropdownMenu<T2>(
+                              child: DropdownMenu<MediaStream>(
                                   width: 250,
                                   label: Text(
                                       AppLocalizations.of(context)!.subtitles),
                                   requestFocusOnTap: false,
                                   leadingIcon:
                                       const Icon(Icons.videocam_outlined),
-                                  initialSelection: subtitleTrack,
-                                  dropdownMenuEntries: subtitleEntries,
+                                  initialSelection: subtitle,
+                                  dropdownMenuEntries: playbackHelper.subtitles
+                                      .map((e) => DropdownMenuEntry(
+                                          value: e,
+                                          label: e.displayTitle ?? "Unknown"))
+                                      .toList(),
                                   onSelected: onSubtitleSelected),
                             ),
                         ]),

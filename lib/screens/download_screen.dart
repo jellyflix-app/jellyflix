@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/l10n/generated/app_localizations.dart';
 import 'package:jellyflix/components/download_item_tile.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/download_provider.dart';
 
 class DownloadScreen extends HookConsumerWidget {
@@ -38,7 +39,9 @@ class DownloadScreen extends HookConsumerWidget {
             return ListView.builder(
               itemCount: snapshot.data!.length,
               itemBuilder: (context, index) {
-                return DownloadItemTile(itemId: snapshot.data![index]);
+                return DownloadItemTile(
+                    itemId: snapshot.data![index],
+                    parentBranch: ScreenPaths.downloads);
               },
             );
           } else {

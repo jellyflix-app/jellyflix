@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/l10n/generated/app_localizations.dart';
+import 'package:flutter_hooks/flutter_hooks.dart';
+import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/jfx_layout.dart';
+import 'package:markdown/markdown.dart' as markdown;
 
-class DescriptionText extends StatefulWidget {
+class DescriptionText extends HookConsumerWidget {
   final String text;
   final int firstHalfLength;
 
@@ -10,62 +14,37 @@ class DescriptionText extends StatefulWidget {
       {super.key, required this.text, this.firstHalfLength = 200});
 
   @override
-  DescriptionTextState createState() => DescriptionTextState();
-}
-
-class DescriptionTextState extends State<DescriptionText> {
-  late String firstHalf;
-  late String secondHalf;
-
-  bool showMoreState = false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    if (widget.text.length > widget.firstHalfLength) {
-      firstHalf = widget.text.substring(0, widget.firstHalfLength);
-      secondHalf =
-          widget.text.substring(widget.firstHalfLength, widget.text.length);
-    } else {
-      firstHalf = widget.text;
-      secondHalf = "";
-    }
-  }
-
-  @override
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     JfxLayout layout = JfxLayout.scalingLayout(context);
+
+    final showMoreState = useState(false);
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final textSpan = TextSpan(
-          text: widget.text,
+          text: text,
           style: layout.text.bodyLarge,
         );
 
         final textPainter = TextPainter(
           text: textSpan,
-          maxLines: 4, // Set your max lines here
+          maxLines: 4,
           textDirection: TextDirection.ltr,
+          ellipsis: '...',
         );
 
         textPainter.layout(maxWidth: constraints.maxWidth);
 
         final exceeded = textPainter.didExceedMaxLines;
-
+        final firstHalf =
+            '${text.substring(0, textPainter.getPositionForOffset(Offset(constraints.maxWidth, textPainter.height)).offset)}...';
         return Column(
           children: <Widget>[
-            Text(
-              widget.text,
-              style: layout.text.bodyLarge,
-              maxLines: showMoreState ? null : 4,
-              overflow: exceeded
-                  ? showMoreState
-                      ? TextOverflow.visible
-                      : TextOverflow.ellipsis
-                  : null,
+            HtmlWidget(
+              showMoreState.value || !exceeded
+                  ? markdown.markdownToHtml(text)
+                  : markdown.markdownToHtml(firstHalf),
+              textStyle: layout.text.bodyLarge,
             ),
             if (exceeded)
               Row(
@@ -73,12 +52,10 @@ class DescriptionTextState extends State<DescriptionText> {
                 children: <Widget>[
                   InkWell(
                     onTap: () {
-                      setState(() {
-                        showMoreState = !showMoreState;
-                      });
+                      showMoreState.value = !showMoreState.value;
                     },
                     child: Text(
-                      showMoreState
+                      showMoreState.value
                           ? AppLocalizations.of(context)!.showLess
                           : AppLocalizations.of(context)!.showMore,
                       style: layout.text.bodyLarge!.copyWith(

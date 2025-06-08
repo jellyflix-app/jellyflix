@@ -21,7 +21,7 @@ class PlaybackProgressOverlay extends StatelessWidget {
           borderRadius: BorderRadius.circular(100.0),
           minHeight: 5,
           value: progress,
-          backgroundColor: Colors.white.withOpacity(0.5),
+          backgroundColor: Colors.white.withValues(alpha: 0.5),
           color: Theme.of(context).buttonTheme.colorScheme!.onPrimary,
         ));
   }

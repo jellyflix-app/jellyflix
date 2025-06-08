@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/l10n/generated/app_localizations.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/jfx_layout.dart';
 import 'package:jellyflix/components/rounded_download_button.dart';
@@ -63,10 +63,11 @@ class JfxButtonRow extends StatelessWidget {
       Function goToPlayerScreen) {
     JfxLayout layout = JfxLayout.scalingLayout(context);
 
-    Widget buildPlayButton(
-        BuildContext context, WidgetRef ref, data, JfxLayout layout) {
+    Widget buildPlayButton(BuildContext context, WidgetRef ref,
+        BaseItemDto data, JfxLayout layout) {
       return ElevatedButton.icon(
           onPressed: () async {
+            String title;
             String itemId;
             int playbackStartTicks = 0;
             if (data.type == BaseItemKind.series) {
@@ -77,24 +78,29 @@ class JfxButtonRow extends StatelessWidget {
                 itemId = continueWatching.first.id!;
                 playbackStartTicks =
                     continueWatching.first.userData!.playbackPositionTicks!;
+                title = continueWatching.first.episodeTitle!;
               } else {
                 List<BaseItemDto> result = await ref
                     .read(apiProvider)
                     .getNextUpEpisode(seriesId: data.id!);
                 if (result.isNotEmpty) {
                   itemId = result.first.id!;
+                  title = result.first.episodeTitle!;
                 } else {
                   List<BaseItemDto> episodes =
                       await ref.read(apiProvider).getEpisodes(data.id!);
                   itemId = episodes.first.id!;
+                  title = episodes.first.episodeTitle!;
                 }
               }
             } else {
               itemId = data.mediaSources!.first.id!;
               playbackStartTicks = data.userData!.playbackPositionTicks!;
+              title = data.name!;
             }
             if (context.mounted) {
-              await goToPlayerScreen(ref, itemId, playbackStartTicks, context);
+              await goToPlayerScreen(
+                  ref, itemId, playbackStartTicks, context, title);
             }
           },
           icon: const Padding(
@@ -112,6 +118,7 @@ class JfxButtonRow extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: Theme.of(context).colorScheme.primary,
             foregroundColor: Theme.of(context).colorScheme.onPrimary,
+            iconColor: Theme.of(context).colorScheme.onPrimary,
           ));
     }
 
@@ -136,8 +143,8 @@ class JfxButtonRow extends StatelessWidget {
             },
             tooltip: "",
             onSelected: (value) async {
-              await goToPlayerScreen(
-                  ref, value, data.userData!.playbackPositionTicks!, context);
+              await goToPlayerScreen(ref, value,
+                  data.userData!.playbackPositionTicks!, context, data.name!);
             },
             child: MouseRegion(
               onEnter: (event) {
@@ -150,7 +157,10 @@ class JfxButtonRow extends StatelessWidget {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(100.0),
                   color: hovered.value
-                      ? Theme.of(context).colorScheme.primary.withOpacity(0.9)
+                      ? Theme.of(context)
+                          .colorScheme
+                          .primary
+                          .withValues(alpha: 0.9)
                       : Theme.of(context).colorScheme.primary,
                 ),
                 child: Padding(
@@ -186,7 +196,7 @@ class JfxButtonRow extends StatelessWidget {
         width: 40,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(100.0),
-          color: Colors.white.withOpacity(0.1),
+          color: Colors.white.withValues(alpha: 0.1),
         ),
         child: ElevatedButton(
           onPressed: () async {
@@ -292,7 +302,10 @@ class JfxButtonRow extends StatelessWidget {
               width: 40,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(100.0),
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.05),
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.05),
               ),
               child: Icon(
                 Icons.more_horiz_rounded,
@@ -312,14 +325,17 @@ class JfxButtonRow extends StatelessWidget {
             : buildPlayButton(context, ref, data, layout),
         const SizedBox(width: 8.0),
         buildFavoriteButton(context, ref, itemId, layout, onWatchlist),
-        if (data.type != BaseItemKind.series) const SizedBox(width: 8.0),
-        if (data.type != BaseItemKind.series)
+        if (data.type == BaseItemKind.movie ||
+            data.type == BaseItemKind.episode)
+          const SizedBox(width: 8.0),
+        if (data.type == BaseItemKind.movie ||
+            data.type == BaseItemKind.episode)
           Container(
             height: 40,
             width: 40,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(100.0),
-              color: Colors.white.withOpacity(0.1),
+              color: Colors.white.withValues(alpha: 0.1),
             ),
             child: RoundedDownloadButton(itemId: itemId, data: data),
           ),

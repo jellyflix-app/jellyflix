@@ -4,11 +4,14 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:jellyflix/models/playback_info_response_serializer.dart';
+import 'package:jellyflix/services/jfx_logger.dart';
+import 'package:jellyflix/services/player_helper.dart';
 import 'package:universal_io/io.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:async/async.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/l10n/generated/app_localizations.dart';
 
 import 'package:jellyflix/models/download_metadata.dart';
 import 'package:jellyflix/navigation/app_router.dart';
@@ -22,23 +25,28 @@ class DownloadService {
   final ApiService _api;
   late CancelableOperation<void> _download;
   late final String itemId;
-  late ConnectivityService connectivityService;
+  late final ConnectivityService connectivityService;
+  late final JfxLogger logger;
   Dio? _dio;
 
   bool isDownloading = false;
   CancelToken cancelToken = CancelToken();
   List<String> downloadTaskIds = [];
+  int? totalChunks;
 
   factory DownloadService(
     api, {
     required String itemId,
     required ConnectivityService connectivityService,
+    required JfxLogger logger,
   }) {
     if (_instances.containsKey(itemId)) {
       return _instances[itemId]!;
     } else {
       final instance = DownloadService._internal(api,
-          itemId: itemId, connectivityService: connectivityService);
+          itemId: itemId,
+          connectivityService: connectivityService,
+          logger: logger);
       _instances[itemId] = instance;
       return instance;
     }
@@ -48,6 +56,7 @@ class DownloadService {
     this._api, {
     required this.itemId,
     required this.connectivityService,
+    required this.logger,
   }) {
     if (_api.currentUser != null) {
       _dio = Dio(
@@ -88,6 +97,17 @@ class DownloadService {
     return "$downloadDir${Platform.pathSeparator}$itemId${Platform.pathSeparator}main.m3u8";
   }
 
+  Future<PlaybackInfoResponse> getDownloadInfo(
+      {int? audioStreamIndex,
+      int? subtitleStreamIndex,
+      required int downloadBitrate}) async {
+    return (await _api.getPlaybackInfo(
+        itemId: itemId,
+        maxStreamingBitrate: downloadBitrate,
+        audioStreamIndex: audioStreamIndex,
+        subtitleStreamIndex: subtitleStreamIndex));
+  }
+
   void downloadItem(
       {int? audioStreamIndex,
       int? subtitleStreamIndex,
@@ -100,41 +120,94 @@ class DownloadService {
       ),
       onCancel: () {
         isDownloading = false;
+        logger.warning("Downloads: Download canceled");
       },
     )..value.whenComplete(() {}).onError((error, stackTrace) {
         isDownloading = false;
+        logger.error("Downloads: Error downloading item: $itemId: $stackTrace",
+            error: error);
       });
+    logger.verbose("Downloads: Downloading item: $itemId");
   }
 
   Future<void> _downloadItem(
       {int? audioStreamIndex,
       int? subtitleStreamIndex,
       required int downloadBitrate}) async {
-    // create download directory if it doesn't exist
-    var downloadDirectory = await getDownloadDirectory();
-    if (!await Directory(downloadDirectory).exists()) {
-      await Directory(downloadDirectory).create();
-    }
     isDownloading = true;
-    var response = await _api.getStreamUrlAndPlaybackInfo(
+    PlaybackInfoResponse playbackInfo = await _api.getPlaybackInfo(
         itemId: itemId,
         maxStreamingBitrate: downloadBitrate,
         audioStreamIndex: audioStreamIndex,
         subtitleStreamIndex: subtitleStreamIndex);
-    PlaybackInfoResponse playbackInfo = response.$2;
+    logger.verbose("Downloads: PlaybackInfo: $playbackInfo");
 
-    await writeMetadataToFile(playbackInfo, response.$1);
+    String streamUrl = _api.getStreamUrl(playbackInfo);
+    await writeMetadataToFile(playbackInfo, streamUrl);
+
+    logger.verbose("Downloads: Stream URL: $streamUrl");
+
+    MediaStream? subtitle;
+    String? subtitlePath;
+
+    if (subtitleStreamIndex != null && subtitleStreamIndex != -1) {
+      PlayerHelper helper = PlayerHelper(playbackInfo: playbackInfo);
+
+      subtitle = helper.subtitles
+          .firstWhere((element) => element.index == subtitleStreamIndex);
+      subtitlePath = await downloadSubtitle(subtitle);
+    }
+
+    logger.verbose("Downloads: Subtitle downloaded to path: $subtitlePath");
 
     if (playbackInfo.mediaSources![0].transcodingUrl == null) {
-      await downloadDirectStream(response.$1);
+      await writePlaybackInfoToFile(playbackInfo,
+          subtitle: subtitle, subtitlePath: subtitlePath);
+      await downloadDirectStream(streamUrl);
     } else {
+      await writePlaybackInfoToFile(playbackInfo,
+          subtitle: subtitle,
+          subtitlePath: subtitlePath,
+          audioStreamIndex: audioStreamIndex);
       await downloadTranscodedStream(
           playbackInfo.mediaSources![0].transcodingUrl!);
     }
   }
 
+  Future<String> downloadSubtitle(MediaStream subtitle) async {
+    // create download directory if it doesn't exist
+    var downloadDirectory = await getDownloadDirectory();
+    logger.verbose("Downloads: Download directory: $downloadDirectory");
+    if (!await Directory(downloadDirectory).exists()) {
+      await Directory(downloadDirectory).create(recursive: true);
+    }
+
+    if (subtitle.deliveryMethod == SubtitleDeliveryMethod.external_) {
+      logger.verbose("Downloads: Download external subtitle: $subtitle");
+      // download external subtitle
+      var externalSubtitle =
+          await _api.getExternalSubtitle(deliveryUrl: subtitle.deliveryUrl!);
+      String fileName = subtitle.deliveryUrl!.split("?")[0].split("/").last;
+      String downloadPath =
+          "$downloadDirectory${Platform.pathSeparator}$itemId";
+      // create download directory if it doesn't exist
+      if (!await Directory(downloadPath).exists()) {
+        await Directory(downloadPath).create(recursive: true);
+      }
+      await File(downloadPath + Platform.pathSeparator + fileName)
+          .writeAsBytes(externalSubtitle);
+      logger.verbose(
+          "Downloads: External subtitle downloaded: $downloadPath/$fileName");
+      return downloadPath + Platform.pathSeparator + fileName;
+    } else {
+      throw Exception("Subtitle is not external");
+    }
+  }
+
   Future<void> writeMetadataToFile(
-      PlaybackInfoResponse playbackInfo, String streamUrl) async {
+    PlaybackInfoResponse playbackInfo,
+    String streamUrl,
+  ) async {
     var downloadDirectory = await getDownloadDirectory();
     var downloadPath = "$downloadDirectory${Platform.pathSeparator}$itemId";
 
@@ -142,7 +215,7 @@ class DownloadService {
 
     // create download directory if it doesn't exist
     if (!await Directory(downloadPath).exists()) {
-      await Directory(downloadPath).create();
+      await Directory(downloadPath).create(recursive: true);
     }
 
     int? downloadSize;
@@ -186,6 +259,65 @@ class DownloadService {
     }
   }
 
+  Future<void> writePlaybackInfoToFile(PlaybackInfoResponse playbackInfo,
+      {MediaStream? subtitle,
+      String? subtitlePath,
+      int? audioStreamIndex}) async {
+    var downloadDirectory = await getDownloadDirectory();
+    var downloadPath = "$downloadDirectory${Platform.pathSeparator}$itemId";
+
+    // create download directory if it doesn't exist
+    if (!await Directory(downloadPath).exists()) {
+      await Directory(downloadPath).create(recursive: true);
+    }
+
+    List<MediaStream> streamsToKeep = [];
+
+    for (var stream in playbackInfo.mediaSources![0].mediaStreams!) {
+      if ((stream.type == MediaStreamType.audio &&
+              stream.index! == audioStreamIndex) ||
+          (stream.type == MediaStreamType.audio &&
+              stream.deliveryMethod == null &&
+              playbackInfo.mediaSources![0].transcodingUrl == null) ||
+          stream.type == MediaStreamType.video ||
+          (stream.type == MediaStreamType.subtitle &&
+              stream.deliveryMethod == SubtitleDeliveryMethod.embed)) {
+        streamsToKeep.add(stream);
+      }
+    }
+
+    if (subtitle != null && subtitlePath != null) {
+      MediaStream updatedSubtitle =
+          subtitle.rebuild((b) => b..deliveryUrl = subtitlePath);
+      streamsToKeep.add(updatedSubtitle);
+    } else if (subtitle != null || subtitlePath != null) {
+      throw Exception(
+          "Subtitle and subtitlePath must be either both null or both not null");
+    }
+
+    PlaybackInfoResponse updatedInfo = playbackInfo.rebuild((b) {
+      if (b.mediaSources.isNotEmpty) {
+        // Update only the first media source
+        b.mediaSources[0] = b.mediaSources[0].rebuild((ms) {
+          ms.mediaStreams.replace(streamsToKeep);
+        });
+      }
+    });
+
+    // write playback info to file
+    await File("$downloadPath${Platform.pathSeparator}playback_info.json")
+        .writeAsString(PlaybackInfoResponseSerializer.toJson(updatedInfo));
+  }
+
+  Future<PlaybackInfoResponse> getPlaybackInfoFromFile() async {
+    var downloadDirectory = await getDownloadDirectory();
+    var downloadPath = "$downloadDirectory${Platform.pathSeparator}$itemId";
+
+    return PlaybackInfoResponseSerializer.fromJson(
+        await File("$downloadPath${Platform.pathSeparator}playback_info.json")
+            .readAsString());
+  }
+
   Future<String> getMetadataImagePath() async {
     var downloadDirectory = await getDownloadDirectory();
     var downloadPath = "$downloadDirectory${Platform.pathSeparator}$itemId";
@@ -202,11 +334,25 @@ class DownloadService {
       throw Exception("Metadata file not found");
     }
 
+    if (!await File("$downloadPath${Platform.pathSeparator}playback_info.json")
+        .exists()) {
+      throw Exception("Playback info file not found");
+    }
+
     var metadata =
         await File("$downloadPath${Platform.pathSeparator}metadata.json")
             .readAsString();
 
-    return DownloadMetadata.fromJson(json.decode(metadata));
+    var playbackInfo =
+        await File("$downloadPath${Platform.pathSeparator}playback_info.json")
+            .readAsString();
+
+    var bla = PlaybackInfoResponseSerializer.fromJson(playbackInfo);
+    var blub = DownloadMetadata.fromJson(json.decode(metadata));
+
+    blub.name = bla.mediaSources![0].mediaStreams?.length.toString() ?? "Bla";
+
+    return blub;
   }
 
   Future<void> resumeDownload() async {
@@ -218,36 +364,32 @@ class DownloadService {
             "${await getDownloadDirectory()}${Platform.pathSeparator}$itemId${Platform.pathSeparator}main.m3u8")
         .exists();
     if (Platform.isAndroid || Platform.isIOS) {
-      var tasks = await FlutterDownloader.loadTasksWithRawQuery(
-          query:
-              "SELECT * FROM task WHERE saved_dir LIKE '%downloads${Platform.pathSeparator}$itemId%'");
-      if (tasks != null && tasks.isNotEmpty) {
-        isDownloading = true;
-        var failedTasks = tasks
-            .where((element) =>
-                element.status == DownloadTaskStatus.failed ||
-                element.status == DownloadTaskStatus.canceled)
-            .toList();
-        if (failedTasks.isNotEmpty) {
-          for (var task in failedTasks) {
-            await FlutterDownloader.retry(taskId: task.taskId);
-          }
-        }
-      } else {
-        await removeDownload();
-        rootScaffoldMessengerKey.currentState?.showSnackBar(SnackBar(
-            content: Text(AppLocalizations.of(navigatorKey.currentContext!)!
-                .couldNotResumeDownload)));
-      }
+      isDownloading = true;
+      _download = CancelableOperation.fromFuture(
+        _resumeMobileDownload(),
+        onCancel: () {
+          isDownloading = false;
+          logger.warning("Downloads: Download canceled");
+        },
+      )..value.whenComplete(() {}).onError((error, stackTrace) {
+          isDownloading = false;
+          logger.error(
+              "Downloads: Error resuming download: $itemId: $stackTrace",
+              error: error);
+        });
     } else if (masterM3UExists && mainM3UExists) {
       isDownloading = true;
       _download = CancelableOperation.fromFuture(
         _resumeTranscodedDownload(),
         onCancel: () {
           isDownloading = false;
+          logger.warning("Downloads: Download canceled");
         },
       )..value.whenComplete(() {}).onError((error, stackTrace) {
           isDownloading = false;
+          logger.error(
+              "Downloads: Error resuming download: $itemId: $stackTrace",
+              error: error);
         });
     } else if (await File(
             "${await getDownloadDirectory()}${Platform.pathSeparator}$itemId${Platform.pathSeparator}temp_download_data")
@@ -257,9 +399,13 @@ class DownloadService {
         _resumeDirectStreamDownload(),
         onCancel: () {
           isDownloading = false;
+          logger.warning("Downloads: Download canceled");
         },
       )..value.whenComplete(() {}).onError((error, stackTrace) {
           isDownloading = false;
+          logger.error(
+              "Downloads: Error resuming download: $itemId: $stackTrace",
+              error: error);
         });
     } else {
       await removeDownload();
@@ -267,6 +413,62 @@ class DownloadService {
           content: Text(AppLocalizations.of(navigatorKey.currentContext!)!
               .couldNotResumeDownload)));
     }
+  }
+
+  _resumeMobileDownload() async {
+    var tasks = await FlutterDownloader.loadTasksWithRawQuery(
+        query:
+            "SELECT * FROM task WHERE saved_dir LIKE '%downloads${Platform.pathSeparator}$itemId%'");
+    if (tasks != null && tasks.isNotEmpty) {
+      List removeTasks = [];
+      // check if file already exists
+      for (var task in tasks) {
+        if (await File(task.savedDir + Platform.pathSeparator + task.filename!)
+            .exists()) {
+          await FlutterDownloader.remove(taskId: task.taskId);
+          logger.verbose(
+              "Downloads: File already exists, removing task: ${task.taskId} (${task.filename})");
+          // remove task from list
+          removeTasks.add(task);
+        }
+      }
+      for (var task in removeTasks) {
+        tasks.remove(task);
+      }
+    }
+    if (tasks != null && tasks.isNotEmpty) {
+      var failedTasks = tasks
+          .where((element) => element.status != DownloadTaskStatus.complete)
+          .toList();
+      if (failedTasks.isNotEmpty) {
+        for (var task in failedTasks) {
+          logger.verbose(
+              "Downloads: Restarting download for task: ${task.taskId} (${task.filename})");
+          await _enqueueUpdatedDownloadUrl(task);
+          await FlutterDownloader.remove(taskId: task.taskId);
+        }
+      }
+      tasks = await FlutterDownloader.loadTasksWithRawQuery(
+          query:
+              "SELECT * FROM task WHERE saved_dir LIKE '%downloads${Platform.pathSeparator}$itemId%'");
+      logger.verbose("Downloads: Tasks after resuming: ${tasks?.length}");
+    }
+    // tasks can be empty if all tasks were removed and they haven't been reported correctly by FlutterDownloader
+  }
+
+  _enqueueUpdatedDownloadUrl(DownloadTask task) async {
+    // Replace the api_key parameter value in the URL with the current user's token, until the next '&'
+    String newUrl = task.url.replaceFirst(
+      RegExp(r'api_key=[a-zA-Z0-9]+(?=&)'),
+      'api_key=${_api.currentUser!.token}',
+    );
+    await FlutterDownloader.enqueue(
+      url: newUrl,
+      savedDir: task.savedDir,
+      fileName: task.filename,
+      showNotification: false,
+      openFileFromNotification: false,
+    );
   }
 
   _resumeTranscodedDownload() async {
@@ -386,9 +588,11 @@ class DownloadService {
     var downloadDirectory = await getDownloadDirectory();
     var downloadPath = "$downloadDirectory${Platform.pathSeparator}$itemId";
 
+    logger.verbose("Downloads: Download directory: $downloadDirectory");
+
     // create download directory if it doesn't exist
     if (!await Directory(downloadPath).exists()) {
-      await Directory(downloadPath).create();
+      await Directory(downloadPath).create(recursive: true);
     }
     var masterM3U = await _dio!.get(streamUrl, cancelToken: cancelToken);
     await File("$downloadPath${Platform.pathSeparator}master.m3u8")
@@ -452,6 +656,8 @@ class DownloadService {
     var fileExtension =
         streamUrl.split("/").last.split("?").first.split(".").last;
 
+    logger.verbose("Downloads: Download directory: $downloadPath");
+
     if (Platform.isAndroid || Platform.isIOS) {
       await FlutterDownloader.enqueue(
         url: streamUrl,
@@ -507,15 +713,17 @@ class DownloadService {
         await File(
                 "$downloadDirectory${Platform.pathSeparator}$itemId${Platform.pathSeparator}main.m3u8")
             .exists()) {
-      // read mainm3u file
-      var mainM3U = await File(
-              "$downloadDirectory${Platform.pathSeparator}$itemId${Platform.pathSeparator}main.m3u8")
-          .readAsString();
+      if (totalChunks == null) {
+        // read mainm3u file
+        var mainM3U = await File(
+                "$downloadDirectory${Platform.pathSeparator}$itemId${Platform.pathSeparator}main.m3u8")
+            .readAsString();
 
-      var totalChunks = mainM3U
-          .split("\n")
-          .where((element) => element.startsWith("#EXTINF:"))
-          .length;
+        totalChunks = mainM3U
+            .split("\n")
+            .where((element) => element.startsWith("#EXTINF:"))
+            .length;
+      }
 
       // get all files in folder
       var contents =
@@ -528,7 +736,7 @@ class DownloadService {
       if (totalChunks == 0) {
         return 0;
       } else {
-        int progress = (downloadedChunks / totalChunks * 100).toInt();
+        int progress = (downloadedChunks / totalChunks! * 100).toInt();
         if (progress == 100) {
           await completeDownload();
         }
@@ -539,6 +747,7 @@ class DownloadService {
         .exists()) {
       // read metadata file
       DownloadMetadata metadata = await getMetadata();
+      // calculate progress for direct stream downloads
       if (metadata.downloadSize != null &&
           !await File(
                   "$downloadDirectory${Platform.pathSeparator}$itemId${Platform.pathSeparator}main.m3u8")
@@ -553,17 +762,20 @@ class DownloadService {
           var tasks = await FlutterDownloader.loadTasksWithRawQuery(
             query: "SELECT * FROM task WHERE file_name LIKE '$itemId.%'",
           );
-          if (tasks == null || tasks.isEmpty) {
-            contents.where((element) => element.path
-                .split(Platform.pathSeparator)
-                .last
-                .startsWith(itemId));
-            if (contents.isNotEmpty) {
-              return 100;
-            }
-            return null;
-          } else {
+          // it's more reliable to check if the file exists in the download directory than checking the status
+          if (contents
+              .where((element) => element.path
+                  .split(Platform.pathSeparator)
+                  .last
+                  .startsWith(itemId))
+              .isNotEmpty) {
+            await completeDownload();
+            return 100;
+          } else if (tasks != null && tasks.isNotEmpty) {
             tasks.sort((a, b) => a.timeCreated.compareTo(b.timeCreated));
+            if (tasks.last.progress == 100) {
+              await completeDownload();
+            }
             return tasks.last.progress;
           }
         } else {
@@ -612,6 +824,7 @@ class DownloadService {
   }
 
   Future<void> cancelDownload() async {
+    isDownloading = false;
     if (Platform.isAndroid || Platform.isIOS) {
       for (var taskId in downloadTaskIds) {
         await FlutterDownloader.cancel(taskId: taskId);

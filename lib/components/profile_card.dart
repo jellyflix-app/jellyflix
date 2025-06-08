@@ -26,7 +26,7 @@ class ProfileCard extends ConsumerWidget {
       width: 150,
       height: 220,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+        color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
       ),
       child: InkWell(

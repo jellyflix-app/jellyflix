@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/l10n/generated/app_localizations.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/episode_list_tile.dart';
@@ -16,12 +16,14 @@ class EpisodeList extends HookConsumerWidget {
     required this.markedAsPlayed,
     required this.itemId,
     required this.episodeStreamController,
+    required this.parentPath,
   });
 
   final BaseItemDto data;
   final ValueNotifier<bool?> markedAsPlayed;
   final String itemId;
   final StreamController<List<BaseItemDto>> episodeStreamController;
+  final String parentPath;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -94,8 +96,8 @@ class EpisodeList extends HookConsumerWidget {
                     itemCount: episodes.length,
                     itemBuilder: (context, index) {
                       BaseItemDto item = episodes[index];
-
                       return EpisodeListTile(
+                        parentPath: parentPath,
                         episode: item,
                         onSelected: (value) async {
                           if (value == 'mark_as_played') {

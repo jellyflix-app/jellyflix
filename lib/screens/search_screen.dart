@@ -7,7 +7,7 @@ import 'package:jellyflix/components/jfx_text_theme.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:tentacle/tentacle.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/l10n/generated/app_localizations.dart';
 
 class SearchScreen extends HookConsumerWidget {
   const SearchScreen({super.key});
@@ -65,11 +65,11 @@ class SearchScreen extends HookConsumerWidget {
                                 includeItemTypes: [BaseItemKind.movie],
                               ),
                               onTap: (p0, p1) {
-                                context.push(Uri(
-                                    path: ScreenPaths.detail,
+                                context.pushNamed(
+                                    ScreenPaths.search + ScreenPaths.detail,
                                     queryParameters: {
                                       "id": p1,
-                                    }).toString());
+                                    });
                               },
                             ),
                             FutureItemCarousel(
@@ -83,11 +83,11 @@ class SearchScreen extends HookConsumerWidget {
                                   includeItemTypes: [BaseItemKind.series],
                                 ),
                                 onTap: (p0, p1) {
-                                  context.push(Uri(
-                                      path: ScreenPaths.detail,
+                                  context.pushNamed(
+                                      ScreenPaths.search + ScreenPaths.detail,
                                       queryParameters: {
                                         "id": p1,
-                                      }).toString());
+                                      });
                                 }),
                             FutureItemCarousel(
                                 title: AppLocalizations.of(context)!.episodes,
@@ -100,11 +100,11 @@ class SearchScreen extends HookConsumerWidget {
                                   includeItemTypes: [BaseItemKind.episode],
                                 ),
                                 onTap: (p0, p1) {
-                                  context.push(Uri(
-                                      path: ScreenPaths.detail,
+                                  context.pushNamed(
+                                      ScreenPaths.search + ScreenPaths.detail,
                                       queryParameters: {
                                         "id": p1,
-                                      }).toString());
+                                      });
                                 }),
                             FutureItemCarousel(
                               title: AppLocalizations.of(context)!.collections,
@@ -119,11 +119,11 @@ class SearchScreen extends HookConsumerWidget {
                                 ],
                               ),
                               onTap: (p0, p1) {
-                                context.push(Uri(
-                                    path: ScreenPaths.detail,
+                                context.pushNamed(
+                                    ScreenPaths.search + ScreenPaths.detail,
                                     queryParameters: {
                                       "id": p1,
-                                    }).toString());
+                                    });
                               },
                             ),
                             // FutureItemCarousel(

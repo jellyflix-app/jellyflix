@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/l10n/generated/app_localizations.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -51,11 +51,10 @@ class GenreBanner extends HookConsumerWidget {
                         padding: const EdgeInsets.all(8.0),
                         child: InkWell(
                           onTap: () {
-                            context.push(Uri(
-                                path: ScreenPaths.library,
+                            context.pushNamed(ScreenPaths.library,
                                 queryParameters: {
                                   "genreFilter": snapshot.data![index].id,
-                                }).toString());
+                                });
                           },
                           child: Stack(
                             children: [
@@ -107,7 +106,7 @@ class GenreBanner extends HookConsumerWidget {
                               Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10.0),
-                                  color: Colors.black.withOpacity(0.3),
+                                  color: Colors.black.withValues(alpha: 0.3),
                                 ),
                               ),
                               Center(

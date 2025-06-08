@@ -10,10 +10,11 @@ import 'package:jellyflix/models/bitrates.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/l10n/generated/app_localizations.dart';
 import 'package:jellyflix/providers/database_provider.dart';
 import 'package:jellyflix/providers/device_info_provider.dart';
 import 'package:jellyflix/providers/download_provider.dart';
+import 'package:jellyflix/providers/logger_provider.dart';
 
 class ProfileScreen extends HookConsumerWidget {
   const ProfileScreen({super.key});
@@ -34,6 +35,9 @@ class ProfileScreen extends HookConsumerWidget {
         ref.read(databaseProvider("settings")).get("showPrimaryForEpisodes") ??
             false);
 
+    final loggingEnabled = useState(
+        ref.read(databaseProvider("settings")).get("loggingEnabled") ?? false);
+
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -53,7 +57,7 @@ class ProfileScreen extends HookConsumerWidget {
                         color: Theme.of(context)
                             .colorScheme
                             .primary
-                            .withOpacity(0.1),
+                            .withValues(alpha: 0.1),
                       ),
                       child: Column(
                         children: [
@@ -121,7 +125,7 @@ class ProfileScreen extends HookConsumerWidget {
                         color: Theme.of(context)
                             .colorScheme
                             .primary
-                            .withOpacity(0.1),
+                            .withValues(alpha: 0.1),
                       ),
                       child: Column(
                         children: [
@@ -167,7 +171,7 @@ class ProfileScreen extends HookConsumerWidget {
                         color: Theme.of(context)
                             .colorScheme
                             .primary
-                            .withOpacity(0.1),
+                            .withValues(alpha: 0.1),
                       ),
                       child: Column(
                         children: [
@@ -216,7 +220,7 @@ class ProfileScreen extends HookConsumerWidget {
                         color: Theme.of(context)
                             .colorScheme
                             .primary
-                            .withOpacity(0.1),
+                            .withValues(alpha: 0.1),
                       ),
                       child: Column(
                         children: [
@@ -309,19 +313,51 @@ class ProfileScreen extends HookConsumerWidget {
                         color: Theme.of(context)
                             .colorScheme
                             .primary
-                            .withOpacity(0.1),
+                            .withValues(alpha: 0.1),
                       ),
-                      child: ListTile(
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15)),
-                        leading: const Icon(Icons.info_rounded),
-                        title: Text(AppLocalizations.of(context)!.about),
-                        onTap: () async {
-                          ref.read(appVersionProvider).whenData(
-                              (versionNumber) => showLicensePage(
-                                  context: context,
-                                  applicationVersion: versionNumber));
-                        },
+                      child: Column(
+                        children: [
+                          SwitchSettingsTile(
+                            leading: const Icon(Icons.file_open_outlined),
+                            title: Text(
+                                AppLocalizations.of(context)!.enableLogging),
+                            value: loggingEnabled.value,
+                            onChanged: (value) async {
+                              loggingEnabled.value = value;
+                              ref
+                                  .read(databaseProvider("settings"))
+                                  .put("loggingEnabled", value);
+                              if (loggingEnabled.value) {
+                                ref.read(loggerProvider).alwaysLog();
+                              } else {
+                                ref.read(loggerProvider).resetLogger();
+                                await ref.read(loggerProvider).exportLog();
+                                // show snack bar
+                                if (context.mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          AppLocalizations.of(context)!
+                                              .logExported),
+                                    ),
+                                  );
+                                }
+                              }
+                            },
+                          ),
+                          ListTile(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15)),
+                            leading: const Icon(Icons.info_rounded),
+                            title: Text(AppLocalizations.of(context)!.about),
+                            onTap: () async {
+                              ref.read(appVersionProvider).whenData(
+                                  (versionNumber) => showLicensePage(
+                                      context: context,
+                                      applicationVersion: versionNumber));
+                            },
+                          ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 40),
@@ -331,7 +367,7 @@ class ProfileScreen extends HookConsumerWidget {
                         color: Theme.of(context)
                             .colorScheme
                             .primary
-                            .withOpacity(0.1),
+                            .withValues(alpha: 0.1),
                       ),
                       child: ListTile(
                         shape: RoundedRectangleBorder(

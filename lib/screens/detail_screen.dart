@@ -4,9 +4,10 @@ import 'dart:ui';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
+import 'package:jellyflix/providers/player_helper_provider.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/l10n/generated/app_localizations.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'package:jellyflix/components/jellyfin_image.dart';
@@ -24,8 +25,10 @@ import 'package:jellyflix/components/future_item_carousel.dart';
 
 class DetailScreen extends HookConsumerWidget {
   final String itemId;
+  final String parentPath;
 
-  const DetailScreen({super.key, required this.itemId});
+  const DetailScreen(
+      {super.key, required this.itemId, required this.parentPath});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -77,7 +80,7 @@ class DetailScreen extends HookConsumerWidget {
                   filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                   child: AppBar(
                     elevation: 0.0,
-                    backgroundColor: Colors.black.withOpacity(0.2),
+                    backgroundColor: Colors.black.withValues(alpha: 0.2),
                   ),
                 ),
               ),
@@ -294,6 +297,7 @@ class DetailScreen extends HookConsumerWidget {
 
                       data.isFolder ?? false
                           ? EpisodeList(
+                              parentPath: parentPath,
                               episodeStreamController: episodeStreamController,
                               data: data,
                               markedAsPlayed: markedAsPlayed,
@@ -315,11 +319,11 @@ class DetailScreen extends HookConsumerWidget {
                                         AppLocalizations.of(context)!.na)
                                     .toList(),
                                 onTap: (index) {
-                                  context.push(Uri(
-                                      path: ScreenPaths.detail,
+                                  context.pushNamed(
+                                      parentPath + ScreenPaths.detail,
                                       queryParameters: {
                                         "id": data.people![index].id!,
-                                      }).toString());
+                                      });
                                 },
                               ),
                             )
@@ -333,10 +337,10 @@ class DetailScreen extends HookConsumerWidget {
                         blurHashMapping: (e) =>
                             e.imageBlurHashes?.primary?[e.id!],
                         onTap: (index, id) {
-                          context.push(
-                              Uri(path: ScreenPaths.detail, queryParameters: {
-                            "id": id,
-                          }).toString());
+                          context.pushNamed(parentPath + ScreenPaths.detail,
+                              queryParameters: {
+                                "id": id,
+                              });
                         },
                       ),
                       const SizedBox(
@@ -398,15 +402,16 @@ class DetailScreen extends HookConsumerWidget {
   }
 
   Future<void> goToPlayerScreen(WidgetRef ref, String itemId,
-      int playbackStartTicks, BuildContext context) async {
-    var playbackInfo = await ref.read(apiProvider).getStreamUrlAndPlaybackInfo(
-        itemId: itemId, startTimeTicks: playbackStartTicks);
+      int playbackStartTicks, BuildContext context, String title) async {
+    var playerHelper =
+        await ref.read(streamPlayerHelperProvider(itemId).future);
     if (context.mounted) {
-      context.push(
-          Uri(path: ScreenPaths.player, queryParameters: {
-            "startTimeTicks": playbackStartTicks.toString()
-          }).toString(),
-          extra: playbackInfo);
+      context.pushNamed(parentPath + ScreenPaths.player,
+          queryParameters: {
+            "startTimeTicks": playbackStartTicks.toString(),
+            "title": title
+          },
+          extra: playerHelper);
     }
   }
 }

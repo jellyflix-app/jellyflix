@@ -110,6 +110,7 @@ class _ItemCarouselState extends ConsumerState<ItemCarousel> {
                             blurHash: widget.blurHashList == null
                                 ? null
                                 : widget.blurHashList![index],
+                            overlay: widget.overlay?[index],
                             onTap: () {
                               if (widget.onTap != null) {
                                 widget.onTap!(index);

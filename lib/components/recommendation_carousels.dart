@@ -6,7 +6,7 @@ import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/navigation/app_router.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:tentacle/tentacle.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/l10n/generated/app_localizations.dart';
 
 class RecommendationCarousels extends HookConsumerWidget {
   const RecommendationCarousels({
@@ -65,10 +65,10 @@ class RecommendationCarousels extends HookConsumerWidget {
                         .toList(),
                     title: buildTitleString(data[index]),
                     onTap: (carouselIndex) {
-                      context
-                          .push(Uri(path: ScreenPaths.detail, queryParameters: {
-                        "id": data[index].items![carouselIndex].id!,
-                      }).toString());
+                      context.pushNamed(ScreenPaths.home + ScreenPaths.detail,
+                          queryParameters: {
+                            "id": data[index].items![carouselIndex].id!,
+                          });
                     },
                   ),
                 );

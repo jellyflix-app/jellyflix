@@ -5,14 +5,13 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/components/jfx_layout.dart';
 import 'package:jellyflix/components/navigation_drawer_tile.dart';
 import 'package:jellyflix/models/auth_state.dart';
-import 'package:jellyflix/models/screen_paths.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:jellyflix/l10n/generated/app_localizations.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
 
 class ResponsiveNavigationBar extends HookConsumerWidget {
-  final Widget body;
+  final StatefulNavigationShell navigationShell;
 
-  const ResponsiveNavigationBar({Key? key, required this.body})
+  const ResponsiveNavigationBar({Key? key, required this.navigationShell})
       : super(key: key);
 
   @override
@@ -35,7 +34,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                   // add elevation
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 5,
                       spreadRadius: 5,
                     )
@@ -56,41 +55,15 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       selectedIndex.value == 4 ? null : selectedIndex.value,
                   // Called when one tab is selected
                   onDestinationSelected: (int index) async {
-                    switch (index) {
-                      case 0:
-                        bool online = await showOfflineSnackbar(context,
-                            ref.read(authStateProvider.notifier).state);
-                        if (online) {
-                          selectedIndex.value = 0;
-                        }
-                        if (!context.mounted) return;
-                        context.go(ScreenPaths.home);
-                        break;
-                      case 1:
-                        bool online = await showOfflineSnackbar(context,
-                            ref.read(authStateProvider.notifier).state);
-                        if (online) {
-                          selectedIndex.value = 1;
-                        }
-                        if (!context.mounted) return;
-                        context.go(ScreenPaths.search);
-                        break;
-                      case 2:
-                        selectedIndex.value = 2;
-
-                        if (!context.mounted) return;
-                        context.go(ScreenPaths.downloads);
-                        break;
-                      case 3:
-                        bool online = await showOfflineSnackbar(context,
-                            ref.read(authStateProvider.notifier).state);
-                        if (online) {
-                          selectedIndex.value = 3;
-                        }
-                        if (!context.mounted) return;
-                        context.go(ScreenPaths.library);
-                        break;
+                    bool online = await showOfflineSnackbar(
+                        context, ref.read(authStateProvider.notifier).state);
+                    if (online || index == 2) {
+                      selectedIndex.value = index;
                     }
+                    navigationShell.goBranch(
+                      index,
+                      initialLocation: index == navigationShell.currentIndex,
+                    );
                   },
 
                   trailing: Expanded(
@@ -103,14 +76,15 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                               ? Theme.of(context)
                                   .colorScheme
                                   .primary
-                                  .withOpacity(0.3)
+                                  .withValues(alpha: 0.3)
                               : Colors.transparent,
                         ),
                         child: IconButton(
                             onPressed: () async {
                               selectedIndex.value = 4;
-                              if (!context.mounted) return;
-                              context.go(ScreenPaths.profile);
+                              navigationShell.goBranch(4,
+                                  initialLocation:
+                                      navigationShell.currentIndex == 4);
                             },
                             icon: const Icon(Icons.person_rounded)),
                       ),
@@ -146,7 +120,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                   // add elevation
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withValues(alpha: 0.1),
                       blurRadius: 5,
                       spreadRadius: 5,
                     )
@@ -173,8 +147,8 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                         if (online) {
                           selectedIndex.value = 0;
                         }
-                        if (!context.mounted) return;
-                        context.go(ScreenPaths.home);
+                        navigationShell.goBranch(0,
+                            initialLocation: navigationShell.currentIndex == 0);
                       },
                     ),
                     NavigationDrawerTile(
@@ -187,8 +161,8 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                         if (online) {
                           selectedIndex.value = 1;
                         }
-                        if (!context.mounted) return;
-                        context.go(ScreenPaths.search);
+                        navigationShell.goBranch(1,
+                            initialLocation: navigationShell.currentIndex == 1);
                       },
                     ),
                     NavigationDrawerTile(
@@ -197,8 +171,8 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       selected: selectedIndex.value == 2,
                       onTap: () async {
                         selectedIndex.value = 2;
-                        if (!context.mounted) return;
-                        context.go(ScreenPaths.downloads);
+                        navigationShell.goBranch(2,
+                            initialLocation: navigationShell.currentIndex == 2);
                       },
                     ),
                     NavigationDrawerTile(
@@ -211,8 +185,8 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                         if (online) {
                           selectedIndex.value = 3;
                         }
-                        if (!context.mounted) return;
-                        context.go(ScreenPaths.library);
+                        navigationShell.goBranch(3,
+                            initialLocation: navigationShell.currentIndex == 3);
                       },
                     ),
                     const Expanded(
@@ -224,8 +198,8 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
                       selected: selectedIndex.value == 4,
                       onTap: () async {
                         selectedIndex.value = 4;
-                        if (!context.mounted) return;
-                        context.go(ScreenPaths.profile);
+                        navigationShell.goBranch(4,
+                            initialLocation: navigationShell.currentIndex == 4);
                       },
                     ),
                   ],
@@ -236,7 +210,7 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
           // Main content
           // This part is always shown
           // You will see it on both small and wide screen
-          Expanded(child: body),
+          Expanded(child: navigationShell),
         ],
       ),
       bottomNavigationBar: MediaQuery.of(context).size.width < 640
@@ -249,44 +223,15 @@ class ResponsiveNavigationBar extends HookConsumerWidget {
               showUnselectedLabels: false,
               // called when one tab is selected
               onTap: (int index) async {
-                switch (index) {
-                  case 0:
-                    bool online = await showOfflineSnackbar(
-                        context, ref.read(authStateProvider.notifier).state);
-                    if (online) {
-                      selectedIndex.value = 0;
-                    }
-                    if (!context.mounted) return;
-                    context.go(ScreenPaths.home);
-                    break;
-                  case 1:
-                    bool online = await showOfflineSnackbar(
-                        context, ref.read(authStateProvider.notifier).state);
-                    if (online) {
-                      selectedIndex.value = 1;
-                    }
-                    if (!context.mounted) return;
-                    context.go(ScreenPaths.search);
-                    break;
-                  case 2:
-                    selectedIndex.value = 2;
-                    context.go(ScreenPaths.downloads);
-                    break;
-                  case 3:
-                    bool online = await showOfflineSnackbar(
-                        context, ref.read(authStateProvider.notifier).state);
-                    if (online) {
-                      selectedIndex.value = 3;
-                    }
-                    if (!context.mounted) return;
-                    context.go(ScreenPaths.library);
-                    break;
-                  case 4:
-                    selectedIndex.value = 4;
-                    if (!context.mounted) return;
-                    context.go(ScreenPaths.profile);
-                    break;
+                bool online = await showOfflineSnackbar(
+                    context, ref.read(authStateProvider.notifier).state);
+                if (online || index == 2 || index == 4) {
+                  selectedIndex.value = index;
                 }
+                navigationShell.goBranch(
+                  index,
+                  initialLocation: index == navigationShell.currentIndex,
+                );
               },
               // bottom tab items
               items: [

@@ -6,6 +6,7 @@ import 'package:jellyflix/components/image_banner_inner_portrait.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
 import 'package:async/async.dart';
+import 'package:jellyflix/providers/player_helper_provider.dart';
 
 import 'package:tentacle/tentacle.dart';
 
@@ -52,10 +53,12 @@ class ImageBanner extends StatefulHookConsumerWidget {
   final List<BaseItemDto> items;
   final Duration scrollInterval;
   final double? height;
+  final String parentPath;
 
   const ImageBanner(
       {super.key,
       required this.items,
+      required this.parentPath,
       this.height = 500,
       this.scrollInterval = const Duration(seconds: 5)});
   @override
@@ -97,30 +100,35 @@ class ImageBannerState extends ConsumerState<ImageBanner> {
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (context, constraints) {
       return InteractionArea(
-          timerResetCallback: _timer?.reset,
-          setHoveredCallback: (bool value) {
-            setState(() {
-              hovered = value;
-            });
-          },
-          child: MediaQuery.of(context).orientation == Orientation.portrait
-              ? ImageBannerInnerPortrait(
-                  items: widget.items,
-                  height: widget.height,
-                  playButtonPressed: playButtonPressed,
-                  onPressedPlay: onPressedPlay(ref, context),
-                  controller: _controller,
-                  currentPage: _currentPage,
-                  setCurrentPageCallback: (int currentPage) =>
-                      {setState(() => _currentPage = currentPage)})
-              : ImageBannerInnerLandscape(
-                  items: widget.items,
-                  playButtonPressed: playButtonPressed,
-                  onPressedPlay: onPressedPlay(ref, context),
-                  controller: _controller,
-                  currentPage: _currentPage,
-                  setCurrentPageCallback: (int currentPage) =>
-                      {setState(() => _currentPage = currentPage)}));
+        timerResetCallback: _timer?.reset,
+        setHoveredCallback: (bool value) {
+          setState(() {
+            hovered = value;
+          });
+        },
+        child: MediaQuery.of(context).orientation == Orientation.portrait
+            ? ImageBannerInnerPortrait(
+                items: widget.items,
+                height: widget.height,
+                playButtonPressed: playButtonPressed,
+                onPressedPlay: onPressedPlay(ref, context),
+                controller: _controller,
+                currentPage: _currentPage,
+                setCurrentPageCallback: (int currentPage) =>
+                    {setState(() => _currentPage = currentPage)},
+                parentPath: widget.parentPath,
+              )
+            : ImageBannerInnerLandscape(
+                items: widget.items,
+                playButtonPressed: playButtonPressed,
+                onPressedPlay: onPressedPlay(ref, context),
+                controller: _controller,
+                currentPage: _currentPage,
+                setCurrentPageCallback: (int currentPage) =>
+                    {setState(() => _currentPage = currentPage)},
+                parentPath: widget.parentPath,
+              ),
+      );
     });
   }
 
@@ -153,16 +161,15 @@ class ImageBannerState extends ConsumerState<ImageBanner> {
       if (itemId == null) {
         return;
       }
-      ref
-          .read(apiProvider)
-          .getStreamUrlAndPlaybackInfo(itemId: itemId)
-          .then((playbackInfo) {
+      ref.read(streamPlayerHelperProvider(itemId).future).then((playerHelper) {
         if (context.mounted) {
-          context.push(
-            Uri(path: ScreenPaths.player, queryParameters: {
-              "startTimeTicks": playbackStartTicks.toString()
-            }).toString(),
-            extra: playbackInfo,
+          context.pushNamed(
+            widget.parentPath + ScreenPaths.player,
+            queryParameters: {
+              "startTimeTicks": playbackStartTicks.toString(),
+              "title": item.name
+            },
+            extra: playerHelper,
           );
           Future.delayed(const Duration(seconds: 1), () {
             setState(() {
