@@ -7,7 +7,7 @@
         android:label="Jellyflix"
         android:name="${applicationName}"
         android:banner="@drawable/banner"
-        android:icon="@mipmap/launcher_icon"
+        android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
