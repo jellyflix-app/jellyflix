@@ -182,7 +182,7 @@ class AppRouter {
     },
     redirect: (context, state) async {
       final isGoingToOfflinePlayer =
-          state.matchedLocation == ScreenPaths.player;
+          state.matchedLocation == '${ScreenPaths.downloads}/${ScreenPaths.player}';
       final isGoingToDownloads = state.matchedLocation == ScreenPaths.downloads;
       final isGoingToLogin = state.matchedLocation == ScreenPaths.login;
       final isGoingToProfile = state.matchedLocation == ScreenPaths.profile;
