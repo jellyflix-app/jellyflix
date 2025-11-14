@@ -1,183 +1,324 @@
 {
     "@@locale": "tr",
-
     "continueWatching": "İzlemeye devam et",
+    "@continueWatching": {},
     "recentlyAddedMovies": "Son eklenen filmler",
+    "@recentlyAddedMovies": {},
     "recentlyAddedShows": "Son eklenen diziler",
+    "@recentlyAddedShows": {},
     "yourWatchlist": "İzleme listem",
+    "@yourWatchlist": {},
     "similarToWatchHistory": "İzlediklerize benzer",
+    "@similarToWatchHistory": {},
     "becauseYouWatched": "{title} adlı yapımı izlediğiniz için",
-    "@becausYouWatched": {
-        "placeholders": {
-          "title": {
-            "type": "String",
-            "example": "Forrest Gump"
-          }
-        }
-      },
+    "@becauseYouWatched": {},
     "becauseYouLiked": "{title} adlı yapımı beğendiğiniz için",
     "@becauseYouLiked": {
         "placeholders": {
-          "title": {
-            "type": "String",
-            "example": "Forrest Gump"
-          }
+            "title": {
+                "type": "String",
+                "example": "Forrest Gump"
+            }
         }
-      },
+    },
     "directedBy": "Yönetmen {director}",
     "@directedBy": {
         "placeholders": {
-          "director": {
-            "type": "String",
-            "example": "Robert Zemeckis"
-          }
+            "director": {
+                "type": "String",
+                "example": "Robert Zemeckis"
+            }
         }
-      },
+    },
     "starring": "Başrolde {actor}",
     "@starring": {
         "placeholders": {
-          "actor": {
-            "type": "String",
-            "example": "Tom Hanks"
-          }
+            "actor": {
+                "type": "String",
+                "example": "Tom Hanks"
+            }
         }
-      },
+    },
     "recommendedForYou": "Sizin için tavsiye edilenler",
+    "@recommendedForYou": {},
     "play": "Oynat",
-    "moreInfo": "Detaylar",
+    "@play": {},
+    "moreInfo": "Daha fazla bilgi",
+    "@moreInfo": {},
     "search": "Arama yap",
+    "@search": {},
     "startTypingSearch": "Arama yapmak için yazmaya başlayın",
+    "@startTypingSearch": {},
     "genre": "Tür",
+    "@genre": {},
     "all": "Hepsi",
+    "@all": {},
     "filter": "Filtreler",
+    "@filter": {},
     "none": "Yok",
+    "@none": {},
     "order": "Sıralama",
+    "@order": {},
     "ascending": "Yükselen",
+    "@ascending": {},
     "descending": "Azalan",
+    "@descending": {},
     "sort": "Sırala",
+    "@sort": {},
     "premiereDate": "Çıkış Tarihi",
+    "@premiereDate": {},
     "random": "Rastgele",
+    "@random": {},
     "unplayed": "İzlenmedi",
+    "@unplayed": {},
     "played": "İzlendi",
+    "@played": {},
     "favorites": "Favoriler",
+    "@favorites": {},
     "liked": "Beğenildi",
+    "@liked": {},
     "changeProfile": "Profili değiştir",
+    "@changeProfile": {},
     "logout": "Çıkış yap",
+    "@logout": {},
     "about": "Hakkında",
+    "@about": {},
     "scanLibrary": "Kütüphaneyi tara",
+    "@scanLibrary": {},
     "scanStarted": "Tarama başladı",
+    "@scanStarted": {},
     "quickConnect": "Hızlı bağlan",
+    "@quickConnect": {},
     "quickConnectDescription": "Cihazınızda gösterilen kodu girin",
+    "@quickConnectDescription": {},
     "quickConnectError401": "Doğru sunucuya mı bağlanıyorsunuz?",
+    "@quickConnectError401": {},
     "quickConnectError404": "Geçersiz kod",
+    "@quickConnectError404": {},
     "quickConnectErrorUnknown": "Bir şeyler ters gitti",
+    "@quickConnectErrorUnknown": {},
     "connect": "Bağlan",
+    "@connect": {},
     "code": "Kod",
+    "@code": {},
     "writers": "Yazarlar",
+    "@writers": {},
     "directors": "Yönetmenler",
+    "@directors": {},
     "genres": "Türler",
+    "@genres": {},
     "cast": "Ekip",
+    "@cast": {},
     "episodes": "Bölümler",
+    "@episodes": {},
     "season": "Sezon",
+    "@season": {},
     "na": "N/A",
+    "@na": {},
     "addedToWatchlist": "İzleme listeme eklendi",
+    "@addedToWatchlist": {},
     "removedFromWatchlist": "İzleme listemden silindi",
-    "noItemsFound": "Hiçbir eşleşme bulunamadı bulunamadı",
+    "@removedFromWatchlist": {},
+    "noItemsFound": "Hiçbir eşleşme bulunamadı",
+    "@noItemsFound": {},
     "noResultsFound": "Hiçbir sonuç bulunamadı",
+    "@noResultsFound": {},
     "movies": "Filmler",
+    "@movies": {},
     "series": "Diziler",
+    "@series": {},
     "collections": "Koleksiyonlar",
+    "@collections": {},
     "addProfile": "Profil ekle",
+    "@addProfile": {},
     "appSubtitle": "Bir başka Jellyfin istemcisi",
+    "@appSubtitle": {},
     "serverAddress": "Sunucu adresi",
+    "@serverAddress": {},
     "login": "Giriş yap",
+    "@login": {},
     "username": "Kullanıcı adı",
+    "@username": {},
     "password": "Şifre",
-    "webDemoNote": "Bu Jellyflix'in demo sürümüdür. Kullanmak için aşağıdaki kimlik bilgilerini kullanabilirsiniz: \n\nSunucu Adresi: https://demo.jellyfin.org/stable \nKullanıcı Adı: demo \nboş şifre \n\n",
+    "@password": {},
+    "webDemoNote": "Bu Jellyflix'in demo sürümüdür. Kullanmak için aşağıdaki kimlik bilgilerini kullanabilirsiniz: \n\nSunucu Adresi: https://demo.jellyfin.org/stable \nKullanıcı Adı: demo \nŞifre alanını boş bırakınız. \n\n",
+    "@webDemoNote": {},
     "quality": "Kalite",
+    "@quality": {},
     "audio": "Ses",
+    "@audio": {},
     "subtitles": "Alt yazı",
+    "@subtitles": {},
     "settings": "Ayarlar",
+    "@settings": {},
     "home": "Ana ekran",
+    "@home": {},
     "library": "Kütüphane",
+    "@library": {},
     "profile": "Hesabım",
+    "@profile": {},
     "markAsPlayed": "İzlendi işaretle",
+    "@markAsPlayed": {},
     "markAsUnplayed": "İzlenmedi işaretle",
+    "@markAsUnplayed": {},
     "couldNotOpenTrailer": "Fragman açılamadı",
+    "@couldNotOpenTrailer": {},
     "watchTrailer": "Fragmanı izle",
+    "@watchTrailer": {},
     "showsMaybeMissed": "Kaçırmış olabileceğiniz diziler",
+    "@showsMaybeMissed": {},
     "moviesMaybeMissed": "Kaçırmış olabileceğiniz filmler",
+    "@moviesMaybeMissed": {},
     "highesRatedMovies": "En Yüksek Puanlı Filmler",
+    "@highesRatedMovies": {},
     "highestRatedShows": "En Yüksek Puanlı Programlar",
+    "@highestRatedShows": {},
     "top10": "En iyi {count}",
     "@top10": {
         "placeholders": {
-          "count": {
-            "type": "int",
-            "example": "10"
-          }
+            "count": {
+                "type": "int",
+                "example": "10"
+            }
         }
-      },
-    "minutes": "{count} dakika",  
+    },
+    "minutes": "{count} dakika",
     "@minutes": {
         "placeholders": {
             "count": {
-              "type": "int",
-              "example": "50"
+                "type": "int",
+                "example": "50"
             }
-          }
+        }
     },
     "similar": "Benzer",
+    "@similar": {},
     "downloads": "İndirilenler",
+    "@downloads": {},
     "download": "İndir",
+    "@download": {},
     "noDownloads": "Herhangi bir indirme bulunamadı",
+    "@noDownloads": {},
     "resumeDownload": "İndirmeye devam et",
+    "@resumeDownload": {},
     "deleteDownload": "İndirmeyi Sil",
+    "@deleteDownload": {},
     "removedDownload": "İndirme kaldırıldı",
-    "startedDownload": "İndirme devam ettirildi",
+    "@removedDownload": {},
+    "startedDownload": "İndirme başlatıldı",
+    "@startedDownload": {},
     "cancelDownload": "İndirmekten vazgeç",
+    "@cancelDownload": {},
     "cancelAndRemoveAllDownloads": "Vazgeç ve hepsini kaldır",
+    "@cancelAndRemoveAllDownloads": {},
     "downloaded": "İndirildi",
+    "@downloaded": {},
     "couldNotResumeDownload": "İndirmeye devam edilemiyor!",
+    "@couldNotResumeDownload": {},
     "allDownloadsRemoved": "Bütün indirmeler kaldırıldı",
+    "@allDownloadsRemoved": {},
     "cancel": "Vazgeç",
+    "@cancel": {},
     "save": "Kaydet",
+    "@save": {},
     "setAudioAndSubtitleLanguage": "Ses ve altyazı dilini ayarla",
-    "setLocalDownloadBitrate": "Ses ve altyazı dilini ayarla",
+    "@setAudioAndSubtitleLanguage": {},
+    "setLocalDownloadBitrate": "Yerel ağdaki indirme hızını ayarla",
+    "@setLocalDownloadBitrate": {},
     "maxDownloadBitrateText": "Yerel indirmeler için maksimum bit hızını ayarla.",
+    "@maxDownloadBitrateText": {},
     "downloadApproxFilesize": "1 saatlik oynatma yaklaşık {size}GB'a eşittir",
     "@downloadApproxFilesize": {
         "placeholders": {
-          "size": {
-            "type": "String",
-            "example": "1.5"
-          }
+            "size": {
+                "type": "String",
+                "example": "1.5"
+            }
         }
-      },
+    },
     "resumedDownload": "İndirme devam ettirildi",
+    "@resumedDownload": {},
     "canceledDownload": "İndirmeden vazgeçildi",
+    "@canceledDownload": {},
     "details": "Detaylar",
+    "@details": {},
     "showMore": "Daha fazla",
+    "@showMore": {},
     "showLess": "Daha az göster",
-    "offlineNotice": "Çevrimdışısınız.",
+    "@showLess": {},
+    "offlineNotice": "Çevrimdışısınız",
+    "@offlineNotice": {},
     "disableImageCaching": "Görsel önbelleğini kapat",
+    "@disableImageCaching": {},
     "restartApp": "Uygulamayı yeniden başlat",
+    "@restartApp": {},
     "restartAppDescription": "Değişikliklerin etkili olması için lütfen uygulamayı yeniden başlatın.",
+    "@restartAppDescription": {},
     "ok": "Tamam",
+    "@ok": {},
     "selectProfile": "Profil seçin",
+    "@selectProfile": {},
     "ends": "Bitiş saati {date}",
     "@ends": {
         "placeholders": {
-          "date": {
-            "type": "String",
-            "example": "21:30"
-          }
+            "date": {
+                "type": "String",
+                "example": "21:30"
+            }
         }
-      },
+    },
     "disableWatchlist": "İzleme Listesini Devre Dışı Bırak",
+    "@disableWatchlist": {},
     "deletePlaylistNotice": "Veri kaybını önlemek için, artık gerekmiyorsa lütfen çalma listesini sunucudan silin.",
+    "@deletePlaylistNotice": {},
     "info": "Bilgi",
+    "@info": {},
     "showPrimaryForEpisodes": "İzlemeye Devam Et'te dizi posteri yerine birincil görüntüyü göster",
-    "appName": "Jellyflix"
-    
+    "@showPrimaryForEpisodes": {},
+    "appName": "Jellyflix",
+    "@appName": {},
+    "top10inYourLibrary": "Kütüphanendeki en iyi 10",
+    "@top10inYourLibrary": {},
+    "name": "İsim",
+    "@name": {},
+    "useQuickConnect": "Giriş yapmak için Hızlı Bağlan kullan",
+    "@useQuickConnect": {},
+    "loginWithPassword": "Şifre",
+    "@loginWithPassword": {},
+    "loginWithQuickConnect": "Hızlı Bağlan",
+    "@loginWithQuickConnect": {},
+    "emptyAddress": "Sunucu adresi boş",
+    "@emptyAddress": {},
+    "emptyUsername": "Kullanıcı Adı alanı boş",
+    "@emptyUsername": {},
+    "emptyPassword": "Şifre alanı boş",
+    "@emptyPassword": {},
+    "errorConnectingToServer": "Sunucuya bağlanmada hata oluştu",
+    "@errorConnectingToServer": {},
+    "storagePermission": "Depolama izni reddedildi",
+    "@storagePermission": {},
+    "audioPermission": "Ses izni reddedildi",
+    "@audioPermission": {},
+    "videoPermission": "Video izni reddedildi",
+    "@videoPermission": {},
+    "errorMessage400": "Sunucu isteği işleyemedi, eğer proxy kullanıyorsanız yapılandırmasını kontrol ediniz.",
+    "@errorMessage400": {},
+    "errorMessage401": "Kullanıcı adı veya şifre yanlış.",
+    "@errorMessage401": {},
+    "errorMessage403": "Bu sunucu cihazınızdan gelen istekleri reddetti. Bu muhtemelen cihazınız engellendiği anlamına geliyor. Lütfen yöneticiniz ile görüşün.",
+    "@errorMessage403": {},
+    "errorMessageUnknown": "Bilinmeyen bir hata gerçekleşti.",
+    "@errorMessageUnknown": {},
+    "selectedItems": "Seçili öğeler",
+    "@selectedItems": {},
+    "reset": "Reset",
+    "@reset": {},
+    "apply": "Uygula",
+    "@apply": {},
+    "enableLogging": "Günlüğü etkinleştir",
+    "@enableLogging": {},
+    "logExported": "Günlük indirilenlere kaydedildi",
+    "@logExported": {},
+    "emptyFields": "Lütfen aşağıdaki alanları doldurun",
+    "@emptyFields": {}
 }
