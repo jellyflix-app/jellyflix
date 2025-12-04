@@ -320,5 +320,17 @@
   "enableLogging": "Activer la journalisation",
   "@enableLogging": {},
   "logExported": "Journaux exportés vers les téléchargements",
-  "@logExported": {}
+  "@logExported": {},
+  "customMpvConfig": "Configuration MPV personnalisée",
+  "@customMpvConfig": {},
+  "customMpvConfigDescription": "Configurer les options personnalisées du lecteur MPV. Une option par ligne au format: option=valeur",
+  "@customMpvConfigDescription": {},
+  "resetToDefault": "Réinitialiser par défaut",
+  "@resetToDefault": {},
+  "mpvConfigTitle": "Configuration MPV",
+  "@mpvConfigTitle": {},
+  "mpvConfigResetConfirm": "Réinitialiser la configuration MPV par défaut?",
+  "@mpvConfigResetConfirm": {},
+  "mpvConfigResetDescription": "Cela restaurera les paramètres de configuration MPV par défaut.",
+  "@mpvConfigResetDescription": {}
 }

@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/providers/logger_provider.dart';
 import 'package:jellyflix/services/player_helper.dart';
 import 'package:tentacle/tentacle.dart';
 import 'package:jellyflix/l10n/generated/app_localizations.dart';
 
 class DownloadSettingsDialog extends HookConsumerWidget {
   final PlaybackInfoResponse downloadInfo;
-  final PlayerHelper playerHelper;
 
-  DownloadSettingsDialog({super.key, required this.downloadInfo})
-      : playerHelper = PlayerHelper(playbackInfo: downloadInfo);
+  const DownloadSettingsDialog({super.key, required this.downloadInfo});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final logger = ref.read(loggerProvider);
+    final playerHelper =
+        PlayerHelper(playbackInfo: downloadInfo, logger: logger);
     MediaStream selectedAudio = playerHelper.getDefaultAudio();
     MediaStream selectedSubtitle = playerHelper.getDefaultSubtitle();
     if (selectedSubtitle.deliveryMethod == SubtitleDeliveryMethod.embed) {

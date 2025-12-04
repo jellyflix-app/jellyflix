@@ -320,5 +320,17 @@
   "enableLogging": "Protokollierung aktivieren",
   "@enableLogging": {},
   "logExported": "Protokoll in die Downloads exportiert",
-  "@logExported": {}
+  "@logExported": {},
+  "customMpvConfig": "Benutzerdefinierte MPV-Konfiguration",
+  "@customMpvConfig": {},
+  "customMpvConfigDescription": "Benutzerdefinierte MPV-Player-Optionen konfigurieren. Eine Option pro Zeile im Format: option=wert",
+  "@customMpvConfigDescription": {},
+  "resetToDefault": "Auf Standard zurücksetzen",
+  "@resetToDefault": {},
+  "mpvConfigTitle": "MPV-Konfiguration",
+  "@mpvConfigTitle": {},
+  "mpvConfigResetConfirm": "MPV-Konfiguration auf Standard zurücksetzen?",
+  "@mpvConfigResetConfirm": {},
+  "mpvConfigResetDescription": "Dies wird die Standard-MPV-Konfigurationseinstellungen wiederherstellen.",
+  "@mpvConfigResetDescription": {}
 }

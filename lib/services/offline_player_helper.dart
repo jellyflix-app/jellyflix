@@ -9,8 +9,13 @@ class OfflinePlayerHelper extends PlayerHelper {
   late int bitrate;
   late final DownloadMetadata downloadMetadata;
 
-  OfflinePlayerHelper({required playbackInfo, required this.downloadMetadata})
-      : super(playbackInfo: playbackInfo) {
+  OfflinePlayerHelper(
+      {required playbackInfo,
+      required this.downloadMetadata,
+      required logger,
+      String? mpvConfig})
+      : super(
+            playbackInfo: playbackInfo, logger: logger, mpvConfig: mpvConfig) {
     audioStream = getDefaultAudio();
     subtitle = getDefaultSubtitle();
     isSubtitleEnabled = subtitle.index != -1;

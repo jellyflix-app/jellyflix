@@ -314,5 +314,17 @@
   "errorMessage403": "El servidor está bloqueando las peticiones desde este dispositivo. Esto probablemente signifique que el dispositivo ha sido restringido. Por favor contacta a tu administrador para resolver este problema.",
   "@errorMessage403": {},
   "errorMessageUnknown": "A ocurrido un error desconocido.",
-  "@errorMessageUnknown": {}
+  "@errorMessageUnknown": {},
+  "customMpvConfig": "Configuración MPV personalizada",
+  "@customMpvConfig": {},
+  "customMpvConfigDescription": "Configurar opciones personalizadas del reproductor MPV. Una opción por línea en formato: opción=valor",
+  "@customMpvConfigDescription": {},
+  "resetToDefault": "Restablecer valores predeterminados",
+  "@resetToDefault": {},
+  "mpvConfigTitle": "Configuración MPV",
+  "@mpvConfigTitle": {},
+  "mpvConfigResetConfirm": "¿Restablecer la configuración MPV a los valores predeterminados?",
+  "@mpvConfigResetConfirm": {},
+  "mpvConfigResetDescription": "Esto restaurará la configuración MPV a los valores predeterminados.",
+  "@mpvConfigResetDescription": {}
 }

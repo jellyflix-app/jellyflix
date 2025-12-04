@@ -199,5 +199,11 @@
     "apply": "Apply",
     "enableLogging": "Enable Logging",
     "logExported": "Log exported to downloads",
-    "appName": "Jellyflix"
+    "appName": "Jellyflix",
+    "customMpvConfig": "Custom MPV Config",
+    "customMpvConfigDescription": "Configure custom MPV player options. One option per line in the format: option=value",
+    "resetToDefault": "Reset to Default",
+    "mpvConfigTitle": "MPV Configuration",
+    "mpvConfigResetConfirm": "Reset MPV configuration to default?",
+    "mpvConfigResetDescription": "This will restore the default MPV configuration settings."
 }

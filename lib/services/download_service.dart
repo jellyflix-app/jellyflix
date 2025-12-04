@@ -151,7 +151,8 @@ class DownloadService {
     String? subtitlePath;
 
     if (subtitleStreamIndex != null && subtitleStreamIndex != -1) {
-      PlayerHelper helper = PlayerHelper(playbackInfo: playbackInfo);
+      PlayerHelper helper =
+          PlayerHelper(playbackInfo: playbackInfo, logger: logger);
 
       subtitle = helper.subtitles
           .firstWhere((element) => element.index == subtitleStreamIndex);

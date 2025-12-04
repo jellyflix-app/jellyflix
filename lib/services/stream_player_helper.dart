@@ -9,9 +9,14 @@ class StreamPlayerHelper extends PlayerHelper {
   late final ApiService _apiService;
   late int bitrate;
 
-  StreamPlayerHelper({required playbackInfo, required apiService})
+  StreamPlayerHelper(
+      {required playbackInfo,
+      required apiService,
+      required logger,
+      String? mpvConfig})
       : _apiService = apiService,
-        super(playbackInfo: playbackInfo) {
+        super(
+            playbackInfo: playbackInfo, logger: logger, mpvConfig: mpvConfig) {
     bitrate = getDefaultBitrate();
     isSubtitleEnabled = subtitle.index != -1;
   }

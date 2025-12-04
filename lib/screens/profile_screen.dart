@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/components/mpv_config_dialog.dart';
 import 'package:jellyflix/components/profile_image.dart';
 import 'package:jellyflix/components/quick_connect_dialog.dart';
 import 'package:jellyflix/components/set_download_bitrate_dialog.dart';
@@ -37,6 +38,10 @@ class ProfileScreen extends HookConsumerWidget {
 
     final loggingEnabled = useState(
         ref.read(databaseProvider("settings")).get("loggingEnabled") ?? false);
+
+    final mpvConfig = useState(
+        ref.read(databaseProvider("settings")).get("mpvConfig") ??
+            MpvConfigDialog.getDefaultConfig());
 
     return Scaffold(
       body: SafeArea(
@@ -211,6 +216,37 @@ class ProfileScreen extends HookConsumerWidget {
                             },
                           ),
                         ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(15),
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withValues(alpha: 0.1),
+                      ),
+                      child: ListTile(
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15)),
+                        leading: const Icon(Icons.video_settings_rounded),
+                        title:
+                            Text(AppLocalizations.of(context)!.customMpvConfig),
+                        onTap: () async {
+                          final result = await showDialog<String>(
+                            context: context,
+                            builder: (context) => MpvConfigDialog(
+                              mpvConfig: mpvConfig.value,
+                            ),
+                          );
+                          if (result != null) {
+                            mpvConfig.value = result;
+                            ref
+                                .read(databaseProvider("settings"))
+                                .put("mpvConfig", result);
+                          }
+                        },
                       ),
                     ),
                     const SizedBox(height: 20),
