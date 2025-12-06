@@ -203,7 +203,11 @@ class PlayerHelper {
     return [
       BackButton(
         onPressed: () async {
-          backButtonPressed;
+          try {
+            await backButtonPressed().timeout(const Duration(seconds: 2));
+          } catch (e) {
+            logger.error("Player: Couldn't report playback finished");
+          }
           if (UniversalPlatform.isDesktop &&
               (key.currentState?.isFullscreen() ?? false)) {
             await key.currentState?.exitFullscreen();
@@ -334,7 +338,7 @@ class PlayerHelper {
     ];
   }
 
-  void backButtonPressed() async {
+  Future<void> backButtonPressed() async {
     throw UnimplementedError();
   }
 

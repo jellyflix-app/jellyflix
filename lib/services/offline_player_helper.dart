@@ -66,7 +66,7 @@ class OfflinePlayerHelper extends PlayerHelper {
 
   // no additional logic needed for offline playback
   @override
-  void backButtonPressed() async {}
+  Future<void> backButtonPressed() async {}
 
   @override
   Future<void> setAudio(MediaStream mediaStream) async {

@@ -210,9 +210,9 @@ class StreamPlayerHelper extends PlayerHelper {
   }
 
   @override
-  void backButtonPressed() async {
-    unawaited(_apiService
+  Future<void> backButtonPressed() async {
+    _apiService
         .reportStopPlayback(player.state.position.inMilliseconds * 10000)
-        .then((value) {}));
+        .then((value) {});
   }
 }
