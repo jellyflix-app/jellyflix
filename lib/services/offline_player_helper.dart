@@ -39,7 +39,7 @@ class OfflinePlayerHelper extends PlayerHelper {
   }
 
   @override
-  Future<void> initStream(int startTimeTicks, Timer? playbackTimer) async {
+  Future<void> initStream(int startTimeTicks) async {
     String streamUrl = downloadMetadata.path!;
     player.open(
         Media(streamUrl, start: Duration(microseconds: startTimeTicks ~/ 10)));

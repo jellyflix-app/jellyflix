@@ -8,6 +8,7 @@ import 'package:tentacle/tentacle.dart';
 class StreamPlayerHelper extends PlayerHelper {
   late final ApiService _apiService;
   late int bitrate;
+  Timer? playbackTimer;
 
   StreamPlayerHelper(
       {required playbackInfo,
@@ -171,7 +172,7 @@ class StreamPlayerHelper extends PlayerHelper {
   }
 
   @override
-  Future<void> initStream(int startTimeTicks, Timer? playbackTimer) async {
+  Future<void> initStream(int startTimeTicks) async {
     String streamUrl = _apiService.getStreamUrl(playbackInfo);
     await player.open(Media(streamUrl,
         httpHeaders: _apiService.headers,
@@ -205,14 +206,15 @@ class StreamPlayerHelper extends PlayerHelper {
 
   @override
   Future<void> completedPlayback() async {
+    playbackTimer?.cancel();
     await _apiService
         .reportStopPlayback(player.state.position.inMilliseconds * 10000);
   }
 
   @override
   Future<void> backButtonPressed() async {
+    playbackTimer?.cancel();
     _apiService
-        .reportStopPlayback(player.state.position.inMilliseconds * 10000)
-        .then((value) {});
+        .reportStopPlayback(player.state.position.inMilliseconds * 10000);
   }
 }

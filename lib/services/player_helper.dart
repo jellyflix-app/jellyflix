@@ -342,7 +342,7 @@ class PlayerHelper {
     throw UnimplementedError();
   }
 
-  Future<void> initStream(int startTimeTicks, Timer? playbackTimer) {
+  Future<void> initStream(int startTimeTicks) {
     throw UnimplementedError();
   }
 

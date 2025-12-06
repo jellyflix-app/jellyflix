@@ -37,8 +37,6 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
   late String streamUrl;
   late final JfxLogger logger;
 
-  Timer? _timer;
-
   @override
   void initState() {
     logger = ref.read(loggerProvider);
@@ -50,7 +48,7 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
 
     requestPermissions().then(
       (value) async {
-        await playbackHelper.initStream(widget.startTimeTicks, _timer);
+        await playbackHelper.initStream(widget.startTimeTicks);
 
         if (player.platform is NativePlayer) {
           (player.platform as dynamic).setProperty(
@@ -106,7 +104,6 @@ class _PlayerSreenState extends ConsumerState<PlayerScreen> {
 
   @override
   void dispose() {
-    _timer?.cancel();
     player.dispose();
     super.dispose();
   }
