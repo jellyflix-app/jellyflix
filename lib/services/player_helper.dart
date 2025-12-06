@@ -173,6 +173,8 @@ class PlayerHelper {
       seekBarMargin: const EdgeInsets.only(bottom: 55),
       padding: const EdgeInsets.only(left: 50, right: 50),
       seekOnDoubleTap: true,
+      volumeGesture: true,
+      brightnessGesture: true,
     );
   }
 
