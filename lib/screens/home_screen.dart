@@ -52,6 +52,7 @@ class HomeScreen extends HookConsumerWidget {
                     child: ImageBanner(
                       parentPath: ScreenPaths.home,
                       items: items,
+                      requestInitialFocus: true,
                     ),
                   );
                 }),
@@ -61,7 +62,6 @@ class HomeScreen extends HookConsumerWidget {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
               child: FutureItemCarousel(
-                requestInitialFocus: true,
                 future: ref.read(apiProvider).continueWatchingAndNextUp(),
                 onTap: (index, id) {
                   context.pushNamed(ScreenPaths.home + ScreenPaths.detail,

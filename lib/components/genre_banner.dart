@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:jellyflix/l10n/generated/app_localizations.dart';
-import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:go_router/go_router.dart';
-import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:jellyflix/components/item_carousel_label.dart';
 import 'package:jellyflix/components/jellyfin_image.dart';
 import 'package:jellyflix/components/jfx_text_theme.dart';
@@ -11,10 +9,10 @@ import 'package:jellyflix/components/focus_border.dart';
 import 'package:jellyflix/models/gradients.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
-import 'package:jellyflix/providers/input_mode_provider.dart';
+
 import 'package:tentacle/tentacle.dart';
 
-class GenreBanner extends HookConsumerWidget {
+class GenreBanner extends ConsumerStatefulWidget {
   final bool requestInitialFocus;
 
   const GenreBanner({
@@ -23,54 +21,65 @@ class GenreBanner extends HookConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final pageController = usePageController(viewportFraction: 0.95);
+  ConsumerState<GenreBanner> createState() => _GenreBannerState();
+}
 
-    // Use memoized hook to manage focus nodes - must be at top level
-    final focusNodesRef = useState<List<FocusNode>?>(null);
+class _GenreBannerState extends ConsumerState<GenreBanner> {
+  late final PageController pageController;
+  final Map<int, List<FocusNode>> _focusNodesCache = {};
 
+  @override
+  void initState() {
+    super.initState();
+    pageController = PageController(viewportFraction: 0.95);
+  }
+
+  @override
+  void dispose() {
+    pageController.dispose();
+    // Dispose all cached focus nodes
+    for (var focusNodes in _focusNodesCache.values) {
+      for (var node in focusNodes) {
+        node.dispose();
+      }
+    }
+    _focusNodesCache.clear();
+    super.dispose();
+  }
+
+  List<FocusNode> _getFocusNodes(int count) {
+    if (_focusNodesCache[count] == null) {
+      _focusNodesCache[count] = List.generate(count, (_) => FocusNode());
+
+      // Request initial focus if needed
+      if (widget.requestInitialFocus && _focusNodesCache[count]!.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _focusNodesCache[count]![0].requestFocus();
+        });
+      }
+    }
+    return _focusNodesCache[count]!;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
         padding: const EdgeInsets.symmetric(vertical: 10.0),
-        child: FutureBuilder(
+        child: FutureBuilder<List<BaseItemDto>>(
           future: ref.read(apiProvider).getGenres(includeItemTypes: [
             BaseItemKind.movie,
             BaseItemKind.series,
             BaseItemKind.boxSet
           ]),
-          builder: (context, snapshot) {
+          builder: (context, AsyncSnapshot<List<BaseItemDto>> snapshot) {
             if (!snapshot.hasData) {
               return const SizedBox.shrink();
             }
-            snapshot.data!.shuffle();
+            final genres = snapshot.data!;
+            genres.shuffle();
 
-            // Initialize focus nodes if needed
-            if (focusNodesRef.value == null ||
-                focusNodesRef.value!.length != snapshot.data!.length) {
-              // Dispose old nodes if they exist
-              if (focusNodesRef.value != null) {
-                for (var node in focusNodesRef.value!) {
-                  node.dispose();
-                }
-              }
-              // Create new focus nodes
-              focusNodesRef.value = List.generate(
-                snapshot.data!.length,
-                (_) => FocusNode(),
-              );
-
-              // Request initial focus if needed
-              if (requestInitialFocus && focusNodesRef.value!.isNotEmpty) {
-                SchedulerBinding.instance.addPostFrameCallback((_) {
-                  final shouldShowFocus =
-                      ref.read(shouldShowFocusIndicatorProvider);
-                  if (shouldShowFocus && focusNodesRef.value != null) {
-                    focusNodesRef.value![0].requestFocus();
-                  }
-                });
-              }
-            }
-
-            final focusNodes = focusNodesRef.value ?? [];
+            // Get or create focus nodes for this genre count
+            final focusNodes = _getFocusNodes(genres.length);
 
             return Column(
               children: [
@@ -90,7 +99,7 @@ class GenreBanner extends HookConsumerWidget {
                         onTap: () {
                           context
                               .pushNamed(ScreenPaths.library, queryParameters: {
-                            "genreFilter": snapshot.data![index].id,
+                            "genreFilter": genres[index].id,
                           });
                         },
                         child: Stack(
@@ -145,7 +154,7 @@ class GenreBanner extends HookConsumerWidget {
                               ),
                             ),
                             Center(
-                              child: Text(snapshot.data![index].name!,
+                              child: Text(genres[index].name!,
                                   style: JfxTextTheme.scalingTheme(context)
                                       .headlineSmall!
                                       .copyWith(
@@ -170,7 +179,7 @@ class GenreBanner extends HookConsumerWidget {
                             : genreWidget,
                       );
                     },
-                    itemCount: snapshot.data?.length ?? 0,
+                    itemCount: genres.length,
                     scrollDirection: Axis.horizontal,
                   ),
                 ),
