@@ -100,6 +100,7 @@ class AppRouter {
             StatefulShellBranch(
               routes: [
                 GoRoute(
+                  name: ScreenPaths.library,
                   path: ScreenPaths.library,
                   pageBuilder: (context, state) =>
                       buildPageWithDefaultTransition(
@@ -181,8 +182,8 @@ class AppRouter {
       return const LoadingScreen();
     },
     redirect: (context, state) async {
-      final isGoingToOfflinePlayer =
-          state.matchedLocation == '${ScreenPaths.downloads}/${ScreenPaths.player}';
+      final isGoingToOfflinePlayer = state.matchedLocation ==
+          '${ScreenPaths.downloads}/${ScreenPaths.player}';
       final isGoingToDownloads = state.matchedLocation == ScreenPaths.downloads;
       final isGoingToLogin = state.matchedLocation == ScreenPaths.login;
       final isGoingToProfile = state.matchedLocation == ScreenPaths.profile;

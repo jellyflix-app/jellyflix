@@ -17,6 +17,7 @@ class FutureItemCarousel extends StatelessWidget {
   final PosterType posterType;
   final Function(int, String)? onTap;
   final Future future;
+  final bool requestInitialFocus;
 
   const FutureItemCarousel({
     super.key,
@@ -29,6 +30,7 @@ class FutureItemCarousel extends StatelessWidget {
     this.posterType = PosterType.vertical,
     this.onTap,
     required this.future,
+    this.requestInitialFocus = false,
   });
 
   @override
@@ -73,7 +75,8 @@ class FutureItemCarousel extends StatelessWidget {
                         return overlay!(index, element) as Widget;
                       })).toList()
                     : null,
-                title: title),
+                title: title,
+                requestInitialFocus: requestInitialFocus),
           );
         });
   }

@@ -20,6 +20,7 @@ class PaginatedItemCarousel extends StatefulHookConsumerWidget {
   final Future Function(int startIndex, int limit) future;
 
   final int pageSize;
+  final bool requestInitialFocus;
 
   const PaginatedItemCarousel({
     super.key,
@@ -33,6 +34,7 @@ class PaginatedItemCarousel extends StatefulHookConsumerWidget {
     this.onTap,
     this.pageSize = 10,
     required this.future,
+    this.requestInitialFocus = false,
   });
 
   @override
@@ -138,6 +140,7 @@ class _FutureItemCarouselState extends ConsumerState<PaginatedItemCarousel> {
                 return widget.overlay!(index, element) as Widget;
               })).toList()
             : null,
-        title: widget.title);
+        title: widget.title,
+        requestInitialFocus: widget.requestInitialFocus);
   }
 }

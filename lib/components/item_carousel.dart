@@ -6,6 +6,7 @@ import 'package:jellyflix/components/jfx_layout.dart';
 import 'package:jellyflix/models/poster_type.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:jellyflix/providers/input_mode_provider.dart';
 
 class ItemCarousel extends StatefulHookConsumerWidget {
   final String? title;
@@ -18,6 +19,7 @@ class ItemCarousel extends StatefulHookConsumerWidget {
   final Function(int)? onTap;
   final Function? onEnd;
   final ScrollController? scrollController;
+  final bool requestInitialFocus;
 
   ItemCarousel(
       {this.onTap,
@@ -30,6 +32,7 @@ class ItemCarousel extends StatefulHookConsumerWidget {
       this.onEnd,
       this.posterType = PosterType.vertical,
       this.scrollController,
+      this.requestInitialFocus = false,
       super.key})
       : subtitleList = subtitleList ?? [];
 
@@ -39,19 +42,31 @@ class ItemCarousel extends StatefulHookConsumerWidget {
 
 class _ItemCarouselState extends ConsumerState<ItemCarousel> {
   late final ScrollController scrollController;
+  final List<FocusNode> _focusNodes = [];
 
   var hasClients = false;
   var isLoading = false;
   ValueNotifier<bool> showArrows = ValueNotifier(false);
+
   @override
   void initState() {
     super.initState();
     scrollController = widget.scrollController ?? ScrollController();
+    _initializeFocusNodes();
+
     SchedulerBinding.instance.addPostFrameCallback((_) {
       if (scrollController.hasClients != hasClients) {
         setState(() {
           hasClients = scrollController.hasClients;
         });
+      }
+
+      // Request initial focus if needed
+      if (widget.requestInitialFocus && _focusNodes.isNotEmpty) {
+        final shouldShowFocus = ref.read(shouldShowFocusIndicatorProvider);
+        if (shouldShowFocus) {
+          _focusNodes[0].requestFocus();
+        }
       }
     });
 
@@ -65,9 +80,35 @@ class _ItemCarouselState extends ConsumerState<ItemCarousel> {
     });
   }
 
+  void _initializeFocusNodes() {
+    // Clear existing nodes
+    for (var node in _focusNodes) {
+      node.dispose();
+    }
+    _focusNodes.clear();
+
+    // Create new nodes for each item
+    for (int i = 0; i < widget.titleList.length; i++) {
+      _focusNodes.add(FocusNode());
+    }
+  }
+
+  @override
+  void didUpdateWidget(ItemCarousel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Update focus nodes if the list length changed
+    if (oldWidget.titleList.length != widget.titleList.length) {
+      _initializeFocusNodes();
+    }
+  }
+
   @override
   void dispose() {
     scrollController.dispose();
+    for (var node in _focusNodes) {
+      node.dispose();
+    }
     super.dispose();
   }
 
@@ -111,6 +152,9 @@ class _ItemCarouselState extends ConsumerState<ItemCarousel> {
                                 ? null
                                 : widget.blurHashList![index],
                             overlay: widget.overlay?[index],
+                            focusNode: index < _focusNodes.length
+                                ? _focusNodes[index]
+                                : null,
                             onTap: () {
                               if (widget.onTap != null) {
                                 widget.onTap!(index);

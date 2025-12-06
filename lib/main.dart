@@ -10,6 +10,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:jellyflix/providers/router_provider.dart';
 import 'package:jellyflix/providers/scaffold_key.dart';
 import 'package:jellyflix/services/database_service.dart';
+import 'package:jellyflix/widgets/input_detector.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -42,29 +43,31 @@ class MyApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final appRouter = ref.read(routerProvider).router;
-    return MaterialApp.router(
-      scaffoldMessengerKey: rootScaffoldMessengerKey,
-      // localization
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
-      supportedLocales: AppLocalizations.supportedLocales,
-      // routing
-      routeInformationParser: appRouter.routeInformationParser,
-      routerDelegate: appRouter.routerDelegate,
-      routeInformationProvider: appRouter.routeInformationProvider,
-      debugShowCheckedModeBanner: false,
-      title: "Jellyflix",
-      theme: ThemeData(
-        pageTransitionsTheme: const PageTransitionsTheme(
-          builders: {
-            TargetPlatform.android: CupertinoPageTransitionsBuilder(),
-            TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
-          },
+    return InputDetector(
+      child: MaterialApp.router(
+        scaffoldMessengerKey: rootScaffoldMessengerKey,
+        // localization
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        // routing
+        routeInformationParser: appRouter.routeInformationParser,
+        routerDelegate: appRouter.routerDelegate,
+        routeInformationProvider: appRouter.routeInformationProvider,
+        debugShowCheckedModeBanner: false,
+        title: "Jellyflix",
+        theme: ThemeData(
+          pageTransitionsTheme: const PageTransitionsTheme(
+            builders: {
+              TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+              TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+            },
+          ),
+          colorScheme: ColorScheme.fromSeed(
+              seedColor: Colors.deepPurple,
+              primary: const Color(0xFFDBEBC0),
+              brightness: Brightness.dark),
+          useMaterial3: true,
         ),
-        colorScheme: ColorScheme.fromSeed(
-            seedColor: Colors.deepPurple,
-            primary: const Color(0xFFDBEBC0),
-            brightness: Brightness.dark),
-        useMaterial3: true,
       ),
     );
   }

@@ -30,34 +30,38 @@ class ItemCarouselLabel extends StatelessWidget {
         if (!UniversalPlatform.isAndroid && !UniversalPlatform.isIOS)
           const Spacer(),
         if (!UniversalPlatform.isAndroid && !UniversalPlatform.isIOS)
-          IconButton(
-            icon: const Icon(Icons.arrow_back_ios),
-            hoverColor: Theme.of(context)
-                .colorScheme
-                .primaryContainer
-                .withValues(alpha: 0.2),
-            onPressed: () {
-              scrollController.animateTo(
-                scrollController.offset - offsetWidth,
-                curve: Curves.easeInOut,
-                duration: const Duration(milliseconds: 400),
-              );
-            },
+          ExcludeFocus(
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back_ios),
+              hoverColor: Theme.of(context)
+                  .colorScheme
+                  .primaryContainer
+                  .withValues(alpha: 0.2),
+              onPressed: () {
+                scrollController.animateTo(
+                  scrollController.offset - offsetWidth,
+                  curve: Curves.easeInOut,
+                  duration: const Duration(milliseconds: 400),
+                );
+              },
+            ),
           ),
         if (!UniversalPlatform.isAndroid && !UniversalPlatform.isIOS)
-          IconButton(
-            icon: const Icon(Icons.arrow_forward_ios),
-            hoverColor: Theme.of(context)
-                .colorScheme
-                .primaryContainer
-                .withValues(alpha: 0.2),
-            onPressed: () {
-              scrollController.animateTo(
-                scrollController.offset + offsetWidth,
-                curve: Curves.easeInOut,
-                duration: const Duration(milliseconds: 400),
-              );
-            },
+          ExcludeFocus(
+            child: IconButton(
+              icon: const Icon(Icons.arrow_forward_ios),
+              hoverColor: Theme.of(context)
+                  .colorScheme
+                  .primaryContainer
+                  .withValues(alpha: 0.2),
+              onPressed: () {
+                scrollController.animateTo(
+                  scrollController.offset + offsetWidth,
+                  curve: Curves.easeInOut,
+                  duration: const Duration(milliseconds: 400),
+                );
+              },
+            ),
           ),
       ],
     );
