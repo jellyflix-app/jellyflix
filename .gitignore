@@ -51,3 +51,9 @@ app.*.map.json
 lib/l10n/generated
 
 /android/app/.cxx
+
+# Nix
+.direnv/
+.envrc.cache
+result
+result-*
