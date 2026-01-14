@@ -260,6 +260,15 @@ class ProfileScreen extends HookConsumerWidget {
                       ),
                       child: Column(
                         children: [
+                          ListTile(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15)),
+                            leading: const Icon(Icons.dashboard_customize_rounded),
+                            title: Text(AppLocalizations.of(context)!.homeScreenSettings),
+                            onTap: () {
+                              context.pushNamed(ScreenPaths.profile + ScreenPaths.homeScreenConfig);
+                            },
+                          ),
                           SwitchSettingsTile(
                             leading: const Icon(Icons.image_outlined),
                             title: Text(AppLocalizations.of(context)!

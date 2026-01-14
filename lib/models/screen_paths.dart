@@ -9,6 +9,7 @@ class ScreenPaths {
   static const String profileSelection = '/profileSelection';
   static const String downloads = '/downloads';
   static const String loading = '/loading';
+  static const String homeScreenConfig = 'homeScreenConfig';
 }
 
 class LoginRouteNames {

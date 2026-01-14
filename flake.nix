@@ -249,7 +249,7 @@
           apk = jellyflixApk;
           linux = jellyflixLinux;
         }
-        // pkgs.lib.optionalAttrs pkgs.stdenv.isWindows {
+        // pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isWindows {
           windows = jellyflixWindows;
         };
 

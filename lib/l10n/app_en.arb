@@ -80,6 +80,7 @@
     "genres": "Genres",
     "cast": "Cast",
     "episodes": "Episodes",
+    "items": "Items",
     "season": "Season",
     "na": "N/A",
     "addedToWatchlist": "Added to Watchlist",
@@ -205,5 +206,15 @@
     "resetToDefault": "Reset to Default",
     "mpvConfigTitle": "MPV Configuration",
     "mpvConfigResetConfirm": "Reset MPV configuration to default?",
-    "mpvConfigResetDescription": "This will restore the default MPV configuration settings."
+    "mpvConfigResetDescription": "This will restore the default MPV configuration settings.",
+    "homeScreenSettings": "Home Screen Settings",
+    "homeScreenConfigDescription": "Edit the home screen configuration JSON to customize your home screen layout and sections.",
+    "configurationValid": "Configuration is valid",
+    "configurationSaved": "Configuration saved successfully",
+    "validate": "Validate",
+    "unsavedChanges": "Unsaved Changes",
+    "unsavedChangesWarning": "You have unsaved changes. Are you sure you want to go back?",
+    "discard": "Discard",
+    "pasteConfigHere": "Paste or edit your configuration here...",
+    "back": "Back"
 }

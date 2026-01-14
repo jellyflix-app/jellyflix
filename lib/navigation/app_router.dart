@@ -11,6 +11,7 @@ import 'package:jellyflix/providers/connectivity_provider.dart';
 import 'package:jellyflix/screens/detail_screen.dart';
 import 'package:jellyflix/screens/download_screen.dart';
 import 'package:jellyflix/screens/home_screen.dart';
+import 'package:jellyflix/screens/home_screen_config_screen.dart';
 import 'package:jellyflix/screens/library_screen.dart';
 import 'package:jellyflix/screens/loading_screen.dart';
 import 'package:jellyflix/screens/login_password_screen.dart';
@@ -132,6 +133,13 @@ class AppRouter {
                     child: const ProfileScreen(),
                   ),
                   routes: [
+                    GoRoute(
+                      name: ScreenPaths.profile + ScreenPaths.homeScreenConfig,
+                      path: ScreenPaths.homeScreenConfig,
+                      pageBuilder: (context, state) => CupertinoPage(
+                        child: const HomeScreenConfigScreen(),
+                      ),
+                    ),
                     ...buildSharedRoutes(ScreenPaths.profile),
                   ],
                 ),
