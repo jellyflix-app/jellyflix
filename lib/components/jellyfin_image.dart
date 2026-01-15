@@ -30,7 +30,7 @@ class JellyfinImage extends HookConsumerWidget {
             false;
     if (disableImageCaching == true) {
       return ClipRRect(
-        borderRadius: borderRadius ?? BorderRadius.circular(10.0),
+        borderRadius: borderRadius ?? BorderRadius.circular(12.0),
         // BlurHash has an issue the generates bad state in some cases
         // https://github.com/fluttercommunity/flutter_blurhash/issues/40
         child: BlurHash(
@@ -54,7 +54,7 @@ class JellyfinImage extends HookConsumerWidget {
       maxHeightDiskCache: cacheHeight,
       imageBuilder: (context, imageProvider) => Container(
         decoration: BoxDecoration(
-          borderRadius: borderRadius ?? BorderRadius.circular(10.0),
+          borderRadius: borderRadius ?? BorderRadius.circular(12.0),
           image: DecorationImage(
             image: imageProvider,
             fit: BoxFit.cover,
@@ -65,7 +65,7 @@ class JellyfinImage extends HookConsumerWidget {
           ? null
           : (context, url) {
               return ClipRRect(
-                borderRadius: borderRadius ?? BorderRadius.circular(10.0),
+                borderRadius: borderRadius ?? BorderRadius.circular(12.0),
                 child: BlurHash(
                   hash: blurHash!,
                   imageFit: BoxFit.cover,

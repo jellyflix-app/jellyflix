@@ -105,43 +105,52 @@ class DetailScreen extends HookConsumerWidget {
                   episodeStreamController.add(value);
                 });
               }
-              return Align(
-                alignment: Alignment.topCenter,
-                child: SingleChildScrollView(
-                  controller: scrollController,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(
-                        height: featuredPosterHeight +
-                            MediaQuery.of(context).padding.top,
-                        child: Stack(
-                          children: [
-                            Stack(
-                              children: [
-                                JellyfinImage(
-                                    borderRadius: BorderRadius.zero,
-                                    id: data.type == BaseItemKind.episode
-                                        ? data.seriesId!
-                                        : itemId,
-                                    type: ImageType.backdrop,
-                                    blurHash: data
-                                        .imageBlurHashes?.backdrop?[itemId]),
-                                Container(
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topCenter,
-                                      end: Alignment.bottomCenter,
-                                      colors: [
-                                        const Color.fromARGB(100, 0, 0, 0),
-                                        Theme.of(context).colorScheme.surface
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
+              return Stack(
+                children: [
+                  // Full screen backdrop with blur
+                  Positioned.fill(
+                    child: JellyfinImage(
+                      borderRadius: BorderRadius.zero,
+                      id: data.type == BaseItemKind.episode
+                          ? data.seriesId!
+                          : itemId,
+                      type: ImageType.backdrop,
+                      blurHash: data.imageBlurHashes?.backdrop?[itemId],
+                    ),
+                  ),
+                  // Full screen blur overlay
+                  Positioned.fill(
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            stops: const [0.0, 0.4, 0.7, 1.0],
+                            colors: [
+                              Colors.black.withValues(alpha: 0.4),
+                              Colors.black.withValues(alpha: 0.6),
+                              Colors.black.withValues(alpha: 0.85),
+                              Theme.of(context).colorScheme.surface
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Content
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: SingleChildScrollView(
+                      controller: scrollController,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            height: featuredPosterHeight +
+                                MediaQuery.of(context).padding.top,
+                            child: Row(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
                                 Padding(
@@ -181,6 +190,20 @@ class DetailScreen extends HookConsumerWidget {
                                         ),
                                       ),
                                       const SizedBox(height: 8.0),
+                                      // Tagline
+                                      if (data.taglines != null && data.taglines!.isNotEmpty)
+                                        Padding(
+                                          padding: const EdgeInsets.only(bottom: 8.0, right: 20.0),
+                                          child: Text(
+                                            data.taglines!.first,
+                                            style: layout.text.bodyMedium!.copyWith(
+                                              fontStyle: FontStyle.italic,
+                                              color: Colors.white.withValues(alpha: 0.85),
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
                                       Row(
                                         children: [
                                           Text(
@@ -269,9 +292,7 @@ class DetailScreen extends HookConsumerWidget {
                                 ),
                               ],
                             ),
-                          ],
-                        ),
-                      ),
+                          ),
 
                       Padding(
                         padding: const EdgeInsets.only(
@@ -437,6 +458,8 @@ class DetailScreen extends HookConsumerWidget {
                     ],
                   ),
                 ),
+              ),
+                ],
               );
             } else {
               return const Center(
