@@ -137,13 +137,12 @@ class LibraryScreen extends HookConsumerWidget {
                           ),
                           onPressed: () {
                             genreFilter.value = null;
-                            filterType.value.isEmpty;
+                            filterType.value = [];
                             sortType.value = ItemSortBy.sortName;
                             sortOrder.value = SortOrder.ascending;
                             order.value =
                                 AppLocalizations.of(context)!.ascending;
                             selectedLibrary.value = null;
-                            filterType.value = [];
                           }),
                     if (!((genreFilter.value == null ||
                             genreFilter.value!.isEmpty) &&
@@ -287,10 +286,36 @@ class LibraryScreen extends HookConsumerWidget {
                       BaseItemKind.boxSet
                     ]),
                 builder: (context, AsyncSnapshot<List<BaseItemDto>> snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                          const SizedBox(height: 16),
+                          Text(AppLocalizations.of(context)!.errorMessageUnknown),
+                          const SizedBox(height: 8),
+                          Text(
+                            snapshot.error.toString(),
+                            style: const TextStyle(fontSize: 12),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    );
+                  }
+
                   List<BaseItemDto> itemsList =
                       List.filled(20, SkeletonItem.baseItemDto);
                   if (snapshot.hasData) {
-                    itemsList = snapshot.data!;
+                    // Remove duplicates by ID
+                    final seenIds = <String>{};
+                    itemsList = snapshot.data!.where((item) {
+                      if (item.id == null) return true;
+                      if (seenIds.contains(item.id)) return false;
+                      seenIds.add(item.id!);
+                      return true;
+                    }).toList();
 
                     if (itemsList.isEmpty) {
                       return Center(
@@ -401,31 +426,35 @@ class LibraryScreen extends HookConsumerWidget {
                                   if (page > 0)
                                     IconButton(
                                       onPressed: () {
-                                        context.pushNamed(
-                                            ScreenPaths.library +
-                                                ScreenPaths.library,
-                                            queryParameters: {
-                                              "genreFilter": genreFilter.value
-                                                  ?.map((e) => e.id)
+                                        final uri = Uri(
+                                          path: ScreenPaths.library,
+                                          queryParameters: {
+                                            if (genreFilter.value != null &&
+                                                genreFilter.value!.isNotEmpty)
+                                              "genreFilter": genreFilter.value!
+                                                  .map((e) => e.id)
                                                   .join(","),
+                                            if (filterType.value.isNotEmpty)
                                               "filterType": filterType.value
                                                   .map((e) => e
                                                       .toString()
                                                       .split(".")
                                                       .last)
                                                   .join(","),
-                                              "sortType": sortType.value
-                                                  .toString()
-                                                  .split(".")
-                                                  .last,
-                                              "sortOrder": sortOrder.value
-                                                  .toString()
-                                                  .split(".")
-                                                  .last,
-                                              "library": selectedLibrary.value,
-                                              "pageNumber":
-                                                  (page - 1).toString(),
-                                            });
+                                            "sortType": sortType.value
+                                                .toString()
+                                                .split(".")
+                                                .last,
+                                            "sortOrder": sortOrder.value
+                                                .toString()
+                                                .split(".")
+                                                .last,
+                                            if (selectedLibrary.value?.id != null)
+                                              "library": selectedLibrary.value!.id!,
+                                            "pageNumber": (page - 1).toString(),
+                                          },
+                                        );
+                                        context.push(uri.toString());
                                       },
                                       icon: const Icon(Icons.arrow_back_ios),
                                     ),
@@ -435,31 +464,35 @@ class LibraryScreen extends HookConsumerWidget {
                                   if (itemsList.length == 100)
                                     IconButton(
                                       onPressed: () {
-                                        context.pushNamed(
-                                            ScreenPaths.library +
-                                                ScreenPaths.library,
-                                            queryParameters: {
-                                              "genreFilter": genreFilter.value
-                                                  ?.map((e) => e.id)
+                                        final uri = Uri(
+                                          path: ScreenPaths.library,
+                                          queryParameters: {
+                                            if (genreFilter.value != null &&
+                                                genreFilter.value!.isNotEmpty)
+                                              "genreFilter": genreFilter.value!
+                                                  .map((e) => e.id)
                                                   .join(","),
+                                            if (filterType.value.isNotEmpty)
                                               "filterType": filterType.value
                                                   .map((e) => e
                                                       .toString()
                                                       .split(".")
                                                       .last)
                                                   .join(","),
-                                              "sortType": sortType.value
-                                                  .toString()
-                                                  .split(".")
-                                                  .last,
-                                              "sortOrder": sortOrder.value
-                                                  .toString()
-                                                  .split(".")
-                                                  .last,
-                                              "library": selectedLibrary.value,
-                                              "pageNumber":
-                                                  (page + 1).toString(),
-                                            });
+                                            "sortType": sortType.value
+                                                .toString()
+                                                .split(".")
+                                                .last,
+                                            "sortOrder": sortOrder.value
+                                                .toString()
+                                                .split(".")
+                                                .last,
+                                            if (selectedLibrary.value?.id != null)
+                                              "library": selectedLibrary.value!.id!,
+                                            "pageNumber": (page + 1).toString(),
+                                          },
+                                        );
+                                        context.push(uri.toString());
                                       },
                                       icon: const Icon(Icons.arrow_forward_ios),
                                     ),

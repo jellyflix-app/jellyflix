@@ -44,6 +44,13 @@ class RecommendationCarousels extends HookConsumerWidget {
         List<RecommendationDto> data = [];
         if (snapshot.hasData) {
           data = snapshot.data as List<RecommendationDto>;
+          // Filter out "similar to" recommendations to avoid duplicates with home screen
+          data = data
+              .where((rec) =>
+                  rec.recommendationType !=
+                      RecommendationType.similarToRecentlyPlayed &&
+                  rec.recommendationType != RecommendationType.similarToLikedItem)
+              .toList();
 
           return ListView.builder(
               shrinkWrap: true,

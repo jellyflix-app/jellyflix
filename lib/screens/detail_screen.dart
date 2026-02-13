@@ -100,6 +100,10 @@ class DetailScreen extends HookConsumerWidget {
                 ref.read(apiProvider).getEpisodes(itemId).then((value) {
                   episodeStreamController.add(value);
                 });
+              } else if (data.type == BaseItemKind.boxSet) {
+                ref.read(apiProvider).getFilterItems(parentId: itemId).then((value) {
+                  episodeStreamController.add(value);
+                });
               }
               return Align(
                 alignment: Alignment.topCenter,
@@ -296,12 +300,54 @@ class DetailScreen extends HookConsumerWidget {
                       ),
 
                       data.isFolder ?? false
-                          ? EpisodeList(
-                              parentPath: parentPath,
-                              episodeStreamController: episodeStreamController,
-                              data: data,
-                              markedAsPlayed: markedAsPlayed,
-                              itemId: itemId)
+                          ? data.type == BaseItemKind.series
+                              ? EpisodeList(
+                                  parentPath: parentPath,
+                                  episodeStreamController:
+                                      episodeStreamController,
+                                  data: data,
+                                  markedAsPlayed: markedAsPlayed,
+                                  itemId: itemId)
+                              : data.type == BaseItemKind.boxSet
+                                  ? StreamBuilder(
+                                      stream: episodeStreamController.stream,
+                                      builder: (context, snapshot) {
+                                        if (!snapshot.hasData) {
+                                          return const SizedBox.shrink();
+                                        }
+                                        return Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 15.0),
+                                          child: ItemCarousel(
+                                            title: AppLocalizations.of(context)!
+                                                .items,
+                                            titleList: snapshot.data!
+                                                .map((e) => e.name!)
+                                                .toList(),
+                                            imageList: snapshot.data!
+                                                .map((e) => e.id!)
+                                                .toList(),
+                                            subtitleList: snapshot.data!
+                                                .map((e) =>
+                                                    e.productionYear == null
+                                                        ? ""
+                                                        : e.productionYear
+                                                            .toString())
+                                                .toList(),
+                                            onTap: (index) {
+                                              context.pushNamed(
+                                                  parentPath +
+                                                      ScreenPaths.detail,
+                                                  queryParameters: {
+                                                    "id": snapshot
+                                                        .data![index].id!,
+                                                  });
+                                            },
+                                          ),
+                                        );
+                                      },
+                                    )
+                                  : const SizedBox()
                           : const SizedBox(),
                       data.people != null && data.people!.isNotEmpty
                           ? Padding(
