@@ -303,7 +303,7 @@
     "@videoPermission": {},
     "errorMessage400": "Sunucu isteği işleyemedi, eğer proxy kullanıyorsanız yapılandırmasını kontrol ediniz.",
     "@errorMessage400": {},
-    "errorMessage401": "Kullanıcı adı veya şifre yanlış.",
+    "errorMessage401": "Kullanıcı adı ve ya şifre yanlış.",
     "@errorMessage401": {},
     "errorMessage403": "Bu sunucu cihazınızdan gelen istekleri reddetti. Bu muhtemelen cihazınız engellendiği anlamına geliyor. Lütfen yöneticiniz ile görüşün.",
     "@errorMessage403": {},
@@ -320,5 +320,17 @@
     "logExported": "Günlük indirilenlere kaydedildi",
     "@logExported": {},
     "emptyFields": "Lütfen aşağıdaki alanları doldurun",
-    "@emptyFields": {}
+    "@emptyFields": {},
+    "customMpvConfig": "Özel MPV Ayarı",
+    "@customMpvConfig": {},
+    "customMpvConfigDescription": "Özel MPV ayarlarını yapılandırın. Her satıra bir seçenek gelicek şekilde, bu formatta: seçenek=değer",
+    "@customMpvConfigDescription": {},
+    "resetToDefault": "Varsayılan ayarlara dön",
+    "@resetToDefault": {},
+    "mpvConfigTitle": "MPV Ayarları",
+    "@mpvConfigTitle": {},
+    "mpvConfigResetConfirm": "MPV ayrlarını sıfırlamak istediğinize emin misiniz?",
+    "@mpvConfigResetConfirm": {},
+    "mpvConfigResetDescription": "Bu MPV ayarlarını varsayılan haline döndürecektir.",
+    "@mpvConfigResetDescription": {}
 }

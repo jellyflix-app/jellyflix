@@ -335,25 +335,13 @@ class DownloadService {
       throw Exception("Metadata file not found");
     }
 
-    if (!await File("$downloadPath${Platform.pathSeparator}playback_info.json")
-        .exists()) {
-      throw Exception("Playback info file not found");
-    }
-
-    var metadata =
+    var metadataString =
         await File("$downloadPath${Platform.pathSeparator}metadata.json")
             .readAsString();
 
-    var playbackInfo =
-        await File("$downloadPath${Platform.pathSeparator}playback_info.json")
-            .readAsString();
+    var metadata = DownloadMetadata.fromJson(json.decode(metadataString));
 
-    var bla = PlaybackInfoResponseSerializer.fromJson(playbackInfo);
-    var blub = DownloadMetadata.fromJson(json.decode(metadata));
-
-    blub.name = bla.mediaSources![0].mediaStreams?.length.toString() ?? "Bla";
-
-    return blub;
+    return metadata;
   }
 
   Future<void> resumeDownload() async {
