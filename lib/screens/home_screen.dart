@@ -15,12 +15,37 @@ import 'package:tentacle/tentacle.dart';
 import 'package:jellyflix/providers/database_provider.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 import 'package:jellyflix/l10n/generated/app_localizations.dart';
+import 'package:jellyflix/models/auth_state.dart';
+import 'package:jellyflix/providers/auth_provider.dart';
 
 class HomeScreen extends HookConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authStateProvider);
+
+    if (authState != AuthState.loggedIn) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const CircularProgressIndicator(),
+              const SizedBox(height: 20),
+              TextButton(
+                onPressed: () {
+                  ref.read(authProvider).logout();
+                  context.go(ScreenPaths.login);
+                },
+                child: const Text("Go Back"),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       body: SingleChildScrollView(
         child: Column(

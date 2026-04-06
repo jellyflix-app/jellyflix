@@ -186,6 +186,7 @@ class AppRouter {
           '${ScreenPaths.downloads}/${ScreenPaths.player}';
       final isGoingToDownloads = state.matchedLocation == ScreenPaths.downloads;
       final isGoingToLogin = state.matchedLocation == ScreenPaths.login;
+      final isGoingToLoading = state.matchedLocation == ScreenPaths.loading;
       final isGoingToProfile = state.matchedLocation == ScreenPaths.profile;
       final isConnected =
           await _ref.read(connectivityProvider).checkConnectivityOnce();
@@ -193,44 +194,17 @@ class AppRouter {
       // start connection check
       _ref.read(updateServerReachableProvider);
 
-      // bool? serverIsReachable;
-      // bool loggedIn = false;
-
-      // if (isConnected) {
-      //   serverIsReachable =
-      //       await _ref.read(authProvider).checkServerReachable();
-      // }
-
-      // if (serverIsReachable == true) {
-      //   loggedIn = await _ref.watch(authProvider).checkAuthentication();
-      // }
-
-      // if (isConnected && serverIsReachable != false) {
-      //   if (isGoingToLogin && loggedIn) {
-      //     return ScreenPaths.home;
-      //   } else if (!isGoingToLogin && !loggedIn) {
-      //     return ScreenPaths.login;
-      //   }
-      //   return null;
-      // } else {
-      //   if (!isGoingToDownloads &&
-      //       !isGoingToOfflinePlayer &&
-      //       !isGoingToProfile &&
-      //       !isGoingToLogin) {
-      //     return ScreenPaths.downloads;
-      //   }
-      //   return null;
-      // }
       if (isConnected &&
           (_ref.read(authStateProvider.notifier).state == AuthState.loggedIn ||
               _ref.read(authStateProvider.notifier).state ==
                   AuthState.loggedOut ||
               _ref.read(authStateProvider.notifier).state ==
                   AuthState.unknown)) {
-        if (isGoingToLogin &&
+        if ((isGoingToLogin || isGoingToLoading) &&
             _ref.read(authStateProvider.notifier).state == AuthState.loggedIn) {
           return ScreenPaths.home;
         } else if (!isGoingToLogin &&
+            !isGoingToLoading &&
             _ref.read(authStateProvider.notifier).state ==
                 AuthState.loggedOut) {
           return ScreenPaths.login;
@@ -240,7 +214,8 @@ class AppRouter {
         if (!isGoingToDownloads &&
             !isGoingToOfflinePlayer &&
             !isGoingToProfile &&
-            !isGoingToLogin) {
+            !isGoingToLogin &&
+            !isGoingToLoading) {
           return ScreenPaths.downloads;
         }
         return null;
