@@ -10,6 +10,7 @@ import 'package:jellyflix/components/switch_settings_tile.dart';
 import 'package:jellyflix/models/bitrates.dart';
 import 'package:jellyflix/models/screen_paths.dart';
 import 'package:jellyflix/providers/api_provider.dart';
+import 'package:jellyflix/providers/display_preferences_provider.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
 import 'package:jellyflix/l10n/generated/app_localizations.dart';
 import 'package:jellyflix/providers/database_provider.dart';
@@ -32,9 +33,8 @@ class ProfileScreen extends HookConsumerWidget {
         ref.read(databaseProvider("settings")).get("disableWatchlist") ??
             false);
 
-    final showPrimaryForEpisodes = useState(
-        ref.read(databaseProvider("settings")).get("showPrimaryForEpisodes") ??
-            false);
+    // Watch the Jellyfin server-side setting for episode image display.
+    final useEpisodeImagesAsync = ref.watch(useEpisodeImagesProvider);
 
     final loggingEnabled = useState(
         ref.read(databaseProvider("settings")).get("loggingEnabled") ?? false);
@@ -331,12 +331,11 @@ class ProfileScreen extends HookConsumerWidget {
                             leading: const Icon(Icons.amp_stories_rounded),
                             title: Text(AppLocalizations.of(context)!
                                 .showPrimaryForEpisodes),
-                            value: showPrimaryForEpisodes.value,
-                            onChanged: (value) {
-                              showPrimaryForEpisodes.value = value;
-                              ref
-                                  .read(databaseProvider("settings"))
-                                  .put("showPrimaryForEpisodes", value);
+                            value: useEpisodeImagesAsync.valueOrNull ?? false,
+                            onChanged: (value) async {
+                              await ref
+                                  .read(useEpisodeImagesProvider.notifier)
+                                  .toggle(value);
                             },
                           ),
                         ],

@@ -205,5 +205,6 @@
     "resetToDefault": "Reset to Default",
     "mpvConfigTitle": "MPV Configuration",
     "mpvConfigResetConfirm": "Reset MPV configuration to default?",
-    "mpvConfigResetDescription": "This will restore the default MPV configuration settings."
+    "mpvConfigResetDescription": "This will restore the default MPV configuration settings.",
+    "goBack": "Go Back"
 }

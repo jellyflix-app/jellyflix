@@ -197,5 +197,6 @@
     "resetToDefault": "Auf Standard zurücksetzen",
     "mpvConfigTitle": "MPV-Konfiguration",
     "mpvConfigResetConfirm": "MPV-Konfiguration auf Standard zurücksetzen?",
-    "mpvConfigResetDescription": "Dies wird die Standard-MPV-Konfigurationseinstellungen wiederherstellen."
+    "mpvConfigResetDescription": "Dies wird die Standard-MPV-Konfigurationseinstellungen wiederherstellen.",
+    "goBack": "Zurück"
 }

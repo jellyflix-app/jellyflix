@@ -818,6 +818,52 @@ class ApiService {
     }
   }
 
+  /// Fetches the Jellyfin user setting that controls whether episode thumbnails
+  /// are shown instead of the series poster in Continue Watching / Next Up.
+  Future<bool> getUseEpisodeImagesInNextUpAndResume() async {
+    try {
+      final response =
+          await _jellyfinApi!.getDisplayPreferencesApi().getDisplayPreferences(
+                displayPreferencesId: 'usersettings',
+                client: 'emby',
+                userId: _user!.id!,
+                headers: headers,
+              );
+      print(response.data);
+      print("bla");
+      print(response.data?.customPrefs);
+
+      final value =
+          response.data?.customPrefs?['useEpisodeImagesInNextUpAndResume'];
+      return value == 'true';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Saves the Jellyfin user setting that controls whether episode thumbnails
+  /// are shown instead of the series poster in Continue Watching / Next Up.
+  Future<void> setUseEpisodeImagesInNextUpAndResume(bool value) async {
+    final response =
+        await _jellyfinApi!.getDisplayPreferencesApi().getDisplayPreferences(
+              displayPreferencesId: 'usersettings',
+              client: 'emby',
+              userId: _user!.id!,
+              headers: headers,
+            );
+    final prefs = response.data!;
+    final updated = prefs.rebuild((b) {
+      b.customPrefs['useEpisodeImagesInNextUpAndResume'] = value.toString();
+    });
+    await _jellyfinApi!.getDisplayPreferencesApi().updateDisplayPreferences(
+          displayPreferencesId: 'usersettings',
+          client: 'emby',
+          displayPreferencesDto: updated,
+          userId: _user!.id!,
+          headers: headers,
+        );
+  }
+
   Future<bool?> ping({User? user}) async {
     user ?? _user;
     // returns false if serverAdress is null or server is unreachable

@@ -17,6 +17,7 @@ import 'package:skeletonizer/skeletonizer.dart';
 import 'package:jellyflix/l10n/generated/app_localizations.dart';
 import 'package:jellyflix/models/auth_state.dart';
 import 'package:jellyflix/providers/auth_provider.dart';
+import 'package:jellyflix/providers/display_preferences_provider.dart';
 
 class HomeScreen extends HookConsumerWidget {
   const HomeScreen({super.key});
@@ -34,17 +35,28 @@ class HomeScreen extends HookConsumerWidget {
               const CircularProgressIndicator(),
               const SizedBox(height: 20),
               TextButton(
+                style: TextButton.styleFrom(
+                  backgroundColor:
+                      Theme.of(context).buttonTheme.colorScheme!.secondary,
+                  foregroundColor:
+                      Theme.of(context).buttonTheme.colorScheme!.onSecondary,
+                ),
                 onPressed: () {
                   ref.read(authProvider).logout();
                   context.go(ScreenPaths.login);
                 },
-                child: const Text("Go Back"),
+                child: Text(AppLocalizations.of(context)!.goBack),
               ),
             ],
           ),
         ),
       );
     }
+
+    // Read the Jellyfin server-side setting once per build so the closure below
+    // can reference it synchronously (ref.watch must not be called inside callbacks).
+    final showEpisodeImages =
+        ref.watch(useEpisodeImagesProvider).valueOrNull ?? false;
 
     return Scaffold(
       body: SingleChildScrollView(
@@ -95,11 +107,9 @@ class HomeScreen extends HookConsumerWidget {
                       });
                 },
                 imageMapping: (BaseItemDto e) {
-                  if (e.type == BaseItemKind.episode &&
-                      ref
-                              .read(databaseProvider("settings"))
-                              .get("showPrimaryForEpisodes") !=
-                          true) {
+                  // Follow the Jellyfin user preference: when false (default),
+                  // show the series poster; when true, show the episode thumbnail.
+                  if (e.type == BaseItemKind.episode && !showEpisodeImages) {
                     return e.seriesId!;
                   } else {
                     return e.id!;

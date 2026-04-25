@@ -332,5 +332,7 @@
   "mpvConfigResetConfirm": "Réinitialiser la configuration MPV par défaut?",
   "@mpvConfigResetConfirm": {},
   "mpvConfigResetDescription": "Cela restaurera les paramètres de configuration MPV par défaut.",
-  "@mpvConfigResetDescription": {}
+  "@mpvConfigResetDescription": {},
+  "goBack": "Retour",
+  "@goBack": {}
 }
