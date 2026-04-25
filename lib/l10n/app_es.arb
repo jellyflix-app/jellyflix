@@ -197,5 +197,6 @@
     "mpvConfigResetDescription": "Esto restaurará la configuración MPV a los valores predeterminados.",
     "loginWithQuickConnect": "QuickConnect",
     "emptyAddress": "Dirección del servidor vacía",
-    "emptyUsername": "Nombre de usuario vacío"
+    "emptyUsername": "Nombre de usuario vacío",
+    "goBack": "Volver"
 }
