@@ -196,5 +196,6 @@
     "resetToDefault": "Återställ till standard",
     "mpvConfigTitle": "MPV konfiguration",
     "mpvConfigResetConfirm": "Återställ MPV-konfigurationen till standard?",
-    "mpvConfigResetDescription": "Detta återställer standardkonfigurationsinställningarna för MPV."
+    "mpvConfigResetDescription": "Detta återställer standardkonfigurationsinställningarna för MPV.",
+    "goBack": "Gå tillbaka"
 }
