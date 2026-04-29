@@ -1,1 +1,201 @@
-{}
+{
+    "continueWatching": "Продължи гледането",
+    "recentlyAddedMovies": "Наскоро добавени филми",
+    "recentlyAddedShows": "Наскоро добавени сериали",
+    "yourWatchlist": "Вашият списък за гледане",
+    "top10inYourLibrary": "Топ 10 във вашата библиотека",
+    "similarToWatchHistory": "Подобни на историята ви на гледане",
+    "becauseYouWatched": "Защото гледахте „{title}“",
+    "becauseYouLiked": "Защото харесахте „{title}“",
+    "@becauseYouLiked": {
+        "placeholders": {
+            "title": {
+                "type": "String",
+                "example": "Forrest Gump"
+            }
+        }
+    },
+    "directedBy": "Режисиран от {director}",
+    "@directedBy": {
+        "placeholders": {
+            "director": {
+                "type": "String",
+                "example": "Robert Zemeckis"
+            }
+        }
+    },
+    "starring": "С участието на {actor}",
+    "@starring": {
+        "placeholders": {
+            "actor": {
+                "type": "String",
+                "example": "Tom Hanks"
+            }
+        }
+    },
+    "recommendedForYou": "Препоръчано за вас",
+    "play": "Възпроизвеждане",
+    "moreInfo": "Повече информация",
+    "search": "Търсене",
+    "startTypingSearch": "Започнете да пишете, за да търсите",
+    "genre": "Жанр",
+    "all": "Всички",
+    "filter": "Филтър",
+    "none": "Няма",
+    "order": "Подреждане",
+    "ascending": "Възходящо",
+    "descending": "Низходящо",
+    "sort": "Сортиране",
+    "name": "Име",
+    "premiereDate": "Премиерна дата",
+    "random": "Случайно",
+    "unplayed": "Негледани",
+    "played": "Гледани",
+    "favorites": "Любими",
+    "liked": "Харесани",
+    "changeProfile": "Смяна на профил",
+    "logout": "Изход",
+    "about": "Относно",
+    "scanLibrary": "Сканиране на библиотеката",
+    "scanStarted": "Сканирането започна",
+    "quickConnect": "Бързо свързване",
+    "quickConnectDescription": "Въведете кода, показан на вашето устройство",
+    "quickConnectError401": "Опитвате ли се да достъпите правилния сървър?",
+    "quickConnectError404": "Невалиден код",
+    "quickConnectErrorUnknown": "Нещо се обърка",
+    "useQuickConnect": "Използвайте „Бързо свързване“, за да влезете",
+    "connect": "Свързване",
+    "code": "Код",
+    "writers": "Сценаристи",
+    "directors": "Режисьори",
+    "genres": "Жанрове",
+    "cast": "Актьорски състав",
+    "episodes": "Епизоди",
+    "season": "Сезон",
+    "na": "Н/Д",
+    "addedToWatchlist": "Добавено към списъка за гледане",
+    "removedFromWatchlist": "Премахнато от списъка за гледане",
+    "noItemsFound": "Не са намерени елементи",
+    "noResultsFound": "Няма намерени резултати",
+    "movies": "Филми",
+    "series": "сериали",
+    "collections": "Колекции",
+    "addProfile": "Добавяне на профил",
+    "appSubtitle": "Още един Jellyfin клиент",
+    "serverAddress": "Адрес на сървъра",
+    "loginWithPassword": "Парола",
+    "loginWithQuickConnect": "Бързо свързване",
+    "login": "Вход",
+    "username": "Потребителско име",
+    "password": "Парола",
+    "emptyAddress": "Празен адрес на сървъра",
+    "emptyUsername": "Празно потребителско име",
+    "emptyPassword": "Празна парола",
+    "emptyFields": "Моля, попълнете следните полета",
+    "errorConnectingToServer": "Грешка при свързване със сървъра",
+    "webDemoNote": "Това е демо версия на Jellyflix. За да я използвате, можете да въведете следните данни:\n\nАдрес на сървъра: https://demo.jellyfin.org/stable \nПотребителско име: demo \nи оставете паролата празна \n\n",
+    "quality": "Качество",
+    "audio": "Аудио",
+    "subtitles": "Субтитри",
+    "settings": "Настройки",
+    "home": "Начало",
+    "library": "Библиотека",
+    "profile": "Профил",
+    "markAsPlayed": "Маркиране като гледано",
+    "markAsUnplayed": "Маркиране като негледано",
+    "couldNotOpenTrailer": "Трейлърът не може да бъде отворен",
+    "watchTrailer": "Гледане на трейлър",
+    "showsMaybeMissed": "Сериали, които може да сте пропуснали",
+    "moviesMaybeMissed": "Филми, които може да сте пропуснали",
+    "highesRatedMovies": "Филми с най-висока оценка",
+    "highestRatedShows": "Сериали с най-висока оценка",
+    "top10": "Топ {count}",
+    "@top10": {
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "10"
+            }
+        }
+    },
+    "minutes": "{count} мин",
+    "@minutes": {
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "50"
+            }
+        }
+    },
+    "similar": "Подобни",
+    "downloads": "Изтегляния",
+    "download": "Изтегляне",
+    "noDownloads": "Не са намерени изтегляния",
+    "resumeDownload": "Възобновяване на изтеглянето",
+    "deleteDownload": "Изтриване на изтеглянето",
+    "removedDownload": "Изтеглянето е премахнато",
+    "startedDownload": "Изтеглянето започна",
+    "cancelDownload": "Отказване на изтеглянето",
+    "cancelAndRemoveAllDownloads": "Отказ и премахване на всички изтегляния",
+    "downloaded": "Изтеглено",
+    "couldNotResumeDownload": "Изтеглянето не може да бъде възобновено!",
+    "allDownloadsRemoved": "Всички изтегляния са премахнати",
+    "cancel": "Отказ",
+    "save": "Запазване",
+    "setAudioAndSubtitleLanguage": "Задаване на език за аудио и субтитри",
+    "setLocalDownloadBitrate": "Задаване на битрейт за локално изтегляне",
+    "maxDownloadBitrateText": "Задайте максималния битрейт за локални изтегляния.",
+    "downloadApproxFilesize": "1 ч. възпроизвеждане се равнява на около {size}GB",
+    "@downloadApproxFilesize": {
+        "placeholders": {
+            "size": {
+                "type": "String",
+                "example": "1.5"
+            }
+        }
+    },
+    "resumedDownload": "Изтеглянето е възобновено",
+    "canceledDownload": "Изтеглянето е отказано",
+    "details": "Подробности",
+    "showMore": "Покажи повече",
+    "showLess": "Покажи по-малко",
+    "offlineNotice": "Вие сте офлайн",
+    "disableImageCaching": "Изключване на кеширането на изображения",
+    "restartApp": "Рестартиране на приложението",
+    "restartAppDescription": "Моля, рестартирайте приложението, за да влязат в сила промените.",
+    "ok": "ОК",
+    "selectProfile": "Избор на профил",
+    "ends": "Приключва в {date}",
+    "@ends": {
+        "placeholders": {
+            "date": {
+                "type": "String",
+                "example": "21:30"
+            }
+        }
+    },
+    "disableWatchlist": "Изключване на списъка за гледане",
+    "deletePlaylistNotice": "За да предотвратите загуба на данни, моля, изтрийте плейлиста от сървъра, ако вече не ви е нужен.",
+    "info": "Информация",
+    "showPrimaryForEpisodes": "Показване на основното изображение вместо постера на сериала в „Продължи гледането“",
+    "storagePermission": "Отказан е достъп до хранилището",
+    "audioPermission": "Отказан е достъп до аудиото",
+    "videoPermission": "Отказан е достъп до видеото",
+    "errorMessage400": "Сървърът не можа да разбере заявката. Ако използвате прокси, проверете неговата конфигурация.",
+    "errorMessage401": "Вашето потребителско име или парола може да са грешни.",
+    "errorMessage403": "Сървърът блокира заявките от това устройство. Това вероятно означава, че устройството е забранено. Моля, свържете се с вашия администратор, за да разрешите проблема.",
+    "errorMessageUnknown": "Възникна неизвестна грешка.",
+    "selectedItems": "избрани елемента",
+    "reset": "Нулиране",
+    "apply": "Прилагане",
+    "enableLogging": "Активиране на създаване на логове",
+    "logExported": "Логът е експортиран в Изтегляния",
+    "appName": "Jellyflix",
+    "customMpvConfig": "Персонализирана MPV конфигурация",
+    "customMpvConfigDescription": "Конфигуриране на персонализирани опции за MPV плейъра. По една опция на ред във формат: опция=стойност",
+    "resetToDefault": "Възстановяване по подразбиране",
+    "mpvConfigTitle": "Конфигурация на MPV",
+    "mpvConfigResetConfirm": "Да се възстанови ли MPV конфигурацията по подразбиране?",
+    "mpvConfigResetDescription": "Това ще възстанови стандартните настройки на MPV.",
+    "goBack": "Назад"
+}
