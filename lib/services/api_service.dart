@@ -366,19 +366,54 @@ class ApiService {
   }
 
   String getStreamUrl(PlaybackInfoResponse playbackInfo) {
-    if (playbackInfo.mediaSources!.first.supportsDirectStream == true) {
+    final source = playbackInfo.mediaSources!.first;
+    // Per the Jellyfin spec, a MediaSource can be marked IsRemote=true with
+    // Path pointing directly at a third-party host the server has no local
+    // copy of (e.g. live TV/channel plugins, or gateway servers that resolve
+    // to an external CDN). In that case we must play Path itself instead of
+    // routing through our own /Videos/.../stream endpoint: some of those
+    // hosts reject or alter the response when they see our Jellyfin API
+    // headers (see getHeadersForUrl), and there's no reason to round-trip
+    // through our server for content it doesn't actually hold anyway.
+    if (source.supportsDirectPlay == true &&
+        source.isRemote == true &&
+        source.protocol == MediaProtocol.http &&
+        source.path != null &&
+        (source.path!.startsWith("http://") ||
+            source.path!.startsWith("https://"))) {
+      _logger.info("Stream url (direct remote): ${source.path}");
+      return source.path!;
+    }
+    if (source.supportsDirectStream == true) {
       String url =
-          "${_user!.serverAdress}/Videos/${playbackInfo.mediaSources!.first.id}/stream.${playbackInfo.mediaSources!.first.container}?mediaSourceId=${playbackInfo.mediaSources!.first.id}&AudioStreamIndex=${playbackInfo.mediaSources!.first.defaultAudioStreamIndex!}&SubtitleStreamIndex=${playbackInfo.mediaSources!.first.defaultSubtitleStreamIndex ?? -1}&Static=true";
+          "${_user!.serverAdress}/Videos/${source.id}/stream.${source.container}?mediaSourceId=${source.id}&AudioStreamIndex=${source.defaultAudioStreamIndex!}&SubtitleStreamIndex=${source.defaultSubtitleStreamIndex ?? -1}&Static=true";
       _logger.info("Stream url: $url");
       return url;
-    } else if (playbackInfo.mediaSources!.first.supportsTranscoding == true) {
-      String url =
-          "${_user!.serverAdress}${playbackInfo.mediaSources!.first.transcodingUrl}";
+    } else if (source.supportsTranscoding == true) {
+      String url = "${_user!.serverAdress}${source.transcodingUrl}";
       _logger.info("Stream url: $url");
       return url;
     }
     throw Exception("Couldn't get stream url");
   }
+
+  /// Whether [url] points at our own Jellyfin server, as opposed to a
+  /// third-party host a MediaSource's Path resolved or redirected to.
+  bool isOwnServerUrl(String url) {
+    final base = _user?.serverAdress;
+    return base != null && base.isNotEmpty && url.startsWith(base);
+  }
+
+  /// HTTP headers to attach when opening [url] for playback.
+  ///
+  /// mpv keeps whatever headers we hand it for the entire lifetime of a
+  /// stream, including across redirects to a completely different host.
+  /// [headers] (Authorization, Accept: application/json, ...) only make
+  /// sense for requests against our own server; attaching them to a
+  /// third-party CDN request can cause that host to reject or alter the
+  /// response instead of serving normal playback data.
+  Map<String, String> getHeadersForUrl(String url) =>
+      isOwnServerUrl(url) ? headers : const <String, String>{};
 
   Future<Response<PlaybackInfoResponse>> postPlaybackInfoRequest(
       String itemId,
