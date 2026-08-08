@@ -153,8 +153,9 @@ class StreamPlayerHelper extends PlayerHelper {
     audioStream = audioStreams.firstWhere((e) => audioStream.index == e.index);
     subtitle = subtitles.firstWhere((e) => subtitle.index == e.index);
     isTranscoding = playbackInfo.mediaSources![0].transcodingUrl != null;
-    await player.open(Media(_apiService.getStreamUrl(playbackInfo),
-        httpHeaders: _apiService.headers,
+    String streamUrl = _apiService.getStreamUrl(playbackInfo);
+    await player.open(Media(streamUrl,
+        httpHeaders: _apiService.getHeadersForUrl(streamUrl),
         start: Duration(milliseconds: player.state.position.inMilliseconds)));
   }
 
@@ -175,7 +176,7 @@ class StreamPlayerHelper extends PlayerHelper {
   Future<void> initStream(int startTimeTicks) async {
     String streamUrl = _apiService.getStreamUrl(playbackInfo);
     await player.open(Media(streamUrl,
-        httpHeaders: _apiService.headers,
+        httpHeaders: _apiService.getHeadersForUrl(streamUrl),
         start: Duration(microseconds: startTimeTicks ~/ 10)));
     StreamSubscription? trackStream;
     trackStream = player.stream.tracks.listen((event) {
