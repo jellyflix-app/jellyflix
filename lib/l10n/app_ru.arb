@@ -1,1 +1,201 @@
-{}
+{
+    "continueWatching": "Продолжить просмотр",
+    "recentlyAddedMovies": "Недавно добавленные фильмы",
+    "recentlyAddedShows": "Недавно добавленные сериалы",
+    "yourWatchlist": "Ваш список наблюдения",
+    "top10inYourLibrary": "Топ-10 в вашей библиотеке",
+    "similarToWatchHistory": "Похожее на просмотренное вами",
+    "becauseYouWatched": "Поскольку вы смотрели {title}",
+    "becauseYouLiked": "Поскольку вам понравился фильм «{title}»",
+    "@becauseYouLiked": {
+        "placeholders": {
+            "title": {
+                "type": "String",
+                "example": "Forrest Gump"
+            }
+        }
+    },
+    "directedBy": "Режиссёр: {director}",
+    "@directedBy": {
+        "placeholders": {
+            "director": {
+                "type": "String",
+                "example": "Robert Zemeckis"
+            }
+        }
+    },
+    "starring": "В ролях: {actor}",
+    "@starring": {
+        "placeholders": {
+            "actor": {
+                "type": "String",
+                "example": "Tom Hanks"
+            }
+        }
+    },
+    "recommendedForYou": "Рекомендовано для вас",
+    "play": "Воспроизвести",
+    "moreInfo": "Подробнее",
+    "search": "Поиск",
+    "startTypingSearch": "Начните вводить текст для поиска",
+    "genre": "Жанр",
+    "all": "Все",
+    "filter": "Фильтр",
+    "none": "Нет",
+    "order": "Порядок",
+    "ascending": "По возрастанию",
+    "descending": "По убыванию",
+    "sort": "Сортировка",
+    "name": "Название",
+    "premiereDate": "Дата премьеры",
+    "random": "Случайный порядок",
+    "unplayed": "Не просмотрено",
+    "played": "Просмотрено",
+    "favorites": "Избранное",
+    "liked": "Понравившееся",
+    "changeProfile": "Сменить профиль",
+    "logout": "Выйти",
+    "about": "О приложении",
+    "scanLibrary": "Сканировать библиотеку",
+    "scanStarted": "Сканирование началось",
+    "quickConnect": "Быстрое подключение",
+    "quickConnectDescription": "Введите код, отображаемый на вашем устройстве",
+    "quickConnectError401": "Вы подключаетесь к правильному серверу?",
+    "quickConnectError404": "Недействительный код",
+    "quickConnectErrorUnknown": "Что-то пошло не так",
+    "useQuickConnect": "Используйте быстрое подключение для входа",
+    "connect": "Подключиться",
+    "code": "Код",
+    "writers": "Сценаристы",
+    "directors": "Режиссёры",
+    "genres": "Жанры",
+    "cast": "В ролях",
+    "episodes": "Эпизоды",
+    "season": "Сезон",
+    "na": "Н/Д",
+    "addedToWatchlist": "Добавлено в список наблюдения",
+    "removedFromWatchlist": "Удалено из списка наблюдения",
+    "noItemsFound": "Элементы не найдены",
+    "noResultsFound": "Результаты не найдены",
+    "movies": "Фильмы",
+    "series": "Сериалы",
+    "collections": "Коллекции",
+    "addProfile": "Добавить профиль",
+    "appSubtitle": "Другой клиент Jellyfin",
+    "serverAddress": "Адрес сервера",
+    "loginWithPassword": "Пароль",
+    "loginWithQuickConnect": "Quick Connect",
+    "login": "Войти",
+    "username": "Имя пользователя",
+    "password": "Пароль",
+    "emptyAddress": "Адрес сервера не указан",
+    "emptyUsername": "Имя пользователя не указано",
+    "emptyPassword": "Пароль не указан",
+    "emptyFields": "Заполните следующие поля",
+    "errorConnectingToServer": "Ошибка подключения к серверу",
+    "webDemoNote": "Это демонстрационная версия Jellyflix. Для её использования можно воспользоваться следующими данными:\n\nАдрес сервера: https://demo.jellyfin.org/stable\nИмя пользователя: demo\nПароль оставьте пустым \n\n",
+    "quality": "Качество",
+    "audio": "Аудио",
+    "subtitles": "Субтитры",
+    "settings": "Настройки",
+    "home": "Главная",
+    "library": "Библиотека",
+    "profile": "Профиль",
+    "markAsPlayed": "Отметить как просмотренное",
+    "markAsUnplayed": "Отметить как непросмотренное",
+    "couldNotOpenTrailer": "Не удалось открыть трейлер",
+    "watchTrailer": "Смотреть трейлер",
+    "showsMaybeMissed": "Сериалы, которые вы могли пропустить",
+    "moviesMaybeMissed": "Фильмы, которые вы могли пропустить",
+    "highesRatedMovies": "Фильмы с самым высоким рейтингом",
+    "highestRatedShows": "Сериалы с самым высоким рейтингом",
+    "top10": "Топ-{count}",
+    "@top10": {
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "10"
+            }
+        }
+    },
+    "minutes": "{count} мин.",
+    "@minutes": {
+        "placeholders": {
+            "count": {
+                "type": "int",
+                "example": "50"
+            }
+        }
+    },
+    "similar": "Похожее",
+    "downloads": "Загрузки",
+    "download": "Скачать",
+    "noDownloads": "Загрузки не найдены",
+    "resumeDownload": "Возобновить загрузку",
+    "deleteDownload": "Удалить загрузку",
+    "removedDownload": "Загрузка удалена",
+    "startedDownload": "Загрузка начата",
+    "cancelDownload": "Отменить загрузку",
+    "cancelAndRemoveAllDownloads": "Отменить и удалить все загрузки",
+    "downloaded": "Загружено",
+    "couldNotResumeDownload": "Не удалось возобновить загрузку!",
+    "allDownloadsRemoved": "Все загрузки удалены",
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "setAudioAndSubtitleLanguage": "Выбрать язык аудио и субтитров",
+    "setLocalDownloadBitrate": "Выбрать битрейт локальных загрузок",
+    "maxDownloadBitrateText": "Установить максимальный битрейт для локальных загрузок.",
+    "downloadApproxFilesize": "1 час воспроизведения ≈ {size} ГБ",
+    "@downloadApproxFilesize": {
+        "placeholders": {
+            "size": {
+                "type": "String",
+                "example": "1.5"
+            }
+        }
+    },
+    "resumedDownload": "Загрузка возобновлена",
+    "canceledDownload": "Загрузка отменена",
+    "details": "Подробности",
+    "showMore": "Показать больше",
+    "showLess": "Показать меньше",
+    "offlineNotice": "Вы не в сети",
+    "disableImageCaching": "Отключить кэширование изображений",
+    "restartApp": "Перезапустить приложение",
+    "restartAppDescription": "Перезапустите приложение, чтобы изменения вступили в силу.",
+    "ok": "ОК",
+    "selectProfile": "Выберите профиль",
+    "ends": "Заканчивается в {date}",
+    "@ends": {
+        "placeholders": {
+            "date": {
+                "type": "String",
+                "example": "21:30"
+            }
+        }
+    },
+    "disableWatchlist": "Отключить список наблюдения",
+    "deletePlaylistNotice": "Чтобы предотвратить потерю данных, удалите плейлист с сервера, если он больше не нужен.",
+    "info": "Информация",
+    "showPrimaryForEpisodes": "Показывать основное изображение вместо постера сериала в разделе «Продолжить просмотр»",
+    "storagePermission": "В доступе к аудио отказано",
+    "audioPermission": "В доступе к видео отказано",
+    "videoPermission": "В доступе к видео отказано",
+    "errorMessage400": "Сервер не смог понять запрос. Если вы используете прокси, проверьте его настройки.",
+    "errorMessage401": "Возможно, имя пользователя или пароль указаны неверно.",
+    "errorMessage403": "Сервер блокирует запросы с этого устройства. Вероятно, устройство было заблокировано. Обратитесь к администратору для решения проблемы.",
+    "errorMessageUnknown": "Произошла неизвестная ошибка.",
+    "selectedItems": "выбранных элементов",
+    "reset": "Сбросить",
+    "apply": "Применить",
+    "enableLogging": "Включить ведение журнала",
+    "logExported": "Журнал экспортирован в загрузки",
+    "appName": "Jellyflix",
+    "customMpvConfig": "Пользовательская конфигурация MPV",
+    "customMpvConfigDescription": "Настройте пользовательские параметры проигрывателя MPV. Указывайте по одному параметру в строке в формате: параметр=значение",
+    "resetToDefault": "Сбросить до значений по умолчанию",
+    "mpvConfigTitle": "Конфигурация MPV",
+    "mpvConfigResetConfirm": "Сбросить конфигурацию MPV до значений по умолчанию?",
+    "mpvConfigResetDescription": "Это восстановит стандартные настройки конфигурации MPV.",
+    "goBack": "Вернуться"
+}
